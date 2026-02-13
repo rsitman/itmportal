@@ -77,6 +77,7 @@ body {
 /* Month View */
 .rbc-month-view {
   border: none;
+  min-height: 1000px; /* Zajištění minimální výšky pro měsíční pohled */
 }
 
 .rbc-month-row {
@@ -175,7 +176,7 @@ body {
   border-top: 1px solid #e5e7eb;
   display: flex;
   flex: 1;
-  min-height: 600px;
+  min-height: 800px; /* Zvýšení minimální výšky pro týdenní pohled */
   overflow: auto;
 }
 
