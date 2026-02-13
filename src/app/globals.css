@@ -189,6 +189,25 @@ body {
   position: sticky;
   left: 0;
   z-index: 10;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+/* Remove any extra borders or backgrounds from time slots */
+.rbc-time-slot {
+  border-right: 1px solid #e5e7eb;
+  border-top: 1px solid #f3f4f6;
+  border-bottom: none !important;
+  border-left: none !important;
+  min-height: 60px;
+  flex: 1;
+  position: relative;
+  display: flex;
+  align-items: flex-start;
+  background: white !important;
+}
+
+.rbc-time-slot:last-child {
+  border-right: none;
 }
 
 .rbc-time-slot-group {
@@ -196,20 +215,7 @@ body {
   display: flex;
   flex-direction: column;
   min-width: 0;
-}
-
-.rbc-time-slot {
-  border-right: 1px solid #e5e7eb;
-  border-top: 1px solid #f3f4f6;
-  min-height: 60px;
-  flex: 1;
   position: relative;
-  display: flex;
-  align-items: flex-start;
-}
-
-.rbc-time-slot:last-child {
-  border-right: none;
 }
 
 .rbc-day-column {

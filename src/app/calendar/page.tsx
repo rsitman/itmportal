@@ -883,7 +883,7 @@ export default function CalendarPage() {
               events={filterEvents(events)}
               startAccessor="start"
               endAccessor="end"
-              style={{ height: 800 }}
+              style={{ height: 1000 }}
               date={currentDate}
               view={Views[currentView.toUpperCase() as keyof typeof Views]}
               onNavigate={(date, view, action) => {
