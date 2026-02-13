@@ -74,32 +74,6 @@ body {
   border-color: #3b82f6;
 }
 
-/* Month View */
-.rbc-month-view {
-  border: none;
-  min-height: 1400px; /* Zvýšení pro zobrazení celého měsíce s menšími řádky */
-}
-
-.rbc-month-row {
-  min-height: 60px !important; /* Další zmenšení z 80px na 60px s !important */
-  border-bottom: 1px solid #e5e7eb;
-  display: flex;
-}
-
-.rbc-month-row:last-child {
-  border-bottom: none;
-}
-
-.rbc-day-bg {
-  border-right: 1px solid #e5e7eb;
-  padding: 1px !important; /* Další zmenšení z 2px na 1px s !important */
-  flex: 1;
-}
-
-.rbc-day-bg:last-child {
-  border-right: none;
-}
-
 .rbc-off-range-bg {
   background: #f9fafb;
   color: #9ca3af;
