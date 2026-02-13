@@ -23,10 +23,10 @@ export const authOptions: NextAuthOptions = {
   secret: process.env.NEXTAUTH_SECRET,
   session: {
     strategy: 'jwt',
-    maxAge: 24 * 60 * 60, // 24 hours
+    maxAge: 24 * 60 * 60, // Výchozí 24 hodin, bude dynamicky upraveno
   },
   jwt: {
-    maxAge: 24 * 60 * 60, // 24 hours
+    maxAge: 24 * 60 * 60, // Výchozí 24 hodin, bude dynamicky upraveno
   },
   debug: false, // Vypnuto aby se snížily logy
   logger: customLogger,
@@ -40,6 +40,28 @@ export const authOptions: NextAuthOptions = {
         token.email = user.email
         token.name = user.name
         token.authProvider = user.authProvider
+        
+        // Načíst uživatelské preference pro nastavení délky session
+        try {
+          const userPrefs = await prisma.user.findUnique({
+            where: { id: user.id },
+            select: { rememberLogin: true, sessionPreference: true }
+          })
+          
+          if (userPrefs) {
+            token.rememberLogin = userPrefs.rememberLogin
+            token.sessionPreference = userPrefs.sessionPreference
+            
+            // Nastavit dynamickou délku session
+            const sessionAge = userPrefs.sessionPreference === 'REMEMBER' ? 24 * 60 * 60 : 1 * 60 * 60
+            token.maxAge = sessionAge
+            console.log('Session maxAge set to:', sessionAge, 'seconds for user:', user.email)
+          }
+        } catch (error) {
+          console.error('Error loading user preferences for JWT:', error)
+          // Výchozí hodnota pokud se nepodaří načíst preference
+          token.maxAge = 24 * 60 * 60
+        }
       }
       
       // Handle Azure AD token

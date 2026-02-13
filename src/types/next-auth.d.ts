@@ -28,6 +28,9 @@ declare module 'next-auth/jwt' {
     refreshToken?: string
     expiresAt?: number
     authProvider?: AuthProvider
+    rememberLogin?: boolean
+    sessionPreference?: 'REMEMBER' | 'TEMPORARY'
+    maxAge?: number
   }
 }
 

@@ -30,18 +30,20 @@ model PageComponent {
 }
 
 model User {
-  id           String       @id @default(cuid())
-  email        String       @unique
-  name         String?
-  password     String?
-  externalId   String?      @unique
-  authProvider AuthProvider @default(LOCAL)
-  image        String?
-  role         UserRole     @default(USER)
-  isActive     Boolean      @default(true)
-  createdAt    DateTime     @default(now())
-  updatedAt    DateTime     @updatedAt
-  events       Event[]
+  id               String            @id @default(cuid())
+  email            String            @unique
+  name             String?
+  password         String?
+  externalId       String?           @unique
+  authProvider     AuthProvider      @default(LOCAL)
+  image            String?
+  role             UserRole          @default(USER)
+  isActive         Boolean           @default(true)
+  rememberLogin    Boolean           @default(true)
+  sessionPreference SessionPreference @default(REMEMBER)
+  createdAt        DateTime          @default(now())
+  updatedAt        DateTime          @updatedAt
+  events           Event[]
 }
 
 model Event {
@@ -78,6 +80,11 @@ model RolePermission {
   updatedAt  DateTime @updatedAt
 
   @@unique([role, permission])
+}
+
+enum SessionPreference {
+  REMEMBER
+  TEMPORARY
 }
 
 enum AuthProvider {

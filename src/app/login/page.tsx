@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { signIn, getProviders } from 'next-auth/react'
+import { signIn, signOut, getProviders, useSession } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
 import { Button } from '@/components/ui/button'
 import { useEffect } from 'react'
@@ -12,7 +12,10 @@ export default function LoginPage() {
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState('')
   const [providers, setProviders] = useState<any>(null)
+  const [userPreferences, setUserPreferences] = useState<any>(null)
+  const [showLoginAsDifferent, setShowLoginAsDifferent] = useState(false)
   const router = useRouter()
+  const { data: session, status } = useSession()
 
   useEffect(() => {
     const loadProviders = async () => {
@@ -22,15 +25,48 @@ export default function LoginPage() {
         console.log('Available providers:', availableProviders)
       } catch (error) {
         console.warn('Failed to load providers:', error)
-        // CLIENT_FETCH_ERROR is normal when not authenticated, continue anyway
         setProviders({
           credentials: { id: 'credentials', name: 'Credentials', type: 'credentials' },
           'azure-ad': { id: 'azure-ad', name: 'Azure Active Directory', type: 'oauth' }
         })
       }
     }
+
+    const loadUserPreferences = async () => {
+      if (session?.user?.id) {
+        try {
+          const response = await fetch('/api/user/preferences')
+          if (response.ok) {
+            const prefs = await response.json()
+            setUserPreferences(prefs)
+          }
+        } catch (error) {
+          console.error('Error loading user preferences:', error)
+        }
+      }
+    }
+
     loadProviders()
-  }, [])
+    loadUserPreferences()
+  }, [session])
+
+  const handleContinueAsUser = () => {
+    router.push('/dashboard')
+  }
+
+  const handleLoginAsDifferent = async () => {
+    setIsLoading(true)
+    try {
+      // Odhlásit aktuálního uživatele
+      await signOut({ redirect: false })
+      setShowLoginAsDifferent(true)
+    } catch (error) {
+      console.error('Error during sign out:', error)
+      setError('Došlo k chybě při odhlášení')
+    } finally {
+      setIsLoading(false)
+    }
+  }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -41,14 +77,15 @@ export default function LoginPage() {
       const result = await signIn('credentials', {
         email: email,
         password: password,
-        redirect: true, // Necháme NextAuth automaticky přesměrovat
+        redirect: false, // Manuální přesměrování pro lepší kontrolu
       })
 
       if (result?.error) {
         setError('Neplatné přihlašovací údaje')
-      } 
-      // Pokud je redirect: true, NextAuth se postará o přesměrování sám
-      // Nemusíme ručně volat router.push()
+      } else if (result?.ok) {
+        // Úspěšné přihlášení - přesměrovat na dashboard
+        router.push('/dashboard')
+      }
     } catch (error) {
       setError('Došlo k chybě při přihlašování')
     } finally {
@@ -56,6 +93,74 @@ export default function LoginPage() {
     }
   }
 
+  // Pokud existuje session a uživatel nechce se přihlásit jako jiný
+  if (session && !showLoginAsDifferent) {
+    const shouldShowContinueOption = userPreferences?.rememberLogin !== false
+
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-gray-50">
+        <div className="w-full max-w-md space-y-8">
+          <div className="text-center">
+            <h2 className="mt-6 text-3xl font-bold tracking-tight text-gray-900">
+              Již jste přihlášen
+            </h2>
+            <div className="mt-4">
+              <div className="mx-auto h-12 w-12 rounded-full bg-blue-500 flex items-center justify-center text-white text-xl font-medium">
+                {session.user?.name?.charAt(0).toUpperCase() || 'U'}
+              </div>
+              <p className="mt-2 text-lg font-medium text-gray-900">
+                {session.user?.name}
+              </p>
+              <p className="text-sm text-gray-600">
+                {session.user?.email}
+              </p>
+              <p className="text-xs text-gray-500 mt-1">
+                {session.authProvider === 'AZURE_AD' ? 'Azure AD' : 'Lokální účet'}
+              </p>
+            </div>
+          </div>
+
+          <div className="space-y-3">
+            {shouldShowContinueOption && (
+              <Button
+                onClick={handleContinueAsUser}
+                className="w-full"
+                size="lg"
+              >
+                Pokračovat jako {session.user?.name}
+              </Button>
+            )}
+
+            <Button
+              onClick={handleLoginAsDifferent}
+              variant="outline"
+              className="w-full"
+              size="lg"
+              disabled={isLoading}
+            >
+              {isLoading ? 'Odhlašování...' : 'Přihlásit se jako jiný uživatel'}
+            </Button>
+          </div>
+
+          {userPreferences && (
+            <div className="mt-4 p-3 bg-gray-50 rounded-lg text-xs text-gray-600">
+              <p>
+                <strong>Nastavení pamatování:</strong> {' '}
+                {userPreferences.rememberLogin ? 'Zapnuto (24h)' : 'Vypnuto (1h)'}
+              </p>
+              {!userPreferences.rememberLogin && (
+                <p className="mt-1 text-orange-600">
+                  Protože máte vypnuté pamatování, budete se muset přihlašovat častěji.
+                </p>
+              )}
+            </div>
+          )}
+        </div>
+      </div>
+    )
+  }
+
+  // Standardní login formulář
   return (
     <div className="flex min-h-screen items-center justify-center bg-gray-50">
       <div className="w-full max-w-md space-y-8">
@@ -66,6 +171,11 @@ export default function LoginPage() {
           <p className="mt-2 text-center text-sm text-gray-600">
             Použijte admin/admin pro přihlášení
           </p>
+          {session && showLoginAsDifferent && (
+            <p className="mt-2 text-center text-sm text-blue-600">
+              Odhlášeni z předchozího účtu. Zadejte nové přihlašovací údaje.
+            </p>
+          )}
         </div>
         
         <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
