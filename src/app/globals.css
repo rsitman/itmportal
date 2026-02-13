@@ -122,9 +122,8 @@ body {
   background: #f9fafb;
   display: flex;
   flex-shrink: 0;
-  position: relative;
-  left: 70px; /* Přesně posunuto o šířku time gutter */
-  width: calc(100% - 70px);
+  margin-left: 68px !important;
+  width: calc(100% - 68px) !important;
 }
 
 .rbc-time-header-content {
@@ -156,9 +155,8 @@ body {
   background: white;
   display: flex;
   flex-shrink: 0;
-  position: relative;
-  left: 70px; /* Přesně posunuto o šířku time gutter */
-  width: calc(100% - 70px);
+  margin-left: 68px !important;
+  width: calc(100% - 68px) !important;
 }
 
 .rbc-allday-cell {
