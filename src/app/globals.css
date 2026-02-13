@@ -122,12 +122,14 @@ body {
   background: #f9fafb;
   display: flex;
   flex-shrink: 0;
-  margin-left: 70px; /* Přesně odpovídá šířce time gutter */
+  position: relative;
+  left: 70px; /* Přesně posunuto o šířku time gutter */
+  width: calc(100% - 70px);
 }
 
 .rbc-time-header-content {
   display: flex;
-  width: calc(100% - 70px); /* Přesná šířka minus time gutter */
+  width: 100%;
 }
 
 .rbc-time-header-cell {
@@ -154,7 +156,9 @@ body {
   background: white;
   display: flex;
   flex-shrink: 0;
-  margin-left: 70px; /* Přesně odpovídá šířce time gutter */
+  position: relative;
+  left: 70px; /* Přesně posunuto o šířku time gutter */
+  width: calc(100% - 70px);
 }
 
 .rbc-allday-cell {
