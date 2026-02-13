@@ -1,0 +1,1329 @@
+'use client'
+
+import { useState, useEffect, useRef } from 'react'
+import { Calendar, dateFnsLocalizer, Views } from 'react-big-calendar'
+import { format, parse, startOfWeek, getDay } from 'date-fns'
+import { cs } from 'date-fns/locale'
+import 'react-big-calendar/lib/css/react-big-calendar.css'
+import { useSession, signOut } from 'next-auth/react'
+import { useRouter } from 'next/navigation'
+import { Event, CalendarEvent } from '@/types/calendar'
+import { OutlookCalendarService } from '@/lib/outlook-calendar'
+import { ErpCalendarService } from '@/lib/erp-calendar'
+
+// Custom CSS pro opravu klikání na události a českou lokalizaci
+const customStyles = `
+  .rbc-event {
+    z-index: 10 !important;
+    cursor: pointer !important;
+    white-space: normal !important;
+    overflow: visible !important;
+    text-overflow: visible !important;
+    line-height: 1.2 !important;
+    min-height: 20px !important;
+    position: relative !important;
+  }
+  
+  .rbc-event:hover {
+    z-index: 15 !important;
+    transform: scale(1.05);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+    background-color: rgba(0,0,0,0.9) !important;
+  }
+  
+  .rbc-event.rbc-selected {
+    z-index: 20 !important;
+    box-shadow: 0 0 0 3px rgba(255,255,255,0.8);
+  }
+  
+  .rbc-month-view, .rbc-time-view, .rbc-agenda-view {
+    overflow: visible !important;
+  }
+  
+  .rbc-row-content {
+    overflow: visible !important;
+  }
+  
+  .rbc-day-slot .rbc-events-container {
+    overflow: visible !important;
+  }
+  
+  .rbc-event-content {
+    white-space: normal !important;
+    overflow: visible !important;
+    text-overflow: visible !important;
+    z-index: 10 !important;
+    line-height: 1.3 !important;
+  }
+  
+  /* Tooltip styling */
+  .event-tooltip {
+    position: fixed !important;
+    background: #ffffff !important;
+    color: #1a1a1a !important;
+    padding: 12px 16px !important;
+    border-radius: 8px !important;
+    font-size: 13px !important;
+    z-index: 10000 !important;
+    pointer-events: none !important;
+    max-width: 350px !important;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15) !important;
+    border: 1px solid rgba(0, 0, 0, 0.1) !important;
+    backdrop-filter: blur(4px) !important;
+  }
+  
+  .event-tooltip-title {
+    font-weight: 600 !important;
+    margin-bottom: 6px !important;
+    color: #1a1a1a !important;
+    font-size: 14px !important;
+  }
+  
+  .event-tooltip-description {
+    color: #666666 !important;
+    font-size: 12px !important;
+    line-height: 1.4 !important;
+    margin-top: 4px !important;
+  }
+  
+  .rbc-toolbar .rbc-btn-group {
+    margin-bottom: 10px !important;
+  }
+  
+  .rbc-toolbar button {
+    margin-right: 5px !important;
+  }
+  
+  /* České zkratky dnů v týdenním zobrazení */
+  .rbc-time-header .rbc-header > span {
+    visibility: hidden !important;
+  }
+  
+  .rbc-time-header .rbc-header:nth-child(1) > span::after {
+    content: 'Po' !important;
+    visibility: visible !important;
+    position: absolute !important;
+    left: 0 !important;
+    top: 0 !important;
+  }
+  
+  .rbc-time-header .rbc-header:nth-child(2) > span::after {
+    content: 'Út' !important;
+    visibility: visible !important;
+    position: absolute !important;
+    left: 0 !important;
+    top: 0 !important;
+  }
+  
+  .rbc-time-header .rbc-header:nth-child(3) > span::after {
+    content: 'St' !important;
+    visibility: visible !important;
+    position: absolute !important;
+    left: 0 !important;
+    top: 0 !important;
+  }
+  
+  .rbc-time-header .rbc-header:nth-child(4) > span::after {
+    content: 'Čt' !important;
+    visibility: visible !important;
+    position: absolute !important;
+    left: 0 !important;
+    top: 0 !important;
+  }
+  
+  .rbc-time-header .rbc-header:nth-child(5) > span::after {
+    content: 'Pá' !important;
+    visibility: visible !important;
+    position: absolute !important;
+    left: 0 !important;
+    top: 0 !important;
+  }
+  
+  .rbc-time-header .rbc-header:nth-child(6) > span::after {
+    content: 'So' !important;
+    visibility: visible !important;
+    position: absolute !important;
+    left: 0 !important;
+    top: 0 !important;
+  }
+  
+  .rbc-time-header .rbc-header:nth-child(7) > span::after {
+    content: 'Ne' !important;
+    visibility: visible !important;
+    position: absolute !important;
+    left: 0 !important;
+    top: 0 !important;
+  }
+  
+  /* České zkratky dnů v měsíčním zobrazení */
+  .rbc-month-view .rbc-header abbr {
+    visibility: hidden !important;
+  }
+  
+  .rbc-month-view .rbc-header:nth-child(1) abbr::after {
+    content: 'Po' !important;
+    visibility: visible !important;
+    position: absolute !important;
+    left: 0 !important;
+    top: 0 !important;
+  }
+  
+  .rbc-month-view .rbc-header:nth-child(2) abbr::after {
+    content: 'Út' !important;
+    visibility: visible !important;
+    position: absolute !important;
+    left: 0 !important;
+    top: 0 !important;
+  }
+  
+  .rbc-month-view .rbc-header:nth-child(3) abbr::after {
+    content: 'St' !important;
+    visibility: visible !important;
+    position: absolute !important;
+    left: 0 !important;
+    top: 0 !important;
+  }
+  
+  .rbc-month-view .rbc-header:nth-child(4) abbr::after {
+    content: 'Čt' !important;
+    visibility: visible !important;
+    position: absolute !important;
+    left: 0 !important;
+    top: 0 !important;
+  }
+  
+  .rbc-month-view .rbc-header:nth-child(5) abbr::after {
+    content: 'Pá' !important;
+    visibility: visible !important;
+    position: absolute !important;
+    left: 0 !important;
+    top: 0 !important;
+  }
+  
+  .rbc-month-view .rbc-header:nth-child(6) abbr::after {
+    content: 'So' !important;
+    visibility: visible !important;
+    position: absolute !important;
+    left: 0 !important;
+    top: 0 !important;
+  }
+  
+  .rbc-month-view .rbc-header:nth-child(7) abbr::after {
+    content: 'Ne' !important;
+    visibility: visible !important;
+    position: absolute !important;
+    left: 0 !important;
+    top: 0 !important;
+  }
+  
+  /* 24h formát času */
+  .rbc-time-slot,
+  .rbc-time-header,
+  .rbc-time-gutter,
+  .rbc-time-content {
+    font-size: 11px !important;
+  }
+  
+  .rbc-time-slot {
+    text-align: center !important;
+    font-family: monospace !important;
+  }
+  
+  .rbc-time-header {
+    text-align: center !important;
+    font-family: monospace !important;
+  }
+  
+  /* Hover pro "+X více" */
+  .rbc-show-more {
+    cursor: pointer !important;
+    position: relative !important;
+  }
+  
+  .rbc-show-more:hover {
+    background-color: rgba(59, 130, 246, 0.1) !important;
+    border-radius: 4px !important;
+  }
+`
+
+// Setup localizer
+const locales = {
+  'cs': cs,
+}
+
+const localizer = dateFnsLocalizer({
+  format,
+  parse,
+  startOfWeek: () => startOfWeek(new Date(), { weekStartsOn: 1 }), // Pondělí jako začátek týdne
+  getDay,
+  locales: {
+    'cs': cs
+  },
+  culture: 'cs'
+})
+
+// Event styling function with hover
+const eventStyleGetter = (event: CalendarEvent) => {
+  const isOutlookEvent = event.id.startsWith('outlook-')
+  const isErpEvent = event.resource?.isErpEvent
+  
+  const baseColor = {
+    PROJECT: '#3b82f6', // blue-500
+    MEETING: '#f97316', // orange-500
+    HOLIDAY: '#10b981', // emerald-500
+    OTHER: '#6b7280', // gray-500
+    ERP_UPGRADE: '#8b5cf6', // violet-500
+    ERP_PATCH: '#a855f7', // purple-500
+  }[event.resource?.type || 'OTHER']
+  
+  const backgroundColor = isOutlookEvent ? '#0078d4' : isErpEvent ? '#dc2626' : baseColor
+  
+  return {
+    style: {
+      backgroundColor,
+      borderRadius: '6px',
+      opacity: isOutlookEvent ? 0.8 : 0.9,
+      border: 'none',
+      color: 'white',
+      padding: '2px 6px',
+      fontSize: '12px',
+      fontWeight: '500',
+      cursor: 'pointer',
+      minHeight: '24px',
+      whiteSpace: 'normal',
+      overflow: 'visible',
+      zIndex: 10,
+      lineHeight: '1.3'
+    }
+  }
+}
+
+export default function CalendarPage() {
+  const { data: session, status } = useSession()
+  const router = useRouter()
+  const [events, setEvents] = useState<CalendarEvent[]>([])
+  const [loading, setLoading] = useState(true)
+  const [showModal, setShowModal] = useState(false)
+  const [selectedEvent, setSelectedEvent] = useState<CalendarEvent | null>(null)
+  const [selectedSlot, setSelectedSlot] = useState<{ start: Date; end: Date } | null>(null)
+  const [outlookEnabled, setOutlookEnabled] = useState(false)
+  const [syncingWithOutlook, setSyncingWithOutlook] = useState(false)
+  const [syncError, setSyncError] = useState<string | null>(null)
+  const [outlookEventCount, setOutlookEventCount] = useState(0)
+  
+  // ERP states
+  const [erpEnabled, setErpEnabled] = useState(true)
+  const [syncingWithErp, setSyncingWithErp] = useState(false)
+  const [erpSyncError, setErpSyncError] = useState<string | null>(null)
+  const [erpEventCount, setErpEventCount] = useState(0)
+  const [localEventCount, setLocalEventCount] = useState(0)
+  const [userRole, setUserRole] = useState<string>('')
+  
+  // Calendar refs
+  const calendarRef = useRef<Calendar>(null)
+  const [currentDate, setCurrentDate] = useState(new Date())
+  const [currentView, setCurrentView] = useState(Views.MONTH)
+  
+  // Apply custom styles
+  useEffect(() => {
+    // Inject styles
+    const styleElement = document.createElement('style')
+    styleElement.textContent = customStyles
+    document.head.appendChild(styleElement)
+    
+    // Add global event listeners for tooltips
+    const handleGlobalMouseLeave = () => {
+      const tooltip = document.querySelector('.event-tooltip')
+      if (tooltip) {
+        tooltip.remove()
+      }
+    }
+    
+    document.addEventListener('mouseleave', handleGlobalMouseLeave, true)
+    
+    return () => {
+      // Cleanup
+      document.removeEventListener('mouseleave', handleGlobalMouseLeave)
+      const tooltip = document.querySelector('.event-tooltip')
+      if (tooltip) {
+        tooltip.remove()
+      }
+      document.head.removeChild(styleElement)
+    }
+  }, []) 
+  
+  // Navigation functions
+  const navigateDate = (direction: 'prev' | 'next' | 'today') => {
+    const newDate = new Date(currentDate)
+    switch (direction) {
+      case 'prev':
+        if (currentView === Views.MONTH) {
+          newDate.setMonth(newDate.getMonth() - 1)
+        } else if (currentView === Views.WEEK) {
+          newDate.setDate(newDate.getDate() - 7)
+        } else {
+          newDate.setDate(newDate.getDate() - 1)
+        }
+        break
+      case 'next':
+        if (currentView === Views.MONTH) {
+          newDate.setMonth(newDate.getMonth() + 1)
+        } else if (currentView === Views.WEEK) {
+          newDate.setDate(newDate.getDate() + 7)
+        } else {
+          newDate.setDate(newDate.getDate() + 1)
+        }
+        break
+      case 'today':
+        // Already today
+        break
+    }
+    setCurrentDate(newDate)
+  }
+
+  const changeView = (view: typeof Views) => {
+    setCurrentView(view)
+    if (calendarRef.current) {
+      calendarRef.current.changeView(view)
+    }
+  }
+
+  // Session check
+  useEffect(() => {
+    console.log('Calendar - Session status:', status)
+    console.log('Calendar - Session data:', session)
+    
+    if (status === 'loading') {
+      return // Čekáme na session
+    }
+    
+    if (status === 'unauthenticated') {
+      console.log('Calendar - User not authenticated, redirecting to login')
+      router.push('/login')
+      return
+    }
+    
+    if (session?.user) {
+      setUserRole(session.user.role || '')
+      console.log('Calendar - User authenticated:', session.user.email, 'Role:', session.user.role)
+    }
+    
+    setLoading(false)
+  }, [session, status, router])
+
+  const fetchEvents = async () => {
+    console.log('fetchEvents: Starting fetch')
+    setLoading(true)
+    try {
+      const response = await fetch('/api/events')
+      console.log('fetchEvents: Response status:', response.status)
+      
+      if (response.ok) {
+        const data: Event[] = await response.json()
+        console.log('fetchEvents: Raw data:', data)
+        console.log('fetchEvents: Data length:', data.length)
+        
+        const calendarEvents: CalendarEvent[] = data.map(event => ({
+          id: event.id,
+          title: event.title,
+          start: new Date(event.start),
+          end: new Date(event.end),
+          allDay: event.allDay,
+          resource: event,
+        }))
+        
+        console.log('fetchEvents: Mapped events:', calendarEvents)
+        console.log('fetchEvents: Sample event:', calendarEvents[0])
+        console.log('fetchEvents: Calendar component rendering with events:', events.length)
+        setEvents(calendarEvents)
+
+        // Update ERP and local event counts
+        const erpEvents = data.filter(event => event.isErpEvent)
+        const localEvents = data.filter(event => !event.isErpEvent)
+        console.log('fetchEvents: ERP events count:', erpEvents.length)
+        console.log('fetchEvents: Local events count:', localEvents.length)
+        setErpEventCount(erpEvents.length)
+        setLocalEventCount(localEvents.length)
+        
+        // Clear any previous sync errors
+        setErpSyncError(null)
+      } else {
+        const errorText = await response.text()
+        console.error('fetchEvents: Response not OK:', response.status, response.statusText, errorText)
+        setErpSyncError(`Failed to fetch events: ${response.status} ${response.statusText}`)
+      }
+    } catch (error) {
+      console.error('Error fetching events:', error)
+      setErpSyncError(`Network error: ${error instanceof Error ? error.message : 'Unknown error'}`)
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  // Tooltip functions
+  const showTooltip = (event: React.MouseEvent, title: string, description?: string) => {
+    // Remove existing tooltip
+    const existingTooltip = document.querySelector('.event-tooltip')
+    if (existingTooltip) {
+      existingTooltip.remove()
+    }
+
+    // Create tooltip with better formatting
+    const tooltip = document.createElement('div')
+    tooltip.className = 'event-tooltip'
+    
+    // Format description properly with HTML line breaks
+    const formattedDescription = description ? description.replace(/\n/g, '<br>') : ''
+    
+    tooltip.innerHTML = `
+      <div class="event-tooltip-title">${title}</div>
+      ${formattedDescription ? `<div class="event-tooltip-description">${formattedDescription}</div>` : ''}
+    `
+    
+    // Position tooltip better with more accurate positioning
+    const rect = (event.target as HTMLElement).getBoundingClientRect()
+    const scrollTop = window.pageYOffset || document.documentElement.scrollTop
+    const scrollLeft = window.pageXOffset || document.documentElement.scrollLeft
+    
+    // Calculate position to avoid viewport issues
+    let left = rect.left + scrollLeft
+    let top = rect.bottom + scrollTop + 8
+    
+    // Adjust if tooltip would go off screen
+    if (left + 350 > window.innerWidth) {
+      left = window.innerWidth - 370
+    }
+    if (top + 200 > window.innerHeight) {
+      top = rect.top + scrollTop - 220
+    }
+    
+    tooltip.style.position = 'fixed'
+    tooltip.style.left = `${left}px`
+    tooltip.style.top = `${top}px`
+    tooltip.style.zIndex = '10000'
+    
+    document.body.appendChild(tooltip)
+    
+    // Debug log
+    console.log('Tooltip created:', { title, description, left, top })
+  }
+
+  const hideTooltip = () => {
+    const tooltip = document.querySelector('.event-tooltip')
+    if (tooltip) {
+      tooltip.remove()
+    }
+  }
+
+  const handleSelectEvent = (event: CalendarEvent) => {
+    setSelectedEvent(event)
+    setShowModal(true)
+  }
+
+  const handleSelectSlot = (slotInfo: { start: Date; end: Date }) => {
+    setSelectedSlot(slotInfo)
+    setShowModal(true)
+  }
+
+  const handleCloseModal = () => {
+    setShowModal(false)
+    setSelectedEvent(null)
+    setSelectedSlot(null)
+  }
+
+  const handleCreateEvent = async (eventData: any) => {
+    try {
+      const response = await fetch('/api/events', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          title: eventData.title,
+          startDate: eventData.start,
+          endDate: eventData.end,
+          type: eventData.type || 'OTHER',
+          allDay: eventData.allDay || false,
+        }),
+      })
+
+      if (response.ok) {
+        await fetchEvents()
+        setShowModal(false)
+        setSelectedEvent(null)
+        setSelectedSlot(null)
+      }
+    } catch (error) {
+      console.error('Error creating event:', error)
+    }
+  }
+
+  const handleUpdateEvent = async (eventData: any) => {
+    if (!selectedEvent) return
+
+    try {
+      const response = await fetch(`/api/events/${selectedEvent.id}`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          title: eventData.title,
+          startDate: eventData.start,
+          endDate: eventData.end,
+          type: eventData.type || 'OTHER',
+          allDay: eventData.allDay || false,
+        }),
+      })
+
+      if (response.ok) {
+        await fetchEvents()
+        setShowModal(false)
+        setSelectedEvent(null)
+      }
+    } catch (error) {
+      console.error('Error updating event:', error)
+    }
+  }
+
+  const handleDeleteEvent = async () => {
+    if (!selectedEvent) return
+
+    try {
+      const response = await fetch(`/api/events/${selectedEvent.id}`, {
+        method: 'DELETE',
+      })
+
+      if (response.ok) {
+        await fetchEvents()
+        setShowModal(false)
+        setSelectedEvent(null)
+      }
+    } catch (error) {
+      console.error('Error deleting event:', error)
+    }
+  }
+
+  const toggleOutlookIntegration = () => {
+    setOutlookEnabled(!outlookEnabled)
+  }
+
+  const syncMoreOutlookEvents = async () => {
+    if (!outlookEnabled) return
+
+    setSyncingWithOutlook(true)
+    setSyncError(null)
+
+    try {
+      const outlookEvents = await OutlookCalendarService.fetchOutlookEvents()
+      const calendarEvents: CalendarEvent[] = outlookEvents.map((outlookEvent: any) => {
+        const startDate = new Date(outlookEvent.start.dateTime)
+        const endDate = new Date(outlookEvent.end.dateTime)
+        
+        return {
+          id: `outlook-${outlookEvent.id}`,
+          title: outlookEvent.subject,
+          start: startDate,
+          end: endDate,
+          allDay: false,
+          resource: {
+            id: `outlook-${outlookEvent.id}`,
+            title: outlookEvent.subject,
+            description: outlookEvent.bodyPreview || '',
+            type: 'MEETING' as const,
+            allDay: false,
+            start: startDate,
+            end: endDate,
+            outlookId: outlookEvent.id,
+            isOutlookEvent: true,
+          },
+        } as CalendarEvent
+      })
+
+      // Save to database
+      for (const calendarEvent of calendarEvents) {
+        try {
+          const response = await fetch('/api/events', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              title: calendarEvent.title,
+              startDate: calendarEvent.start,
+              endDate: calendarEvent.end,
+              type: 'MEETING',
+              allDay: false,
+              outlookId: calendarEvent.id,
+            }),
+          })
+
+          if (response.ok) {
+            setOutlookEventCount(prev => prev + 1)
+          }
+        } catch (error) {
+          console.error('Error saving Outlook event:', error)
+        }
+      }
+
+      await fetchEvents()
+    } catch (error) {
+      setSyncError('Failed to sync Outlook events')
+    } finally {
+      setSyncingWithOutlook(false)
+    }
+  }
+
+  const syncErpEvents = async () => {
+    console.log('syncErpEvents: Starting ERP sync')
+    setSyncingWithErp(true)
+    setErpSyncError(null)
+
+    try {
+      console.log('syncErpEvents: Calling /api/erp-calendar/sync')
+      const result = await fetch('/api/erp-calendar/sync', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      })
+
+      if (!result.ok) {
+        const errorText = await result.text()
+        console.error('syncErpEvents: Sync failed with status:', result.status, errorText)
+        throw new Error(`Sync failed: ${result.status} ${result.statusText}`)
+      }
+
+      const syncResult = await result.json()
+      console.log('syncErpEvents: ERP Sync result:', syncResult)
+      
+      // Refresh events after sync
+      console.log('syncErpEvents: Refreshing events after sync')
+      await fetchEvents()
+      
+      // Update ERP event count
+      console.log('syncErpEvents: Getting updated ERP count')
+      const erpResponse = await fetch('/api/erp-calendar')
+      if (erpResponse.ok) {
+        const erpData = await erpResponse.json()
+        console.log('syncErpEvents: Updated ERP data:', erpData.length, 'events')
+        setErpEventCount(erpData.length)
+      } else {
+        console.error('syncErpEvents: Failed to get updated ERP count:', erpResponse.status)
+      }
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error'
+      console.error('syncErpEvents: Sync error:', error)
+      setErpSyncError('Sync failed: ' + errorMessage)
+    } finally {
+      setSyncingWithErp(false)
+      console.log('syncErpEvents: Sync completed')
+    }
+  }
+
+  // Load events on component mount and when session is ready
+  useEffect(() => {
+    if (status === 'authenticated' && session?.user) {
+      fetchEvents()
+    }
+  }, [session, status])
+
+  // Add debug styles to make calendar visible and force re-render
+  useEffect(() => {
+    // Force calendar to be visible
+    const calendarElements = document.querySelectorAll('.rbc-calendar')
+    calendarElements.forEach((el: any) => {
+      if (el) {
+        ;(el as HTMLElement).style.display = 'block'
+        ;(el as HTMLElement).style.visibility = 'visible'
+        ;(el as HTMLElement).style.opacity = '1'
+        ;(el as HTMLElement).style.height = '500px'
+        ;(el as HTMLElement).style.minHeight = '500px'
+      }
+    })
+    
+    // Force re-render of calendar
+    if (events.length > 0) {
+      console.log('Forcing calendar re-render with events:', events.length)
+      const calendarElement = document.querySelector('.rbc-calendar')
+      if (calendarElement) {
+        ;(calendarElement as HTMLElement).style.display = 'none'
+        ;(calendarElement as HTMLElement).style.visibility = 'hidden'
+        
+        setTimeout(() => {
+          ;(calendarElement as HTMLElement).style.display = 'block'
+          ;(calendarElement as HTMLElement).style.visibility = 'visible'
+        }, 100)
+      }
+    }
+    
+    // Add event listeners to ensure tooltips work
+    const handleGlobalClick = () => {
+      const tooltip = document.querySelector('.event-tooltip')
+      if (tooltip) {
+        tooltip.remove()
+      }
+    }
+    
+    document.addEventListener('click', handleGlobalClick, true)
+    
+    return () => {
+      document.removeEventListener('click', handleGlobalClick)
+      const tooltip = document.querySelector('.event-tooltip')
+      if (tooltip) {
+        tooltip.remove()
+      }
+    }
+  }, [events, currentView, currentDate])
+
+  if (status === 'loading' || loading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="text-lg">Načítání...</div>
+      </div>
+    )
+  }
+
+  return (
+    <div className="flex h-full bg-gray-50">
+      <main className="flex-1 overflow-y-auto p-6">
+        <div className="bg-white rounded-lg shadow-lg p-4" style={{ minHeight: '600px' }}>
+          <header className="flex h-16 items-center justify-between border-b bg-white px-6 mb-4">
+            <div className="flex items-center space-x-4">
+              <div className="flex items-center space-x-2">
+                <div className="text-sm text-gray-600">
+                  <span>Lokální události: </span>
+                  <span className="font-semibold text-blue-600">{localEventCount}</span>
+                </div>
+                <div className="text-sm text-gray-600">
+                  <span>ERP události: </span>
+                  <span className="font-semibold text-purple-600">{erpEventCount}</span>
+                </div>
+                <button
+                  onClick={syncErpEvents}
+                  disabled={syncingWithErp}
+                  className="px-4 py-2 bg-purple-600 text-white rounded-md hover:bg-purple-700 disabled:bg-purple-400 disabled:cursor-not-allowed text-sm font-medium"
+                >
+                  {syncingWithErp ? 'Synchronizuje se...' : 'Synchronizovat ERP'}
+                </button>
+                {erpSyncError && (
+                  <div className="text-red-500 text-sm mt-2">
+                    {erpSyncError}
+                  </div>
+                )}
+              </div>
+              <div className="flex items-center space-x-2">
+                <div className="text-sm text-gray-600">
+                  <span>Outlook integrace:</span>
+                  <button
+                    onClick={toggleOutlookIntegration}
+                    className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${
+                      outlookEnabled
+                        ? 'bg-blue-600 text-white hover:bg-blue-700'
+                        : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                    }`}
+                  >
+                    {outlookEnabled ? 'Outlook Zapnuto' : 'Outlook Vypnuto'}
+                  </button>
+                </div>
+                {outlookEnabled && (
+                  <>
+                    <button
+                      onClick={syncMoreOutlookEvents}
+                      disabled={syncingWithOutlook}
+                      className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:bg-blue-400 disabled:cursor-not-allowed text-sm font-medium"
+                    >
+                      {syncingWithOutlook ? 'Synchronizuje se...' : 'Synchronizovat'}
+                    </button>
+                    <button
+                      onClick={() => alert('Zobrazit kalendáře - funkce ještě není implementována')}
+                      className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors text-sm font-medium"
+                    >
+                      Zobrazit kalendáře
+                    </button>
+                    <button
+                      onClick={() => alert('Informace o uživateli - funkce ještě není implementována')}
+                      className="px-4 py-2 bg-purple-600 text-white rounded-md hover:bg-purple-700 transition-colors text-sm font-medium"
+                    >
+                      Informace o uživateli
+                    </button>
+                  </>
+                )}
+              </div>
+            </div>
+          </header>
+          <Calendar
+              localizer={localizer}
+              events={events}
+              startAccessor="start"
+              endAccessor="end"
+              style={{ height: 500 }}
+              date={currentDate}
+              view={currentView}
+              onNavigate={(date, view, action) => {
+                setCurrentDate(date)
+                setCurrentView(view)
+              }}
+              onSelectEvent={handleSelectEvent}
+              onSelectSlot={handleSelectSlot}
+              eventPropGetter={eventStyleGetter}
+              messages={{
+                next: "Další",
+                previous: "Předchozí",
+                today: "Dnes",
+                month: "Měsíc",
+                week: "Týden",
+                day: "Den",
+                agenda: "Seznam",
+                date: "Datum",
+                time: "Čas",
+                event: "Událost",
+                noEventsInRange: "Žádné události v tomto období.",
+                showMore: (total: number) => {
+                  // Custom logic to show correct number
+                  const actualEvents = total > 2 ? total - 1 : total
+                  return `+${actualEvents} další`
+                }
+              }}
+              formats={{
+                weekdayFormat: (date: any) => {
+                  const days = ['Po', 'Út', 'St', 'Čt', 'Pá', 'So', 'Ne']
+                  const dayIndex = date.getDay() === 0 ? 6 : date.getDay() - 1
+                  return days[dayIndex]
+                },
+                monthHeaderFormat: (date: any) => {
+                  const dateObj = new Date(date)
+                  return dateObj.toLocaleDateString('cs-CZ', { month: 'long', year: 'numeric' })
+                },
+                dayHeaderFormat: (date: any) => {
+                  const days = ['Neděle', 'Pondělí', 'Úterý', 'Středa', 'Čtvrtek', 'Pátek', 'Sobota']
+                  const dateObj = new Date(date)
+                  return days[dateObj.getDay()]
+                },
+                dayFormat: (date: any) => {
+                  const dateObj = new Date(date)
+                  return dateObj.getDate().toString()
+                },
+                agendaHeaderFormat: (date: any) => {
+                  const dateObj = new Date(date)
+                  return dateObj.toLocaleDateString('cs-CZ', { 
+                    weekday: 'long', 
+                    year: 'numeric', 
+                    month: 'long', 
+                    day: 'numeric' 
+                  })
+                },
+                agendaTimeRangeFormat: ({ start, end }: { start: any; end: any }) => {
+                  const formatTime = (date: any) => {
+                    const dateObj = new Date(date)
+                    return dateObj.toLocaleTimeString('cs-CZ', { 
+                      hour: '2-digit', 
+                      minute: '2-digit',
+                      hour12: false 
+                    })
+                  }
+                  return `${formatTime(start)} - ${formatTime(end)}`
+                },
+                agendaDateFormat: (date: any) => {
+                  const dateObj = new Date(date)
+                  return dateObj.toLocaleDateString('cs-CZ', { 
+                    weekday: 'long', 
+                    year: 'numeric', 
+                    month: 'long', 
+                    day: 'numeric' 
+                  })
+                },
+                agendaTimeRangeStartFormat: ({ start }: { start: any }) => {
+                  const formatTime = (date: any) => {
+                    const dateObj = new Date(date)
+                    return dateObj.toLocaleTimeString('cs-CZ', { 
+                      hour: '2-digit', 
+                      minute: '2-digit',
+                      hour12: false 
+                    })
+                  }
+                  return formatTime(start)
+                },
+                agendaTimeRangeEndFormat: ({ end }: { end: any }) => {
+                  const formatTime = (date: any) => {
+                    const dateObj = new Date(date)
+                    return dateObj.toLocaleTimeString('cs-CZ', { 
+                      hour: '2-digit', 
+                      minute: '2-digit',
+                      hour12: false 
+                    })
+                  }
+                  return formatTime(end)
+                },
+                timeGutterFormat: (date: any) => {
+                  const dateObj = new Date(date)
+                  return dateObj.toLocaleTimeString('cs-CZ', { 
+                    hour: '2-digit', 
+                    minute: '2-digit',
+                    hour12: false 
+                  })
+                },
+                eventTimeRangeFormat: ({ start, end }: { start: any; end: any }) => {
+                  const formatTime = (date: any) => {
+                    const dateObj = new Date(date)
+                    return dateObj.toLocaleTimeString('cs-CZ', { 
+                      hour: '2-digit', 
+                      minute: '2-digit',
+                      hour12: false 
+                    })
+                  }
+                  return `${formatTime(start)} - ${formatTime(end)}`
+                },
+                eventTimeRangeStartFormat: ({ start }: { start: any }) => {
+                  const formatTime = (date: any) => {
+                    const dateObj = new Date(date)
+                    return dateObj.toLocaleTimeString('cs-CZ', { 
+                      hour: '2-digit', 
+                      minute: '2-digit',
+                      hour12: false 
+                    })
+                  }
+                  return formatTime(start)
+                },
+                eventTimeRangeEndFormat: ({ end }: { end: any }) => {
+                  const formatTime = (date: any) => {
+                    const dateObj = new Date(date)
+                    return dateObj.toLocaleTimeString('cs-CZ', { 
+                      hour: '2-digit', 
+                      minute: '2-digit',
+                      hour12: false 
+                    })
+                  }
+                  return formatTime(end)
+                },
+                dateFormat: (date: any) => {
+                  const dateObj = new Date(date)
+                  return dateObj.toLocaleDateString('cs-CZ', { 
+                    day: 'numeric', 
+                    month: 'long', 
+                    year: 'numeric' 
+                  })
+                },
+                timeFormat: (date: any) => {
+                  const dateObj = new Date(date)
+                  return dateObj.toLocaleTimeString('cs-CZ', { 
+                    hour: '2-digit', 
+                    minute: '2-digit',
+                    hour12: false 
+                  })
+                }
+              }}
+              components={{
+                toolbar: () => (
+                  <div className="flex flex-col sm:flex-row justify-between items-center mb-4 space-y-2 sm:space-y-0 sm:space-x-4">
+                    {/* Left side - Date Navigation */}
+                    <div className="flex items-center space-x-2">
+                      <button
+                        onClick={() => navigateDate('prev')}
+                        className="px-3 py-1 bg-gray-100 text-gray-700 rounded hover:bg-gray-200 transition-colors text-sm font-medium"
+                      >
+                        ← Předchozí
+                      </button>
+                      <button
+                        onClick={() => navigateDate('today')}
+                        className="px-3 py-1 bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors text-sm font-medium"
+                      >
+                        Dnes
+                      </button>
+                      <button
+                        onClick={() => navigateDate('next')}
+                        className="px-3 py-1 bg-gray-100 text-gray-700 rounded hover:bg-gray-200 transition-colors text-sm font-medium"
+                      >
+                        Další →
+                      </button>
+                    </div>
+
+                    {/* Center - Date Display */}
+                    <div className="text-lg font-semibold text-gray-800">
+                      {currentDate.toLocaleDateString('cs-CZ', { 
+                        month: 'long', 
+                        year: 'numeric',
+                        day: currentView === Views.DAY ? 'numeric' : undefined
+                      })}
+                    </div>
+
+                    {/* Right side - View Switcher */}
+                    <div className="flex items-center space-x-2">
+                      <button
+                        onClick={() => setCurrentView(Views.MONTH)}
+                        className={`px-3 py-1 rounded text-sm font-medium transition-colors ${
+                          currentView === Views.MONTH ? 'bg-blue-600 text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                        }`}
+                      >
+                        Měsíc
+                      </button>
+                      <button
+                        onClick={() => setCurrentView(Views.WEEK)}
+                        className={`px-3 py-1 rounded text-sm font-medium transition-colors ${
+                          currentView === Views.WEEK ? 'bg-blue-600 text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                        }`}
+                      >
+                        Týden
+                      </button>
+                      <button
+                        onClick={() => setCurrentView(Views.DAY)}
+                        className={`px-3 py-1 rounded text-sm font-medium transition-colors ${
+                          currentView === Views.DAY ? 'bg-blue-600 text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                        }`}
+                      >
+                        Den
+                      </button>
+                      <button
+                        onClick={() => setCurrentView(Views.AGENDA)}
+                        className={`px-3 py-1 rounded text-sm font-medium transition-colors ${
+                          currentView === Views.AGENDA ? 'bg-blue-600 text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                        }`}
+                      >
+                        Agenda
+                      </button>
+                    </div>
+                  </div>
+                ),
+                event: ({ event }: { event: CalendarEvent }) => (
+                  <div
+                    onMouseEnter={(e) => {
+                      console.log('Hover event triggered:', event.title, event.resource?.description)
+                      const description = event.resource?.description || ''
+                      showTooltip(e, event.title, description)
+                    }}
+                    onMouseLeave={hideTooltip}
+                    style={{
+                      backgroundColor: eventStyleGetter(event).style.backgroundColor,
+                      borderRadius: '6px',
+                      padding: '2px 6px',
+                      fontSize: '12px',
+                      fontWeight: '500',
+                      cursor: 'pointer',
+                      color: 'white',
+                      minHeight: '24px',
+                      whiteSpace: 'normal',
+                      overflow: 'visible',
+                      zIndex: 10,
+                      lineHeight: '1.3'
+                    }}
+                  >
+                    {event.title}
+                  </div>
+                ),
+                showMore: ({ events }: { events: CalendarEvent[] }) => (
+                  <div
+                    onMouseEnter={(e) => {
+                      console.log('ShowMore hover triggered:', events.length, events)
+                      const eventDetails = events.map(event => 
+                        `${event.title}${event.resource?.description ? ': ' + event.resource.description : ''}`
+                      ).join('\n')
+                      showTooltip(e, `${events.length} událostí`, eventDetails)
+                    }}
+                    onMouseLeave={hideTooltip}
+                    className="rbc-show-more"
+                  >
+                    +{events.length} více
+                  </div>
+                )
+              }}
+            />
+        </div>
+      </main>
+      
+      {showModal && (
+        <EventModal
+          event={selectedEvent}
+          onClose={handleCloseModal}
+          onCreate={handleCreateEvent}
+          onUpdate={handleUpdateEvent}
+          onDelete={handleDeleteEvent}
+        />
+      )}
+    </div>
+  )
+}
+
+// Event Modal Component
+function EventModal({ 
+  event, 
+  onClose, 
+  onDelete, 
+  onUpdate 
+}: { 
+  event: CalendarEvent | null; 
+  onClose: () => void; 
+  onDelete: () => void; 
+  onUpdate?: () => void 
+}) {
+  const { data: session } = useSession()
+  const isErpEvent = event?.resource?.isErpEvent
+  const isOutlookEvent = event?.id?.startsWith('outlook-')
+  const isOwner = session?.user?.email && event?.resource?.id === session.user.id
+
+  const canEdit = !isErpEvent && isOwner
+  const canDelete = !isErpEvent && isOwner
+  const canEditErp = isErpEvent && session?.user?.role && ['ADMIN', 'IT'].includes(session.user.role)
+  const canDeleteErp = isErpEvent && session?.user?.role && ['ADMIN'].includes(session.user.role)
+
+  return (
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+      <div className="bg-white rounded-lg shadow-xl p-6 max-w-md w-full mx-4">
+        <div className="flex justify-between items-start mb-4">
+          <h3 className="text-lg font-semibold text-gray-900">
+            {event?.title || 'Nová událost'}
+          </h3>
+          <button
+            type="button"
+            onClick={onClose}
+            className="text-gray-400 hover:text-gray-600"
+          >
+            ✕
+          </button>
+        </div>
+
+        <div className="space-y-4">
+          <div>
+            <label className="block text-sm font-medium text-gray-700">Název</label>
+            <input
+              type="text"
+              value={event?.title || ''}
+              onChange={(e) => event && onUpdate?.({ ...event, title: e.target.value })}
+              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 p-2"
+              readOnly={!canEdit}
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700">Začátek</label>
+            <input
+              type="datetime-local"
+              value={event?.start ? new Date(event.start.getTime() - event.start.getTimezoneOffset() * 60000).toISOString().slice(0, 16) : ''}
+              onChange={(e) => event && onUpdate?.({ ...event, start: new Date(e.target.value) })}
+              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 p-2"
+              readOnly={!canEdit}
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700">Konec</label>
+            <input
+              type="datetime-local"
+              value={event?.end ? new Date(event.end.getTime() - event.end.getTimezoneOffset() * 60000).toISOString().slice(0, 16) : ''}
+              onChange={(e) => event && onUpdate?.({ ...event, end: new Date(e.target.value) })}
+              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 p-2"
+              readOnly={!canEdit}
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700">Typ</label>
+            <select
+              value={event?.resource?.type || 'OTHER'}
+              onChange={(e) => event && onUpdate?.({ ...event, resource: { ...event.resource, type: e.target.value as any } })}
+              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 p-2"
+              disabled={!canEdit}
+            >
+              <option value="PROJECT">Projekt</option>
+              <option value="MEETING">Schůzka</option>
+              <option value="HOLIDAY">Svátek</option>
+              <option value="OTHER">Ostatní</option>
+              <option value="ERP_UPGRADE">ERP Upgrade</option>
+              <option value="ERP_PATCH">ERP Patch</option>
+            </select>
+          </div>
+
+          {/* ERP specific fields */}
+          {isErpEvent && (
+            <div className="space-y-2 border-t pt-4">
+              <h4 className="text-sm font-medium text-gray-700 mb-2">Informace o ERP události</h4>
+              
+              {event?.resource?.erpProject && (
+                <div>
+                  <label className="block text-sm font-medium text-gray-700">Projekt</label>
+                  <input
+                    type="text"
+                    value={event.resource.erpProject || ''}
+                    readOnly
+                    className="mt-1 block w-full rounded-md border-gray-300 bg-gray-50 p-2"
+                  />
+                </div>
+              )}
+              
+              {event?.resource?.erpJiraKey && (
+                <div>
+                  <label className="block text-sm font-medium text-gray-700">Jira klíč</label>
+                  <input
+                    type="text"
+                    value={event.resource.erpJiraKey || ''}
+                    readOnly
+                    className="mt-1 block w-full rounded-md border-gray-300 bg-gray-50 p-2"
+                  />
+                </div>
+              )}
+              
+              {event?.resource?.erpResolver && (
+                <div>
+                  <label className="block text-sm font-medium text-gray-700">Řešitel</label>
+                  <input
+                    type="text"
+                    value={event.resource.erpResolver || ''}
+                    readOnly
+                    className="mt-1 block w-full rounded-md border-gray-300 bg-gray-50 p-2"
+                  />
+                </div>
+              )}
+              
+              {event?.resource?.erpSystems && (
+                <div>
+                  <label className="block text-sm font-medium text-gray-700">Systémy</label>
+                  <textarea
+                    value={event.resource.erpSystems || ''}
+                    readOnly
+                    rows={3}
+                    className="mt-1 block w-full rounded-md border-gray-300 bg-gray-50 p-2"
+                  />
+                </div>
+              )}
+            </div>
+          )}
+
+          <div className="flex justify-end space-x-2 pt-4">
+            <button
+              type="button"
+              onClick={onClose}
+              className="px-4 py-2 bg-gray-300 text-gray-700 rounded-md hover:bg-gray-400"
+            >
+              Zrušit
+            </button>
+            
+            {(canDelete || canDeleteErp) && (
+              <button
+                type="button"
+                onClick={() => {
+                  onDelete?.()
+                  onClose()
+                }}
+                className="px-4 py-2 bg-red-500 text-white rounded-md hover:bg-red-600"
+              >
+                Smazat
+              </button>
+            )}
+            
+            {(canEdit || canEditErp) && onUpdate && (
+              <button
+                type="button"
+                onClick={() => {
+                  onUpdate?.()
+                  onClose()
+                }}
+                className="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600"
+              >
+                Uložit změny
+              </button>
+            )}
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+}

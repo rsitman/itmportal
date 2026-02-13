@@ -1,0 +1,260 @@
+// Project Management System Schema
+// This extends the existing schema with comprehensive project management
+
+model Project {
+  id                String   @id @default(cuid())
+  projectId         String   // KARAT project ID
+  projectName       String
+  companyId         String   // KARAT company ID  
+  companyName       String
+  
+  // Project metadata
+  status            ProjectStatus @default(ACTIVE)
+  priority          ProjectPriority @default(MEDIUM)
+  startDate         DateTime
+  endDate           DateTime?
+  
+  // Technical details
+  version           String
+  country           String
+  accountManager    String?
+  jiraKey           String?
+  
+  // Patch management (synced with KARAT)
+  hasPayrollModule  Boolean  @default(false)
+  hasServicePatch   Boolean  @default(false)
+  hasNewPatch       Boolean  @default(false)
+  hasNewLegalPatch  Boolean  @default(false)
+  lastInstalledPatchDate DateTime?
+  nextPlannedPatchDate   DateTime?
+  
+  // System timestamps
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+  lastSyncAt        DateTime?
+  
+  // Relations
+  members           ProjectMember[]
+  components        ProjectComponent[]
+  hardware          HardwareResource[]
+  milestones        ProjectMilestone[]
+  documents         ProjectDocument[]
+  
+  @@unique([projectId, companyId])
+  @@index([status])
+  @@index([priority])
+  @@index([country])
+  @@index([hasNewPatch, hasNewLegalPatch])
+}
+
+model ProjectMember {
+  id          String           @id @default(cuid())
+  projectId   String
+  userId      String
+  role        ProjectRole
+  isPrimary   Boolean          @default(false)
+  startDate   DateTime
+  endDate     DateTime?
+  hourlyRate  Float?
+  notes       String?
+  
+  // Relations
+  project     Project          @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  user        User             @relation(fields: [userId], references: [id])
+  
+  @@unique([projectId, userId])
+  @@index([projectId])
+  @@index([userId])
+  @@index([role])
+}
+
+model ProjectComponent {
+  id              String                @id @default(cuid())
+  projectId       String
+  name            String
+  type            ComponentType
+  version         String
+  status          ComponentStatus       @default(ACTIVE)
+  description     String?
+  installationDate DateTime?
+  lastUpdateDate  DateTime?
+  dependencies    String[]              // Array of component IDs
+  configuration   Json?                 // JSON configuration data
+  
+  // Relations
+  project         Project               @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  
+  @@index([projectId])
+  @@index([type])
+  @@index([status])
+}
+
+model HardwareResource {
+  id                String              @id @default(cuid())
+  projectId         String
+  name              String
+  type              HardwareType
+  status            HardwareStatus      @default(ACTIVE)
+  
+  // Hardware specifications
+  manufacturer      String?
+  model             String?
+  serialNumber      String?
+  ipAddress         String?
+  operatingSystem   String?
+  cpu               String?
+  ram               String?
+  storage           String?
+  
+  // Location and ownership
+  location          String?
+  owner             String?
+  purchaseDate      DateTime?
+  warrantyExpiry    DateTime?
+  
+  // Relations
+  project           Project             @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  configurations    HardwareConfiguration[]
+  
+  @@index([projectId])
+  @@index([type])
+  @@index([status])
+  @@index([ipAddress])
+}
+
+model HardwareConfiguration {
+  id            String                    @id @default(cuid())
+  hardwareId    String
+  name          String
+  type          ConfigurationType
+  configuration Json                      // JSON configuration data
+  isActive      Boolean                   @default(true)
+  version       String
+  appliedDate   DateTime?
+  notes         String?
+  
+  // Relations
+  hardware      HardwareResource          @relation(fields: [hardwareId], references: [id], onDelete: Cascade)
+  
+  @@index([hardwareId])
+  @@index([type])
+  @@index([isActive])
+}
+
+model ProjectMilestone {
+  id            String              @id @default(cuid())
+  projectId     String
+  title         String
+  description   String?
+  status        MilestoneStatus     @default(PLANNED)
+  priority      ProjectPriority     @default(MEDIUM)
+  plannedDate   DateTime?
+  completedDate DateTime?
+  assignedTo    String?             // User ID
+  
+  // Relations
+  project       Project             @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  assignee      User?               @relation(fields: [assignedTo], references: [id])
+  
+  @@index([projectId])
+  @@index([status])
+  @@index([priority])
+  @@index([assignedTo])
+}
+
+model ProjectDocument {
+  id          String          @id @default(cuid())
+  projectId   String
+  name        String
+  type        DocumentType
+  fileName    String
+  filePath    String
+  fileSize    Int
+  mimeType    String
+  uploadedBy  String          // User ID
+  uploadedAt  DateTime        @default(now())
+  
+  // Relations
+  project     Project         @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  uploader    User            @relation(fields: [uploadedBy], references: [id])
+  
+  @@index([projectId])
+  @@index([type])
+  @@index([uploadedBy])
+}
+
+// Enums
+enum ProjectStatus {
+  ACTIVE
+  INACTIVE
+  ARCHIVED
+  SUSPENDED
+}
+
+enum ProjectPriority {
+  LOW
+  MEDIUM
+  HIGH
+  CRITICAL
+}
+
+enum ProjectRole {
+  PROJECT_MANAGER
+  DEVELOPER
+  CONSULTANT
+  SUPPORT
+  ADMIN
+}
+
+enum ComponentType {
+  MODULE
+  ADDON
+  INTEGRATION
+  CUSTOMIZATION
+}
+
+enum ComponentStatus {
+  ACTIVE
+  INACTIVE
+  DEPRECATED
+  PLANNED
+}
+
+enum HardwareType {
+  SERVER
+  DATABASE
+  WORKSTATION
+  NETWORK
+  STORAGE
+  BACKUP
+}
+
+enum HardwareStatus {
+  ACTIVE
+  INACTIVE
+  MAINTENANCE
+  RETIRED
+}
+
+enum ConfigurationType {
+  NETWORK
+  SOFTWARE
+  SECURITY
+  PERFORMANCE
+  BACKUP
+}
+
+enum MilestoneStatus {
+  PLANNED
+  IN_PROGRESS
+  COMPLETED
+  CANCELLED
+}
+
+enum DocumentType {
+  CONTRACT
+  TECHNICAL
+  USER_MANUAL
+  INVOICE
+  OTHER
+}

@@ -1,0 +1,72 @@
+import { headers } from 'next/headers'
+import { redirect } from 'next/navigation'
+import { getServerSession } from 'next-auth'
+import { authOptions } from '@/lib/auth'
+import UsersClient from '@/components/UsersClient'
+
+async function getUsers() {
+  try {
+    const headersList = await headers()
+    const baseUrl = process.env.NEXTAUTH_URL || 'http://localhost:3000'
+    
+    const response = await fetch(`${baseUrl}/api/users`, {
+      cache: 'no-store',
+      headers: {
+        'Cookie': headersList.get('cookie') || '',
+      },
+    })
+
+    if (!response.ok) {
+      console.error('Failed to fetch users:', response.status)
+      return []
+    }
+
+    return await response.json()
+  } catch (error) {
+    console.error('Error fetching users:', error)
+    return []
+  }
+}
+
+export default async function UsersPage() {
+  // Check if user is authenticated and has ADMIN role
+  const session = await getServerSession(authOptions)
+  
+  if (!session?.user) {
+    redirect('/login')
+  }
+  
+  // Pokud je uživatel přihlášen přes Azure AD, přesměrujeme na dashboard
+  // Azure AD uživatelé mají typicky email z domény, lokální uživatelé ne
+  if (session.user.email?.includes('@itman.cz')) {
+    redirect('/dashboard?error=azure_ad_users_restricted')
+  }
+  
+  if (session.user.role !== 'ADMIN') {
+    redirect('/dashboard?error=access_denied')
+  }
+
+  const users = await getUsers()
+  
+  return (
+    <div className="w-full py-10">
+      <div className="mb-8 px-6">
+        <h1 className="text-3xl font-bold tracking-tight text-gray-900 mb-2">
+          Uživatelé
+        </h1>
+        <p className="text-lg text-gray-600">
+          Správa uživatelských účtů a oprávnění
+        </p>
+        {session.user.email && !session.user.email.includes('@itman.cz') && (
+          <div className="mt-4 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+            <p className="text-sm text-blue-800">
+              <strong>Lokální administrátor:</strong> Jste přihlášen přes lokální účet s administrátorskými právy.
+            </p>
+          </div>
+        )}
+      </div>
+      
+      <UsersClient users={users} />
+    </div>
+  )
+}
