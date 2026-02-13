@@ -84,6 +84,15 @@ body {
   color: #92400e;
 }
 
+/* Month View - Compact Cells */
+.rbc-month-row {
+  max-height: 80px !important; /* Zmenšení výšky řádků o 50% */
+}
+
+.rbc-day-bg {
+  padding: 2px !important; /* Zmenšení paddingu pro menší buňky */
+}
+
 /* Week View - Minimal Styling */
 .rbc-time-header {
   margin-left: 30px !important; /* Finální posun hlavičky od levého panelu s časy */
