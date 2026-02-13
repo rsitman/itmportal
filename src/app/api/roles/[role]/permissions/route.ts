@@ -52,14 +52,15 @@ export async function GET(
 // POST /api/roles/[role]/permissions - Add permission to role
 export async function POST(
   request: NextRequest,
-  { params }: { params: { role: string } }
+  { params }: { params: Promise<{ role: string }> }
 ) {
   try {
     if (!(await isAdmin())) {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
     }
 
-    const role = params.role as Role
+    const resolvedParams = await params
+    const role = resolvedParams.role as Role
     const body = await request.json()
     const { permission } = body
 
@@ -116,14 +117,15 @@ export async function POST(
 // DELETE /api/roles/[role]/permissions - Remove permission from role
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { role: string } }
+  { params }: { params: Promise<{ role: string }> }
 ) {
   try {
     if (!(await isAdmin())) {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
     }
 
-    const role = params.role as Role
+    const resolvedParams = await params
+    const role = resolvedParams.role as Role
     const body = await request.json()
     const { permission } = body
 

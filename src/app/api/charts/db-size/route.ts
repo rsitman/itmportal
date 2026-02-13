@@ -8,7 +8,7 @@ const generateMockDbSizeData = () => {
   const startDate = new Date('2026-01-01')
   const endDate = new Date('2026-01-31')
   
-  const data = []
+  const data: any[] = []
   
   companies.forEach(company => {
     const baseSize = Math.random() * 50000 + 10000 // Base size between 10GB-60GB

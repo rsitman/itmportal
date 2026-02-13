@@ -155,7 +155,7 @@ export class OutlookCalendarService {
   }
 
   // Create event in Outlook
-  static async createOutlookEvent(event: Partial<Event>): Promise<OutlookEvent | null> {
+  static async createOutlookEvent(event: any): Promise<OutlookEvent | null> {
     try {
       const response = await fetch('/api/outlook-calendar', {
         method: 'POST',
@@ -239,13 +239,95 @@ export class OutlookCalendarService {
     }
   }
 
+  // Sync Outlook events with database
+  static async syncOutlookEvents(): Promise<{
+    created: number
+    deleted: number
+    errors: string[]
+  }> {
+    const result = {
+      created: 0,
+      deleted: 0,
+      errors: [] as string[]
+    }
+
+    try {
+      // First, delete ALL existing Outlook events from database
+      console.log('Outlook Sync: Deleting all existing Outlook events...')
+      const deleteResult = await fetch('/api/events/outlook/delete-all', {
+        method: 'DELETE'
+      })
+      
+      if (deleteResult.ok) {
+        const deleteData = await deleteResult.json()
+        result.deleted = deleteData.deleted
+        console.log(`Outlook Sync: Deleted ${deleteData.deleted} existing Outlook events`)
+      } else {
+        const errorText = await deleteResult.text()
+        result.errors.push(`Failed to delete existing Outlook events: ${errorText}`)
+        return result
+      }
+
+      // Fetch all Outlook events
+      console.log('Outlook Sync: Fetching events from Outlook...')
+      const outlookEvents = await this.fetchOutlookEvents()
+      console.log(`Outlook Sync: Fetched ${outlookEvents.length} events from Outlook`)
+
+      if (outlookEvents.length === 0) {
+        result.errors.push('No Outlook events found - user may not have calendar access or no events in date range')
+        return result
+      }
+
+      // Create all events fresh
+      for (const outlookEvent of outlookEvents) {
+        try {
+          const startDate = new Date(outlookEvent.start.dateTime)
+          const endDate = new Date(outlookEvent.end.dateTime)
+          
+          const response = await fetch('/api/events', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              title: outlookEvent.subject,
+              description: outlookEvent.bodyPreview || '',
+              startDate: startDate.toISOString(),
+              endDate: endDate.toISOString(),
+              type: 'MEETING',
+              allDay: outlookEvent.isAllDay || false,
+              outlookId: outlookEvent.id,
+            }),
+          })
+
+          if (response.ok) {
+            result.created++
+          } else {
+            const errorText = await response.text()
+            result.errors.push(`Failed to save Outlook event "${outlookEvent.subject}": ${errorText}`)
+          }
+        } catch (error) {
+          result.errors.push(`Failed to sync Outlook event "${outlookEvent.subject}": ${error}`)
+        }
+      }
+
+      console.log(`Outlook Sync completed: ${result.created} created, ${result.deleted} deleted`)
+      return result
+
+    } catch (error) {
+      console.error('Outlook Sync error:', error)
+      result.errors.push(`Sync failed: ${error}`)
+      return result
+    }
+  }
+
   // Convert Outlook event to local Event format
-  static outlookEventToLocal(outlookEvent: OutlookEvent): Omit<Event, 'id' | 'type'> {
+  static outlookEventToLocal(outlookEvent: OutlookEvent): any {
     return {
       title: outlookEvent.subject,
       description: outlookEvent.bodyPreview,
-      startDate: outlookEvent.start.dateTime,
-      endDate: outlookEvent.end.dateTime,
+      start: outlookEvent.start.dateTime,
+      end: outlookEvent.end.dateTime,
       allDay: outlookEvent.isAllDay,
       location: outlookEvent.location?.displayName,
       outlookId: outlookEvent.id,

@@ -99,14 +99,14 @@ export default function ProjectsPage() {
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {projects.map((project) => (
-              <div key={project.projekt} className="bg-white rounded-lg shadow hover:shadow-lg transition-shadow p-6">
+              <div key={project.doklad_proj} className="bg-white rounded-lg shadow hover:shadow-lg transition-shadow p-6">
                 <div className="flex items-start justify-between mb-4">
                   <div className="flex-1">
                     <h3 className="text-lg font-semibold text-gray-900 mb-1">
                       {project.nazev}
                     </h3>
                     <p className="text-sm text-gray-600 font-mono">
-                      {project.projekt}
+                      {project.doklad_proj}
                     </p>
                   </div>
                   {project.jira_klic && (

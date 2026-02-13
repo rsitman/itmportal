@@ -21,7 +21,15 @@ export interface ErpPatchEvent {
   resitel: string
 }
 
-export type ErpEvent = ErpUpgradeEvent | ErpPatchEvent
+export interface ErpHolidayEvent {
+  nazev: string
+  datum_od: string
+  datum_do: string
+  popis: string
+  resitel: string
+}
+
+export type ErpEvent = ErpUpgradeEvent | ErpPatchEvent | ErpHolidayEvent
 
 export class ErpCalendarService {
   // Generate unique source ID for ERP event
@@ -29,13 +37,14 @@ export class ErpCalendarService {
     if ('projekt' in event) {
       // Upgrade event - use jira_klic as unique identifier
       return event.jira_klic
-    } else {
-      // Patch event - generate hash from resolver and dates
+    } else if ('resitel' in event) {
+      // Patch or Holiday event - generate hash from resolver and dates
       return crypto
         .createHash('md5')
         .update(`${event.resitel}-${event.datum_od}-${event.datum_do}`)
         .digest('hex')
     }
+    return 'unknown'
   }
 
   // Detect event type
@@ -44,7 +53,11 @@ export class ErpCalendarService {
   }
 
   static isPatchEvent(event: any): event is ErpPatchEvent {
-    return event && typeof event.projekt === 'undefined' && typeof event.resitel === 'string'
+    return event && typeof event.projekt === 'undefined' && typeof event.resitel === 'string' && !event.nazev?.toLowerCase().includes('dovolen')
+  }
+
+  static isHolidayEvent(event: any): event is ErpHolidayEvent {
+    return event && typeof event.projekt === 'undefined' && typeof event.resitel === 'string' && event.nazev?.toLowerCase().includes('dovolen')
   }
 
   // Convert ERP event to database Event format
@@ -72,7 +85,7 @@ export class ErpCalendarService {
         // ownerId: undefined, // ERP events have no owner
         outlookId: undefined,
       }
-    } else {
+    } else if (this.isPatchEvent(event)) {
       return {
         id: `erp-${sourceId}`,
         title: event.nazev,
@@ -91,6 +104,44 @@ export class ErpCalendarService {
         // ownerId: undefined, // ERP events have no owner
         outlookId: undefined,
       }
+    } else if (this.isHolidayEvent(event)) {
+      return {
+        id: `erp-${sourceId}`,
+        title: (event as any).nazev,
+        description: (event as any).popis || undefined,
+        startDate,
+        endDate,
+        type: 'ERP_HOLIDAY',
+        allDay: true,
+        isErpEvent: true,
+        erpSourceId: sourceId,
+        erpType: 'HOLIDAY',
+        erpProject: undefined,
+        erpJiraKey: undefined,
+        erpResolver: (event as any).resitel,
+        erpSystems: undefined,
+        // ownerId: undefined, // ERP events have no owner
+        outlookId: undefined,
+      }
+    }
+    
+    // Fallback for unknown types
+    return {
+      id: `erp-${sourceId}`,
+      title: (event as any).nazev,
+      description: (event as any).popis || undefined,
+      startDate,
+      endDate,
+      type: 'OTHER',
+      allDay: true,
+      isErpEvent: true,
+      erpSourceId: sourceId,
+      erpType: 'OTHER',
+      erpProject: undefined,
+      erpJiraKey: undefined,
+      erpResolver: (event as any).resitel,
+      erpSystems: undefined,
+      outlookId: undefined,
     }
   }
 
@@ -142,70 +193,33 @@ export class ErpCalendarService {
     }
 
     try {
-      // Fetch all ERP events
-      const erpEvents = await this.fetchErpEvents()
-      
-      // Get existing ERP events from database
-      const existingErpEvents = await (prisma.event as any).findMany({
-        where: { isErpEvent: true },
-        select: { id: true, erpSourceId: true }
+      // First, delete ALL existing ERP events from database
+      console.log('ERP Sync: Deleting all existing ERP events...')
+      const deleteResult = await (prisma.event as any).deleteMany({
+        where: { isErpEvent: true }
       })
+      result.deleted = deleteResult.count
+      console.log(`ERP Sync: Deleted ${deleteResult.count} existing ERP events`)
 
-      const existingSourceIds = new Set(existingErpEvents.map((e: any) => e.erpSourceId).filter(Boolean))
-      const incomingSourceIds = new Set(erpEvents.map(e => this.generateSourceId(e)))
+      // Fetch all ERP events from ERP system
+      const erpEvents = await this.fetchErpEvents()
+      console.log(`ERP Sync: Fetched ${erpEvents.length} events from ERP system`)
 
-      // Find events to delete (ERP events that no longer exist in ERP)
-      const toDelete = existingErpEvents.filter((e: any) => 
-        e.erpSourceId && !incomingSourceIds.has(e.erpSourceId)
-      )
-
-      // Delete obsolete events
-      for (const event of toDelete) {
-        try {
-          await (prisma.event as any).delete({ where: { id: (event as any).id } })
-          result.deleted++
-        } catch (error) {
-          result.errors.push(`Failed to delete event ${(event as any).id}: ${error}`)
-        }
-      }
-
-      // Create or update events
+      // Create all events fresh
       for (const erpEvent of erpEvents) {
         try {
           const dbEvent = this.convertToDbEvent(erpEvent)
-          const sourceId = dbEvent.erpSourceId!
-
-          // Check if event already exists
-          const existing = await (prisma.event as any).findUnique({
-            where: { erpSourceId: sourceId }
+          
+          await (prisma.event as any).create({
+            data: dbEvent
           })
-
-          if (existing) {
-            // Update existing event
-            await (prisma.event as any).update({
-              where: { id: existing.id },
-              data: {
-                title: dbEvent.title,
-                description: dbEvent.description,
-                startDate: dbEvent.startDate,
-                endDate: dbEvent.endDate,
-                updatedAt: new Date()
-              }
-            })
-            result.updated++
-          } else {
-            // Create new event
-            await (prisma.event as any).create({
-              data: dbEvent
-            })
-            result.created++
-          }
+          result.created++
         } catch (error) {
-          result.errors.push(`Failed to sync ERP event ${erpEvent.nazev}: ${error}`)
+          result.errors.push(`Failed to create ERP event ${erpEvent.nazev}: ${error}`)
         }
       }
 
-      console.log(`ERP Sync completed: ${result.created} created, ${result.updated} updated, ${result.deleted} deleted`)
+      console.log(`ERP Sync completed: ${result.created} created, ${result.deleted} deleted`)
       return result
 
     } catch (error) {

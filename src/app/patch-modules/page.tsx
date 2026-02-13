@@ -1,10 +1,10 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, Suspense } from 'react'
 import { useSearchParams } from 'next/navigation'
 import { PatchModule } from '@/types/project'
 
-export default function PatchModulesPage() {
+function PatchModulesContent() {
   const searchParams = useSearchParams()
   const [patchModules, setPatchModules] = useState<PatchModule[]>([])
   const [loading, setLoading] = useState(true)
@@ -248,5 +248,13 @@ export default function PatchModulesPage() {
         )}
       </div>
     </div>
+  )
+}
+
+export default function PatchModulesPage() {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <PatchModulesContent />
+    </Suspense>
   )
 } 

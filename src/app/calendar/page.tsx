@@ -10,6 +10,7 @@ import { useRouter } from 'next/navigation'
 import { Event, CalendarEvent } from '@/types/calendar'
 import { OutlookCalendarService } from '@/lib/outlook-calendar'
 import { ErpCalendarService } from '@/lib/erp-calendar'
+import EventFilterPanel from '@/components/EventFilterPanel'
 
 // Custom CSS pro opravu klikání na události a českou lokalizaci
 const customStyles = `
@@ -274,9 +275,10 @@ const eventStyleGetter = (event: CalendarEvent) => {
     OTHER: '#6b7280', // gray-500
     ERP_UPGRADE: '#8b5cf6', // violet-500
     ERP_PATCH: '#a855f7', // purple-500
+    ERP_HOLIDAY: '#22c55e', // green-500
   }[event.resource?.type || 'OTHER']
   
-  const backgroundColor = isOutlookEvent ? '#0078d4' : isErpEvent ? '#dc2626' : baseColor
+  const backgroundColor = isOutlookEvent ? '#0078d4' : baseColor
   
   return {
     style: {
@@ -322,7 +324,21 @@ export default function CalendarPage() {
   // Calendar refs
   const calendarRef = useRef<Calendar>(null)
   const [currentDate, setCurrentDate] = useState(new Date())
-  const [currentView, setCurrentView] = useState(Views.MONTH)
+  const [currentView, setCurrentView] = useState<string>('month')
+  
+  // Event filters state
+  const [eventFilters, setEventFilters] = useState({
+    showLocal: true,
+    showErp: true,
+    showOutlook: true,
+    categories: {
+      MEETING: true,
+      OTHER: true,
+      ERP_UPGRADE: true,
+      ERP_PATCH: true,
+      ERP_HOLIDAY: true,
+    }
+  })
   
   // Apply custom styles
   useEffect(() => {
@@ -381,11 +397,8 @@ export default function CalendarPage() {
     setCurrentDate(newDate)
   }
 
-  const changeView = (view: typeof Views) => {
+  const changeView = (view: string) => {
     setCurrentView(view)
-    if (calendarRef.current) {
-      calendarRef.current.changeView(view)
-    }
   }
 
   // Session check
@@ -458,6 +471,27 @@ export default function CalendarPage() {
     } finally {
       setLoading(false)
     }
+  }
+
+  // Filter events based on current filters
+  const filterEvents = (events: CalendarEvent[]): CalendarEvent[] => {
+    return events.filter(event => {
+      const isOutlookEvent = event.id.startsWith('outlook-')
+      const isErpEvent = event.resource?.isErpEvent
+      const eventType = event.resource?.type
+
+      // Source filters
+      if (!eventFilters.showLocal && !isOutlookEvent && !isErpEvent) return false
+      if (!eventFilters.showErp && isErpEvent) return false
+      if (!eventFilters.showOutlook && isOutlookEvent) return false
+
+      // Category filters
+      if (eventType && !eventFilters.categories[eventType as keyof typeof eventFilters.categories]) {
+        return false
+      }
+
+      return true
+    })
   }
 
   // Tooltip functions
@@ -615,58 +649,22 @@ export default function CalendarPage() {
     setSyncError(null)
 
     try {
-      const outlookEvents = await OutlookCalendarService.fetchOutlookEvents()
-      const calendarEvents: CalendarEvent[] = outlookEvents.map((outlookEvent: any) => {
-        const startDate = new Date(outlookEvent.start.dateTime)
-        const endDate = new Date(outlookEvent.end.dateTime)
-        
-        return {
-          id: `outlook-${outlookEvent.id}`,
-          title: outlookEvent.subject,
-          start: startDate,
-          end: endDate,
-          allDay: false,
-          resource: {
-            id: `outlook-${outlookEvent.id}`,
-            title: outlookEvent.subject,
-            description: outlookEvent.bodyPreview || '',
-            type: 'MEETING' as const,
-            allDay: false,
-            start: startDate,
-            end: endDate,
-            outlookId: outlookEvent.id,
-            isOutlookEvent: true,
-          },
-        } as CalendarEvent
-      })
-
-      // Save to database
-      for (const calendarEvent of calendarEvents) {
-        try {
-          const response = await fetch('/api/events', {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-              title: calendarEvent.title,
-              startDate: calendarEvent.start,
-              endDate: calendarEvent.end,
-              type: 'MEETING',
-              allDay: false,
-              outlookId: calendarEvent.id,
-            }),
-          })
-
-          if (response.ok) {
-            setOutlookEventCount(prev => prev + 1)
-          }
-        } catch (error) {
-          console.error('Error saving Outlook event:', error)
-        }
+      const result = await OutlookCalendarService.syncOutlookEvents()
+      console.log('Outlook Sync result:', result)
+      
+      if (result.errors.length > 0) {
+        setSyncError(result.errors.join('; '))
       }
-
+      
       await fetchEvents()
+      
+      // Update outlook event count
+      const outlookResponse = await fetch('/api/events')
+      if (outlookResponse.ok) {
+        const allData = await outlookResponse.json()
+        const outlookEvents = allData.filter((event: any) => event.outlookId)
+        setOutlookEventCount(outlookEvents.length)
+      }
     } catch (error) {
       setSyncError('Failed to sync Outlook events')
     } finally {
@@ -835,6 +833,22 @@ export default function CalendarPage() {
                     >
                       {syncingWithOutlook ? 'Synchronizuje se...' : 'Synchronizovat'}
                     </button>
+                    <div className="relative group">
+                      <button className="px-2 py-1 text-gray-500 hover:text-gray-700">
+                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                      </button>
+                      <div className="absolute right-0 w-64 p-2 bg-gray-800 text-white text-xs rounded shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
+                        <p className="mb-1">Pro synchronizaci s Outlook je potřeba:</p>
+                        <ul className="list-disc list-inside space-y-1">
+                          <li>Přihlášení přes Azure AD</li>
+                          <li>Přístup k Outlook kalendáři</li>
+                          <li>Platný access token</li>
+                        </ul>
+                        <p className="mt-2 text-yellow-300">Pokud synchronizace selže, zkuste se znovu přihlásit.</p>
+                      </div>
+                    </div>
                     <button
                       onClick={() => alert('Zobrazit kalendáře - funkce ještě není implementována')}
                       className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors text-sm font-medium"
@@ -847,19 +861,31 @@ export default function CalendarPage() {
                     >
                       Informace o uživateli
                     </button>
+                    {syncError && (
+                      <div className="text-red-500 text-xs mt-1 max-w-xs">
+                        {syncError}
+                      </div>
+                    )}
                   </>
                 )}
               </div>
             </div>
           </header>
+          
+          {/* Event Filter Panel */}
+          <EventFilterPanel 
+            filters={eventFilters}
+            onFiltersChange={setEventFilters}
+          />
+          
           <Calendar
               localizer={localizer}
-              events={events}
+              events={filterEvents(events)}
               startAccessor="start"
               endAccessor="end"
-              style={{ height: 500 }}
+              style={{ height: 800 }}
               date={currentDate}
-              view={currentView}
+              view={Views[currentView.toUpperCase() as keyof typeof Views]}
               onNavigate={(date, view, action) => {
                 setCurrentDate(date)
                 setCurrentView(view)
@@ -933,28 +959,6 @@ export default function CalendarPage() {
                     day: 'numeric' 
                   })
                 },
-                agendaTimeRangeStartFormat: ({ start }: { start: any }) => {
-                  const formatTime = (date: any) => {
-                    const dateObj = new Date(date)
-                    return dateObj.toLocaleTimeString('cs-CZ', { 
-                      hour: '2-digit', 
-                      minute: '2-digit',
-                      hour12: false 
-                    })
-                  }
-                  return formatTime(start)
-                },
-                agendaTimeRangeEndFormat: ({ end }: { end: any }) => {
-                  const formatTime = (date: any) => {
-                    const dateObj = new Date(date)
-                    return dateObj.toLocaleTimeString('cs-CZ', { 
-                      hour: '2-digit', 
-                      minute: '2-digit',
-                      hour12: false 
-                    })
-                  }
-                  return formatTime(end)
-                },
                 timeGutterFormat: (date: any) => {
                   const dateObj = new Date(date)
                   return dateObj.toLocaleTimeString('cs-CZ', { 
@@ -1002,14 +1006,6 @@ export default function CalendarPage() {
                     day: 'numeric', 
                     month: 'long', 
                     year: 'numeric' 
-                  })
-                },
-                timeFormat: (date: any) => {
-                  const dateObj = new Date(date)
-                  return dateObj.toLocaleTimeString('cs-CZ', { 
-                    hour: '2-digit', 
-                    minute: '2-digit',
-                    hour12: false 
                   })
                 }
               }}
@@ -1147,13 +1143,15 @@ export default function CalendarPage() {
 function EventModal({ 
   event, 
   onClose, 
+  onCreate,
   onDelete, 
   onUpdate 
 }: { 
   event: CalendarEvent | null; 
   onClose: () => void; 
-  onDelete: () => void; 
-  onUpdate?: () => void 
+  onCreate: (eventData: any) => Promise<void>;
+  onUpdate?: (eventData: any) => Promise<void>; 
+  onDelete: () => Promise<void> 
 }) {
   const { data: session } = useSession()
   const isErpEvent = event?.resource?.isErpEvent
@@ -1223,13 +1221,15 @@ function EventModal({
               className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 p-2"
               disabled={!canEdit}
             >
-              <option value="PROJECT">Projekt</option>
               <option value="MEETING">Schůzka</option>
-              <option value="HOLIDAY">Svátek</option>
               <option value="OTHER">Ostatní</option>
-              <option value="ERP_UPGRADE">ERP Upgrade</option>
-              <option value="ERP_PATCH">ERP Patch</option>
             </select>
+            {canEdit && (
+              <p className="text-xs text-gray-500 mt-1">
+                Pro lokální události jsou dostupné jen typy "Schůzka" a "Ostatní". 
+                ERP události (Upgrade, Patch, Dovolené) se synchronizují automaticky.
+              </p>
+            )}
           </div>
 
           {/* ERP specific fields */}
@@ -1313,7 +1313,9 @@ function EventModal({
               <button
                 type="button"
                 onClick={() => {
-                  onUpdate?.()
+                  if (event) {
+                    onUpdate?.(event)
+                  }
                   onClose()
                 }}
                 className="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600"

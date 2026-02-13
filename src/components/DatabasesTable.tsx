@@ -3,7 +3,6 @@
 import { Fragment, useState } from 'react'
 import { Database } from '@/types/database'
 import { DatabaseService } from '@/lib/database-service'
-import DatabaseDetailRow from './DatabaseDetailRowFixed'
 
 interface DatabasesTableProps {
   databases: Database[]
@@ -161,13 +160,6 @@ export default function DatabasesTable({ databases }: DatabasesTableProps) {
                   </span>
                 </div>
               </div>
-              
-              {/* Rozbalený detail */}
-              <DatabaseDetailRow 
-                database={database}
-                isOpen={isExpanded}
-                onToggle={toggleRow}
-              />
             </Fragment>
           )
         })}

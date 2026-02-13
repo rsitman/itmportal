@@ -1,10 +1,10 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, Suspense } from 'react'
 import { useSearchParams } from 'next/navigation'
 import { HwswConfig } from '@/types/hwsw-config'
 
-export default function HwswConfigPage() {
+function HwswConfigContent() {
   const searchParams = useSearchParams()
   const projekt = searchParams.get('projekt')
   const [config, setConfig] = useState<HwswConfig | null>(null)
@@ -33,7 +33,7 @@ export default function HwswConfigPage() {
       setLoading(true)
       setError(null)
 
-      const response = await fetch(`/api/hwsw-config?projekt=${encodeURIComponent(projekt)}`)
+      const response = await fetch(`/api/hwsw-config?projekt=${encodeURIComponent(projekt || '')}`)
       
       if (!response.ok) {
         throw new Error(`Failed to fetch configuration: ${response.status}`)
@@ -420,5 +420,13 @@ export default function HwswConfigPage() {
         </div>
       </div>
     </div>
+  )
+}
+
+export default function HwswConfigPage() {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <HwswConfigContent />
+    </Suspense>
   )
 }

@@ -60,7 +60,7 @@ export default function ServiceProjectsTable({ projects }: ServiceProjectsTableP
               {projects.map((project, index) => (
                 <tr key={index} className="hover:bg-gray-50">
                   <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                    {project.projekt}
+                    {project.doklad_proj}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                     {project.nazev}
@@ -77,7 +77,7 @@ export default function ServiceProjectsTable({ projects }: ServiceProjectsTableP
                   <td className="px-6 py-4 whitespace-nowrap">
                     <button
                       onClick={() => {
-                        const url = `/patch-modules?projekt=${encodeURIComponent(project.projekt)}&firma=${encodeURIComponent(project.nazev_par)}`
+                        const url = `/patch-modules?projekt=${encodeURIComponent(project.doklad_proj)}&firma=${encodeURIComponent(project.nazev_par)}`
                         window.location.href = url
                       }}
                       className="px-3 py-1 text-sm bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors"

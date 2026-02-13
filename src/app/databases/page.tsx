@@ -1,13 +1,13 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, Suspense } from 'react'
 import { useSession } from 'next-auth/react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { Database } from '@/types/database'
 import { DatabaseServiceExtended } from '@/lib/database-service-extended'
 import DatabasesTable from '@/components/DatabasesTable'
 
-export default function DatabasesPage() {
+function DatabasesContent() {
   const { data: session, status } = useSession()
   const router = useRouter()
   const searchParams = useSearchParams()
@@ -290,5 +290,13 @@ export default function DatabasesPage() {
       </div>
     </div>
     </div>
+  )
+}
+
+export default function DatabasesPage() {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <DatabasesContent />
+    </Suspense>
   )
 }

@@ -4,7 +4,8 @@ export async function GET(
   request: NextRequest,
   { params }: { params: Promise<{ path: string[] }> }
 ) {
-  const path = params.path.join('/')
+  const resolvedParams = await params
+  const path = resolvedParams.path.join('/')
   
   try {
     const response = await fetch(`http://itmsql01:44612/web/${path}`, {

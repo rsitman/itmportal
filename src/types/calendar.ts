@@ -4,7 +4,7 @@ export interface Event {
   description?: string
   start: Date
   end: Date
-  type: 'PROJECT' | 'MEETING' | 'HOLIDAY' | 'OTHER' | 'ERP_UPGRADE' | 'ERP_PATCH'
+  type: 'PROJECT' | 'MEETING' | 'HOLIDAY' | 'OTHER' | 'ERP_UPGRADE' | 'ERP_PATCH' | 'ERP_HOLIDAY'
   allDay: boolean
   outlookId?: string
   location?: string

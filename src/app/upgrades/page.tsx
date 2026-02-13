@@ -1,13 +1,13 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, Suspense } from 'react'
 import { useSession } from 'next-auth/react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { Upgrade } from '@/types/upgrade'
 import { UpgradeService } from '@/lib/upgrade-service'
 import UpgradesTable from '@/components/UpgradesTableNew'
 
-export default function UpgradesPage() {
+function UpgradesContent() {
   const { data: session, status } = useSession()
   const router = useRouter()
   const searchParams = useSearchParams()
@@ -255,6 +255,14 @@ export default function UpgradesPage() {
       </div>
     </div>
     </div>
+  )
+}
+
+export default function UpgradesPage() {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <UpgradesContent />
+    </Suspense>
   )
 }
 // Force refresh Thu Feb  5 02:56:17 PM CET 2026

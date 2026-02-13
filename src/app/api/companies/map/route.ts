@@ -215,11 +215,11 @@ export async function GET(request: NextRequest) {
     }
 
     // Calculate metadata
-    const countries = [...new Set(allCompanies.filter(c => c).map(c => c.country))]
-    const cities = [...new Set(allCompanies.filter(c => c).map(c => c.city))]
-    const industries = [...new Set(allCompanies.filter(c => c).map(c => c.industry).filter(Boolean))]
+    const countries = [...new Set(allCompanies.filter((c): c is NonNullable<typeof c> => c != null).map(c => c.country).filter(Boolean))]
+    const cities = [...new Set(allCompanies.filter((c): c is NonNullable<typeof c> => c != null).map(c => c.city).filter(Boolean))]
+    const industries = [...new Set(allCompanies.filter((c): c is NonNullable<typeof c> => c != null).map(c => c.industry).filter(Boolean))]
     
-    const employeeCounts = allCompanies.map(c => c.employees || 0)
+    const employeeCounts = allCompanies.filter((c): c is NonNullable<typeof c> => c != null).map(c => c.employees || 0)
     const employeeStats = {
       total: employeeCounts.reduce((sum, count) => sum + count, 0),
       average: employeeCounts.reduce((sum, count) => sum + count, 0) / employeeCounts.length,

@@ -99,6 +99,9 @@ export default function RoleManagement() {
       [Permission.HWSW_CREATE]: 'HW/SW - Vytvoření',
       [Permission.HWSW_EDIT]: 'HW/SW - Editace',
       [Permission.HWSW_DELETE]: 'HW/SW - Smazání',
+      [Permission.CALENDAR_ERP_EDIT]: 'Kalendář ERP - Editace',
+      [Permission.CALENDAR_ERP_DELETE]: 'Kalendář ERP - Smazání',
+      [Permission.CALENDAR_ERP_SYNC]: 'Kalendář ERP - Synchronizace',
     }
     return names[permission] || permission
   }

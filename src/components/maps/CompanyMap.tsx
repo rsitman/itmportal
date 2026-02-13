@@ -48,8 +48,7 @@ export default function CompanyMap({ companies, height = '400px', showControls =
     
     // Dynamically import leaflet only on client side
     Promise.all([
-      import('leaflet'),
-      import('leaflet/dist/leaflet.css')
+      import('leaflet')
     ]).then(([leaflet]) => {
       // Add custom CSS for logo markers
       if (typeof document !== 'undefined') {
