@@ -122,12 +122,12 @@ body {
   background: #f9fafb;
   display: flex;
   flex-shrink: 0;
-  margin-left: 70px; /* Odsazení od levého panelu s časy */
+  margin-left: 70px; /* Přesně odpovídá šířce time gutter */
 }
 
 .rbc-time-header-content {
   display: flex;
-  width: 100%;
+  width: calc(100% - 70px); /* Přesná šířka minus time gutter */
 }
 
 .rbc-time-header-cell {
@@ -154,7 +154,7 @@ body {
   background: white;
   display: flex;
   flex-shrink: 0;
-  margin-left: 70px; /* Odsazení od levého panelu s časy */
+  margin-left: 70px; /* Přesně odpovídá šířce time gutter */
 }
 
 .rbc-allday-cell {
@@ -190,9 +190,12 @@ body {
   left: 0;
   z-index: 10;
   border-bottom: 1px solid #e5e7eb;
+  /* Odstranění všech divných boxů a efektů */
+  box-shadow: none !important;
+  outline: none !important;
 }
 
-/* Remove any extra borders or backgrounds from time slots */
+/* Odstranění divných boxů z časových slotů */
 .rbc-time-slot {
   border-right: 1px solid #e5e7eb;
   border-top: 1px solid #f3f4f6;
@@ -204,6 +207,10 @@ body {
   display: flex;
   align-items: flex-start;
   background: white !important;
+  /* Odstranění všech divných efektů */
+  box-shadow: none !important;
+  outline: none !important;
+  border-radius: 0 !important;
 }
 
 .rbc-time-slot:last-child {
