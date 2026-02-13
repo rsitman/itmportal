@@ -112,11 +112,11 @@ body {
 
 /* Week View - Minimal Styling */
 .rbc-time-header {
-  margin-left: 40px !important; /* Snížení posunu hlavičky od levého panelu s časy */
+  margin-left: 30px !important; /* Finální posun hlavičky od levého panelu s časy */
 }
 
 .rbc-allday-row {
-  margin-left: 40px !important; /* Stejný posun pro all-day řádek */
+  margin-left: 30px !important; /* Stejný posun pro all-day řádek */
 }
 
 .rbc-time-content {
