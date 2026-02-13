@@ -81,7 +81,7 @@ body {
 }
 
 .rbc-month-row {
-  min-height: 60px; /* Další zmenšení z 80px na 60px */
+  min-height: 60px !important; /* Další zmenšení z 80px na 60px s !important */
   border-bottom: 1px solid #e5e7eb;
   display: flex;
 }
@@ -92,7 +92,7 @@ body {
 
 .rbc-day-bg {
   border-right: 1px solid #e5e7eb;
-  padding: 1px; /* Další zmenšení z 2px na 1px */
+  padding: 1px !important; /* Další zmenšení z 2px na 1px s !important */
   flex: 1;
 }
 
