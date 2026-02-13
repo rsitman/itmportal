@@ -122,6 +122,7 @@ body {
   background: #f9fafb;
   display: flex;
   flex-shrink: 0;
+  margin-left: 70px; /* Odsazení od levého panelu s časy */
 }
 
 .rbc-time-header-content {
@@ -153,6 +154,7 @@ body {
   background: white;
   display: flex;
   flex-shrink: 0;
+  margin-left: 70px; /* Odsazení od levého panelu s časy */
 }
 
 .rbc-allday-cell {
@@ -184,6 +186,9 @@ body {
   font-size: 12px;
   color: #6b7280;
   flex-shrink: 0;
+  position: sticky;
+  left: 0;
+  z-index: 10;
 }
 
 .rbc-time-slot-group {
