@@ -151,6 +151,43 @@ body {
   border-right: none;
 }
 
+/* Additional fixes for header alignment */
+.rbc-time-view .rbc-time-header {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+.rbc-time-view .rbc-time-header-content {
+  position: relative;
+  z-index: 10;
+}
+
+.rbc-time-view .rbc-time-header-cell {
+  position: sticky;
+  top: 0;
+  z-index: 11;
+  background: #f9fafb;
+}
+
+.rbc-time-view .rbc-allday-row {
+  border-bottom: 1px solid #e5e7eb;
+  background: white;
+  position: sticky;
+  top: 40px;
+  z-index: 9;
+}
+
+.rbc-time-view .rbc-allday-cell {
+  border-right: 1px solid #e5e7eb;
+  padding: 4px;
+  min-height: 40px;
+}
+
+.rbc-time-view .rbc-allday-cell:last-child {
+  border-right: none;
+}
+
 .rbc-time-content {
   border-top: 1px solid #e5e7eb;
   display: table;
