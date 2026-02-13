@@ -111,6 +111,14 @@ body {
 }
 
 /* Week View - Minimal Styling */
+.rbc-time-header {
+  margin-left: 40px !important; /* Snížení posunu hlavičky od levého panelu s časy */
+}
+
+.rbc-allday-row {
+  margin-left: 40px !important; /* Stejný posun pro all-day řádek */
+}
+
 .rbc-time-content {
   min-height: 1000px; /* Zajištění dostatečné výšky pro týdenní pohled */
 }
