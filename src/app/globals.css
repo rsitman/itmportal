@@ -77,11 +77,11 @@ body {
 /* Month View */
 .rbc-month-view {
   border: none;
-  min-height: 1200px; /* Zvýšení pro zobrazení celého měsíce */
+  min-height: 1400px; /* Zvýšení pro zobrazení celého měsíce s menšími řádky */
 }
 
 .rbc-month-row {
-  min-height: 120px;
+  min-height: 80px; /* Zmenšení z 120px na 80px */
   border-bottom: 1px solid #e5e7eb;
   display: flex;
 }
@@ -92,7 +92,7 @@ body {
 
 .rbc-day-bg {
   border-right: 1px solid #e5e7eb;
-  padding: 4px;
+  padding: 2px; /* Zmenšení z 4px na 2px */
   flex: 1;
 }
 
