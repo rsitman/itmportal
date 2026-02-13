@@ -95,3 +95,49 @@ body {
 .rbc-toolbar button {
   margin: 0 2px;
 }
+
+/* Week view specific fixes */
+.rbc-time-view {
+  border-top: 1px solid #e5e7eb;
+}
+
+.rbc-time-view .rbc-allday-cell {
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.rbc-time-view-resources .rbc-time-gutter,
+.rbc-time-view-resources .rbc-time-slot-group {
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.rbc-time-slot {
+  border-top: 1px solid #f3f4f6;
+}
+
+.rbc-time-slot-group {
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.rbc-allday-cell {
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.rbc-day-column {
+  border-right: 1px solid #e5e7eb;
+}
+
+.rbc-day-column:last-child {
+  border-right: none;
+}
+
+.rbc-time-content > .rbc-time-slot + .rbc-time-slot {
+  border-top: 1px solid #f3f4f6;
+}
+
+.rbc-events-container {
+  border-right: 1px solid #e5e7eb;
+}
+
+.rbc-day-slot .rbc-events-container {
+  min-height: 100px;
+}
