@@ -84,21 +84,6 @@ body {
   color: #92400e;
 }
 
-/* Month View - Compact Cells */
-.rbc-month-row {
-  max-height: 60px !important; /* Další zmenšení výšky řádků */
-  display: flex !important;
-  align-items: stretch !important;
-}
-
-.rbc-day-bg {
-  padding: 1px !important; /* Minimální padding pro nejmenší buňky */
-  display: flex !important;
-  flex-direction: column !important;
-  justify-content: flex-start !important;
-  align-items: stretch !important;
-}
-
 /* Week View - Minimal Styling */
 .rbc-time-header {
   margin-left: 30px !important; /* Finální posun hlavičky od levého panelu s časy */
