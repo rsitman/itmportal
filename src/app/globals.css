@@ -25,12 +25,13 @@ body {
   font-family: Arial, Helvetica, sans-serif;
 }
 
-/* React Big Calendar - Clean Design */
+/* React Big Calendar - Complete Redesign */
 .rbc-calendar {
   border: 1px solid #d1d5db;
   border-radius: 8px;
   background: white;
   font-family: system-ui, -apple-system, sans-serif;
+  overflow: hidden;
 }
 
 /* Toolbar */
@@ -73,17 +74,6 @@ body {
   border-color: #3b82f6;
 }
 
-/* Header */
-.rbc-header {
-  border-bottom: 2px solid #e5e7eb;
-  padding: 12px 8px;
-  text-align: center;
-  font-weight: 600;
-  font-size: 14px;
-  color: #374151;
-  background: #f9fafb;
-}
-
 /* Month View */
 .rbc-month-view {
   border: none;
@@ -92,6 +82,7 @@ body {
 .rbc-month-row {
   min-height: 120px;
   border-bottom: 1px solid #e5e7eb;
+  display: flex;
 }
 
 .rbc-month-row:last-child {
@@ -101,6 +92,7 @@ body {
 .rbc-day-bg {
   border-right: 1px solid #e5e7eb;
   padding: 4px;
+  flex: 1;
 }
 
 .rbc-day-bg:last-child {
@@ -117,19 +109,19 @@ body {
   color: #92400e;
 }
 
-/* Week View - Simplified and Fixed */
+/* Week View - Precise Structure */
 .rbc-time-view {
   border: none;
-  position: relative;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
 }
 
 .rbc-time-header {
   border-bottom: 2px solid #e5e7eb;
   background: #f9fafb;
   display: flex;
-  position: sticky;
-  top: 0;
-  z-index: 100;
+  flex-shrink: 0;
 }
 
 .rbc-time-header-content {
@@ -147,6 +139,9 @@ body {
   color: #374151;
   background: #f9fafb;
   min-width: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .rbc-time-header-cell:last-child {
@@ -157,9 +152,7 @@ body {
   border-bottom: 1px solid #e5e7eb;
   background: white;
   display: flex;
-  position: sticky;
-  top: 48px;
-  z-index: 99;
+  flex-shrink: 0;
 }
 
 .rbc-allday-cell {
@@ -177,11 +170,13 @@ body {
 .rbc-time-content {
   border-top: 1px solid #e5e7eb;
   display: flex;
-  min-height: 400px;
+  flex: 1;
+  min-height: 600px;
+  overflow: auto;
 }
 
 .rbc-time-gutter {
-  width: 60px;
+  width: 70px;
   border-right: 1px solid #e5e7eb;
   background: #f9fafb;
   padding: 4px 8px;
@@ -201,9 +196,11 @@ body {
 .rbc-time-slot {
   border-right: 1px solid #e5e7eb;
   border-top: 1px solid #f3f4f6;
-  min-height: 40px;
+  min-height: 60px;
   flex: 1;
   position: relative;
+  display: flex;
+  align-items: flex-start;
 }
 
 .rbc-time-slot:last-child {
@@ -214,6 +211,7 @@ body {
   position: relative;
   flex: 1;
   min-width: 0;
+  width: 100%;
 }
 
 .rbc-events-container {
@@ -223,10 +221,13 @@ body {
   right: 0;
   bottom: 0;
   pointer-events: none;
+  z-index: 1;
 }
 
 .rbc-events-container > .rbc-event {
   pointer-events: auto;
+  position: relative;
+  z-index: 2;
 }
 
 /* Events */
@@ -241,20 +242,12 @@ body {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+  position: relative;
+  z-index: 2;
 }
 
 .rbc-event:hover {
   opacity: 0.8;
-}
-
-/* All Day Events */
-.rbc-allday-cell {
-  border-bottom: 1px solid #e5e7eb;
-  padding: 2px;
-}
-
-.rbc-row-segment {
-  padding: 1px;
 }
 
 /* Agenda View */
@@ -319,7 +312,7 @@ body {
     font-size: 12px;
   }
   
-  .rbc-header {
+  .rbc-time-header-cell {
     padding: 8px 4px;
     font-size: 12px;
   }
@@ -329,6 +322,11 @@ body {
   }
   
   .rbc-time-slot {
-    min-height: 30px;
+    min-height: 40px;
+  }
+  
+  .rbc-time-gutter {
+    width: 50px;
+    font-size: 10px;
   }
 }
