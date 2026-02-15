@@ -3,6 +3,7 @@ import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
 import { SessionPreference } from '@prisma/client'
+import { logger } from '@/lib/logger'
 
 export async function GET(request: NextRequest) {
   try {
@@ -36,7 +37,7 @@ export async function GET(request: NextRequest) {
     })
     
   } catch (error) {
-    console.error('Error getting user preferences:', error)
+    logger.error('Error getting user preferences:', error)
     return NextResponse.json(
       { error: 'Internal server error' },
       { status: 500 }
@@ -89,7 +90,7 @@ export async function PUT(request: NextRequest) {
     return NextResponse.json(updatedUser)
     
   } catch (error) {
-    console.error('Error updating user preferences:', error)
+    logger.error('Error updating user preferences:', error)
     return NextResponse.json(
       { error: 'Internal server error' },
       { status: 500 }

@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getServerSession } from 'next-auth'
+import { logger } from '@/lib/logger'
 
 // Mock data for database size by company and day
 // In real implementation, this would come from your database or external API
@@ -97,7 +98,7 @@ export async function GET(request: NextRequest) {
     })
     
   } catch (error) {
-    console.error('Error fetching DB size data:', error)
+    logger.error('Error fetching DB size data:', error)
     return NextResponse.json(
       { error: 'Failed to fetch DB size data' },
       { status: 500 }

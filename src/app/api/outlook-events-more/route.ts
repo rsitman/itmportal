@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getServerSession } from 'next-auth'
 import { authOptions, getAccessToken } from '@/lib/auth'
+import { logger } from '@/lib/logger'
 
 export async function GET(request: NextRequest) {
   try {
@@ -53,7 +54,7 @@ export async function GET(request: NextRequest) {
     return NextResponse.json(data.value || data)
 
   } catch (error) {
-    console.error('🔍 DEBUG: Error in more events API:', error)
+    logger.error('🔍 DEBUG: Error in more events API:', error)
     return NextResponse.json(
       { error: 'Internal server error' },
       { status: 500 }

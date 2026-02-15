@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { logger } from '@/lib/logger'
 
 // Mock data for companies with coordinates
 const mockCompanies = [
@@ -112,15 +113,15 @@ async function getServiceProjects(): Promise<any[]> {
     const response = await fetch(fetchUrl)
     
     if (!response.ok) {
-      console.error('Failed to fetch service projects for map:', response.status)
+      logger.error('Failed to fetch service projects for map:', response.status)
       return []
     }
     
     const projects = await response.json()
-    console.log(`✅ ${projects.length} service projects from KARAT`)
+    logger.log(`✅ ${projects.length} service projects from KARAT`)
     return projects
   } catch (error) {
-    console.error('Error fetching service projects for map:', error)
+    logger.error('Error fetching service projects for map:', error)
     return []
   }
 }
@@ -241,7 +242,7 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.json(response)
   } catch (error) {
-    console.error('Error fetching company map data:', error)
+    logger.error('Error fetching company map data:', error)
     return NextResponse.json(
       { error: 'Internal server error' },
       { status: 500 }
