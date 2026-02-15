@@ -5,6 +5,7 @@ import { signIn, signOut, getProviders, useSession } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
 import { Button } from '@/components/ui/button'
 import { useEffect } from 'react'
+import { logger } from '@/lib/logger'
 
 export default function LoginPage() {
   const [email, setEmail] = useState('')
@@ -22,9 +23,9 @@ export default function LoginPage() {
       try {
         const availableProviders = await getProviders()
         setProviders(availableProviders)
-        console.log('Available providers:', availableProviders)
+        logger.log('Available providers:', availableProviders)
       } catch (error) {
-        console.warn('Failed to load providers:', error)
+        logger.warn('Failed to load providers:', error)
         setProviders({
           credentials: { id: 'credentials', name: 'Credentials', type: 'credentials' },
           'azure-ad': { id: 'azure-ad', name: 'Azure Active Directory', type: 'oauth' }
@@ -41,7 +42,7 @@ export default function LoginPage() {
             setUserPreferences(prefs)
           }
         } catch (error) {
-          console.error('Error loading user preferences:', error)
+          logger.error('Error loading user preferences:', error)
         }
       }
     }
@@ -61,7 +62,7 @@ export default function LoginPage() {
       await signOut({ redirect: false })
       setShowLoginAsDifferent(true)
     } catch (error) {
-      console.error('Error during sign out:', error)
+      logger.error('Error during sign out:', error)
       setError('Došlo k chybě při odhlášení')
     } finally {
       setIsLoading(false)

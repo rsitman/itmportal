@@ -5,6 +5,7 @@ import { useSession } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
 import { Button } from '@/components/ui/button'
 import { SessionPreference } from '@prisma/client'
+import { logger } from '@/lib/logger'
 
 interface UserPreferences {
   rememberLogin: boolean
@@ -41,10 +42,10 @@ export default function SettingsPage() {
         const data = await response.json()
         setPreferences(data)
       } else {
-        console.error('Failed to load preferences')
+        logger.error('Failed to load preferences')
       }
     } catch (error) {
-      console.error('Error loading preferences:', error)
+      logger.error('Error loading preferences:', error)
     } finally {
       setIsLoading(false)
     }
@@ -70,7 +71,7 @@ export default function SettingsPage() {
         setMessage('Chyba při ukládání nastavení')
       }
     } catch (error) {
-      console.error('Error saving preferences:', error)
+      logger.error('Error saving preferences:', error)
       setMessage('Chyba při ukládání nastavení')
     } finally {
       setIsSaving(false)

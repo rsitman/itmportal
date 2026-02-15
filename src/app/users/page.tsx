@@ -3,6 +3,7 @@ import { redirect } from 'next/navigation'
 import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth'
 import UsersClient from '@/components/UsersClient'
+import { logger } from '@/lib/logger'
 
 async function getUsers() {
   try {
@@ -17,13 +18,13 @@ async function getUsers() {
     })
 
     if (!response.ok) {
-      console.error('Failed to fetch users:', response.status)
+      logger.error('Failed to fetch users:', response.status)
       return []
     }
 
     return await response.json()
   } catch (error) {
-    console.error('Error fetching users:', error)
+    logger.error('Error fetching users:', error)
     return []
   }
 }

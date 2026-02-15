@@ -1,4 +1,5 @@
 import { OAuthConfig } from 'next-auth/providers/oauth'
+import { logger } from '@/lib/logger'
 
 // Konfigurace pro Entra ID integraci
 // Tento soubor připravuje strukturu pro budoucí integraci s Microsoft Entra ID
@@ -17,7 +18,7 @@ export const getEntraIDConfig = (): EntraIDConfig | null => {
   const redirectUri = process.env.NEXTAUTH_URL + '/api/auth/callback/azure-ad'
 
   if (!clientId || !clientSecret || !tenantId) {
-    console.warn('Entra ID configuration is missing. Check environment variables.')
+    logger.warn('Entra ID configuration is missing. Check environment variables.')
     return null
   }
 

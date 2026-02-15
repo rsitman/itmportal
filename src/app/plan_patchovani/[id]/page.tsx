@@ -3,6 +3,7 @@ import { notFound } from 'next/navigation'
 import { getServerSession } from 'next-auth'
 import { redirect } from 'next/navigation'
 import ProjectDetailClient from '@/components/projects/ProjectDetailClient'
+import { logger } from '@/lib/logger'
 
 interface ProjectDetailPageProps {
   params: Promise<{
@@ -52,7 +53,7 @@ export default async function ProjectDetailPage({ params }: ProjectDetailPagePro
       </div>
     )
   } catch (error) {
-    console.error('Error loading project:', error)
+    logger.error('Error loading project:', error)
     notFound()
   }
 }
