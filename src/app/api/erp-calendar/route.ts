@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth'
 import { ErpCalendarService } from '@/lib/erp-calendar'
+import { logger } from '@/lib/logger'
 
 export async function GET(request: NextRequest) {
   try {
@@ -17,7 +18,7 @@ export async function GET(request: NextRequest) {
     return NextResponse.json(erpEvents)
 
   } catch (error) {
-    console.error('Error fetching ERP events:', error)
+    logger.error('Error fetching ERP events:', error)
     return NextResponse.json(
       { error: 'Internal server error' },
       { status: 500 }

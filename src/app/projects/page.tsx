@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { ServiceProject } from '@/types/project'
+import { logger } from '@/lib/logger'
 
 export default function ProjectsPage() {
   const [projects, setProjects] = useState<ServiceProject[]>([])
@@ -26,7 +27,7 @@ export default function ProjectsPage() {
       const data = await response.json()
       setProjects(data)
     } catch (error: any) {
-      console.error('Error fetching projects:', error)
+      logger.error('Error fetching projects:', error)
       setError(error.message)
     } finally {
       setLoading(false)

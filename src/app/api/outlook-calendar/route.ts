@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth'
+import { logger } from '@/lib/logger'
 
 // Get Microsoft Graph access token from session
 function getAccessToken(session: any): string | null {
@@ -60,7 +61,7 @@ export async function GET(request: NextRequest) {
     return NextResponse.json(data.value || data)
 
   } catch (error) {
-    console.error('Error fetching Outlook calendar:', error)
+    logger.error('Error fetching Outlook calendar:', error)
     return NextResponse.json(
       { error: 'Failed to fetch calendar events' },
       { status: 500 }
@@ -118,7 +119,7 @@ export async function POST(request: NextRequest) {
 
     if (!graphResponse.ok) {
       const errorData = await graphResponse.text()
-      console.error('Graph API error:', errorData)
+      logger.error('Graph API error:', errorData)
       return NextResponse.json(
         { error: 'Failed to create event in Microsoft Graph' },
         { status: graphResponse.status }
@@ -128,7 +129,7 @@ export async function POST(request: NextRequest) {
     const newEvent = await graphResponse.json()
     return NextResponse.json(newEvent)
   } catch (error) {
-    console.error('Error creating Outlook event:', error)
+    logger.error('Error creating Outlook event:', error)
     return NextResponse.json(
       { error: 'Failed to create event' },
       { status: 500 }

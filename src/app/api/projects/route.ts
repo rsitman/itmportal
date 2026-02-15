@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getServerSession } from 'next-auth'
 import { KaratProject } from '@/lib/karat'
+import { logger } from '@/lib/logger'
 
 async function getKaratProjects(): Promise<KaratProject[]> {
   try {
@@ -21,7 +22,7 @@ async function getKaratProjects(): Promise<KaratProject[]> {
     const data = await response.json()
     return data
   } catch (error) {
-    console.error('Error fetching KARAT projects:', error)
+    logger.error('Error fetching KARAT projects:', error)
     return []
   }
 }
@@ -74,7 +75,7 @@ export async function GET(request: NextRequest) {
     return NextResponse.json(projects)
     
   } catch (error) {
-    console.error('Error fetching projects:', error)
+    logger.error('Error fetching projects:', error)
     return NextResponse.json(
       { error: 'Failed to fetch projects' },
       { status: 500 }
@@ -100,7 +101,7 @@ export async function POST(request: NextRequest) {
     )
     
   } catch (error) {
-    console.error('Error creating project:', error)
+    logger.error('Error creating project:', error)
     return NextResponse.json(
       { error: 'Failed to create project' },
       { status: 500 }

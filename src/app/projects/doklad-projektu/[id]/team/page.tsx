@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import { ProjectPerson, ProjectRole, PersonType } from '@/types/project'
+import { logger } from '@/lib/logger'
 
 export default function ProjectTeamPage() {
   const params = useParams()
@@ -18,20 +19,16 @@ export default function ProjectTeamPage() {
   useEffect(() => {
     const fetchTeamData = async () => {
       try {
-        console.log(`🔍 FRONTEND DEBUG: Fetching team for dokladProjektu: ${dokladProjektu}`)
         const response = await fetch(`/api/projects/${dokladProjektu}/team`)
-        console.log(`🔍 FRONTEND DEBUG: Response status: ${response.status}`)
         
         if (response.ok) {
           const data = await response.json()
-          console.log(`🔍 FRONTEND DEBUG: Data received:`, data)
           setTeam(data.team || [])
-          console.log(`🔍 FRONTEND DEBUG: Team set to:`, data.team || [])
         } else {
-          console.error('Failed to fetch team data')
+          logger.error('Failed to fetch team data')
         }
       } catch (error) {
-        console.error('Error fetching team data:', error)
+        logger.error('Error fetching team data:', error)
       } finally {
         setLoading(false)
       }

@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { logger } from '@/lib/logger'
 
 export async function GET(request: NextRequest) {
   try {
@@ -54,7 +55,7 @@ export async function GET(request: NextRequest) {
     })
 
   } catch (error) {
-    console.error('🔍 DEBUG: Error in database chart export API:', error)
+    logger.error('Error in database chart export API:', error)
     
     const errorMessage = error instanceof Error ? error.message : 'Unknown error'
     const isNetworkError = errorMessage.includes('fetch') || 

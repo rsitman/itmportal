@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { logger } from '@/lib/logger'
 
 export async function GET(
   request: NextRequest,
@@ -33,7 +34,7 @@ export async function GET(
       },
     })
   } catch (error) {
-    console.error('ERP proxy error:', error)
+    logger.error('ERP proxy error:', error)
     return NextResponse.json(
       { error: 'Internal server error' },
       { status: 500 }

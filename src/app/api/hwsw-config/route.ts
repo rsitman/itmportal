@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getServerSession } from 'next-auth'
 import { HwswConfig } from '@/types/hwsw-config'
+import { logger } from '@/lib/logger'
 
 export async function GET(request: NextRequest) {
   try {
@@ -22,7 +23,7 @@ export async function GET(request: NextRequest) {
       ? process.env.NEXTAUTH_URL 
       : 'http://localhost:3000'}/api/erp-proxy/projects/${encodeURIComponent(projekt)}/itconf`
     
-    console.log(`Fetching HWSW config from: ${proxyUrl}`)
+    logger.log(`Fetching HWSW config from: ${proxyUrl}`)
 
     const response = await fetch(proxyUrl, {
       method: 'GET',
@@ -33,11 +34,11 @@ export async function GET(request: NextRequest) {
     })
 
     if (!response.ok) {
-      console.error(`ERP proxy error: ${response.status} ${response.statusText}`)
+      logger.error(`ERP proxy error: ${response.status} ${response.statusText}`)
       
       // If ERP endpoint doesn't exist yet, return mock data for testing
       if (response.status === 404) {
-        console.log('ERP endpoint not found, returning mock data for testing')
+        logger.log('ERP endpoint not found, returning mock data for testing')
         const mockConfig: HwswConfig = {
           fw_pristupy: [
             { ip_adresa: "212.20.99.136", id_firmy: "", popis: "" },
@@ -110,18 +111,12 @@ export async function GET(request: NextRequest) {
       servery: data.servery || []
     }
 
-    console.log(`Successfully fetched HWSW config for project ${projekt}:`, {
-      fw_pristupy: hwswConfig.fw_pristupy.length,
-      dom_users: hwswConfig.dom_users.length,
-      set_send_mail: hwswConfig.set_send_mail.length,
-      ext_sluzby: hwswConfig.ext_sluzby.length,
-      servery: hwswConfig.servery.length
-    })
+    logger.log(`HWSW config for ${projekt}: ${hwswConfig.servery.length} servers, ${hwswConfig.dom_users.length} users`)
 
     return NextResponse.json(hwswConfig)
 
   } catch (error) {
-    console.error('Error in HWSW config API:', error)
+    logger.error('Error in HWSW config API:', error)
     
     return NextResponse.json({ 
       error: 'Internal server error while fetching HWSW configuration' 

@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { Upgrade } from '@/types/upgrade'
 import { UpgradeService } from '@/lib/upgrade-service'
+import { logger } from '@/lib/logger'
 
 export async function GET(request: NextRequest) {
   try {
@@ -44,7 +45,7 @@ export async function GET(request: NextRequest) {
     })
 
   } catch (error) {
-    console.error('🔍 DEBUG: Error in upgrades API:', error)
+    logger.error('Error in upgrades API:', error)
     
     // Specifická hláška pro síťové chyby
     const errorMessage = error instanceof Error ? error.message : 'Unknown error'

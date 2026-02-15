@@ -4,6 +4,7 @@ import { authOptions } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
 import { ErpCalendarService } from '@/lib/erp-calendar'
 import { hasPermission, Permission, Role } from '@/lib/permissions'
+import { logger } from '@/lib/logger'
 
 export async function POST(request: NextRequest) {
   try {
@@ -31,7 +32,7 @@ export async function POST(request: NextRequest) {
     const result = await ErpCalendarService.syncErpEvents()
 
     // Log the sync operation
-    console.log(`ERP Sync performed by ${user.email} (${user.role}):`, result)
+    logger.log(`ERP Sync performed by ${user.email} (${user.role}):`, result)
 
     return NextResponse.json({
       success: true,
@@ -40,7 +41,7 @@ export async function POST(request: NextRequest) {
     })
 
   } catch (error) {
-    console.error('Error during ERP synchronization:', error)
+    logger.error('Error during ERP synchronization:', error)
     return NextResponse.json(
       { 
         error: 'Synchronization failed',

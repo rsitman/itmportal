@@ -3,6 +3,7 @@
 import { useState, useEffect, Suspense } from 'react'
 import { useSearchParams } from 'next/navigation'
 import { PatchModule } from '@/types/project'
+import { logger } from '@/lib/logger'
 
 function PatchModulesContent() {
   const searchParams = useSearchParams()
@@ -39,7 +40,7 @@ function PatchModulesContent() {
       const data = await response.json()
       setPatchModules(data)
     } catch (error: any) {
-      console.error('Error fetching patch modules:', error)
+      logger.error('Error fetching patch modules:', error)
       setError(error.message)
     } finally {
       setLoading(false)

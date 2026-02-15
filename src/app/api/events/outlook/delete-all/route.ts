@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
+import { logger } from '@/lib/logger'
 
 export async function DELETE(request: NextRequest) {
   try {
@@ -35,7 +36,7 @@ export async function DELETE(request: NextRequest) {
     })
 
   } catch (error) {
-    console.error('Error deleting Outlook events:', error)
+    logger.error('Error deleting Outlook events:', error)
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
 }

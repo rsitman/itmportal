@@ -3,6 +3,7 @@ import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
 import { hasPermission, Permission, Role } from '@/lib/permissions'
+import { logger } from '@/lib/logger'
 
 export async function PATCH(
   request: NextRequest,
@@ -69,7 +70,7 @@ export async function PATCH(
 
     return NextResponse.json(event)
   } catch (error) {
-    console.error('Error updating event:', error)
+    logger.error('Error updating event:', error)
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
 }
@@ -125,7 +126,7 @@ export async function DELETE(
 
     return NextResponse.json({ message: 'Event deleted successfully' })
   } catch (error) {
-    console.error('Error deleting event:', error)
+    logger.error('Error deleting event:', error)
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
 }

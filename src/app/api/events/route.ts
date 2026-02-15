@@ -4,6 +4,7 @@ import { authOptions } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
 import { hasPermission, Permission, Role } from '@/lib/permissions'
 import { ErpCalendarService } from '@/lib/erp-calendar'
+import { logger } from '@/lib/logger'
 
 export async function GET(request: NextRequest) {
   try {
@@ -33,7 +34,7 @@ export async function GET(request: NextRequest) {
           isActive: true
         }
       })
-      console.log('Created new user for Azure AD:', session.user.email)
+      logger.log('Created new user for Azure AD:', session.user.email)
     }
 
     // Build date filter
@@ -61,17 +62,17 @@ export async function GET(request: NextRequest) {
       }
     })
 
-    console.log('API: Found local events:', localEvents.length)
+    logger.log('API: Found local events:', localEvents.length)
 
     // Get all ERP events (online - not from database)
     let erpEvents: any[] = []
     try {
-      console.log('API: Starting ERP events fetch')
+      logger.log('API: Starting ERP events fetch')
       const erpRawEvents = await ErpCalendarService.fetchErpEvents()
       erpEvents = erpRawEvents.map(event => ErpCalendarService.convertToDbEvent(event))
-      console.log('API: Successfully fetched and converted ERP events:', erpEvents.length)
+      logger.log('API: Successfully fetched and converted ERP events:', erpEvents.length)
     } catch (error) {
-      console.error('API: Failed to fetch ERP events:', error)
+      logger.error('API: Failed to fetch ERP events:', error)
       // Continue without ERP events if fetch fails
       // Don't add to errors array, just log and continue
     }
@@ -91,7 +92,7 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.json(transformedEvents)
   } catch (error) {
-    console.error('Error fetching events:', error)
+    logger.error('Error fetching events:', error)
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
 }
@@ -128,7 +129,7 @@ export async function POST(request: NextRequest) {
           isActive: true
         }
       })
-      console.log('Created new user for Azure AD:', session.user.email)
+      logger.log('Created new user for Azure AD:', session.user.email)
     }
 
     const event = await prisma.event.create({
@@ -146,7 +147,7 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json(event, { status: 201 })
   } catch (error) {
-    console.error('Error creating event:', error)
+    logger.error('Error creating event:', error)
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
 }

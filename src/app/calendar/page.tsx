@@ -221,11 +221,11 @@ export default function CalendarPage() {
         setErpSyncError(null)
       } else {
         const errorText = await response.text()
-        console.error('fetchEvents: Response not OK:', response.status, response.statusText, errorText)
+        logger.error('fetchEvents: Response not OK:', response.status, response.statusText, errorText)
         setErpSyncError(`Failed to fetch events: ${response.status} ${response.statusText}`)
       }
     } catch (error) {
-      console.error('Error fetching events:', error)
+      logger.error('Error fetching events:', error)
       setErpSyncError(`Network error: ${error instanceof Error ? error.message : 'Unknown error'}`)
     } finally {
       setLoading(false)
@@ -347,7 +347,7 @@ export default function CalendarPage() {
         setSelectedSlot(null)
       }
     } catch (error) {
-      console.error('Error creating event:', error)
+      logger.error('Error creating event:', error)
     }
   }
 
@@ -375,7 +375,7 @@ export default function CalendarPage() {
         setSelectedEvent(null)
       }
     } catch (error) {
-      console.error('Error updating event:', error)
+      logger.error('Error updating event:', error)
     }
   }
 
@@ -393,7 +393,7 @@ export default function CalendarPage() {
         setSelectedEvent(null)
       }
     } catch (error) {
-      console.error('Error deleting event:', error)
+      logger.error('Error deleting event:', error)
     }
   }
 

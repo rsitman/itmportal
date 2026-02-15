@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server'
 import { promises as fs } from 'fs'
 import path from 'path'
+import { logger } from '@/lib/logger'
 
 // Helper function to generate logo filename (JavaScript style like in Python scripts)
 function sanitizeFilename(companyName: string): string {
@@ -106,7 +107,7 @@ export async function GET() {
       const response = await fetch(fetchUrl)
       
       if (!response.ok) {
-        console.error('Failed to fetch from /web/projects:', response.status)
+        logger.error('Failed to fetch from /web/projects:', response.status)
         throw new Error(`Failed to fetch service projects: ${response.status}`)
       }
 
@@ -120,10 +121,10 @@ export async function GET() {
         logo: project.logo || '' // Přidáno pro skutečná loga z ERP
       }))
       
-      console.log(`Načteno ${projects.length} projektů z ERP systému`)
+      logger.log(`Načteno ${projects.length} projektů z ERP systému`)
     } catch (fetchError) {
-      console.log('Nepodařilo se načíst data z /api/service-projects, používám fallback data')
-      console.error('Service projects fetch error:', fetchError)
+      logger.warn('Nepodařilo se načíst data z /api/service-projects, používám fallback data')
+      logger.error('Service projects fetch error:', fetchError)
       
       // Fallback data pro demonstraci
       projects = [
@@ -238,10 +239,10 @@ export async function GET() {
       }
     }
     
-    console.log(`Vracím ${companies.length} projektů pro mapu s třístupňovým systémem log (ERP > stažené > generované)`)
+    logger.log(`Vracím ${companies.length} projektů pro mapu`)
     return NextResponse.json(mapData)
   } catch (error) {
-    console.error('Error fetching map data:', error)
+    logger.error('Error fetching map data:', error)
     return NextResponse.json(
       { error: 'Failed to fetch map data', details: error instanceof Error ? error.message : 'Unknown error' },
       { status: 500 }

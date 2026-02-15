@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import { ExternalComponent } from '@/types/project'
+import { logger } from '@/lib/logger'
 
 export default function ExternalComponentsPage() {
   const params = useParams()
@@ -18,20 +19,16 @@ export default function ExternalComponentsPage() {
   useEffect(() => {
     const fetchComponentsData = async () => {
       try {
-        console.log(`🔍 FRONTEND DEBUG: Fetching external components for dokladProjektu: ${dokladProjektu}`)
         const response = await fetch(`/api/projects/${dokladProjektu}/extcomps`)
-        console.log(`🔍 FRONTEND DEBUG: Response status: ${response.status}`)
         
         if (response.ok) {
           const data = await response.json()
-          console.log(`🔍 FRONTEND DEBUG: Data received:`, data)
           setComponents(data.components || [])
-          console.log(`🔍 FRONTEND DEBUG: Components set to:`, data.components || [])
         } else {
-          console.error('Failed to fetch external components data')
+          logger.error('Failed to fetch external components data')
         }
       } catch (error) {
-        console.error('Error fetching external components data:', error)
+        logger.error('Error fetching external components data:', error)
       } finally {
         setLoading(false)
       }

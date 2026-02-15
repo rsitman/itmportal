@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { getServerSession } from 'next-auth'
 import { KaratProject } from '@/lib/karat'
 import { ProjectPerson } from '@/types/project'
+import { logger } from '@/lib/logger'
 
 async function getKaratProjects(): Promise<KaratProject[]> {
   try {
@@ -22,7 +23,7 @@ async function getKaratProjects(): Promise<KaratProject[]> {
     const data = await response.json()
     return data
   } catch (error) {
-    console.error('Error fetching KARAT projects:', error)
+    logger.error('Error fetching KARAT projects:', error)
     return []
   }
 }
@@ -101,7 +102,7 @@ export async function GET(
     return NextResponse.json(project)
 
   } catch (error) {
-    console.error('Error in project API:', error)
+    logger.error('Error in project API:', error)
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
 }
@@ -128,7 +129,7 @@ export async function PATCH(
     )
     
   } catch (error) {
-    console.error('Error updating project:', error)
+    logger.error('Error updating project:', error)
     return NextResponse.json(
       { error: 'Failed to update project' },
       { status: 500 }
@@ -157,7 +158,7 @@ export async function DELETE(
     )
     
   } catch (error) {
-    console.error('Error deleting project:', error)
+    logger.error('Error deleting project:', error)
     return NextResponse.json(
       { error: 'Failed to delete project' },
       { status: 500 }

@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth'
+import { logger } from '@/lib/logger'
 
 export async function GET(request: NextRequest) {
   try {
@@ -14,12 +15,12 @@ export async function GET(request: NextRequest) {
     const response = await fetch(fetchUrl)
     
     if (!response.ok) {
-      console.error('Failed to fetch from /web/projects:', response.status)
+      logger.error('Failed to fetch from /web/projects:', response.status)
       return NextResponse.json({ error: 'KARAT unavailable' }, { status: 500 })
     }
 
     const rawData = await response.json()
-    console.log(`✅ ${rawData.length} service projects from KARAT`)
+    logger.log(`✅ ${rawData.length} service projects from KARAT`)
     
     // Transformace dat na strukturu ServiceProject
     const serviceProjects = rawData.map((project: any) => ({
@@ -33,7 +34,7 @@ export async function GET(request: NextRequest) {
     return NextResponse.json(serviceProjects)
 
   } catch (error) {
-    console.error('KARAT service projects error:', error)
+    logger.error('KARAT service projects error:', error)
     return NextResponse.json({ error: 'Server error' }, { status: 500 })
   }
 }

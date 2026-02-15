@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth'
 import { PatchModule } from '@/types/project'
+import { logger } from '@/lib/logger'
 
 export async function GET(
   request: NextRequest
@@ -24,17 +25,17 @@ export async function GET(
     // Volání na reálný IS KARAT endpoint
     const fetchUrl = `http://itmsql01:44612/web/patchovani/${projekt}/firma/${id_firmy}/moduly`
     
-    console.log(`Fetching patch modules for project: ${projekt}, company: ${id_firmy}`)
+    logger.log(`Fetching patch modules for project: ${projekt}, company: ${id_firmy}`)
     
     const response = await fetch(fetchUrl)
     
     if (!response.ok) {
-      console.error(`Failed to fetch patch modules: ${response.status}`)
+      logger.error(`Failed to fetch patch modules: ${response.status}`)
       return NextResponse.json({ error: 'KARAT unavailable' }, { status: 500 })
     }
 
     const rawData = await response.json()
-    console.log(`✅ ${rawData.length} patch modules from KARAT`)
+    logger.log(`✅ ${rawData.length} patch modules from KARAT`)
     
     // Transformace dat na správnou strukturu
     const patchModules: PatchModule[] = rawData.map((module: any) => ({
@@ -51,7 +52,7 @@ export async function GET(
     return NextResponse.json(patchModules)
 
   } catch (error) {
-    console.error('KARAT patch modules error:', error)
+    logger.error('KARAT patch modules error:', error)
     return NextResponse.json({ error: 'Server error' }, { status: 500 })
   }
 }

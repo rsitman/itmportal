@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getServerSession } from 'next-auth'
 import { ProjectPerson } from '@/types/project'
+import { logger } from '@/lib/logger'
 
 export async function GET(
   request: NextRequest,
@@ -16,7 +17,7 @@ export async function GET(
     const resolvedParams = await params
     const projectCode = resolvedParams.id
 
-    console.log(`🔍 DEBUG: Fetching team for projectCode: ${projectCode}`)
+    logger.log(`🔍 Fetching team for projectCode: ${projectCode}`)
     
     const teamResponse = await fetch(`http://itmsql01:44612/web/projects/${projectCode}/pers`, {
       method: 'GET',
@@ -25,10 +26,10 @@ export async function GET(
       }
     })
 
-    console.log(`🔍 DEBUG: Team response status: ${teamResponse.status}`)
+    logger.log(`🔍 Team response status: ${teamResponse.status}`)
 
     if (!teamResponse.ok) {
-      console.error('ERP project team error:', teamResponse.statusText)
+      logger.error('ERP project team error:', teamResponse.statusText)
       // Fallback data pro testování
       const fallbackData: ProjectPerson[] = [
         {
@@ -49,8 +50,7 @@ export async function GET(
     }
 
     const teamData = await teamResponse.json()
-    console.log(`🔍 DEBUG: Team data received:`, teamData)
-    console.log(`🔍 DEBUG: Team data length:`, Array.isArray(teamData) ? teamData.length : 'Not an array')
+    logger.log(`🔍 Team data received:`, teamData.length || 0, 'members')
     
     const responseData = {
       projectCode,
@@ -58,11 +58,11 @@ export async function GET(
       total: Array.isArray(teamData) ? teamData.length : 0
     }
     
-    console.log(`🔍 DEBUG: Response data:`, responseData)
+    logger.log(`🔍 Response data:`, responseData.total, 'team members')
     return NextResponse.json(responseData)
 
   } catch (error) {
-    console.error('Error fetching project team:', error)
+    logger.error('Error fetching project team:', error)
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
 }

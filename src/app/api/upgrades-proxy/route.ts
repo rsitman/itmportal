@@ -1,5 +1,6 @@
 // CORS proxy pro upgrady server
 import { NextRequest, NextResponse } from 'next/server'
+import { logger } from '@/lib/logger'
 
 export async function GET(request: NextRequest) {
   try {
@@ -36,7 +37,7 @@ export async function GET(request: NextRequest) {
     })
 
   } catch (error) {
-    console.error('CORS Proxy Error:', error)
+    logger.error('CORS Proxy Error:', error)
     
     return NextResponse.json(
       { 
