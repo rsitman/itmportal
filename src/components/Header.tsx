@@ -40,7 +40,7 @@ export default function Header() {
       case '/settings/hwsw':
         return 'HW/SW Konfigurace'
       default:
-        return 'Firma Portal'
+        return 'Servisní portál'
     }
   }
 
@@ -70,7 +70,7 @@ export default function Header() {
   }
 
   return (
-    <header className="flex h-16 items-center justify-between border-b bg-white px-6">
+    <header className="flex h-16 items-center justify-between border-b border-gray-200 bg-white px-6 shadow-sm">
       <div className="flex items-center">
         <h2 className="text-lg font-semibold text-gray-900">
           {getPageTitle()}
@@ -78,13 +78,18 @@ export default function Header() {
       </div>
       
       <div className="flex items-center space-x-4">
-        <div className="flex items-center space-x-2">
-          <div className="h-8 w-8 rounded-full bg-blue-500 flex items-center justify-center text-white text-sm font-medium">
+        <div className="flex items-center space-x-3">
+          <div className="h-9 w-9 rounded-full bg-gradient-to-r from-blue-500 to-blue-600 flex items-center justify-center text-white text-sm font-medium shadow-sm">
             {session?.user?.name?.charAt(0).toUpperCase() || 'U'}
           </div>
-          <span className="text-sm font-medium text-gray-700">
-            {session?.user?.name}
-          </span>
+          <div className="flex flex-col">
+            <span className="text-sm font-medium text-gray-900">
+              {session?.user?.name}
+            </span>
+            <span className="text-xs text-gray-500">
+              Administrator
+            </span>
+          </div>
         </div>
         
         <Button
@@ -92,6 +97,7 @@ export default function Header() {
           variant="outline"
           size="sm"
           disabled={isSigningOut}
+          className="border-gray-300 hover:bg-gray-50"
         >
           {isSigningOut ? 'Odhlášení...' : 'Odhlásit se'}
         </Button>
