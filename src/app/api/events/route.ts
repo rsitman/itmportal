@@ -72,7 +72,12 @@ export async function GET(request: NextRequest) {
       erpEvents = erpRawEvents.map(event => ErpCalendarService.convertToDbEvent(event))
       logger.log('API: Successfully fetched and converted ERP events:', erpEvents.length)
     } catch (error) {
-      logger.error('API: Failed to fetch ERP events:', error)
+      // Check if this is expected 404 error (ERP calendar not implemented)
+      if (error instanceof Error && error.message.includes('404')) {
+        logger.log('API: ERP calendar endpoint not available - continuing without ERP events')
+      } else {
+        logger.error('API: Failed to fetch ERP events:', error)
+      }
       // Continue without ERP events if fetch fails
       // Don't add to errors array, just log and continue
     }

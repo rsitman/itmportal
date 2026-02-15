@@ -158,6 +158,11 @@ export class ErpCalendarService {
       const response = await fetch(`${baseUrl}/api/erp-proxy/calendar`)
       
       if (!response.ok) {
+        if (response.status === 404) {
+          // ERP calendar endpoint not implemented - this is expected
+          logger.log('ErpCalendarService: ERP calendar endpoint not available (404)')
+          return [] // Return empty array instead of throwing error
+        }
         logger.error('ErpCalendarService: HTTP error:', response.status, response.statusText)
         throw new Error(`Failed to fetch ERP events: ${response.status} ${response.statusText}`)
       }
