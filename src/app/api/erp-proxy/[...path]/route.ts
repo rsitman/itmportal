@@ -9,21 +9,34 @@ export async function GET(
   const path = resolvedParams.path.join('/')
   
   try {
-    const response = await fetch(`http://itmsql01:44612/web/${path}`, {
+    const erpUrl = process.env.ERP_API_URL || 'http://itmsql01:44612/web'
+    const fullUrl = `${erpUrl}/${path}`
+    
+    logger.log(`ERP Proxy: Fetching ${fullUrl}`)
+    
+    const response = await fetch(fullUrl, {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
       },
+      // Add timeout for VPN connection issues
+      signal: AbortSignal.timeout(10000), // 10 second timeout
     })
 
     if (!response.ok) {
+      if (response.status === 404) {
+        logger.log(`ERP Proxy: Endpoint not found: ${fullUrl}`)
+      } else {
+        logger.error(`ERP Proxy: HTTP error ${response.status} for ${fullUrl}`)
+      }
       return NextResponse.json(
-        { error: `ERP API error: ${response.status}` },
+        { error: `ERP API error: ${response.status} - ${response.statusText}` },
         { status: response.status }
       )
     }
 
     const data = await response.json()
+    logger.log(`ERP Proxy: Successfully fetched data from ${fullUrl}`)
     
     // Add CORS headers
     return NextResponse.json(data, {
@@ -34,6 +47,22 @@ export async function GET(
       },
     })
   } catch (error) {
+    if (error instanceof Error) {
+      if (error.name === 'AbortError') {
+        logger.error('ERP Proxy: Request timeout - VPN connection issue?')
+        return NextResponse.json(
+          { error: 'ERP server timeout - check VPN connection' },
+          { status: 408 }
+        )
+      } else if (error.message.includes('ECONNREFUSED')) {
+        logger.error('ERP Proxy: Connection refused - VPN not connected?')
+        return NextResponse.json(
+          { error: 'ERP server unreachable - check VPN connection' },
+          { status: 503 }
+        )
+      }
+    }
+    
     logger.error('ERP proxy error:', error)
     return NextResponse.json(
       { error: 'Internal server error' },
