@@ -3,6 +3,7 @@ import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
 import { Role, Permission } from '@/lib/permissions'
+import { logger } from '@/lib/logger'
 
 // Helper function to check if user is admin
 async function isAdmin() {
@@ -35,7 +36,7 @@ export async function GET(
         where: { role }
       })
     } catch (error) {
-      console.log('RolePermission table might not exist yet, using default permissions')
+      logger.log('RolePermission table might not exist yet, using default permissions')
       // Fallback to default permissions if table doesn't exist
       rolePermissions = []
     }
@@ -44,7 +45,7 @@ export async function GET(
 
     return NextResponse.json({ permissions })
   } catch (error) {
-    console.error('Error fetching role permissions:', error)
+    logger.error('Error fetching role permissions:', error)
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
 }
@@ -85,7 +86,7 @@ export async function POST(
         }
       })
     } catch (error) {
-      console.log('RolePermission table might not exist yet')
+      logger.log('RolePermission table might not exist yet')
       existing = null
     }
 
@@ -103,13 +104,13 @@ export async function POST(
         }
       })
     } catch (error) {
-      console.log('RolePermission table might not exist yet')
+      logger.log('RolePermission table might not exist yet')
       return NextResponse.json({ error: 'RolePermission table not available' }, { status: 503 })
     }
 
     return NextResponse.json(rolePermission, { status: 201 })
   } catch (error) {
-    console.error('Error adding role permission:', error)
+    logger.error('Error adding role permission:', error)
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
 }
@@ -149,13 +150,13 @@ export async function DELETE(
         }
       })
     } catch (error) {
-      console.log('RolePermission table might not exist yet')
+      logger.log('RolePermission table might not exist yet')
       return NextResponse.json({ error: 'RolePermission table not available' }, { status: 503 })
     }
 
     return NextResponse.json({ success: true })
   } catch (error) {
-    console.error('Error removing role permission:', error)
+    logger.error('Error removing role permission:', error)
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
 }
