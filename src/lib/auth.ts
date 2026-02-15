@@ -210,8 +210,20 @@ export const authOptions: NextAuthOptions = {
     signIn: '/login',
   },
   events: {
-    async signOut({ session }) {
-      console.log('User signed out')
+    async signOut({ session, token }) {
+      console.log('User signed out:', session?.user?.email)
+      console.log('Session invalidation complete')
+      
+      // Explicitní cleanup session dat
+      if (session?.user?.id) {
+        try {
+          // Zde můžete přidat další cleanup operace pokud jsou potřeba
+          // Například smazání dočasných dat, logování atd.
+          console.log(`User ${session.user.email} (${session.user.id}) signed out successfully`)
+        } catch (error) {
+          console.error('Error during signOut cleanup:', error)
+        }
+      }
     },
     async signIn({ user, account, profile, isNewUser }) {
       console.log('User signed in:', user.email)

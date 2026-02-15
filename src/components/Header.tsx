@@ -2,11 +2,14 @@
 
 import { signOut, useSession } from 'next-auth/react'
 import { Button } from '@/components/ui/button'
-import { usePathname } from 'next/navigation'
+import { usePathname, useRouter } from 'next/navigation'
+import { useState } from 'react'
 
 export default function Header() {
   const { data: session } = useSession()
   const pathname = usePathname()
+  const router = useRouter()
+  const [isSigningOut, setIsSigningOut] = useState(false)
   
   // Získání názvu stránky z pathname
   const getPageTitle = () => {
@@ -40,6 +43,31 @@ export default function Header() {
     }
   }
 
+  const handleSignOut = async () => {
+    if (isSigningOut) return
+    
+    setIsSigningOut(true)
+    
+    try {
+      // Explicitní odhlášení bez automatického přesměrování
+      await signOut({ 
+        redirect: false,
+        callbackUrl: '/login'
+      })
+      
+      // Manuální přesměrování na login stránku
+      router.push('/login')
+      router.refresh()
+      
+    } catch (error) {
+      console.error('Error during sign out:', error)
+      // I při chybě se pokusíme přesměrovat
+      router.push('/login')
+    } finally {
+      setIsSigningOut(false)
+    }
+  }
+
   return (
     <header className="flex h-16 items-center justify-between border-b bg-white px-6">
       <div className="flex items-center">
@@ -59,11 +87,12 @@ export default function Header() {
         </div>
         
         <Button
-          onClick={() => signOut()}
+          onClick={handleSignOut}
           variant="outline"
           size="sm"
+          disabled={isSigningOut}
         >
-          Odhlásit se
+          {isSigningOut ? 'Odhlášení...' : 'Odhlásit se'}
         </Button>
       </div>
     </header>
