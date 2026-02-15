@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react'
 import { ServiceProject } from '@/types/project'
 import MetaTable from '@/components/meta/MetaTable'
 import { projectsRegistryMeta } from '@/lib/meta/projectsRegistryMeta'
+import { logger } from '@/lib/logger'
 
 interface ProjectsRegistryClientProps {
   initialProjects: any[]
@@ -23,7 +24,7 @@ export default function ProjectsRegistryClient({ initialProjects }: ProjectsRegi
           setServiceProjects(serviceData)
         }
       } catch (error) {
-        console.error('Error fetching data:', error)
+        logger.error('Error fetching data:', error)
       } finally {
         setLoading(false)
       }

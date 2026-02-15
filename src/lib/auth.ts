@@ -59,7 +59,7 @@ export const authOptions: NextAuthOptions = {
             logger.log('Session maxAge set to:', sessionAge, 'seconds for user:', user.email)
           }
         } catch (error) {
-          console.error('Error loading user preferences for JWT:', error)
+          logger.error('Error loading user preferences for JWT:', error)
           // Výchozí hodnota pokud se nepodaří načíst preference
           token.maxAge = 24 * 60 * 60
         }
@@ -105,7 +105,7 @@ export const authOptions: NextAuthOptions = {
           const userEmail = user.email || profile?.email || profile?.preferred_username
           
           if (!userEmail) {
-            console.error('No email found in Azure AD profile')
+            logger.error('No email found in Azure AD profile')
             return false
           }
           
@@ -152,7 +152,7 @@ export const authOptions: NextAuthOptions = {
           
           return true
         } catch (error) {
-          console.error('Error during Azure AD user creation/update:', error)
+          logger.error('Error during Azure AD user creation/update:', error)
           return false
         }
       }
@@ -171,7 +171,7 @@ export const authOptions: NextAuthOptions = {
         logger.log('Auth attempt:', credentials?.email)
         
         if (!credentials?.email || !credentials?.password) {
-          console.log('Missing credentials')
+          logger.log('Missing credentials')
           return null
         }
         
@@ -194,7 +194,7 @@ export const authOptions: NextAuthOptions = {
             return null
           }
         } catch (error) {
-          console.error('Auth error:', error)
+          logger.error('Auth error:', error)
           return null
         }
       }
@@ -213,7 +213,7 @@ export const authOptions: NextAuthOptions = {
   events: {
     async signOut({ session, token }) {
       logger.log('User signed out:', session?.user?.email)
-      console.log('Session invalidation complete')
+      logger.log('Session invalidation complete')
       
       // Explicitní cleanup session dat
       if (session?.user?.id) {
@@ -222,7 +222,7 @@ export const authOptions: NextAuthOptions = {
           // Například smazání dočasných dat, logování atd.
           logger.log(`User ${session.user.email} (${session.user.id}) signed out successfully`)
         } catch (error) {
-          console.error('Error during signOut cleanup:', error)
+          logger.error('Error during signOut cleanup:', error)
         }
       }
     },
@@ -239,7 +239,7 @@ export async function getSession() {
   try {
     return await getServerSession(authOptions)
   } catch (error) {
-    console.error('Error getting session:', error)
+    logger.error('Error getting session:', error)
     return null
   }
 }
@@ -271,9 +271,9 @@ export function isIT(session: any): boolean {
 // Helper function to handle session errors gracefully
 export function handleSessionError(error: any) {
   if (error?.message?.includes('CLIENT_FETCH_ERROR')) {
-    console.warn('Session fetch error - user may be logged out')
+    logger.warn('Session fetch error - user may be logged out')
     return null
   }
-  console.error('Session error:', error)
+  logger.error('Session error:', error)
   return null
 }

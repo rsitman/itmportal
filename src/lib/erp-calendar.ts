@@ -1,6 +1,7 @@
 import { Event } from '@/types/calendar'
 import { prisma } from '@/lib/prisma'
 import crypto from 'crypto'
+import { logger } from '@/lib/logger'
 
 // ERP event interfaces
 export interface ErpUpgradeEvent {
@@ -153,11 +154,11 @@ export class ErpCalendarService {
         ? process.env.NEXTAUTH_URL 
         : 'http://localhost:3000'
       
-      console.log('ErpCalendarService: Fetching from:', `${baseUrl}/api/erp-proxy/calendar`)
+      logger.log('ErpCalendarService: Fetching from:', `${baseUrl}/api/erp-proxy/calendar`)
       const response = await fetch(`${baseUrl}/api/erp-proxy/calendar`)
       
       if (!response.ok) {
-        console.error('ErpCalendarService: HTTP error:', response.status, response.statusText)
+        logger.error('ErpCalendarService: HTTP error:', response.status, response.statusText)
         throw new Error(`Failed to fetch ERP events: ${response.status} ${response.statusText}`)
       }
       
@@ -165,15 +166,15 @@ export class ErpCalendarService {
       const contentType = response.headers.get('content-type')
       if (!contentType || !contentType.includes('application/json')) {
         const text = await response.text()
-        console.error('ErpCalendarService: Non-JSON response:', text.substring(0, 200))
+        logger.error('ErpCalendarService: Non-JSON response:', text.substring(0, 200))
         throw new Error('ERP server returned non-JSON response. Server may require authentication.')
       }
       
       const data = await response.json()
-      console.log('ErpCalendarService: Successfully fetched ERP events:', Array.isArray(data) ? data.length : 'not an array')
+      logger.log('ErpCalendarService: Successfully fetched ERP events:', Array.isArray(data) ? data.length : 'not an array')
       return Array.isArray(data) ? data : []
     } catch (error) {
-      console.error('ErpCalendarService: Error fetching ERP events:', error)
+      logger.error('ErpCalendarService: Error fetching ERP events:', error)
       throw error
     }
   }
@@ -194,16 +195,16 @@ export class ErpCalendarService {
 
     try {
       // First, delete ALL existing ERP events from database
-      console.log('ERP Sync: Deleting all existing ERP events...')
+      logger.log('ERP Sync: Deleting all existing ERP events...')
       const deleteResult = await (prisma.event as any).deleteMany({
         where: { isErpEvent: true }
       })
       result.deleted = deleteResult.count
-      console.log(`ERP Sync: Deleted ${deleteResult.count} existing ERP events`)
+      logger.log(`ERP Sync: Deleted ${deleteResult.count} existing ERP events`)
 
       // Fetch all ERP events from ERP system
       const erpEvents = await this.fetchErpEvents()
-      console.log(`ERP Sync: Fetched ${erpEvents.length} events from ERP system`)
+      logger.log(`ERP Sync: Fetched ${erpEvents.length} events from ERP system`)
 
       // Create all events fresh
       for (const erpEvent of erpEvents) {
@@ -219,7 +220,7 @@ export class ErpCalendarService {
         }
       }
 
-      console.log(`ERP Sync completed: ${result.created} created, ${result.deleted} deleted`)
+      logger.log(`ERP Sync completed: ${result.created} created, ${result.deleted} deleted`)
       return result
 
     } catch (error) {
@@ -258,7 +259,7 @@ export class ErpCalendarService {
         erpSystems: event.erpSystems || undefined,
       }))
     } catch (error) {
-      console.error('Error fetching ERP events from database:', error)
+      logger.error('Error fetching ERP events from database:', error)
       throw error
     }
   }

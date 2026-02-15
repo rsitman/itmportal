@@ -218,9 +218,9 @@ export default function MetaTable({ meta, rows }: MetaTableProps) {
   )
   
   // Debug logging
-  console.log('🔍 MetaTable - All fields:', meta.fields.map(f => ({ id: f.id, label: f.label, type: f.type })))
-  console.log('🔍 MetaTable - Visible fields:', visibleFields.map(f => ({ id: f.id, label: f.label, type: f.type })))
-  console.log('🔍 MetaTable - Sample row data:', rows[0])
+  logger.log('MetaTable - All fields:', meta.fields.map(f => ({ id: f.id, label: f.label, type: f.type })))
+  logger.log('MetaTable - Visible fields:', visibleFields.map(f => ({ id: f.id, label: f.label, type: f.type })))
+  logger.log('MetaTable - Sample row data:', rows[0])
 
   return (
     <div className="overflow-x-auto">

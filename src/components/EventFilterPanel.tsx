@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import { logger } from '@/lib/logger'
 
 interface EventFilters {
   showLocal: boolean
@@ -45,7 +46,7 @@ export default function EventFilterPanel({ filters, onFiltersChange }: EventFilt
         const parsed = JSON.parse(savedFilters)
         onFiltersChange(parsed)
       } catch (error) {
-        console.error('Failed to parse saved filters:', error)
+        logger.error('Failed to parse saved filters:', error)
       }
     }
   }, [])

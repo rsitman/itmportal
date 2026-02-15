@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react'
 import { Project } from '@/types/project'
 import MetaDetail from '@/components/meta/MetaDetail'
 import { projectDetailMeta } from '@/lib/meta/projectDetailMeta'
+import { logger } from '@/lib/logger'
 
 interface ProjectDetailClientProps {
   companyId: string
@@ -33,7 +34,7 @@ export default function ProjectDetailClient({ companyId, initialData }: ProjectD
           setError('Nepodařilo se načíst data projektu')
         }
       } catch (error) {
-        console.error('Error fetching project data:', error)
+        logger.error('Error fetching project data:', error)
         setError('Došlo k chybě při načítání dat')
       } finally {
         setLoading(false)

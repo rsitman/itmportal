@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import DataChart, { ChartSeries, ChartType } from './DataChart'
+import { logger } from '@/lib/logger'
 
 interface DbSizeData {
   data: ChartSeries[]
@@ -47,7 +48,7 @@ export default function DbSizeChartClient() {
           setError('Nepodařilo se načíst data')
         }
       } catch (error) {
-        console.error('Error fetching chart data:', error)
+        logger.error('Error fetching chart data:', error)
         setError('Došlo k chybě při načítání dat')
       } finally {
         setLoading(false)

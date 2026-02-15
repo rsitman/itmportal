@@ -1,4 +1,5 @@
 import { Event } from '@/types/calendar'
+import { logger } from '@/lib/logger'
 
 export interface OutlookEvent {
   id: string
@@ -107,7 +108,7 @@ export class OutlookCalendarService {
       
       return events
     } catch (error) {
-      console.error('Error in OutlookCalendarService.fetchMoreOutlookEvents:', error)
+      logger.error('Error in OutlookCalendarService.fetchMoreOutlookEvents:', error)
       throw error
     }
   }
@@ -126,7 +127,7 @@ export class OutlookCalendarService {
       
       return data
     } catch (error) {
-      console.error('Error getting user info:', error)
+      logger.error('Error getting user info:', error)
       throw error
     }
   }
@@ -149,7 +150,7 @@ export class OutlookCalendarService {
       
       return data
     } catch (error) {
-      console.error('Error getting calendars:', error)
+      logger.error('Error getting calendars:', error)
       throw error
     }
   }
@@ -179,7 +180,7 @@ export class OutlookCalendarService {
 
       return await response.json()
     } catch (error) {
-      console.error('Error creating Outlook event:', error)
+      logger.error('Error creating Outlook event:', error)
       throw error
     }
   }
@@ -210,7 +211,7 @@ export class OutlookCalendarService {
       
       return updatedEvent
     } catch (error) {
-      console.error('Error syncing event to Outlook:', error)
+      logger.error('Error syncing event to Outlook:', error)
       throw error
     }
   }
@@ -234,7 +235,7 @@ export class OutlookCalendarService {
         throw new Error('Failed to update local event')
       }
     } catch (error) {
-      console.error('Error updating local event:', error)
+      logger.error('Error updating local event:', error)
       throw error
     }
   }
@@ -253,7 +254,7 @@ export class OutlookCalendarService {
 
     try {
       // First, delete ALL existing Outlook events from database
-      console.log('Outlook Sync: Deleting all existing Outlook events...')
+      logger.log('Outlook Sync: Deleting all existing Outlook events...')
       const deleteResult = await fetch('/api/events/outlook/delete-all', {
         method: 'DELETE'
       })
@@ -261,7 +262,7 @@ export class OutlookCalendarService {
       if (deleteResult.ok) {
         const deleteData = await deleteResult.json()
         result.deleted = deleteData.deleted
-        console.log(`Outlook Sync: Deleted ${deleteData.deleted} existing Outlook events`)
+        logger.log(`Outlook Sync: Deleted ${deleteData.deleted} existing Outlook events`)
       } else {
         const errorText = await deleteResult.text()
         result.errors.push(`Failed to delete existing Outlook events: ${errorText}`)
@@ -269,9 +270,9 @@ export class OutlookCalendarService {
       }
 
       // Fetch all Outlook events
-      console.log('Outlook Sync: Fetching events from Outlook...')
+      logger.log('Outlook Sync: Fetching events from Outlook...')
       const outlookEvents = await this.fetchOutlookEvents()
-      console.log(`Outlook Sync: Fetched ${outlookEvents.length} events from Outlook`)
+      logger.log(`Outlook Sync: Fetched ${outlookEvents.length} events from Outlook`)
 
       if (outlookEvents.length === 0) {
         result.errors.push('No Outlook events found - user may not have calendar access or no events in date range')
@@ -311,11 +312,11 @@ export class OutlookCalendarService {
         }
       }
 
-      console.log(`Outlook Sync completed: ${result.created} created, ${result.deleted} deleted`)
+      logger.log(`Outlook Sync completed: ${result.created} created, ${result.deleted} deleted`)
       return result
 
     } catch (error) {
-      console.error('Outlook Sync error:', error)
+      logger.error('Outlook Sync error:', error)
       result.errors.push(`Sync failed: ${error}`)
       return result
     }

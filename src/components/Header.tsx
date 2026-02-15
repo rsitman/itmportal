@@ -4,6 +4,7 @@ import { signOut, useSession } from 'next-auth/react'
 import { Button } from '@/components/ui/button'
 import { usePathname, useRouter } from 'next/navigation'
 import { useState } from 'react'
+import { logger } from '@/lib/logger'
 
 export default function Header() {
   const { data: session } = useSession()
@@ -60,7 +61,7 @@ export default function Header() {
       router.refresh()
       
     } catch (error) {
-      console.error('Error during sign out:', error)
+      logger.error('Error during sign out:', error)
       // I při chybě se pokusíme přesměrovat
       router.push('/login')
     } finally {
