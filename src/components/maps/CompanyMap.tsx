@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import dynamic from 'next/dynamic'
+import { logger } from '@/lib/logger'
 
 // Dynamically import react-leaflet components to avoid SSR issues
 const MapContainer = dynamic(() => import('react-leaflet').then(mod => mod.MapContainer), { ssr: false })
@@ -75,7 +76,7 @@ export default function CompanyMap({ companies, height = '400px', showControls =
         DivIcon: leaflet.DivIcon
       })
     }).catch((error) => {
-      console.error('Error loading leaflet:', error)
+      logger.error('Error loading leaflet:', error)
     })
   }, [])
 

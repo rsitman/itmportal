@@ -1,6 +1,7 @@
 'use client'
 
 import { MetaResource, MetaField } from '@/types/meta'
+import { logger } from '@/lib/logger'
 
 interface MetaTableProps {
   meta: MetaResource
@@ -91,7 +92,7 @@ function renderCellValue(field: MetaField, value: any, row: any): React.ReactNod
       return value ? 'Ano' : 'Ne'
 
     case 'actions':
-      console.log('🎯 renderCellValue - actions case, row:', row)
+      logger.log('renderCellValue - actions case, row:', row.projectId)
       return (
         <button
           onClick={() => {
@@ -152,12 +153,12 @@ function renderCellValue(field: MetaField, value: any, row: any): React.ReactNod
 function renderCellContent(field: MetaField, row: any): React.ReactNode {
   // Debug logging pro actions pole
   if (field.id === 'actions') {
-    console.log('🎯 renderCellContent called for actions field, row:', row.projectId)
+    logger.log('renderCellContent called for actions field, row:', row.projectId)
   }
   
   // Handle actions field - always render regardless of data
   if (field.id === 'actions') {
-    console.log('🎯 Handling actions field directly')
+    logger.log('Handling actions field directly')
     return renderCellValue(field, 'actions', row)
   }
   

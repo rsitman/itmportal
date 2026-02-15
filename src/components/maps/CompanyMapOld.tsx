@@ -5,6 +5,7 @@ import dynamic from 'next/dynamic'
 import { MapContainer, TileLayer, Marker, Popup, useMap } from 'react-leaflet'
 import { Icon, LatLngBounds } from 'leaflet'
 import 'leaflet/dist/leaflet.css'
+import { logger } from '@/lib/logger'
 
 // Fix for default markers in react-leaflet
 delete (Icon.Default.prototype as any)._getIconUrl
@@ -118,7 +119,7 @@ const CompanyMap = ({
             className="text-xs px-2 py-1 border border-gray-300 rounded"
             onChange={(e) => {
               // Filter logic can be implemented here
-              console.log('Filter by employees:', e.target.value)
+              logger.log('Filter by employees:', e.target.value)
             }}
           >
             <option value="all">Všechny firmy</option>
@@ -132,7 +133,7 @@ const CompanyMap = ({
             className="text-xs px-2 py-1 border border-gray-300 rounded"
             onChange={(e) => {
               // Filter logic can be implemented here
-              console.log('Filter by industry:', e.target.value)
+              logger.log('Filter by industry:', e.target.value)
             }}
           >
             <option value="all">Všechny odvětví</option>
