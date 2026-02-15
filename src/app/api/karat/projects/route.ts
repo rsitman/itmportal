@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth'
 import { mapKaratProjects } from '@/lib/karat'
+import { logger } from '@/lib/logger'
 
 export async function GET(request: NextRequest) {
   try {
@@ -18,15 +19,15 @@ export async function GET(request: NextRequest) {
     }
 
     const rawData = await response.json()  // ✅ JSON!
-    console.log('Raw data from /web/patchovani_data:', rawData)
+    logger.log('Raw data from /web/patchovani_data:', rawData)
     const projects = mapKaratProjects(rawData)
-    console.log('Mapped karat projects:', projects)
+    logger.log('Mapped karat projects:', projects)
     
-    console.log(`✅ ${projects.length} KARAT projects ready`)
+    logger.log(`✅ ${projects.length} KARAT projects ready`)
     return NextResponse.json(projects)
 
   } catch (error) {
-    console.error('KARAT error:', error)
+    logger.error('KARAT error:', error)
     return NextResponse.json({ error: 'Server error' }, { status: 500 })
   }
 }

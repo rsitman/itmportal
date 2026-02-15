@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getServerSession } from 'next-auth'
 import { ExternalComponent } from '@/types/project'
+import { logger } from '@/lib/logger'
 
 export async function GET(
   request: NextRequest,
@@ -16,7 +17,7 @@ export async function GET(
     const resolvedParams = await params
     const projectCode = resolvedParams.id
 
-    console.log(`🔍 DEBUG: Fetching external components for projectCode: ${projectCode}`)
+    logger.log(`🔍 DEBUG: Fetching external components for projectCode: ${projectCode}`)
     
     const extcompsResponse = await fetch(`http://itmsql01:44612/web/projects/${projectCode}/extcomps`, {
       method: 'GET',
@@ -25,10 +26,10 @@ export async function GET(
       }
     })
 
-    console.log(`🔍 DEBUG: External components response status: ${extcompsResponse.status}`)
+    logger.log(`🔍 DEBUG: External components response status: ${extcompsResponse.status}`)
 
     if (!extcompsResponse.ok) {
-      console.error('ERP external components error:', extcompsResponse.statusText)
+      logger.error('ERP external components error:', extcompsResponse.statusText)
       // Fallback data pro testování
       const fallbackData: ExternalComponent[] = [
         {
@@ -51,8 +52,8 @@ export async function GET(
     }
 
     const extcompsData = await extcompsResponse.json()
-    console.log(`🔍 DEBUG: External components data received:`, extcompsData)
-    console.log(`🔍 DEBUG: External components data length:`, Array.isArray(extcompsData) ? extcompsData.length : 'Not an array')
+    logger.log(`🔍 DEBUG: External components data received:`, extcompsData)
+    logger.log(`🔍 DEBUG: External components data length:`, Array.isArray(extcompsData) ? extcompsData.length : 'Not an array')
     
     const responseData = {
       projectCode,
@@ -60,11 +61,11 @@ export async function GET(
       total: Array.isArray(extcompsData) ? extcompsData.length : 0
     }
     
-    console.log(`🔍 DEBUG: Response data:`, responseData)
+    logger.log(`🔍 DEBUG: Response data:`, responseData)
     return NextResponse.json(responseData)
 
   } catch (error) {
-    console.error('Error fetching external components:', error)
+    logger.error('Error fetching external components:', error)
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
 }

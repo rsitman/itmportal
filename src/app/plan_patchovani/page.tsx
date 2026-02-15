@@ -1,41 +1,14 @@
-import { headers } from 'next/headers'
 import { KaratProject } from '@/lib/karat'
+import { fetchKaratProjectsDirect } from '@/lib/karat-service'
 import ProjectsClient from '@/components/ProjectsClient'
-
-async function getKaratProjects(): Promise<KaratProject[]> {
-  try {
-    const headersList = await headers()  // ✅ AWAIT!
-    const baseUrl = process.env.NEXTAUTH_URL || 'http://localhost:3000'
-    
-    const response = await fetch(`${baseUrl}/api/karat/projects`, {
-      cache: 'no-store',
-      headers: {
-        'Cookie': headersList.get('cookie') || '',
-      },
-    })
-
-    if (!response.ok) {
-      console.error('Failed to fetch KARAT projects:', response.status)
-      return []
-    }
-
-    return await response.json()
-  } catch (error) {
-    console.error('Error fetching KARAT projects:', error)
-    return []
-  }
-}
 
 export default async function ProjectsPage({ 
   searchParams 
 }: { 
-  searchParams: Promise<{ q?: string }>  // ✅ Promise!
+  searchParams: Promise<{ q?: string }>
 }) {
-  console.log('🔄 Plan patchovani page loaded')
-  const projects = await getKaratProjects()
-  console.log('📊 Fetched projects:', projects.length)
-  const resolvedSearchParams = await searchParams  // ✅ AWAIT!
-  console.log('🔍 Search params:', resolvedSearchParams)
+  const projects = await fetchKaratProjectsDirect()
+  const resolvedSearchParams = await searchParams
   
   // Filter projects by company name if query parameter is provided
   const filteredProjects = resolvedSearchParams.q 
@@ -43,8 +16,6 @@ export default async function ProjectsPage({
         project.companyName.toLowerCase().includes(resolvedSearchParams.q!.toLowerCase())
       )
     : projects
-  
-  console.log('📊 Filtered projects:', filteredProjects.length)
   
   return (
     <div className="w-full py-10">

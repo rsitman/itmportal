@@ -5,6 +5,7 @@
  */
 
 import { ServiceProject } from '@/types/project';
+import { logger } from './logger';
 
 export type KaratProject = {
   projectId: string;
@@ -209,12 +210,11 @@ export function mapServiceProject(raw: any): ServiceProject {
  */
 export function mapServiceProjects(rawArray: any[]): ServiceProject[] {
   if (!Array.isArray(rawArray)) {
-    console.log('Raw data is not an array:', rawArray)
+    logger.log('Raw data is not an array:', rawArray)
     return []
   }
   
-  console.log(`Processing ${rawArray.length} raw service projects`)
-  console.log('Raw data sample:', rawArray.slice(0, 2)) // Zobrazíme první 2 položky
+  logger.log(`Processing ${rawArray.length} raw service projects`)
   
   const projects: ServiceProject[] = []
   
@@ -224,14 +224,14 @@ export function mapServiceProjects(rawArray: any[]): ServiceProject[] {
     try {
       const project = mapServiceProject(raw)
       projects.push(project)
-      console.log(`✅ Mapped service project ${i + 1}: ${project.nazev}`)
+      logger.log(`✅ Mapped service project ${i + 1}: ${project.nazev}`)
     } catch (error: any) {
-      console.error(`❌ Failed to map service project ${i + 1}:`, error)
+      logger.error(`❌ Failed to map service project ${i + 1}:`, error)
       // Project mapping failed, continue with next
     }
   }
 
-  console.log(`Successfully mapped ${projects.length} out of ${rawArray.length} service projects`)
+  logger.log(`Successfully mapped ${projects.length} out of ${rawArray.length} service projects`)
   return projects
 }
 
@@ -259,11 +259,11 @@ export function isValidServiceProject(project: any): project is ServiceProject {
 
 export function mapKaratProjects(rawArray: any[]): KaratProject[] {
   if (!Array.isArray(rawArray)) {
-    console.log('Raw data is not an array:', rawArray)
+    logger.log('Raw data is not an array:', rawArray)
     return []
   }
   
-  console.log(`Processing ${rawArray.length} raw projects`)
+  logger.log(`Processing ${rawArray.length} raw projects`)
   const projects: KaratProject[] = []
   
   for (let i = 0; i < rawArray.length; i++) {
@@ -272,14 +272,14 @@ export function mapKaratProjects(rawArray: any[]): KaratProject[] {
     try {
       const project = mapKaratProject(raw)
       projects.push(project)
-      console.log(`Mapped project ${i + 1}: ${project.projectName}`)
+      logger.log(`Mapped project ${i + 1}: ${project.projectName}`)
     } catch (error: any) {
-      console.error(`Failed to map project ${i + 1}:`, error)
+      logger.error(`Failed to map project ${i + 1}:`, error)
       // Project mapping failed, continue with next
     }
   }
 
-  console.log(`Successfully mapped ${projects.length} out of ${rawArray.length} projects`)
+  logger.log(`Successfully mapped ${projects.length} out of ${rawArray.length} projects`)
   return projects
 }
 

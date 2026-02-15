@@ -5,6 +5,7 @@ import bcrypt from 'bcryptjs'
 import { prisma } from './prisma'
 import { UserRole, AuthProvider } from '@prisma/client'
 import { customLogger } from './nextauth-logger'
+import { logger } from './logger'
 
 // Globální override pro console.error aby se potlačil CLIENT_FETCH_ERROR
 const originalConsoleError = console.error
@@ -32,7 +33,7 @@ export const authOptions: NextAuthOptions = {
   logger: customLogger,
   callbacks: {
     async jwt({ token, user, account }) {
-      console.log('JWT callback - user:', user, 'token:', token, 'account:', account)
+      logger.log('JWT callback - user:', user, 'token:', token, 'account:', account)
       
       if (user) {
         token.role = user.role
@@ -55,7 +56,7 @@ export const authOptions: NextAuthOptions = {
             // Nastavit dynamickou délku session
             const sessionAge = userPrefs.sessionPreference === 'REMEMBER' ? 24 * 60 * 60 : 1 * 60 * 60
             token.maxAge = sessionAge
-            console.log('Session maxAge set to:', sessionAge, 'seconds for user:', user.email)
+            logger.log('Session maxAge set to:', sessionAge, 'seconds for user:', user.email)
           }
         } catch (error) {
           console.error('Error loading user preferences for JWT:', error)
@@ -74,7 +75,7 @@ export const authOptions: NextAuthOptions = {
       return token
     },
     async session({ session, token }) {
-      console.log('Session callback - token:', token)
+      logger.log('Session callback - token:', token)
       
       if (token) {
         session.user.id = token.id as string
@@ -92,11 +93,11 @@ export const authOptions: NextAuthOptions = {
         session.expires = expiresAt
       }
       
-      console.log('Final session:', session)
+      logger.log('Final session:', session)
       return session
     },
     async signIn({ user, account, profile }) {
-      console.log('SignIn callback - user:', user, 'account:', account, 'profile:', profile)
+      logger.log('SignIn callback - user:', user, 'account:', account, 'profile:', profile)
       
       if (account?.provider === 'azure-ad') {
         try {
@@ -167,7 +168,7 @@ export const authOptions: NextAuthOptions = {
         password: { label: 'Password', type: 'password' }
       },
       async authorize(credentials) {
-        console.log('Auth attempt:', credentials?.email)
+        logger.log('Auth attempt:', credentials?.email)
         
         if (!credentials?.email || !credentials?.password) {
           console.log('Missing credentials')
@@ -180,7 +181,7 @@ export const authOptions: NextAuthOptions = {
           })
           
           if (user && user.password && (await bcrypt.compare(credentials.password, user.password))) {
-            console.log('Auth successful for:', credentials?.email)
+            logger.log('Auth successful for:', credentials?.email)
             return {
               id: user.id,
               email: user.email,
@@ -189,7 +190,7 @@ export const authOptions: NextAuthOptions = {
               authProvider: user.authProvider
             }
           } else {
-            console.log('Auth failed: Invalid password for:', credentials?.email)
+            logger.log('Auth failed: Invalid password for:', credentials?.email)
             return null
           }
         } catch (error) {
@@ -211,7 +212,7 @@ export const authOptions: NextAuthOptions = {
   },
   events: {
     async signOut({ session, token }) {
-      console.log('User signed out:', session?.user?.email)
+      logger.log('User signed out:', session?.user?.email)
       console.log('Session invalidation complete')
       
       // Explicitní cleanup session dat
@@ -219,14 +220,14 @@ export const authOptions: NextAuthOptions = {
         try {
           // Zde můžete přidat další cleanup operace pokud jsou potřeba
           // Například smazání dočasných dat, logování atd.
-          console.log(`User ${session.user.email} (${session.user.id}) signed out successfully`)
+          logger.log(`User ${session.user.email} (${session.user.id}) signed out successfully`)
         } catch (error) {
           console.error('Error during signOut cleanup:', error)
         }
       }
     },
     async signIn({ user, account, profile, isNewUser }) {
-      console.log('User signed in:', user.email)
+      logger.log('User signed in:', user.email)
     }
   },
 }

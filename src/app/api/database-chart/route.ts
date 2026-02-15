@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { logger } from '@/lib/logger'
 
 export async function GET(request: NextRequest) {
   try {
@@ -18,10 +19,11 @@ export async function GET(request: NextRequest) {
       )
     }
 
-    console.log('Calling database history API with URL:', `http://itmsql01:44612/web/databases/history?projekt=${projekt}&databaze=${database}&datum_od=${startDate}&datum_do=${endDate}`)
+    const erpUrl = process.env.ERP_API_URL || 'http://itmsql01:44612'
+    const fetchUrl = `${erpUrl}/web/databases/history?projekt=${projekt}&databaze=${database}&datum_od=${startDate}&datum_do=${endDate}`
+    logger.log('Calling database history API:', fetchUrl)
     
-    // Volání na reálný endpoint
-    const response = await fetch(`http://itmsql01:44612/web/databases/history?projekt=${projekt}&databaze=${database}&datum_od=${startDate}&datum_do=${endDate}`, {
+    const response = await fetch(fetchUrl, {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
@@ -35,142 +37,43 @@ export async function GET(request: NextRequest) {
     }
     
     const historyData = await response.json()
-    console.log('Raw history data from API:', historyData)
-    console.log('History data type:', typeof historyData)
-    console.log('History data isArray:', Array.isArray(historyData))
-    console.log('History data length:', historyData?.length)
     
-    // Pokud jsou data prázdná, vypišeme varování
-    if (!historyData || (Array.isArray(historyData) && historyData.length === 0)) {
-      console.warn('No history data returned from API for:', {
-        projekt,
-        database,
-        dateRange: { start: startDate, end: endDate }
-      })
-    }
-    
-    // Transformace dat do formátu pro grafy
-    // Test prvního záznamu pro ověření formátu
-    if (Array.isArray(historyData) && historyData.length > 0) {
-      console.log('First data item sample:', historyData[0])
-      console.log('Expected fields:', {
-        datum: 'string',
-        velikost_souboru: 'number',
-        velikost_max: 'number',
-        velikost_db: 'number',
-        velikost_log_souboru: 'number',
-        velikost_log_max: 'number',
-        velikost_log_db: 'number'
-      })
-      
-      // Ověření, zda má všechny očekávané vlastnosti
-      const firstItem = historyData[0]
-      const hasRequiredFields = firstItem && 
-        typeof firstItem.datum === 'string' &&
-        typeof firstItem.velikost_max === 'number' &&
-        typeof firstItem.velikost_db === 'number' &&
-        typeof firstItem.velikost_log_max === 'number' &&
-        typeof firstItem.velikost_log_db === 'number'
-      
-      console.log('Has required fields:', hasRequiredFields)
-      
-      if (!hasRequiredFields) {
-        console.warn('Data format mismatch - missing or incorrect field types')
-        console.log('Available fields:', Object.keys(firstItem || {}))
-      }
-    }
-    
-    // Ověření datových struktur
-    if (Array.isArray(historyData) && historyData.length > 0) {
-      console.log('=== DATA STRUCTURE ANALYSIS ===')
-      historyData.forEach((item: any, index: number) => {
-        console.log(`Item ${index}:`, {
-          datum: item.datum,
-          velikost_souboru: item.velikost_souboru,
-          velikost_max: item.velikost_max,
-          velikost_db: item.velikost_db,
-          velikost_log_souboru: item.velikost_log_souboru,
-          velikost_log_max: item.velikost_log_max,
-          velikost_log_db: item.velikost_log_db
-        })
-      })
-      console.log('=== END ANALYSIS ===')
-    }
-    
-    let dataArray = []
-    
+    // Normalize data array
+    let dataArray: any[] = []
     if (Array.isArray(historyData)) {
       dataArray = historyData
-    } else if (historyData && typeof historyData === 'object') {
-      // Možná data jsou v objektu s polem 'data'
-      if (Array.isArray(historyData.data)) {
-        dataArray = historyData.data
-      } else {
-        console.warn('Unexpected data format:', historyData)
-        dataArray = []
-      }
-    } else {
-      console.warn('Invalid data format:', historyData)
-      dataArray = []
+    } else if (historyData && typeof historyData === 'object' && Array.isArray(historyData.data)) {
+      dataArray = historyData.data
     }
     
-    console.log('Final data array for processing:', dataArray)
-    console.log('Data array length:', dataArray.length)
+    logger.log(`Database history: ${dataArray.length} records for ${projekt}/${database}`)
+    
+    // Single-pass mapping — transform all 6 chart series in one loop
+    const maxDb: { x: string; y: number }[] = []
+    const sizeDb: { x: string; y: number }[] = []
+    const usedDb: { x: string; y: number }[] = []
+    const maxLog: { x: string; y: number }[] = []
+    const sizeLog: { x: string; y: number }[] = []
+    const usedLog: { x: string; y: number }[] = []
+    
+    for (const item of dataArray) {
+      const date = item.datum?.split('T')[0] || ''
+      maxDb.push({ x: date, y: item.velikost_max })
+      sizeDb.push({ x: date, y: item.velikost_souboru })
+      usedDb.push({ x: date, y: item.velikost_db })
+      maxLog.push({ x: date, y: item.velikost_log_max })
+      sizeLog.push({ x: date, y: item.velikost_log_souboru })
+      usedLog.push({ x: date, y: item.velikost_log_db })
+    }
     
     const chartData = [
-      // Databázový soubor - 3 řady
-      {
-        name: 'Max velikost DB',
-        color: '#6b7280',
-        data: dataArray.map((item: any) => ({
-          x: item.datum.split('T')[0],
-          y: item.velikost_max
-        }))
-      },
-      {
-        name: 'Aktuální velikost DB',
-        color: '#3b82f6',
-        data: dataArray.map((item: any) => ({
-          x: item.datum.split('T')[0],
-          y: item.velikost_souboru
-        }))
-      },
-      {
-        name: 'Velikost DB v rámci souboru',
-        color: '#8b5cf6',
-        data: dataArray.map((item: any) => ({
-          x: item.datum.split('T')[0],
-          y: item.velikost_db
-        }))
-      },
-      // Log soubor - 3 řady
-      {
-        name: 'Max velikost Log',
-        color: '#6b7280',
-        data: dataArray.map((item: any) => ({
-          x: item.datum.split('T')[0],
-          y: item.velikost_log_max
-        }))
-      },
-      {
-        name: 'Aktuální velikost Log',
-        color: '#f59e0b',
-        data: dataArray.map((item: any) => ({
-          x: item.datum.split('T')[0],
-          y: item.velikost_log_souboru
-        }))
-      },
-      {
-        name: 'Velikost Log v rámci souboru',
-        color: '#10b981',
-        data: dataArray.map((item: any) => ({
-          x: item.datum.split('T')[0],
-          y: item.velikost_log_db
-        }))
-      }
+      { name: 'Max velikost DB', color: '#6b7280', data: maxDb },
+      { name: 'Aktuální velikost DB', color: '#3b82f6', data: sizeDb },
+      { name: 'Velikost DB v rámci souboru', color: '#8b5cf6', data: usedDb },
+      { name: 'Max velikost Log', color: '#6b7280', data: maxLog },
+      { name: 'Aktuální velikost Log', color: '#f59e0b', data: sizeLog },
+      { name: 'Velikost Log v rámci souboru', color: '#10b981', data: usedLog },
     ]
-    
-    console.log('Transformed chart data:', chartData)
     
     return NextResponse.json({
       success: true,
@@ -185,7 +88,7 @@ export async function GET(request: NextRequest) {
     })
 
   } catch (error) {
-    console.error('🔍 DEBUG: Error in database chart API:', error)
+    logger.error('Error in database chart API:', error)
     
     const errorMessage = error instanceof Error ? error.message : 'Unknown error'
     const isNetworkError = errorMessage.includes('fetch') || 
@@ -199,7 +102,6 @@ export async function GET(request: NextRequest) {
         error: isNetworkError ? 'Network error - cannot connect to database history server' : 'Failed to fetch database chart data',
         details: errorMessage,
         isNetworkError,
-        serverUrl: 'http://itmsql01:44612/web/databases/history'
       },
       { status: 500 }
     )

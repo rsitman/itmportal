@@ -5,247 +5,14 @@ import { Calendar, dateFnsLocalizer, Views } from 'react-big-calendar'
 import { format, parse, startOfWeek, getDay } from 'date-fns'
 import { cs } from 'date-fns/locale'
 import 'react-big-calendar/lib/css/react-big-calendar.css'
+import './calendar.css'
 import { useSession, signOut } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
 import { Event, CalendarEvent } from '@/types/calendar'
 import { OutlookCalendarService } from '@/lib/outlook-calendar'
 import { ErpCalendarService } from '@/lib/erp-calendar'
 import EventFilterPanel from '@/components/EventFilterPanel'
-
-// Custom CSS pro opravu klikání na události a českou lokalizaci
-const customStyles = `
-  .rbc-event {
-    z-index: 10 !important;
-    cursor: pointer !important;
-    white-space: normal !important;
-    overflow: visible !important;
-    text-overflow: visible !important;
-    line-height: 1.2 !important;
-    min-height: 20px !important;
-    position: relative !important;
-  }
-  
-  .rbc-event:hover {
-    z-index: 15 !important;
-    transform: scale(1.05);
-    box-shadow: 0 4px 12px rgba(0,0,0,0.3);
-    background-color: rgba(0,0,0,0.9) !important;
-  }
-  
-  .rbc-event.rbc-selected {
-    z-index: 20 !important;
-    box-shadow: 0 0 0 3px rgba(255,255,255,0.8);
-  }
-  
-  .rbc-month-view, .rbc-time-view, .rbc-agenda-view {
-    overflow: visible !important;
-  }
-  
-  .rbc-row-content {
-    overflow: visible !important;
-  }
-  
-  .rbc-day-slot .rbc-events-container {
-    overflow: visible !important;
-  }
-  
-  .rbc-event-content {
-    white-space: normal !important;
-    overflow: visible !important;
-    text-overflow: visible !important;
-    z-index: 10 !important;
-    line-height: 1.3 !important;
-  }
-  
-  /* Tooltip styling */
-  .event-tooltip {
-    position: fixed !important;
-    background: #ffffff !important;
-    color: #1a1a1a !important;
-    padding: 12px 16px !important;
-    border-radius: 8px !important;
-    font-size: 13px !important;
-    z-index: 10000 !important;
-    pointer-events: none !important;
-    max-width: 350px !important;
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15) !important;
-    border: 1px solid rgba(0, 0, 0, 0.1) !important;
-    backdrop-filter: blur(4px) !important;
-  }
-  
-  .event-tooltip-title {
-    font-weight: 600 !important;
-    margin-bottom: 6px !important;
-    color: #1a1a1a !important;
-    font-size: 14px !important;
-  }
-  
-  .event-tooltip-description {
-    color: #666666 !important;
-    font-size: 12px !important;
-    line-height: 1.4 !important;
-    margin-top: 4px !important;
-  }
-  
-  .rbc-toolbar .rbc-btn-group {
-    margin-bottom: 10px !important;
-  }
-  
-  .rbc-toolbar button {
-    margin-right: 5px !important;
-  }
-  
-  /* České zkratky dnů v týdenním zobrazení */
-  .rbc-time-header .rbc-header > span {
-    visibility: hidden !important;
-  }
-  
-  .rbc-time-header .rbc-header:nth-child(1) > span::after {
-    content: 'Po' !important;
-    visibility: visible !important;
-    position: absolute !important;
-    left: 0 !important;
-    top: 0 !important;
-  }
-  
-  .rbc-time-header .rbc-header:nth-child(2) > span::after {
-    content: 'Út' !important;
-    visibility: visible !important;
-    position: absolute !important;
-    left: 0 !important;
-    top: 0 !important;
-  }
-  
-  .rbc-time-header .rbc-header:nth-child(3) > span::after {
-    content: 'St' !important;
-    visibility: visible !important;
-    position: absolute !important;
-    left: 0 !important;
-    top: 0 !important;
-  }
-  
-  .rbc-time-header .rbc-header:nth-child(4) > span::after {
-    content: 'Čt' !important;
-    visibility: visible !important;
-    position: absolute !important;
-    left: 0 !important;
-    top: 0 !important;
-  }
-  
-  .rbc-time-header .rbc-header:nth-child(5) > span::after {
-    content: 'Pá' !important;
-    visibility: visible !important;
-    position: absolute !important;
-    left: 0 !important;
-    top: 0 !important;
-  }
-  
-  .rbc-time-header .rbc-header:nth-child(6) > span::after {
-    content: 'So' !important;
-    visibility: visible !important;
-    position: absolute !important;
-    left: 0 !important;
-    top: 0 !important;
-  }
-  
-  .rbc-time-header .rbc-header:nth-child(7) > span::after {
-    content: 'Ne' !important;
-    visibility: visible !important;
-    position: absolute !important;
-    left: 0 !important;
-    top: 0 !important;
-  }
-  
-  /* České zkratky dnů v měsíčním zobrazení */
-  .rbc-month-view .rbc-header abbr {
-    visibility: hidden !important;
-  }
-  
-  .rbc-month-view .rbc-header:nth-child(1) abbr::after {
-    content: 'Po' !important;
-    visibility: visible !important;
-    position: absolute !important;
-    left: 0 !important;
-    top: 0 !important;
-  }
-  
-  .rbc-month-view .rbc-header:nth-child(2) abbr::after {
-    content: 'Út' !important;
-    visibility: visible !important;
-    position: absolute !important;
-    left: 0 !important;
-    top: 0 !important;
-  }
-  
-  .rbc-month-view .rbc-header:nth-child(3) abbr::after {
-    content: 'St' !important;
-    visibility: visible !important;
-    position: absolute !important;
-    left: 0 !important;
-    top: 0 !important;
-  }
-  
-  .rbc-month-view .rbc-header:nth-child(4) abbr::after {
-    content: 'Čt' !important;
-    visibility: visible !important;
-    position: absolute !important;
-    left: 0 !important;
-    top: 0 !important;
-  }
-  
-  .rbc-month-view .rbc-header:nth-child(5) abbr::after {
-    content: 'Pá' !important;
-    visibility: visible !important;
-    position: absolute !important;
-    left: 0 !important;
-    top: 0 !important;
-  }
-  
-  .rbc-month-view .rbc-header:nth-child(6) abbr::after {
-    content: 'So' !important;
-    visibility: visible !important;
-    position: absolute !important;
-    left: 0 !important;
-    top: 0 !important;
-  }
-  
-  .rbc-month-view .rbc-header:nth-child(7) abbr::after {
-    content: 'Ne' !important;
-    visibility: visible !important;
-    position: absolute !important;
-    left: 0 !important;
-    top: 0 !important;
-  }
-  
-  /* 24h formát času */
-  .rbc-time-slot,
-  .rbc-time-header,
-  .rbc-time-gutter,
-  .rbc-time-content {
-    font-size: 11px !important;
-  }
-  
-  .rbc-time-slot {
-    text-align: center !important;
-    font-family: monospace !important;
-  }
-  
-  .rbc-time-header {
-    text-align: center !important;
-    font-family: monospace !important;
-  }
-  
-  /* Hover pro "+X více" */
-  .rbc-show-more {
-    cursor: pointer !important;
-    position: relative !important;
-  }
-  
-  .rbc-show-more:hover {
-    background-color: rgba(59, 130, 246, 0.1) !important;
-    border-radius: 4px !important;
-  }
-`
+import { logger } from '@/lib/logger'
 
 // Setup localizer
 const locales = {
@@ -340,14 +107,8 @@ export default function CalendarPage() {
     }
   })
   
-  // Apply custom styles
+  // Tooltip cleanup on mount
   useEffect(() => {
-    // Inject styles
-    const styleElement = document.createElement('style')
-    styleElement.textContent = customStyles
-    document.head.appendChild(styleElement)
-    
-    // Add global event listeners for tooltips
     const handleGlobalMouseLeave = () => {
       const tooltip = document.querySelector('.event-tooltip')
       if (tooltip) {
@@ -358,13 +119,11 @@ export default function CalendarPage() {
     document.addEventListener('mouseleave', handleGlobalMouseLeave, true)
     
     return () => {
-      // Cleanup
       document.removeEventListener('mouseleave', handleGlobalMouseLeave)
       const tooltip = document.querySelector('.event-tooltip')
       if (tooltip) {
         tooltip.remove()
       }
-      document.head.removeChild(styleElement)
     }
   }, []) 
   
@@ -403,38 +162,38 @@ export default function CalendarPage() {
 
   // Session check
   useEffect(() => {
-    console.log('Calendar - Session status:', status)
-    console.log('Calendar - Session data:', session)
+    logger.log('Calendar - Session status:', status)
+    logger.log('Calendar - Session data:', session)
     
     if (status === 'loading') {
       return // Čekáme na session
     }
     
     if (status === 'unauthenticated') {
-      console.log('Calendar - User not authenticated, redirecting to login')
+      logger.log('Calendar - User not authenticated, redirecting to login')
       router.push('/login')
       return
     }
     
     if (session?.user) {
       setUserRole(session.user.role || '')
-      console.log('Calendar - User authenticated:', session.user.email, 'Role:', session.user.role)
+      logger.log('Calendar - User authenticated:', session.user.email, 'Role:', session.user.role)
     }
     
     setLoading(false)
   }, [session, status, router])
 
   const fetchEvents = async () => {
-    console.log('fetchEvents: Starting fetch')
+    logger.log('fetchEvents: Starting fetch')
     setLoading(true)
     try {
       const response = await fetch('/api/events')
-      console.log('fetchEvents: Response status:', response.status)
+      logger.log('fetchEvents: Response status:', response.status)
       
       if (response.ok) {
         const data: Event[] = await response.json()
-        console.log('fetchEvents: Raw data:', data)
-        console.log('fetchEvents: Data length:', data.length)
+        logger.log('fetchEvents: Raw data:', data)
+        logger.log('fetchEvents: Data length:', data.length)
         
         const calendarEvents: CalendarEvent[] = data.map(event => ({
           id: event.id,
@@ -445,16 +204,16 @@ export default function CalendarPage() {
           resource: event,
         }))
         
-        console.log('fetchEvents: Mapped events:', calendarEvents)
-        console.log('fetchEvents: Sample event:', calendarEvents[0])
-        console.log('fetchEvents: Calendar component rendering with events:', events.length)
+        logger.log('fetchEvents: Mapped events:', calendarEvents)
+        logger.log('fetchEvents: Sample event:', calendarEvents[0])
+        logger.log('fetchEvents: Calendar component rendering with events:', events.length)
         setEvents(calendarEvents)
 
         // Update ERP and local event counts
         const erpEvents = data.filter(event => event.isErpEvent)
         const localEvents = data.filter(event => !event.isErpEvent)
-        console.log('fetchEvents: ERP events count:', erpEvents.length)
-        console.log('fetchEvents: Local events count:', localEvents.length)
+        logger.log('fetchEvents: ERP events count:', erpEvents.length)
+        logger.log('fetchEvents: Local events count:', localEvents.length)
         setErpEventCount(erpEvents.length)
         setLocalEventCount(localEvents.length)
         
@@ -539,7 +298,7 @@ export default function CalendarPage() {
     document.body.appendChild(tooltip)
     
     // Debug log
-    console.log('Tooltip created:', { title, description, left, top })
+    logger.log('Tooltip created:', { title, description, left, top })
   }
 
   const hideTooltip = () => {
@@ -650,21 +409,14 @@ export default function CalendarPage() {
 
     try {
       const result = await OutlookCalendarService.syncOutlookEvents()
-      console.log('Outlook Sync result:', result)
+      logger.log('Outlook Sync result:', result)
       
       if (result.errors.length > 0) {
         setSyncError(result.errors.join('; '))
       }
       
+      // fetchEvents already updates all counts — no need for duplicate fetch
       await fetchEvents()
-      
-      // Update outlook event count
-      const outlookResponse = await fetch('/api/events')
-      if (outlookResponse.ok) {
-        const allData = await outlookResponse.json()
-        const outlookEvents = allData.filter((event: any) => event.outlookId)
-        setOutlookEventCount(outlookEvents.length)
-      }
     } catch (error) {
       setSyncError('Failed to sync Outlook events')
     } finally {
@@ -673,12 +425,11 @@ export default function CalendarPage() {
   }
 
   const syncErpEvents = async () => {
-    console.log('syncErpEvents: Starting ERP sync')
+    logger.log('syncErpEvents: Starting ERP sync')
     setSyncingWithErp(true)
     setErpSyncError(null)
 
     try {
-      console.log('syncErpEvents: Calling /api/erp-calendar/sync')
       const result = await fetch('/api/erp-calendar/sync', {
         method: 'POST',
         headers: {
@@ -688,34 +439,21 @@ export default function CalendarPage() {
 
       if (!result.ok) {
         const errorText = await result.text()
-        console.error('syncErpEvents: Sync failed with status:', result.status, errorText)
+        logger.error('syncErpEvents: Sync failed with status:', result.status, errorText)
         throw new Error(`Sync failed: ${result.status} ${result.statusText}`)
       }
 
       const syncResult = await result.json()
-      console.log('syncErpEvents: ERP Sync result:', syncResult)
+      logger.log('syncErpEvents: ERP Sync result:', syncResult)
       
-      // Refresh events after sync
-      console.log('syncErpEvents: Refreshing events after sync')
+      // fetchEvents already updates all counts — no need for duplicate fetch
       await fetchEvents()
-      
-      // Update ERP event count
-      console.log('syncErpEvents: Getting updated ERP count')
-      const erpResponse = await fetch('/api/erp-calendar')
-      if (erpResponse.ok) {
-        const erpData = await erpResponse.json()
-        console.log('syncErpEvents: Updated ERP data:', erpData.length, 'events')
-        setErpEventCount(erpData.length)
-      } else {
-        console.error('syncErpEvents: Failed to get updated ERP count:', erpResponse.status)
-      }
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : 'Unknown error'
-      console.error('syncErpEvents: Sync error:', error)
+      logger.error('syncErpEvents: Sync error:', error)
       setErpSyncError('Sync failed: ' + errorMessage)
     } finally {
       setSyncingWithErp(false)
-      console.log('syncErpEvents: Sync completed')
     }
   }
 
@@ -742,7 +480,7 @@ export default function CalendarPage() {
     
     // Force re-render of calendar
     if (events.length > 0) {
-      console.log('Forcing calendar re-render with events:', events.length)
+      logger.log('Forcing calendar re-render with events:', events.length)
       const calendarElement = document.querySelector('.rbc-calendar')
       if (calendarElement) {
         ;(calendarElement as HTMLElement).style.display = 'none'
@@ -1083,7 +821,7 @@ export default function CalendarPage() {
                 event: ({ event }: { event: CalendarEvent }) => (
                   <div
                     onMouseEnter={(e) => {
-                      console.log('Hover event triggered:', event.title, event.resource?.description)
+                      logger.log('Hover event triggered:', event.title, event.resource?.description)
                       const description = event.resource?.description || ''
                       showTooltip(e, event.title, description)
                     }}
@@ -1109,7 +847,7 @@ export default function CalendarPage() {
                 showMore: ({ events }: { events: CalendarEvent[] }) => (
                   <div
                     onMouseEnter={(e) => {
-                      console.log('ShowMore hover triggered:', events.length, events)
+                      logger.log('ShowMore hover triggered:', events.length, events)
                       const eventDetails = events.map(event => 
                         `${event.title}${event.resource?.description ? ': ' + event.resource.description : ''}`
                       ).join('\n')

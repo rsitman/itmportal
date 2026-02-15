@@ -1,83 +1,79 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { getServerSession } from 'next-auth'
+import { logger } from '@/lib/logger'
 
 // GET /api/hwsw/network - Get network configuration from ERP
-// TODO: Až bude ERP endpoint dostupný, připojit na http://itmsql01:44612/web/network-config
 export async function GET(request: NextRequest) {
   try {
-    // Mock data - ERP endpoint zatím neexistuje
-    return NextResponse.json({
-      network: {
-        devices: [
-          {
-            id: 'NET001',
-            name: 'Core Switch 01',
-            type: 'switch',
-            manufacturer: 'Cisco',
-            model: 'Catalyst 2960-X',
-            ipAddress: '192.168.1.1',
-            subnet: '255.255.255.0',
-            vlan: '1',
-            ports: 48,
-            status: 'active',
-            location: 'Serverovna',
-            configuration: {
-              dns: ['192.168.1.10', '8.8.8.8'],
-              gateway: '192.168.1.1',
-              dhcp: {
-                enabled: true,
-                range: '192.168.1.100-192.168.1.200'
-              }
-            },
-            projectId: 'PROJ001',
-            projectName: 'Firemní portál'
-          }
-        ],
-        servers: [
-          {
-            id: 'SRV001',
-            name: 'AD Server',
-            type: 'domain_controller',
-            ipAddress: '192.168.1.10',
-            role: 'Primary DC',
-            status: 'active',
-            services: ['Active Directory', 'DNS', 'DHCP'],
-            configuration: {
-              domain: 'firma.local',
-              forest: 'firma.local',
-              sites: ['Default-First-Site-Name']
-            },
-            projectId: 'PROJ001',
-            projectName: 'Firemní portál'
-          }
-        ],
-        connections: [
-          {
-            id: 'CONN001',
-            source: 'NET001',
-            target: 'SRV001',
-            type: 'ethernet',
-            port: 1,
-            speed: '1Gbps',
-            status: 'active'
-          }
-        ]
-      }
+    const session = await getServerSession()
+    
+    if (!session) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    }
+
+    // Real ERP endpoint integration
+    const erpUrl = process.env.ERP_API_URL || 'http://itmsql01:44612'
+    const response = await fetch(`${erpUrl}/web/network-config`, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+      },
     })
+
+    if (!response.ok) {
+      logger.error('ERP network configuration error:', response.status, response.statusText)
+      // Fallback to empty data if ERP is unavailable
+      return NextResponse.json({ network: { devices: [], servers: [], connections: [] } })
+    }
+
+    const data = await response.json()
+    const deviceCount = data?.devices?.length || 0
+    const serverCount = data?.servers?.length || 0
+    logger.log(`✅ ${deviceCount} network devices, ${serverCount} servers from ERP`)
+    
+    return NextResponse.json({
+      network: data || { devices: [], servers: [], connections: [] }
+    })
+
   } catch (error) {
-    console.error('Error fetching network configuration:', error)
+    logger.error('Error fetching network configuration:', error)
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
 }
 
 // POST /api/hwsw/network - Update network configuration
-// TODO: Až bude ERP endpoint dostupný, připojit na POST http://itmsql01:44612/web/network-config
 export async function POST(request: NextRequest) {
   try {
+    const session = await getServerSession()
+    
+    if (!session || session.user?.role !== 'ADMIN') {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    }
+
     const body = await request.json()
-    // Mock response - ERP endpoint zatím neexistuje
-    return NextResponse.json({ ...body, id: `NET${Date.now()}` }, { status: 201 })
+    
+    // Real ERP endpoint integration
+    const erpUrl = process.env.ERP_API_URL || 'http://itmsql01:44612'
+    const response = await fetch(`${erpUrl}/web/network-config`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(body)
+    })
+
+    if (!response.ok) {
+      logger.error('ERP network configuration save error:', response.status, response.statusText)
+      return NextResponse.json({ error: 'Failed to save network configuration' }, { status: 500 })
+    }
+
+    const data = await response.json()
+    logger.log(`✅ Network configuration saved: ${data.id || 'unknown'}`)
+    
+    return NextResponse.json(data, { status: 201 })
+    
   } catch (error) {
-    console.error('Error updating network configuration:', error)
+    logger.error('Error updating network configuration:', error)
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
 }

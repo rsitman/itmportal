@@ -1,64 +1,78 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { getServerSession } from 'next-auth'
+import { logger } from '@/lib/logger'
 
 // GET /api/hwsw/software - Get software licenses from ERP
-// TODO: Až bude ERP endpoint dostupný, připojit na http://itmsql01:44612/web/sw-licenses
 export async function GET(request: NextRequest) {
   try {
-    // Mock data - ERP endpoint zatím neexistuje
-    return NextResponse.json({
-      software: [
-        {
-          id: 'SW001',
-          name: 'Microsoft Office 365',
-          version: '2024',
-          vendor: 'Microsoft',
-          licenseKey: 'XXXX-XXXX-XXXX-XXXX',
-          licenseExpiry: '2025-12-31',
-          installationDate: '2023-06-01',
-          category: 'Office Software',
-          type: 'subscription',
-          seats: 50,
-          usedSeats: 35,
-          status: 'active',
-          installedOn: ['HW001', 'HW002', 'HW003'],
-          projectId: 'PROJ001',
-          projectName: 'Firemní portál',
-          notes: 'Firemní licence pro všechny zaměstnance'
-        },
-        {
-          id: 'SW002',
-          name: 'KARAT ERP',
-          version: '3.2.1',
-          vendor: 'KARAT Software',
-          licenseKey: 'KARAT-2024-PROD',
-          licenseExpiry: '2026-06-30',
-          installationDate: '2023-02-15',
-          category: 'ERP System',
-          type: 'perpetual',
-          status: 'active',
-          installedOn: ['SRV001'],
-          projectId: 'PROJ001',
-          projectName: 'Firemní portál',
-          notes: 'Hlavní ERP systém společnosti'
-        }
-      ],
-      total: 2
+    const session = await getServerSession()
+    
+    if (!session) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    }
+
+    // Real ERP endpoint integration
+    const erpUrl = process.env.ERP_API_URL || 'http://itmsql01:44612'
+    const response = await fetch(`${erpUrl}/web/sw-licenses`, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+      },
     })
+
+    if (!response.ok) {
+      logger.error('ERP software licenses error:', response.status, response.statusText)
+      // Fallback to empty data if ERP is unavailable
+      return NextResponse.json({ software: [], total: 0 })
+    }
+
+    const data = await response.json()
+    logger.log(`✅ ${data.length || 0} software licenses from ERP`)
+    
+    return NextResponse.json({
+      software: data || [],
+      total: data?.length || 0
+    })
+
   } catch (error) {
-    console.error('Error fetching software licenses:', error)
+    logger.error('Error fetching software licenses:', error)
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
 }
 
 // POST /api/hwsw/software - Add/update software license
-// TODO: Až bude ERP endpoint dostupný, připojit na POST http://itmsql01:44612/web/sw-licenses
 export async function POST(request: NextRequest) {
   try {
+    const session = await getServerSession()
+    
+    if (!session || session.user?.role !== 'ADMIN') {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    }
+
     const body = await request.json()
-    // Mock response - ERP endpoint zatím neexistuje
-    return NextResponse.json({ ...body, id: `SW${Date.now()}` }, { status: 201 })
+    
+    // Real ERP endpoint integration
+    const erpUrl = process.env.ERP_API_URL || 'http://itmsql01:44612'
+    const response = await fetch(`${erpUrl}/web/sw-licenses`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(body)
+    })
+
+    if (!response.ok) {
+      logger.error('ERP software license save error:', response.status, response.statusText)
+      return NextResponse.json({ error: 'Failed to save software license' }, { status: 500 })
+    }
+
+    const data = await response.json()
+    logger.log(`✅ Software license saved: ${data.id || 'unknown'}`)
+    
+    return NextResponse.json(data, { status: 201 })
+    
   } catch (error) {
-    console.error('Error saving software license:', error)
+    logger.error('Error saving software license:', error)
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
 }

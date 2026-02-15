@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getServerSession } from 'next-auth'
 import { ServiceProject } from '@/types/project'
+import { logger } from '@/lib/logger'
 
 async function getServiceProjects(): Promise<ServiceProject[]> {
   try {
@@ -10,12 +11,12 @@ async function getServiceProjects(): Promise<ServiceProject[]> {
     const response = await fetch(fetchUrl)
     
     if (!response.ok) {
-      console.error('Failed to fetch from /web/projects:', response.status)
+      logger.error('Failed to fetch from /web/projects:', response.status)
       throw new Error(`Failed to fetch service projects: ${response.status}`)
     }
 
     const rawData = await response.json()
-    console.log(`✅ ${rawData.length} service projects from KARAT`)
+    logger.log(`✅ ${rawData.length} service projects from KARAT`)
     
     // Transformace dat na strukturu ServiceProject
     return rawData.map((project: any) => ({
@@ -27,7 +28,7 @@ async function getServiceProjects(): Promise<ServiceProject[]> {
       logo: project.logo || '' // Přidáno pro loga z ERP
     }))
   } catch (error) {
-    console.error('Error fetching service projects:', error)
+    logger.error('Error fetching service projects:', error)
     return []
   }
 }
@@ -46,7 +47,7 @@ export async function GET(request: NextRequest) {
     return NextResponse.json(projects)
     
   } catch (error) {
-    console.error('Error fetching projects:', error)
+    logger.error('Error fetching projects:', error)
     return NextResponse.json(
       { error: 'Failed to fetch projects' },
       { status: 500 }

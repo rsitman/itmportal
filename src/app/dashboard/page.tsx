@@ -2,20 +2,28 @@
 
 import { useSession } from 'next-auth/react'
 import { useRouter, useSearchParams } from 'next/navigation'
-import { useEffect, Suspense } from 'react'
+import { useEffect, useState, Suspense } from 'react'
+import { logger } from '@/lib/logger'
+
+interface DashboardStats {
+  projects: number
+  users: number
+  events: number
+}
 
 function DashboardContent() {
   const { data: session, status } = useSession()
   const router = useRouter()
   const searchParams = useSearchParams()
   const error = searchParams.get('error')
+  const [stats, setStats] = useState<DashboardStats>({ projects: 0, users: 0, events: 0 })
 
   useEffect(() => {
     if (error === 'access_denied') {
-      console.warn('Přístup odepřen - nedostatečná oprávnění')
+      logger.warn('Přístup odepřen - nedostatečná oprávnění')
     }
     if (error === 'azure_ad_users_restricted') {
-      console.warn('Azure AD uživatelé nemohou přistupovat na správu uživatelů')
+      logger.warn('Azure AD uživatelé nemohou přistupovat na správu uživatelů')
     }
   }, [error])
 
@@ -24,6 +32,33 @@ function DashboardContent() {
       router.push('/login')
     }
   }, [session, status, router])
+
+  // Fetch real stats
+  useEffect(() => {
+    if (status !== 'authenticated') return
+
+    const fetchStats = async () => {
+      const [projectsRes, usersRes, eventsRes] = await Promise.allSettled([
+        fetch('/api/karat/projects'),
+        fetch('/api/users'),
+        fetch('/api/events'),
+      ])
+
+      setStats({
+        projects: projectsRes.status === 'fulfilled' && projectsRes.value.ok
+          ? (await projectsRes.value.json()).length ?? 0
+          : 0,
+        users: usersRes.status === 'fulfilled' && usersRes.value.ok
+          ? (await usersRes.value.json()).length ?? 0
+          : 0,
+        events: eventsRes.status === 'fulfilled' && eventsRes.value.ok
+          ? (await eventsRes.value.json()).length ?? 0
+          : 0,
+      })
+    }
+
+    fetchStats().catch(err => logger.error('Dashboard stats fetch error:', err))
+  }, [status])
 
   if (status === 'loading') {
     return (
@@ -104,7 +139,7 @@ function DashboardContent() {
                 <div className="ml-5 w-0 flex-1">
                   <dl>
                     <dt className="text-sm font-medium text-gray-500 truncate">Projekty</dt>
-                    <dd className="text-lg font-medium text-gray-900">24</dd>
+                    <dd className="text-lg font-medium text-gray-900">{stats.projects}</dd>
                   </dl>
                 </div>
               </div>
@@ -131,7 +166,7 @@ function DashboardContent() {
                 <div className="ml-5 w-0 flex-1">
                   <dl>
                     <dt className="text-sm font-medium text-gray-500 truncate">Uživatelé</dt>
-                    <dd className="text-lg font-medium text-gray-900">12</dd>
+                    <dd className="text-lg font-medium text-gray-900">{stats.users}</dd>
                   </dl>
                 </div>
               </div>
@@ -158,7 +193,7 @@ function DashboardContent() {
                 <div className="ml-5 w-0 flex-1">
                   <dl>
                     <dt className="text-sm font-medium text-gray-500 truncate">Grafy</dt>
-                    <dd className="text-lg font-medium text-gray-900">8</dd>
+                    <dd className="text-lg font-medium text-gray-900">6</dd>
                   </dl>
                 </div>
               </div>
@@ -185,7 +220,7 @@ function DashboardContent() {
                 <div className="ml-5 w-0 flex-1">
                   <dl>
                     <dt className="text-sm font-medium text-gray-500 truncate">Kalendář</dt>
-                    <dd className="text-lg font-medium text-gray-900">5</dd>
+                    <dd className="text-lg font-medium text-gray-900">{stats.events}</dd>
                   </dl>
                 </div>
               </div>
