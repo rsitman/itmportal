@@ -50,15 +50,36 @@ export default function Header() {
     setIsSigningOut(true)
     
     try {
-      // Explicitní odhlášení bez automatického přesměrování
+      // Získat uživatelské preference pro logování
+      const prefsResponse = await fetch('/api/user/preferences')
+      const userPrefs = prefsResponse.ok ? await prefsResponse.json() : null
+      
+      logger.log('User signing out - rememberLogin:', userPrefs?.rememberLogin)
+      
+      // Získat Azure AD logout URL
+      const logoutResponse = await fetch('/api/auth/logout', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' }
+      })
+      
+      const logoutData = await logoutResponse.json()
+      
+      // VŽDY úplné odhlášení - bez ohledu na rememberLogin nastavení
+      // Explicitní odhlášení = vždy smazat cookies
       await signOut({ 
         redirect: false,
         callbackUrl: '/login'
       })
       
-      // Manuální přesměrování na login stránku
-      router.push('/login')
-      router.refresh()
+      // Pokud máme Azure AD logout URL, přesměrovat tam pro úplné odhlášení
+      if (logoutData.success && logoutData.logoutUrl) {
+        logger.log('Redirecting to Azure AD logout for complete sign out')
+        window.location.href = logoutData.logoutUrl
+      } else {
+        // Jinak jen přesměrovat na login
+        router.push('/login')
+        router.refresh()
+      }
       
     } catch (error) {
       logger.error('Error during sign out:', error)

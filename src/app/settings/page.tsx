@@ -143,15 +143,24 @@ export default function SettingsPage() {
                 <div className="w-2 h-2 bg-green-500 rounded-full mt-1.5"></div>
                 <div>
                   <strong>Pamatovat si (24h):</strong> Pohodlné pro osobní počítače. 
-                  Při návštěvě login stránky uvidíte možnost pokračovat jako přihlášený uživatel.
+                  Session vyprší po 24 hodinách neaktivity. <strong>Poznámka:</strong> Tlačítko "Odhlásit se" vás vždy odhlásí okamžitě.
                 </div>
               </div>
               <div className="flex items-start space-x-2">
                 <div className="w-2 h-2 bg-orange-500 rounded-full mt-1.5"></div>
                 <div>
                   <strong>Nepamatovat (1h):</strong> Bezpečné pro sdílené počítače. 
-                  Vždy budete muset znovu zadat přihlašovací údaje.
+                  Session vyprší po 1 hodině neaktivity. <strong>Poznámka:</strong> Tlačítko "Odhlásit se" vás vždy odhlásí okamžitě.
                 </div>
+              </div>
+            </div>
+
+            <div className="pt-4 border-t border-gray-200">
+              <h3 className="text-sm font-medium text-gray-900 mb-2">Chování odhlašování</h3>
+              <div className="bg-blue-50 p-3 rounded-md text-sm text-blue-800">
+                <strong>Důležité:</strong> Kliknutí na tlačítko "Odhlásit se" vždy provede úplné odhlášení 
+                z aplikace i z Microsoft účtu, bez ohledu na toto nastavení. 
+                Toto nastavení ovlivňuje pouze automatické odhlášení po neaktivitě.
               </div>
             </div>
           </div>
