@@ -1,10 +1,20 @@
-import { Geist, Geist_Mono } from "next/font/google";
+import { Inter, Source_Code_Pro } from "next/font/google";
 import "./globals.css";
 import "leaflet/dist/leaflet.css";
 import ClientLayout from "@/components/ClientLayout";
 
-const geistSans = Geist({ variable: "--font-geist-sans", subsets: ["latin"] });
-const geistMono = Geist_Mono({ variable: "--font-geist-mono", subsets: ["latin"] });
+const inter = Inter({ 
+  variable: "--font-inter", 
+  subsets: ["latin"],
+  display: "swap",
+  weight: ["300", "400", "500", "600", "700", "800"]
+});
+
+const sourceCodePro = Source_Code_Pro({ 
+  variable: "--font-source-code-pro", 
+  subsets: ["latin"],
+  display: "swap"
+});
 
 export const metadata = {
   title: 'Servisní portál',
@@ -18,7 +28,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="cs">
-      <body className={`${geistSans.variable} ${geistMono.variable} antialiased font-sans`}>
+      <body className={`${inter.variable} ${sourceCodePro.variable} antialiased font-sans`}>
         <ClientLayout>{children}</ClientLayout>
       </body>
     </html>

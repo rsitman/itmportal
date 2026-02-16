@@ -12,32 +12,33 @@ export default function DatabasesTable({ databases }: DatabasesTableProps) {
   const [expandedRows, setExpandedRows] = useState<Set<string>>(new Set())
   if (databases.length === 0) {
     return (
-      <div className="text-center py-12">
+      <div className="text-center py-16 bg-white rounded-xl shadow-soft border border-gray-200">
         <div className="text-gray-400 text-6xl mb-4">🗄️</div>
-        <h3 className="text-lg font-medium text-gray-900 mb-2">Žádné databáze</h3>
+        <h3 className="text-xl font-semibold text-gray-900 mb-2">Žádné databáze</h3>
         <p className="text-gray-600">Nebyly nalezeny žádné databáze k zobrazení.</p>
       </div>
     )
   }
 
   return (
-    <div className="overflow-x-auto">
-      <div className="min-w-[1600px]">
-        {/* Header */}
-        <div className="flex border-b border-gray-200 bg-gray-50 text-xs font-medium text-gray-500">
-          <div className="px-4 py-3 border-r border-gray-200 flex-1 min-w-[120px]">Firma</div>
-          <div className="px-4 py-3 border-r border-gray-200 flex-1 min-w-[100px]">Projekt</div>
-          <div className="px-4 py-3 border-r border-gray-200 flex-1 min-w-[100px]">Databáze</div>
-          <div className="px-4 py-3 border-r border-gray-200 w-[100px] flex-shrink-0">Verze</div>
-          <div className="px-4 py-3 border-r border-gray-200 w-[120px] flex-shrink-0">Velikost</div>
-          <div className="px-4 py-3 border-r border-gray-200 w-[120px] flex-shrink-0">Využití</div>
-          <div className="px-4 py-3 border-r border-gray-200 w-[120px] flex-shrink-0">Log velikost</div>
-          <div className="px-4 py-3 border-r border-gray-200 w-[120px] flex-shrink-0">Log využití</div>
-          <div className="px-4 py-3 border-r border-gray-200 w-[100px] flex-shrink-0">Volné dny</div>
-          <div className="px-4 py-3 border-r border-gray-200 w-[180px] flex-shrink-0">Poslední Full backup</div>
-          <div className="px-4 py-3 border-r border-gray-200 w-[180px] flex-shrink-0">Poslední Inc backup</div>
-          <div className="px-4 py-3 w-[100px] flex-shrink-0">Recovery</div>
-        </div>
+    <div className="bg-white rounded-xl shadow-soft border border-gray-200 overflow-hidden">
+      <div className="overflow-x-auto">
+        <div className="min-w-[1600px]">
+          {/* Header */}
+          <div className="flex border-b border-gray-200 bg-gradient-to-r from-gray-50 to-gray-100 text-xs font-semibold text-gray-700 uppercase tracking-wider">
+            <div className="px-6 py-4 border-r border-gray-200 flex-1 min-w-[120px]">Firma</div>
+            <div className="px-6 py-4 border-r border-gray-200 flex-1 min-w-[100px]">Projekt</div>
+            <div className="px-6 py-4 border-r border-gray-200 flex-1 min-w-[100px]">Databáze</div>
+            <div className="px-6 py-4 border-r border-gray-200 w-[100px] flex-shrink-0">Verze</div>
+            <div className="px-6 py-4 border-r border-gray-200 w-[120px] flex-shrink-0">Velikost</div>
+            <div className="px-6 py-4 border-r border-gray-200 w-[120px] flex-shrink-0">Využití</div>
+            <div className="px-6 py-4 border-r border-gray-200 w-[120px] flex-shrink-0">Log velikost</div>
+            <div className="px-6 py-4 border-r border-gray-200 w-[120px] flex-shrink-0">Log využití</div>
+            <div className="px-6 py-4 border-r border-gray-200 w-[100px] flex-shrink-0">Volné dny</div>
+            <div className="px-6 py-4 border-r border-gray-200 w-[180px] flex-shrink-0">Poslední Full backup</div>
+            <div className="px-6 py-4 border-r border-gray-200 w-[180px] flex-shrink-0">Poslední Inc backup</div>
+            <div className="px-6 py-4 w-[100px] flex-shrink-0">Recovery</div>
+          </div>
         
         {/* Data rows */}
         {databases.map((database, index) => {
@@ -163,6 +164,7 @@ export default function DatabasesTable({ databases }: DatabasesTableProps) {
             </Fragment>
           )
         })}
+        </div>
       </div>
     </div>
   )

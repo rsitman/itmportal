@@ -50,18 +50,18 @@ export default async function UsersPage() {
   const users = await getUsers()
   
   return (
-    <div className="w-full py-10">
+    <div className="w-full py-10 bg-transparent">
       <div className="mb-8 px-6">
-        <h1 className="text-3xl font-bold tracking-tight text-gray-900 mb-2">
+        <h1 className="text-3xl font-bold tracking-tight text-white mb-2">
           Uživatelé
         </h1>
-        <p className="text-lg text-gray-600">
+        <p className="text-lg text-gray-300">
           Správa uživatelských účtů a oprávnění
         </p>
         {session.user.email && !session.user.email.includes('@itman.cz') && (
-          <div className="mt-4 p-4 bg-blue-50 border border-blue-200 rounded-lg">
-            <p className="text-sm text-blue-800">
-              <strong>Lokální administrátor:</strong> Jste přihlášen přes lokální účet s administrátorskými právy.
+          <div className="mt-4 p-4 bg-blue-900/50 border border-blue-800 rounded-lg">
+            <p className="text-sm text-blue-200">
+              <strong className="text-blue-100">Lokální administrátor:</strong> Jste přihlášen přes lokální účet s administrátorskými právy.
             </p>
           </div>
         )}

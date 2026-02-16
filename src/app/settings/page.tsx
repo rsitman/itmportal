@@ -91,26 +91,26 @@ export default function SettingsPage() {
   }
 
   return (
-    <div className="p-6">
+    <div className="p-6 bg-transparent">
       <div className="mb-8">
-        <h1 className="text-2xl font-bold text-gray-900 mb-2">Nastavení</h1>
-        <p className="text-gray-600">Správa vašich osobních nastavení a preferencí</p>
+        <h1 className="text-2xl font-bold text-white mb-2">Nastavení</h1>
+        <p className="text-gray-300">Správa vašich osobních nastavení a preferencí</p>
       </div>
 
       {/* User Info */}
-      <div className="bg-white p-6 rounded-lg shadow-md border border-gray-200 mb-6">
-        <h2 className="text-lg font-semibold text-gray-900 mb-4">Informace o účtu</h2>
-        <div className="space-y-2 text-sm text-gray-600">
-          <div><strong>Jméno:</strong> {session.user?.name}</div>
-          <div><strong>Email:</strong> {session.user?.email}</div>
-          <div><strong>Role:</strong> {session.user?.role}</div>
-          <div><strong>Poskytovatel:</strong> {session.authProvider === 'AZURE_AD' ? 'Azure AD' : 'Lokální'}</div>
+      <div className="card-professional p-6 mb-6">
+        <h2 className="text-lg font-semibold text-white mb-4">Informace o účtu</h2>
+        <div className="space-y-2 text-sm text-gray-300">
+          <div><strong className="text-gray-200">Jméno:</strong> {session.user?.name}</div>
+          <div><strong className="text-gray-200">Email:</strong> {session.user?.email}</div>
+          <div><strong className="text-gray-200">Role:</strong> {session.user?.role}</div>
+          <div><strong className="text-gray-200">Poskytovatel:</strong> {session.authProvider === 'AZURE_AD' ? 'Azure AD' : 'Lokální'}</div>
         </div>
       </div>
 
       {/* Session Preferences */}
-      <div className="bg-white p-6 rounded-lg shadow-md border border-gray-200">
-        <h2 className="text-lg font-semibold text-gray-900 mb-4">Přihlašovací nastavení</h2>
+      <div className="card-professional p-6">
+        <h2 className="text-lg font-semibold text-white mb-4">Přihlašovací nastavení</h2>
         
         <div className="space-y-4">
           <div>
@@ -123,11 +123,11 @@ export default function SettingsPage() {
                   rememberLogin: e.target.checked,
                   sessionPreference: e.target.checked ? 'REMEMBER' : 'TEMPORARY'
                 }))}
-                className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500"
+                className="w-4 h-4 text-blue-600 bg-gray-700 border-gray-600 rounded focus:ring-blue-500"
               />
               <div>
-                <div className="font-medium text-gray-900">Pamatovat si přihlášení</div>
-                <div className="text-sm text-gray-500">
+                <div className="font-medium text-white">Pamatovat si přihlášení</div>
+                <div className="text-sm text-gray-400">
                   {preferences.rememberLogin 
                     ? 'Zůstanete přihlášeni po dobu 24 hodin' 
                     : 'Odhlásíme vás po 1 hodině neaktivity'}
@@ -136,29 +136,29 @@ export default function SettingsPage() {
             </label>
           </div>
 
-          <div className="pt-4 border-t border-gray-200">
-            <h3 className="text-sm font-medium text-gray-900 mb-2">Co to znamená?</h3>
-            <div className="space-y-2 text-sm text-gray-600">
+          <div className="pt-4 border-t border-gray-700">
+            <h3 className="text-sm font-medium text-white mb-2">Co to znamená?</h3>
+            <div className="space-y-2 text-sm text-gray-300">
               <div className="flex items-start space-x-2">
                 <div className="w-2 h-2 bg-green-500 rounded-full mt-1.5"></div>
                 <div>
-                  <strong>Pamatovat si (24h):</strong> Pohodlné pro osobní počítače. 
-                  Session vyprší po 24 hodinách neaktivity. <strong>Poznámka:</strong> Tlačítko "Odhlásit se" vás vždy odhlásí okamžitě.
+                  <strong className="text-gray-200">Pamatovat si (24h):</strong> Pohodlné pro osobní počítače. 
+                  Session vyprší po 24 hodinách neaktivity. <strong className="text-gray-200">Poznámka:</strong> Tlačítko "Odhlásit se" vás vždy odhlásí okamžitě.
                 </div>
               </div>
               <div className="flex items-start space-x-2">
                 <div className="w-2 h-2 bg-orange-500 rounded-full mt-1.5"></div>
                 <div>
-                  <strong>Nepamatovat (1h):</strong> Bezpečné pro sdílené počítače. 
-                  Session vyprší po 1 hodině neaktivity. <strong>Poznámka:</strong> Tlačítko "Odhlásit se" vás vždy odhlásí okamžitě.
+                  <strong className="text-gray-200">Nepamatovat (1h):</strong> Bezpečné pro sdílené počítače. 
+                  Session vyprší po 1 hodině neaktivity. <strong className="text-gray-200">Poznámka:</strong> Tlačítko "Odhlásit se" vás vždy odhlásí okamžitě.
                 </div>
               </div>
             </div>
 
-            <div className="pt-4 border-t border-gray-200">
-              <h3 className="text-sm font-medium text-gray-900 mb-2">Chování odhlašování</h3>
-              <div className="bg-blue-50 p-3 rounded-md text-sm text-blue-800">
-                <strong>Důležité:</strong> Kliknutí na tlačítko "Odhlásit se" vždy provede úplné odhlášení 
+            <div className="pt-4 border-t border-gray-700">
+              <h3 className="text-sm font-medium text-white mb-2">Chování odhlašování</h3>
+              <div className="bg-blue-900/50 p-3 rounded-md text-sm text-blue-200 border border-blue-800">
+                <strong className="text-blue-100">Důležité:</strong> Kliknutí na tlačítko "Odhlásit se" vždy provede úplné odhlášení 
                 z aplikace i z Microsoft účtu, bez ohledu na toto nastavení. 
                 Toto nastavení ovlivňuje pouze automatické odhlášení po neaktivitě.
               </div>
@@ -169,8 +169,8 @@ export default function SettingsPage() {
         {message && (
           <div className={`mt-4 p-3 rounded-md text-sm ${
             message.includes('uloženo') 
-              ? 'bg-green-50 text-green-800 border border-green-200' 
-              : 'bg-red-50 text-red-800 border border-red-200'
+              ? 'bg-green-900/50 text-green-200 border border-green-800' 
+              : 'bg-red-900/50 text-red-200 border border-red-800'
           }`}>
             {message}
           </div>
@@ -188,23 +188,23 @@ export default function SettingsPage() {
       </div>
 
       {/* Other Settings Links */}
-      <div className="mt-6 bg-white p-6 rounded-lg shadow-md border border-gray-200">
-        <h2 className="text-lg font-semibold text-gray-900 mb-4">Další nastavení</h2>
+      <div className="mt-6 card-professional p-6">
+        <h2 className="text-lg font-semibold text-white mb-4">Další nastavení</h2>
         <div className="space-y-2">
           <a
             href="/settings/hwsw"
-            className="block p-3 rounded-lg border border-gray-200 hover:bg-gray-50 transition-colors"
+            className="block p-3 rounded-lg border border-gray-700 hover:bg-gray-800 transition-colors"
           >
-            <div className="font-medium text-gray-900">HW/SW Konfigurace</div>
-            <div className="text-sm text-gray-600">Správa hardwaru a softwaru ve společnosti</div>
+            <div className="font-medium text-white">HW/SW Konfigurace</div>
+            <div className="text-sm text-gray-400">Správa hardwaru a softwaru ve společnosti</div>
           </a>
           {session.user?.role === 'ADMIN' && (
             <a
               href="/settings/roles"
-              className="block p-3 rounded-lg border border-gray-200 hover:bg-gray-50 transition-colors"
+              className="block p-3 rounded-lg border border-gray-700 hover:bg-gray-800 transition-colors"
             >
-              <div className="font-medium text-gray-900">Správa rolí</div>
-              <div className="text-sm text-gray-600">Uživatelské role a oprávnění</div>
+              <div className="font-medium text-white">Správa rolí</div>
+              <div className="text-sm text-gray-400">Uživatelské role a oprávnění</div>
             </a>
           )}
         </div>

@@ -13,6 +13,7 @@ interface CollapsibleSectionProps {
   isActive?: boolean
   className?: string
   href?: string
+  hasVisibleChildren?: boolean
 }
 
 export default function CollapsibleSection({
@@ -22,7 +23,8 @@ export default function CollapsibleSection({
   defaultOpen = false,
   isActive = false,
   className = '',
-  href
+  href,
+  hasVisibleChildren = true
 }: CollapsibleSectionProps) {
   const [isOpen, setIsOpen] = useState(defaultOpen)
   const router = useRouter()
@@ -47,28 +49,28 @@ export default function CollapsibleSection({
         className={cn(
           'flex items-center w-full rounded-lg px-3 py-2 text-sm font-medium transition-all duration-200',
           isActive
-            ? 'bg-blue-50 text-blue-700 shadow-sm'
-            : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
+            ? 'bg-gray-800/80 text-gray-100 shadow-sm'
+            : 'text-gray-400 hover:bg-gray-800/80 hover:text-gray-200'
         )}
       >
-        <Icon className="mr-3 h-4 w-4" />
+        <Icon className="mr-3 h-4 w-4 text-gray-400" />
         <span className="flex-1 text-left font-semibold">{title}</span>
-        {href && (
+        {href && hasVisibleChildren && (
           <span
             onClick={handleToggle}
-            className="p-1 hover:bg-gray-200 rounded cursor-pointer"
+            className="p-1 hover:bg-gray-700 rounded cursor-pointer"
           >
             {isOpen ? (
-              <ChevronDown className="h-4 w-4" />
+              <ChevronDown className="h-4 w-4 text-gray-400" />
             ) : (
-              <ChevronRight className="h-4 w-4" />
+              <ChevronRight className="h-4 w-4 text-gray-400" />
             )}
           </span>
         )}
-        {!href && (isOpen ? (
-          <ChevronDown className="h-4 w-4" />
+        {!href && hasVisibleChildren && (isOpen ? (
+          <ChevronDown className="h-4 w-4 text-gray-400" />
         ) : (
-          <ChevronRight className="h-4 w-4" />
+          <ChevronRight className="h-4 w-4 text-gray-400" />
         ))}
       </button>
       

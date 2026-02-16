@@ -90,12 +90,12 @@ export default function EventFilterPanel({ filters, onFiltersChange }: EventFilt
   }
 
   return (
-    <div className="bg-white rounded-lg shadow p-4 mb-4">
+    <div className="card-professional p-4 mb-4">
       <div className="flex items-center justify-between mb-4">
-        <h3 className="text-lg font-semibold text-gray-800">Filtr událostí</h3>
+        <h3 className="text-lg font-semibold text-white">Filtr událostí</h3>
         <button
           onClick={resetFilters}
-          className="px-3 py-1 text-sm bg-gray-200 text-gray-700 rounded hover:bg-gray-300 transition-colors"
+          className="px-3 py-1 text-sm bg-gray-700 text-gray-200 rounded hover:bg-gray-600 transition-colors"
         >
           Resetovat
         </button>
@@ -103,41 +103,41 @@ export default function EventFilterPanel({ filters, onFiltersChange }: EventFilt
 
       {/* Source filters */}
       <div className="mb-4">
-        <h4 className="text-sm font-medium text-gray-700 mb-2">Zdroje událostí</h4>
+        <h4 className="text-sm font-medium text-gray-300 mb-2">Zdroje událostí</h4>
         <div className="flex flex-wrap gap-3">
           <label className="flex items-center space-x-2 cursor-pointer">
             <input
               type="checkbox"
               checked={filters.showLocal}
               onChange={(e) => handleSourceFilterChange('showLocal', e.target.checked)}
-              className="rounded text-blue-600 focus:ring-blue-500"
+              className="rounded text-blue-600 focus:ring-blue-500 bg-gray-700 border-gray-600"
             />
-            <span className="text-sm text-gray-700">Lokální</span>
+            <span className="text-sm text-gray-300">Lokální</span>
           </label>
           <label className="flex items-center space-x-2 cursor-pointer">
             <input
               type="checkbox"
               checked={filters.showErp}
               onChange={(e) => handleSourceFilterChange('showErp', e.target.checked)}
-              className="rounded text-purple-600 focus:ring-purple-500"
+              className="rounded text-purple-600 focus:ring-purple-500 bg-gray-700 border-gray-600"
             />
-            <span className="text-sm text-gray-700">ERP</span>
+            <span className="text-sm text-gray-300">ERP</span>
           </label>
           <label className="flex items-center space-x-2 cursor-pointer">
             <input
               type="checkbox"
               checked={filters.showOutlook}
               onChange={(e) => handleSourceFilterChange('showOutlook', e.target.checked)}
-              className="rounded text-blue-600 focus:ring-blue-500"
+              className="rounded text-blue-600 focus:ring-blue-500 bg-gray-700 border-gray-600"
             />
-            <span className="text-sm text-gray-700">Outlook</span>
+            <span className="text-sm text-gray-300">Outlook</span>
           </label>
         </div>
       </div>
 
       {/* Category filters */}
       <div>
-        <h4 className="text-sm font-medium text-gray-700 mb-2">Kategorie událostí</h4>
+        <h4 className="text-sm font-medium text-gray-300 mb-2">Kategorie událostí</h4>
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2">
           {Object.entries(categoryLabels).map(([category, label]) => (
             <label key={category} className="flex items-center space-x-2 cursor-pointer">
@@ -145,7 +145,7 @@ export default function EventFilterPanel({ filters, onFiltersChange }: EventFilt
                 type="checkbox"
                 checked={filters.categories[category as keyof EventFilters['categories']]}
                 onChange={(e) => handleCategoryFilterChange(category as keyof EventFilters['categories'], e.target.checked)}
-                className="rounded focus:ring-gray-500"
+                className="rounded focus:ring-gray-500 bg-gray-700 border-gray-600"
                 style={{ accentColor: categoryColors[category as keyof typeof categoryColors] }}
               />
               <div className="flex items-center space-x-1">
@@ -153,7 +153,7 @@ export default function EventFilterPanel({ filters, onFiltersChange }: EventFilt
                   className="w-3 h-3 rounded-full"
                   style={{ backgroundColor: categoryColors[category as keyof typeof categoryColors] }}
                 />
-                <span className="text-sm text-gray-700">{label}</span>
+                <span className="text-sm text-gray-300">{label}</span>
               </div>
             </label>
           ))}

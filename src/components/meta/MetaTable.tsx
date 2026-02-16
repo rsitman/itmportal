@@ -38,8 +38,8 @@ function StatusBadge({ enabled, label }: { enabled: boolean; label: string }) {
     <span
       className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
         enabled
-          ? 'bg-green-100 text-green-800'
-          : 'bg-red-100 text-red-800'
+          ? 'bg-green-900/50 text-green-200 border border-green-800'
+          : 'bg-red-900/50 text-red-200 border border-red-800'
       }`}
     >
       {enabled ? '✓' : '✗'} {label}
@@ -201,7 +201,7 @@ function renderCellContent(field: MetaField, row: any): React.ReactNode {
             {row.companyName || '—'}
           </a>
         </div>
-        <div className="text-sm text-gray-500">
+        <div className="text-sm text-gray-400">
           {row.companyId || '—'}
         </div>
       </div>
@@ -225,14 +225,14 @@ export default function MetaTable({ meta, rows }: MetaTableProps) {
   return (
     <div className="overflow-x-auto">
       <div className="min-w-[1200px]">
-        <table className="w-full border-collapse divide-y divide-gray-200">
-          <thead className="bg-gray-100">
+        <table className="w-full border-collapse divide-y divide-gray-700">
+          <thead className="bg-gray-800">
             <tr>
               {visibleFields.map((field) => (
                 <th
                   key={field.id}
                   scope="col"
-                  className={`px-6 py-3 text-xs font-medium text-gray-700 uppercase tracking-wide border-b border-gray-200 ${
+                  className={`px-6 py-3 text-xs font-medium text-gray-300 uppercase tracking-wide border-b border-gray-700 ${
                     ['accountManager', 'version'].includes(field.id)
                       ? 'w-24 text-center'
                       : field.id === 'country'

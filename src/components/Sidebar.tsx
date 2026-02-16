@@ -3,6 +3,7 @@
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { cn } from '@/lib/utils'
+import React from 'react'
 import {
   LayoutDashboard,
   FolderTree,
@@ -76,6 +77,7 @@ const navigation: NavigationItem[] = [
   },
   {
     name: 'Nastavení',
+    href: '/settings',
     icon: Settings,
     isCollapsible: true,
     children: [
@@ -103,12 +105,29 @@ const navigation: NavigationItem[] = [
 
 export default function Sidebar() {
   const pathname = usePathname()
-  const { hasAnyPermission } = usePermissions()
+  const { hasAnyPermission, userRole } = usePermissions()
+
+  const hasPermissionForItem = (item: NavigationItem): boolean => {
+    if (item.requiredRoles && !item.requiredRoles.includes(userRole)) {
+      return false
+    }
+    if (item.requiredPermissions && !hasAnyPermission(item.requiredPermissions)) {
+      return false
+    }
+    return true
+  }
+
+  const getVisibleChildren = (children?: NavigationItem[]): NavigationItem[] => {
+    if (!children) return []
+    return children.filter(child => hasPermissionForItem(child))
+  }
 
   const renderNavigationItem = (item: NavigationItem) => {
     const isActive = item.href ? pathname === item.href : false
     const hasActiveChild = item.children?.some(child => child.href === pathname)
     const isSectionActive = isActive || hasActiveChild
+    const visibleChildren = getVisibleChildren(item.children)
+    const hasVisibleChildren = visibleChildren.length > 0
 
     // Pokud má children a je collapsible, vykreslíme jako CollapsibleSection
     if (item.children && item.isCollapsible) {
@@ -124,8 +143,9 @@ export default function Sidebar() {
             defaultOpen={hasActiveChild}
             isActive={isSectionActive}
             href={item.href}
+            hasVisibleChildren={hasVisibleChildren}
           >
-            {item.children.map((child) => {
+            {visibleChildren.map((child) => {
               const isChildActive = child.href === pathname
               return (
                 <PermissionGuard
@@ -136,14 +156,16 @@ export default function Sidebar() {
                   <Link
                     href={child.href || '#'}
                     className={cn(
-                      'flex items-center rounded-lg px-3 py-2 text-sm font-medium transition-all duration-200',
+                      'nav-item group',
                       isChildActive
-                        ? 'bg-blue-50 text-blue-700 shadow-sm'
-                        : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
+                        ? 'active'
+                        : ''
                     )}
                   >
-                    <child.icon className="mr-3 h-4 w-4" />
-                    {child.name}
+                    <child.icon className="mr-3 h-5 w-5 text-gray-400 group-hover:text-gray-300 transition-colors duration-200" />
+                    <span className={cn(
+                      isChildActive ? 'text-white' : 'text-gray-400'
+                    )}>{child.name}</span>
                   </Link>
                 </PermissionGuard>
               )
@@ -163,26 +185,30 @@ export default function Sidebar() {
         <Link
           href={item.href || '#'}
           className={cn(
-            'flex items-center rounded-lg px-3 py-2 text-sm font-medium transition-all duration-200',
+            'nav-item group',
             isActive
-              ? 'bg-blue-50 text-blue-700 shadow-sm'
-              : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
+              ? 'active'
+              : ''
           )}
         >
-          <item.icon className="mr-3 h-4 w-4" />
-          {item.name}
+          <item.icon className="mr-3 h-5 w-5 text-gray-400 group-hover:text-gray-300 transition-colors duration-200" />
+          <span className={cn(
+            isActive ? 'text-white' : 'text-gray-400'
+          )}>{item.name}</span>
         </Link>
       </PermissionGuard>
     )
   }
 
   return (
-    <div className="flex h-full w-64 flex-col bg-white border-r border-gray-200">
-      <div className="flex h-16 items-center px-6 border-b border-gray-200">
-        <h1 className="text-xl font-bold text-gray-900">Servisní portál</h1>
+    <div className="flex h-full w-72 flex-col bg-gray-900/90 backdrop-blur-md border-r border-gray-700/50 shadow-sidebar">
+      <div className="flex h-20 items-center justify-center px-8 border-b border-gray-700/50">
+        <div className="flex flex-col justify-center py-4">
+          <h1 className="sidebar-title text-white tracking-tight font-semibold text-xl">Servisní portál</h1>
+        </div>
       </div>
       
-      <nav className="flex-1 space-y-1 px-3 py-4">
+      <nav className="flex-1 space-y-1 px-4 py-6 overflow-y-auto">
         {navigation.map(renderNavigationItem)}
       </nav>
     </div>
