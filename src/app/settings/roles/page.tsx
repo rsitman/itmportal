@@ -31,7 +31,7 @@ export default function RoleManagement() {
         setRolePermissions(data.permissions || [])
       }
     } catch (error) {
-      console.error('Error loading role permissions:', error)
+      // console.error('Error loading role permissions:', error)
     }
   }
 
@@ -56,7 +56,7 @@ export default function RoleManagement() {
         setMessage('Chyba při aktualizaci oprávnění')
       }
     } catch (error) {
-      console.error('Error updating permission:', error)
+      // console.error('Error updating permission:', error)
       setMessage('Chyba při aktualizaci oprávnění')
     } finally {
       setIsLoading(false)

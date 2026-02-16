@@ -177,7 +177,7 @@ export default function CompanyMap({ companies, height = '400px', showControls =
         style={{ height: '100%', width: '100%' }}
         ref={(map) => {
           if (map && onMapReady) {
-            console.log('MapContainer ref set:', map)
+            // console.log('MapContainer ref set:', map)
             try {
               onMapReady(map as any)
               
@@ -189,12 +189,12 @@ export default function CompanyMap({ companies, height = '400px', showControls =
                       (map as any).fitBounds(bounds, { padding: [50, 50] })
                     }
                   } catch (error) {
-                    console.warn('Failed to fit bounds:', error)
+                    // console.warn('Failed to fit bounds:', error)
                   }
                 }, 500) // Increased delay
               }
             } catch (error) {
-              console.error('Error in map ref callback:', error)
+              // console.error('Error in map ref callback:', error)
             }
           }
         }}

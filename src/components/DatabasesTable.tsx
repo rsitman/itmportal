@@ -30,28 +30,28 @@ function DbSizeChartClientWithCompanyFilter({ companyName }: { companyName: stri
     const fetchData = async () => {
       try {
         setLoading(true)
-        console.log(`🔍 Fetching chart data for company: ${companyName}`)
+        // console.log(`🔍 Fetching chart data for company: ${companyName}`)
         const params = new URLSearchParams()
         params.append('company', companyName)
         params.append('startDate', '2026-01-01')
         params.append('endDate', '2026-01-31')
         
         const response = await fetch(`/api/charts/db-size?${params}`)
-        console.log(`📊 Chart response status: ${response.status}`)
+        // console.log(`📊 Chart response status: ${response.status}`)
         
         if (response.ok) {
           const result = await response.json()
-          console.log(`📊 Chart data received:`, result)
-          console.log(`📊 MDF data:`, result.mdfData)
-          console.log(`📊 LDF data:`, result.ldfData)
+          // console.log(`📊 Chart data received:`, result)
+          // console.log(`📊 MDF data:`, result.mdfData)
+          // console.log(`📊 LDF data:`, result.ldfData)
           setData(result)
         } else {
           const errorText = await response.text()
-          console.error(`📊 Chart error response:`, errorText)
+          // console.error(`📊 Chart error response:`, errorText)
           setError('Nepodařilo se načíst data')
         }
       } catch (error) {
-        console.error('Error fetching chart data:', error)
+        // console.error('Error fetching chart data:', error)
         setError('Došlo k chybě při načítání dat')
       } finally {
         setLoading(false)
@@ -102,7 +102,7 @@ function DbSizeChartClientWithCompanyFilter({ companyName }: { companyName: stri
     )
   }
 
-  console.log(`🎨 Rendering charts for ${companyName}, MDF series:`, data.mdfData.length, 'LDF series:', data.ldfData.length)
+  // console.log(`🎨 Rendering charts for ${companyName}, MDF series:`, data.mdfData.length, 'LDF series:', data.ldfData.length)
 
   return (
     <div>

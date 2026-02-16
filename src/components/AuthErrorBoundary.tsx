@@ -23,11 +23,11 @@ export class AuthErrorBoundary extends React.Component<AuthErrorBoundaryProps, A
   }
 
   componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
-    console.error('AuthErrorBoundary caught an error:', error, errorInfo)
+    // console.error('AuthErrorBoundary caught an error:', error, errorInfo)
     
     // Ignore CLIENT_FETCH_ERROR as it's expected behavior
     if (error.message?.includes('CLIENT_FETCH_ERROR')) {
-      console.warn('CLIENT_FETCH_ERROR is normal when not authenticated')
+      // console.warn('CLIENT_FETCH_ERROR is normal when not authenticated')
       return
     }
   }

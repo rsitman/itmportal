@@ -55,7 +55,7 @@ export default function CompanyMapClient() {
   // Function to focus on specific location on map
   const focusOnLocation = (lat: number, lng: number, zoom: number = 15) => {
     if (mapRef) {
-      console.log('Focusing on location:', lat, lng)
+      // console.log('Focusing on location:', lat, lng)
       
       // Set view to the location
       mapRef.setView([lat, lng], zoom)
@@ -63,7 +63,7 @@ export default function CompanyMapClient() {
       // Find and open popup for this location by checking all markers
       setTimeout(() => {
         const markers = document.querySelectorAll('.leaflet-marker-icon')
-        console.log('Found markers:', markers.length)
+        // console.log('Found markers:', markers.length)
         
         markers.forEach((marker, index) => {
           const markerElement = marker as HTMLElement
@@ -76,12 +76,12 @@ export default function CompanyMapClient() {
               markerElement.offsetTop + 40
             ])
             
-            console.log(`Marker ${index} position:`, markerLatLng.lat, markerLatLng.lng)
-            console.log(`Target position:`, lat, lng)
+            // console.log(`Marker ${index} position:`, markerLatLng.lat, markerLatLng.lng)
+            // console.log(`Target position:`, lat, lng)
             
             // Check if this marker is close to our target location
             if (Math.abs(markerLatLng.lat - lat) < 0.01 && Math.abs(markerLatLng.lng - lng) < 0.01) {
-              console.log('Found matching marker, clicking...')
+              // console.log('Found matching marker, clicking...')
               // Trigger click to open popup
               markerElement.click()
               return
@@ -90,19 +90,19 @@ export default function CompanyMapClient() {
         })
       }, 500) // Wait for map to settle
     } else {
-      console.log('Map reference not available')
+      // console.log('Map reference not available')
     }
   }
 
   // Function to handle click on list item
   const handleListItemClick = (company: any) => {
-    console.log('Clicked on company:', company.name, 'at', company.latitude, company.longitude)
+    // console.log('Clicked on company:', company.name, 'at', company.latitude, company.longitude)
     focusOnLocation(company.latitude, company.longitude)
   }
 
   // Handle map ready
   const handleMapReady = (map: any) => {
-    console.log('Map is ready:', map)
+    // console.log('Map is ready:', map)
     setMapRef(map)
   }
 

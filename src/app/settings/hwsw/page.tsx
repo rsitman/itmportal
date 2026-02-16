@@ -61,7 +61,7 @@ export default function HardwareSoftwareConfig() {
           setHardware(data.hardware || [])
         }
       } catch (error) {
-        console.error('Error loading hardware:', error)
+        // console.error('Error loading hardware:', error)
         setHardware([])
       }
     }
@@ -74,7 +74,7 @@ export default function HardwareSoftwareConfig() {
           setSoftware(data.software || [])
         }
       } catch (error) {
-        console.error('Error loading software:', error)
+        // console.error('Error loading software:', error)
         setSoftware([])
       }
     }

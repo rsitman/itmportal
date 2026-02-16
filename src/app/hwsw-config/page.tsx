@@ -42,7 +42,7 @@ function HwswConfigContent() {
       const data = await response.json()
       setConfig(data)
     } catch (error: any) {
-      console.error('Error fetching HWSW config:', error)
+      // console.error('Error fetching HWSW config:', error)
       setError(error.message)
     } finally {
       setLoading(false)

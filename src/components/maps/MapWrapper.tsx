@@ -40,7 +40,7 @@ export default function MapWrapper({
           // Method 1: Check for map instance on container
           const mapContainer = document.querySelector('.leaflet-container')
           if (mapContainer && (mapContainer as any)._leaflet_map) {
-            console.log('Found map instance via container')
+            // console.log('Found map instance via container')
             onMapReady((mapContainer as any)._leaflet_map)
             return
           }
@@ -48,7 +48,7 @@ export default function MapWrapper({
           // Method 2: Check for map instance using data attribute
           const mapElement = document.querySelector('[data-leaflet="map"]') as any
           if (mapElement && mapElement._leaflet) {
-            console.log('Found map instance via data attribute')
+            // console.log('Found map instance via data attribute')
             onMapReady(mapElement._leaflet)
             return
           }
@@ -58,7 +58,7 @@ export default function MapWrapper({
           allContainers.forEach((container, index) => {
             const containerAny = container as any
             if (containerAny._leaflet_map) {
-              console.log(`Found map instance via container ${index}`)
+              // console.log(`Found map instance via container ${index}`)
               onMapReady(containerAny._leaflet_map)
               return
             }

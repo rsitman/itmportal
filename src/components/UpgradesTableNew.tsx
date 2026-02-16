@@ -9,15 +9,16 @@ interface UpgradesTableProps {
 }
 
 export default function UpgradesTable({ upgrades }: UpgradesTableProps) {
-  // DEBUG: Log incoming data
-  console.log('UpgradesTable - received data:', upgrades);
-  console.log('UpgradesTable - data length:', upgrades.length);
+        // DEBUG: Remove in production
+        // console.log('UpgradesTable - received data:', upgrades);
+        // console.log('UpgradesTable - data length:', upgrades.length);
   
   if (upgrades.length > 0) {
-    console.log('UpgradesTable - first upgrade:', upgrades[0]);
-    console.log('UpgradesTable - first upgrade status:', upgrades[0].stav);
-    console.log('UpgradesTable - status type:', typeof upgrades[0].stav);
-    console.log('UpgradesTable - status lowercased:', upgrades[0].stav?.toLowerCase());
+    // DEBUG: Remove in production
+    // console.log('UpgradesTable - first upgrade:', upgrades[0]);
+    // console.log('UpgradesTable - first upgrade status:', upgrades[0].stav);
+    // console.log('UpgradesTable - status type:', typeof upgrades[0].stav);
+    // console.log('UpgradesTable - status lowercased:', upgrades[0].stav?.toLowerCase());
   }
 
   // DEBUG: Add test data if no real data
@@ -132,22 +133,6 @@ export default function UpgradesTable({ upgrades }: UpgradesTableProps) {
               
               {/* Status */}
               <div className="px-4 py-3 text-sm w-[120px] flex-shrink-0">
-                {/* DEBUG: Log status styling */}
-                {(() => {
-                  console.log(`=== NEW DEBUG === Status for ${upgrade.nazev}: "${upgrade.stav}"`);
-                  console.log(`=== NEW DEBUG === Status lowercased: "${upgrade.stav?.toLowerCase()}"`);
-                  console.log(`=== NEW DEBUG === Is "realizováno"?`, upgrade.stav?.toLowerCase() === 'realizováno');
-                  console.log(`=== NEW DEBUG === Is "dokončeno"?`, upgrade.stav?.toLowerCase() === 'dokončeno');
-                  console.log(`=== NEW DEBUG === Color applied:`, 
-                    upgrade.stav.toLowerCase() === 'realizováno' ? 'GREEN' : 
-                    upgrade.stav.toLowerCase() === 'dokončeno' ? 'ORANGE' :
-                    upgrade.stav.toLowerCase() === 'v přípravě' ? 'YELLOW' :
-                    upgrade.stav.toLowerCase() === 'plánováno' ? 'BLUE' :
-                    upgrade.stav.toLowerCase() === 'pozastaveno' ? 'RED' :
-                    'GRAY'
-                  );
-                  return null;
-                })()}
                 <span 
                   className="inline-flex px-2 py-1 text-xs font-semibold rounded-full"
                   style={{
@@ -172,11 +157,11 @@ export default function UpgradesTable({ upgrades }: UpgradesTableProps) {
                   }}
                   ref={(el) => {
                     if (el) {
-                      console.log(`=== STYLE CHECK === Computed style for ${upgrade.stav}:`, {
-                        backgroundColor: window.getComputedStyle(el).backgroundColor,
-                        color: window.getComputedStyle(el).color,
-                        borderColor: window.getComputedStyle(el).borderColor
-                      });
+                      // console.log(`=== STYLE CHECK === Computed style for ${upgrade.stav}:`, {
+                      //   backgroundColor: window.getComputedStyle(el).backgroundColor,
+                      //   color: window.getComputedStyle(el).color,
+                      //   borderColor: window.getComputedStyle(el).borderColor
+                      // });
                     }
                   }}
                 >
