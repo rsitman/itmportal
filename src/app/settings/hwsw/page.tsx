@@ -102,7 +102,7 @@ export default function HardwareSoftwareConfig() {
       maintenance: 'bg-yellow-100 text-yellow-800',
       retired: 'bg-red-100 text-red-800',
       expired: 'bg-orange-100 text-orange-800',
-      trial: 'bg-blue-100 text-blue-800',
+      trial: 'bg-blue-100 text-green-800',
       deactivated: 'bg-purple-100 text-purple-800'
     }
     return colors[status] || 'bg-gray-100 text-gray-800'
@@ -140,7 +140,7 @@ export default function HardwareSoftwareConfig() {
             />
               <button
                 onClick={() => setShowAddModal(true)}
-                className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
               >
                 + Přidat položku
               </button>
@@ -154,7 +154,7 @@ export default function HardwareSoftwareConfig() {
               onClick={() => setActiveTab('hardware')}
               className={`py-2 px-1 border-b-2 font-medium text-sm ${
                 activeTab === 'hardware'
-                  ? 'border-blue-500 text-blue-600'
+                  ? 'border-green-500 text-green-600'
                   : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
               }`}
             >
@@ -164,7 +164,7 @@ export default function HardwareSoftwareConfig() {
               onClick={() => setActiveTab('software')}
               className={`py-2 px-1 border-b-2 font-medium text-sm ${
                 activeTab === 'software'
-                  ? 'border-blue-500 text-blue-600'
+                  ? 'border-green-500 text-green-600'
                   : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
               }`}
             >
@@ -217,7 +217,7 @@ export default function HardwareSoftwareConfig() {
                 <div className="mt-4 flex gap-2">
                     <button
                       onClick={() => setEditingItem(item)}
-                      className="px-3 py-1 bg-blue-600 text-white rounded hover:bg-blue-700"
+                      className="px-3 py-1 bg-green-600 text-white rounded hover:bg-green-700"
                     >
                       Upravit
                     </button>
@@ -266,7 +266,7 @@ export default function HardwareSoftwareConfig() {
                 <div className="mt-4 flex gap-2">
                     <button
                       onClick={() => setEditingItem(item)}
-                      className="px-3 py-1 bg-blue-600 text-white rounded hover:bg-blue-700"
+                      className="px-3 py-1 bg-green-600 text-white rounded hover:bg-green-700"
                     >
                       Upravit
                     </button>
@@ -324,7 +324,7 @@ export default function HardwareSoftwareConfig() {
                   </button>
                   <button
                     type="submit"
-                    className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
+                    className="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700"
                   >
                     {editingItem ? 'Uložit změny' : 'Přidat'}
                   </button>

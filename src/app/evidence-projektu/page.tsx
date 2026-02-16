@@ -22,18 +22,21 @@ export default async function ProjectsRegistryPage() {
 
   return (
     <div className="w-full py-10 bg-transparent">
-      <div className="mb-8 px-6">
-        <h1 className="text-3xl font-bold tracking-tight text-white mb-2">
-          Evidence projektů
-        </h1>
-        <p className="text-lg text-gray-300">
-          Kompletní správa projektů, týmů, komponent a HW prostředků
-        </p>
+      {/* Header */}
+      <div className="card-professional shadow-sm border-b border-gray-700/50">
+        <div className="px-6 py-6">
+          <div>
+            <h1 className="text-3xl font-bold text-white">Evidence projektů</h1>
+            <p className="text-gray-300 mt-1">Kompletní správa projektů, týmů, komponent a HW prostředků</p>
+          </div>
+        </div>
       </div>
       
-      <ProjectsRegistryClient 
-        initialProjects={initialProjects}
-      />
+      <div className="px-6 py-4">
+        <ProjectsRegistryClient 
+          initialProjects={initialProjects}
+        />
+      </div>
     </div>
   )
 }

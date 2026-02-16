@@ -20,10 +20,10 @@ function RoleBadge({ role }: { role: 'ADMIN' | 'USER' | 'IT' }) {
     <span
       className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
         role === 'ADMIN'
-          ? 'bg-purple-100 text-purple-800'
+          ? 'bg-purple-900/50 text-purple-200 border border-purple-800'
           : role === 'IT'
-          ? 'bg-orange-100 text-orange-800'
-          : 'bg-gray-100 text-gray-800'
+          ? 'bg-orange-900/50 text-orange-200 border border-orange-800'
+          : 'bg-gray-900/50 text-gray-200 border border-gray-800'
       }`}
     >
       {role === 'ADMIN' ? '👑 Admin' : role === 'IT' ? '🔧 IT' : '👤 User'}
@@ -36,8 +36,8 @@ function AuthProviderBadge({ provider }: { provider: 'LOCAL' | 'AZURE_AD' }) {
     <span
       className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
         provider === 'AZURE_AD'
-          ? 'bg-blue-100 text-blue-800'
-          : 'bg-green-100 text-green-800'
+          ? 'bg-blue-900/50 text-green-200 border border-green-800'
+          : 'bg-green-900/50 text-green-200 border border-green-800'
       }`}
     >
       {provider === 'AZURE_AD' ? '🔵 MS Entra' : '🔘 Lokální'}
@@ -241,7 +241,7 @@ function CreateUserModal({
             <button
               type="submit"
               disabled={isLoading}
-              className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50"
+              className="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 disabled:opacity-50"
             >
               {isLoading ? 'Vytvářím...' : 'Vytvořit'}
             </button>
@@ -393,7 +393,7 @@ function UserDetailModal({
             <button
               type="submit"
               disabled={isLoading}
-              className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50"
+              className="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 disabled:opacity-50"
             >
               {isLoading ? 'Ukládám...' : 'Uložit'}
             </button>
@@ -452,31 +452,31 @@ function UsersTable({ users, onUserUpdate, onUserDelete, onUserClick }: {
   return (
     <div className="overflow-x-auto w-full">
       <table className="w-full border-collapse divide-y divide-gray-200">
-        <thead className="bg-gray-100">
+        <thead className="bg-gray-800/50">
           <tr>
-            <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wide border-b border-gray-200">
+            <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wide border-b border-gray-600">
               Uživatel
             </th>
-            <th scope="col" className="w-24 px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wide border-b border-gray-200">
+            <th scope="col" className="w-24 px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wide border-b border-gray-600">
               Role
             </th>
-            <th scope="col" className="w-32 px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wide border-b border-gray-200">
+            <th scope="col" className="w-32 px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wide border-b border-gray-600">
               Zdroj
             </th>
-            <th scope="col" className="w-32 px-6 py-3 text-center text-xs font-medium text-gray-700 uppercase tracking-wide border-b border-gray-200">
+            <th scope="col" className="w-32 px-6 py-3 text-center text-xs font-medium text-gray-300 uppercase tracking-wide border-b border-gray-600">
               Stav
             </th>
-            <th scope="col" className="w-32 px-6 py-3 text-center text-xs font-medium text-gray-700 uppercase tracking-wide border-b border-gray-200">
+            <th scope="col" className="w-32 px-6 py-3 text-center text-xs font-medium text-gray-300 uppercase tracking-wide border-b border-gray-600">
               Akce
             </th>
           </tr>
         </thead>
-        <tbody className="bg-white">
+        <tbody className="bg-gray-900/30">
           {users.map((user) => (
             <tr 
               key={user.id} 
-              className={`hover:bg-gray-50 border-b border-gray-200 cursor-pointer ${
-                user.authProvider === 'AZURE_AD' ? 'bg-blue-50' : ''
+              className={`hover:bg-gray-700/50 border-b border-gray-200 cursor-pointer ${
+                user.authProvider === 'AZURE_AD' ? 'bg-blue-900/20' : ''
               }`}
               onClick={() => onUserClick(user)}
             >
@@ -496,10 +496,10 @@ function UsersTable({ users, onUserUpdate, onUserDelete, onUserClick }: {
                     </div>
                   )}
                   <div className="ml-4">
-                    <div className="text-sm font-medium text-gray-900">
+                    <div className="text-sm font-medium text-gray-100">
                       {user.name || '—'}
                     </div>
-                    <div className="text-sm text-gray-500">
+                    <div className="text-sm text-gray-400">
                       {user.email}
                     </div>
                   </div>
@@ -518,7 +518,7 @@ function UsersTable({ users, onUserUpdate, onUserDelete, onUserClick }: {
                     currentStatus={user.isActive}
                     onToggle={onUserUpdate}
                   />
-                  <span className="text-xs text-gray-600">
+                  <span className="text-xs text-gray-400">
                     {user.isActive ? 'Aktivní' : 'Deaktivovaný'}
                   </span>
                 </div>
@@ -601,12 +601,12 @@ export default function UsersClient({ users: initialUsers }: { users: User[] }) 
   return (
     <div className="py-4 px-6">
       <div className="flex justify-between items-center mb-6">
-        <h2 className="text-xl font-semibold text-gray-900">
+        <h2 className="text-xl font-semibold text-gray-100">
           Seznam uživatelů ({users.length})
         </h2>
         <button
           onClick={() => setIsCreateModalOpen(true)}
-          className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
+          className="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700"
         >
           Nový uživatel
         </button>
@@ -618,10 +618,10 @@ export default function UsersClient({ users: initialUsers }: { users: User[] }) 
             <svg className="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
             </svg>
-            <h3 className="mt-2 text-sm font-medium text-gray-900">
+            <h3 className="mt-2 text-sm font-medium text-gray-100">
               Žádní uživatelé
             </h3>
-            <p className="mt-1 text-sm text-gray-500">
+            <p className="mt-1 text-sm text-gray-400">
               V systému nebyli nalezeni žádní uživatelé.
             </p>
           </div>

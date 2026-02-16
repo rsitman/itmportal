@@ -11,8 +11,8 @@ function StatusBadge({ enabled, label }: { enabled: boolean; label: string }) {
     <span
       className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
         enabled
-          ? 'bg-green-100 text-green-800'
-          : 'bg-red-100 text-red-800'
+          ? 'bg-green-900/50 text-green-200 border border-green-800'
+          : 'bg-red-900/50 text-red-200 border border-red-800'
       }`}
     >
       {enabled ? '✓' : '✗'} {label}
@@ -65,7 +65,7 @@ function SearchAndFilter({
           type="text"
           placeholder="Hledat projekt, firmu..."
           onChange={(e) => onSearch(e.target.value)}
-          className="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md leading-5 bg-white placeholder-gray-500 focus:outline-none focus:placeholder-gray-400 focus:ring-1 focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+          className="block w-full pl-10 pr-3 py-2 border border-gray-600 rounded-md leading-5 bg-gray-800 placeholder-gray-400 text-white focus:outline-none focus:placeholder-gray-300 focus:ring-1 focus:ring-blue-500 focus:border-green-500 sm:text-sm"
         />
         <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
           <svg className="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -140,7 +140,7 @@ export default function ProjectsClient({ projects }: { projects: KaratProject[] 
                       <h3 className="text-lg font-medium text-gray-900 truncate">
                         {project.projectName}
                       </h3>
-                      <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                      <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-900/50 text-green-200 border border-green-800">
                         {project.version}
                       </span>
                     </div>
@@ -166,7 +166,7 @@ export default function ProjectsClient({ projects }: { projects: KaratProject[] 
                               const url = `/patch-modules?projekt=${encodeURIComponent(project.projectId)}&firma=${encodeURIComponent(project.companyId)}`
                               window.location.href = url
                             }}
-                            className="px-3 py-1 text-sm bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors"
+                            className="px-3 py-1 text-sm bg-green-600 text-white rounded hover:bg-green-700 transition-colors"
                           >
                             Detail
                           </button>

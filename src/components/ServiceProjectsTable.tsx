@@ -80,7 +80,7 @@ export default function ServiceProjectsTable({ projects }: ServiceProjectsTableP
                         const url = `/patch-modules?projekt=${encodeURIComponent(project.doklad_proj)}&firma=${encodeURIComponent(project.nazev_par)}`
                         window.location.href = url
                       }}
-                      className="px-3 py-1 text-sm bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors"
+                      className="px-3 py-1 text-sm bg-green-600 text-white rounded hover:bg-green-700 transition-colors"
                     >
                       Detail
                     </button>

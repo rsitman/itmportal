@@ -8,7 +8,7 @@ import { usePathname } from "next/navigation"
 
 export default function ClientLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
-  const isProjectsPage = pathname === '/plan_patchovani';
+  const isProjectsPage = pathname === '/plan_patchovani' || pathname === '/upgrades' || pathname === '/databases' || pathname === '/dashboard/mapa' || pathname === '/calendar' || pathname === '/evidence-projektu' || pathname.startsWith('/settings') || pathname.startsWith('/dashboard') || pathname.startsWith('/users');
   
   return (
     <AuthErrorBoundary>

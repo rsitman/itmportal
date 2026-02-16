@@ -523,13 +523,13 @@ export default function CalendarPage() {
   return (
     <div className="flex h-full bg-transparent">
       <main className="flex-1 overflow-y-auto p-6">
-        <div className="card-professional p-4" style={{ minHeight: '600px' }}>
+        <div className="card-professional p-4 w-full" style={{ minHeight: '600px' }}>
           <header className="flex h-16 items-center justify-between border-b border-gray-700/50 bg-gray-900/80 px-6 mb-4">
             <div className="flex items-center space-x-4">
               <div className="flex items-center space-x-2">
                 <div className="text-sm text-gray-300">
                   <span>Lokální události: </span>
-                  <span className="font-semibold text-blue-400">{localEventCount}</span>
+                  <span className="font-semibold text-green-400">{localEventCount}</span>
                 </div>
                 <div className="text-sm text-gray-300">
                   <span>ERP události: </span>
@@ -555,7 +555,7 @@ export default function CalendarPage() {
                     onClick={toggleOutlookIntegration}
                     className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${
                       outlookEnabled
-                        ? 'bg-blue-600 text-white hover:bg-blue-700'
+                        ? 'bg-green-600 text-white hover:bg-green-700'
                         : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
                     }`}
                   >
@@ -567,7 +567,7 @@ export default function CalendarPage() {
                     <button
                       onClick={syncMoreOutlookEvents}
                       disabled={syncingWithOutlook}
-                      className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:bg-blue-400 disabled:cursor-not-allowed text-sm font-medium"
+                      className="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 disabled:bg-green-400 disabled:cursor-not-allowed text-sm font-medium"
                     >
                       {syncingWithOutlook ? 'Synchronizuje se...' : 'Synchronizovat'}
                     </button>
@@ -589,7 +589,7 @@ export default function CalendarPage() {
                     </div>
                     <button
                       onClick={() => alert('Zobrazit kalendáře - funkce ještě není implementována')}
-                      className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors text-sm font-medium"
+                      className="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 transition-colors text-sm font-medium"
                     >
                       Zobrazit kalendáře
                     </button>
@@ -621,7 +621,8 @@ export default function CalendarPage() {
               events={filterEvents(events)}
               startAccessor="start"
               endAccessor="end"
-              style={{ height: 800 }}
+              className="w-full"
+              style={{ height: 800, width: '100%' }}
               date={currentDate}
               view={Views[currentView.toUpperCase() as keyof typeof Views]}
               onNavigate={(date, view, action) => {
@@ -760,7 +761,7 @@ export default function CalendarPage() {
                       </button>
                       <button
                         onClick={() => navigateDate('today')}
-                        className="px-3 py-1 bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors text-sm font-medium"
+                        className="px-3 py-1 bg-green-600 text-white rounded hover:bg-green-700 transition-colors text-sm font-medium"
                       >
                         Dnes
                       </button>
@@ -786,7 +787,7 @@ export default function CalendarPage() {
                       <button
                         onClick={() => setCurrentView(Views.MONTH)}
                         className={`px-3 py-1 rounded text-sm font-medium transition-colors ${
-                          currentView === Views.MONTH ? 'bg-blue-600 text-white' : 'bg-gray-700 text-gray-200 hover:bg-gray-600'
+                          currentView === Views.MONTH ? 'bg-green-600 text-white' : 'bg-gray-700 text-gray-200 hover:bg-gray-600'
                         }`}
                       >
                         Měsíc
@@ -794,7 +795,7 @@ export default function CalendarPage() {
                       <button
                         onClick={() => setCurrentView(Views.WEEK)}
                         className={`px-3 py-1 rounded text-sm font-medium transition-colors ${
-                          currentView === Views.WEEK ? 'bg-blue-600 text-white' : 'bg-gray-700 text-gray-200 hover:bg-gray-600'
+                          currentView === Views.WEEK ? 'bg-green-600 text-white' : 'bg-gray-700 text-gray-200 hover:bg-gray-600'
                         }`}
                       >
                         Týden
@@ -802,7 +803,7 @@ export default function CalendarPage() {
                       <button
                         onClick={() => setCurrentView(Views.DAY)}
                         className={`px-3 py-1 rounded text-sm font-medium transition-colors ${
-                          currentView === Views.DAY ? 'bg-blue-600 text-white' : 'bg-gray-700 text-gray-200 hover:bg-gray-600'
+                          currentView === Views.DAY ? 'bg-green-600 text-white' : 'bg-gray-700 text-gray-200 hover:bg-gray-600'
                         }`}
                       >
                         Den
@@ -810,7 +811,7 @@ export default function CalendarPage() {
                       <button
                         onClick={() => setCurrentView(Views.AGENDA)}
                         className={`px-3 py-1 rounded text-sm font-medium transition-colors ${
-                          currentView === Views.AGENDA ? 'bg-blue-600 text-white' : 'bg-gray-700 text-gray-200 hover:bg-gray-600'
+                          currentView === Views.AGENDA ? 'bg-green-600 text-white' : 'bg-gray-700 text-gray-200 hover:bg-gray-600'
                         }`}
                       >
                         Agenda
@@ -924,7 +925,7 @@ function EventModal({
               type="text"
               value={event?.title || ''}
               onChange={(e) => event && onUpdate?.({ ...event, title: e.target.value })}
-              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 p-2"
+              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-green-500 focus:ring-blue-500 p-2"
               readOnly={!canEdit}
             />
           </div>
@@ -935,7 +936,7 @@ function EventModal({
               type="datetime-local"
               value={event?.start ? new Date(event.start.getTime() - event.start.getTimezoneOffset() * 60000).toISOString().slice(0, 16) : ''}
               onChange={(e) => event && onUpdate?.({ ...event, start: new Date(e.target.value) })}
-              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 p-2"
+              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-green-500 focus:ring-blue-500 p-2"
               readOnly={!canEdit}
             />
           </div>
@@ -946,7 +947,7 @@ function EventModal({
               type="datetime-local"
               value={event?.end ? new Date(event.end.getTime() - event.end.getTimezoneOffset() * 60000).toISOString().slice(0, 16) : ''}
               onChange={(e) => event && onUpdate?.({ ...event, end: new Date(e.target.value) })}
-              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 p-2"
+              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-green-500 focus:ring-blue-500 p-2"
               readOnly={!canEdit}
             />
           </div>
@@ -956,7 +957,7 @@ function EventModal({
             <select
               value={event?.resource?.type || 'OTHER'}
               onChange={(e) => event && onUpdate?.({ ...event, resource: { ...event.resource, type: e.target.value as any } })}
-              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 p-2"
+              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-green-500 focus:ring-blue-500 p-2"
               disabled={!canEdit}
             >
               <option value="MEETING">Schůzka</option>
@@ -1056,7 +1057,7 @@ function EventModal({
                   }
                   onClose()
                 }}
-                className="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600"
+                className="px-4 py-2 bg-green-500 text-white rounded-md hover:bg-green-600"
               >
                 Uložit změny
               </button>

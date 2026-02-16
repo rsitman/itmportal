@@ -123,7 +123,7 @@ export default function DbSizeChartClient() {
               <select
                 value={chartType}
                 onChange={(e) => setChartType(e.target.value as ChartType)}
-                className="px-3 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+                className="px-3 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-green-500"
               >
                 <option value="line">Čárový</option>
                 <option value="bar">Sloupcový</option>
@@ -143,7 +143,7 @@ export default function DbSizeChartClient() {
               <select
                 value={selectedCompany}
                 onChange={(e) => setSelectedCompany(e.target.value)}
-                className="px-3 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+                className="px-3 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-green-500"
               >
                 <option value="all">Všechny firmy</option>
                 {data.metadata.companies.map(company => (
@@ -163,7 +163,7 @@ export default function DbSizeChartClient() {
                 type="date"
                 value={dateRange.start}
                 onChange={(e) => setDateRange(prev => ({ ...prev, start: e.target.value }))}
-                className="px-3 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+                className="px-3 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-green-500"
               />
             </div>
 
@@ -175,7 +175,7 @@ export default function DbSizeChartClient() {
                 type="date"
                 value={dateRange.end}
                 onChange={(e) => setDateRange(prev => ({ ...prev, end: e.target.value }))}
-                className="px-3 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+                className="px-3 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-green-500"
               />
             </div>
           </div>
@@ -183,7 +183,7 @@ export default function DbSizeChartClient() {
           {/* Refresh Button */}
           <button
             onClick={() => window.location.reload()}
-            className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
+            className="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700"
           >
             Obnovit data
           </button>

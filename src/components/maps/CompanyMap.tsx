@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import dynamic from 'next/dynamic'
 import { logger } from '@/lib/logger'
 
@@ -38,11 +38,15 @@ interface CompanyMapProps {
   height?: string
   showControls?: boolean
   className?: string
+  onLocationClick?: (lat: number, lng: number) => void
+  onMapReady?: (map: any) => void
 }
 
-export default function CompanyMap({ companies, height = '400px', showControls = true, className = '' }: CompanyMapProps) {
+export default function CompanyMap({ companies, height = '400px', showControls = true, className = '', onLocationClick, onMapReady }: CompanyMapProps) {
   const [isClient, setIsClient] = useState(false)
   const [mapComponents, setMapComponents] = useState<any>(null)
+  const mapRef = useRef<any>(null)
+  const containerId = useRef(`map-container-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`).current
 
   useEffect(() => {
     setIsClient(true)
@@ -78,7 +82,18 @@ export default function CompanyMap({ companies, height = '400px', showControls =
     }).catch((error) => {
       logger.error('Error loading leaflet:', error)
     })
-  }, [])
+
+    // Cleanup function
+    return () => {
+      // Remove any existing map containers with this ID
+      if (typeof document !== 'undefined') {
+        const existingContainer = document.getElementById(containerId)
+        if (existingContainer) {
+          existingContainer.remove()
+        }
+      }
+    }
+  }, [containerId])
 
   if (!isClient || !mapComponents) {
     return (
@@ -87,7 +102,7 @@ export default function CompanyMap({ companies, height = '400px', showControls =
         style={{ height }}
       >
         <div className="text-center">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-2"></div>
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-green-600 mx-auto mb-2"></div>
           <p className="text-gray-600">Načítání mapy...</p>
         </div>
       </div>
@@ -98,8 +113,12 @@ export default function CompanyMap({ companies, height = '400px', showControls =
 
   // Create bounds to fit all markers
   const bounds = companies.length > 0 
-    ? new LatLngBounds(companies.map(company => [company.latitude, company.longitude]))
+    ? new mapComponents.LatLngBounds(companies.map(company => [company.latitude, company.longitude]))
     : null
+
+  // Calculate center and zoom for bounds
+  const center = bounds ? bounds.getCenter() : [50.0755, 14.4378]
+  const zoom = bounds ? 10 : 10
 
   // Custom icons using customer logos
   const createCustomIcon = (company: Company, DivIcon: any) => {
@@ -152,11 +171,33 @@ export default function CompanyMap({ companies, height = '400px', showControls =
   return (
     <div className={className} style={{ height }}>
       <MapContainer
-        bounds={bounds || undefined}
-        boundsOptions={{ padding: [50, 50] }}
+        id={containerId}
+        center={center as [number, number]}
+        zoom={zoom}
         style={{ height: '100%', width: '100%' }}
-        zoom={bounds ? undefined : 10}
-        center={bounds ? undefined : [50.0755, 14.4378]} // Default to Prague
+        ref={(map) => {
+          if (map && onMapReady) {
+            console.log('MapContainer ref set:', map)
+            try {
+              onMapReady(map as any)
+              
+              // Fit bounds if available
+              if (bounds) {
+                setTimeout(() => {
+                  try {
+                    if (map && typeof (map as any).fitBounds === 'function') {
+                      (map as any).fitBounds(bounds, { padding: [50, 50] })
+                    }
+                  } catch (error) {
+                    console.warn('Failed to fit bounds:', error)
+                  }
+                }, 500) // Increased delay
+              }
+            } catch (error) {
+              console.error('Error in map ref callback:', error)
+            }
+          }
+        }}
       >
         <TileLayer
           attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
@@ -196,7 +237,7 @@ export default function CompanyMap({ companies, height = '400px', showControls =
                 
                 {company.isProject && (
                   <div className="mt-2">
-                    <span className="inline-block bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded">
+                    <span className="inline-block bg-blue-100 text-green-800 text-xs px-2 py-1 rounded">
                       🗂️ Projekt
                     </span>
                   </div>
@@ -228,7 +269,7 @@ export default function CompanyMap({ companies, height = '400px', showControls =
                 
                 {company.website && (
                   <p className="text-sm mt-1">
-                    🌐 <a href={company.website} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">
+                    🌐 <a href={company.website} target="_blank" rel="noopener noreferrer" className="text-green-400 hover:underline">
                       {company.website}
                     </a>
                   </p>

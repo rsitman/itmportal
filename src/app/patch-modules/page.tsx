@@ -51,7 +51,7 @@ function PatchModulesContent() {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-green-600 mx-auto mb-4"></div>
           <p className="text-gray-600">Načítání patch modulů...</p>
         </div>
       </div>
@@ -90,15 +90,15 @@ function PatchModulesContent() {
                   <>Projekt: {projectInfo.projekt} | Firma: {projectInfo.firma}</>
                 )}
               </p>
-              <div className="mt-2 p-3 bg-blue-50 border border-blue-200 rounded-md">
-                <p className="text-sm text-blue-800">
+              <div className="mt-2 p-3 bg-blue-50 border border-green-200 rounded-md">
+                <p className="text-sm text-green-800">
                   <strong>Vysvětlení:</strong> Standard = funkční patche (úroveň 40) | Stát = legislativní patche (úroveň 36) | ✓ = aktuální | ⚠ = vyžaduje aktualizaci
                 </p>
               </div>
             </div>
             <button
               onClick={() => window.history.back()}
-              className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
+              className="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700"
             >
               Zpět
             </button>
@@ -110,16 +110,16 @@ function PatchModulesContent() {
       <div className="px-4 sm:px-6 lg:px-8 py-8">
         {patchModules.length === 0 ? (
           <div className="text-center py-12">
-            <div className="bg-blue-50 border border-blue-200 rounded-md p-8 max-w-md mx-auto">
-              <div className="text-blue-500">
-                <svg className="mx-auto h-12 w-12 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <div className="bg-blue-50 border border-green-200 rounded-md p-8 max-w-md mx-auto">
+              <div className="text-green-500">
+                <svg className="mx-auto h-12 w-12 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                 </svg>
               </div>
-              <h3 className="mt-2 text-lg font-medium text-blue-900">
+              <h3 className="mt-2 text-lg font-medium text-green-900">
                 Žádné patch moduly
               </h3>
-              <p className="mt-1 text-blue-600">
+              <p className="mt-1 text-green-600">
                 Pro tento projekt nebyly nalezeny žádné patch moduly.
               </p>
             </div>
@@ -178,7 +178,7 @@ function PatchModulesContent() {
                         </div>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
-                        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-green-800">
                           {module.verze}
                         </span>
                       </td>

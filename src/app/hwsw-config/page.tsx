@@ -64,7 +64,7 @@ function HwswConfigContent() {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-green-600 mx-auto mb-4"></div>
           <p className="text-gray-600">Načítání konfigurace...</p>
         </div>
       </div>
@@ -94,9 +94,9 @@ function HwswConfigContent() {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
-          <div className="bg-blue-50 border border-blue-200 rounded-md p-4 max-w-md">
-            <h3 className="text-lg font-medium text-blue-800 mb-2">Žádná konfigurace</h3>
-            <p className="text-blue-600">
+          <div className="bg-blue-50 border border-green-200 rounded-md p-4 max-w-md">
+            <h3 className="text-lg font-medium text-green-800 mb-2">Žádná konfigurace</h3>
+            <p className="text-green-600">
               Pro projekt {projekt} nebyla nalezena žádná HWSW konfigurace.
             </p>
           </div>
@@ -119,7 +119,7 @@ function HwswConfigContent() {
             </div>
             <button
               onClick={fetchConfig}
-              className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
+              className="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700"
             >
               Obnovit
             </button>
@@ -351,7 +351,7 @@ function HwswConfigContent() {
                         <h3 className="font-semibold text-gray-900">{server.nazev || `Server ${server.server_id}`}</h3>
                         <p className="text-sm text-gray-600">{server.popis}</p>
                       </div>
-                      <span className="px-2 py-1 text-xs font-medium bg-blue-100 text-blue-800 rounded">
+                      <span className="px-2 py-1 text-xs font-medium bg-blue-100 text-green-800 rounded">
                         {server.server_typ}
                       </span>
                     </div>

@@ -61,7 +61,8 @@ function renderCellValue(field: MetaField, value: any, row: any): React.ReactNod
             href={`https://itmancz.atlassian.net/browse/${value}`}
             target="_blank"
             rel="noopener noreferrer"
-            className="text-blue-600 hover:text-blue-900 text-sm font-medium"
+            className="text-green-400 hover:text-green-300 text-sm font-medium"
+            style={{ color: '#34d399' }}
           >
             {value}
           </a>
@@ -99,7 +100,7 @@ function renderCellValue(field: MetaField, value: any, row: any): React.ReactNod
             const url = `/patch-modules?projekt=${encodeURIComponent(row.projectId)}&firma=${encodeURIComponent(row.companyId)}`
             window.location.href = url
           }}
-          className="px-3 py-1 text-sm bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors"
+          className="px-3 py-1 text-sm bg-green-600 text-white rounded hover:bg-green-700 transition-colors"
         >
           Detail
         </button>
@@ -166,10 +167,11 @@ function renderCellContent(field: MetaField, row: any): React.ReactNode {
   if (field.id === 'projectName') {
     return (
       <div>
-        <div className="text-sm font-medium text-gray-900">
+        <div className="text-sm font-medium text-white">
           <a 
             href={`/plan_patchovani/${row.companyId}`}
-            className="hover:text-blue-600 hover:underline cursor-pointer"
+            className="hover:text-green-300 hover:underline cursor-pointer"
+            style={{ color: '#34d399' }}
             onClick={(e) => {
               e.preventDefault()
               window.location.href = `/plan_patchovani/${row.companyId}`
@@ -178,7 +180,7 @@ function renderCellContent(field: MetaField, row: any): React.ReactNode {
             {row.projectName || '—'}
           </a>
         </div>
-        <div className="text-sm text-gray-500">
+        <div className="text-sm text-gray-400">
           {row.projectId || '—'}
         </div>
       </div>
@@ -189,10 +191,11 @@ function renderCellContent(field: MetaField, row: any): React.ReactNode {
   if (field.id === 'companyName') {
     return (
       <div>
-        <div className="text-sm font-medium text-gray-900">
+        <div className="text-sm font-medium text-white">
           <a 
             href={`/plan_patchovani/${row.companyId}`}
-            className="hover:text-blue-600 hover:underline cursor-pointer"
+            className="hover:text-green-300 hover:underline cursor-pointer"
+            style={{ color: '#34d399' }}
             onClick={(e) => {
               e.preventDefault()
               window.location.href = `/plan_patchovani/${row.companyId}`
@@ -253,13 +256,13 @@ export default function MetaTable({ meta, rows }: MetaTableProps) {
               ))}
             </tr>
           </thead>
-          <tbody className="bg-white divide-y divide-gray-200">
+          <tbody className="bg-gray-900 divide-y divide-gray-700">
             {rows.map((row, index) => (
-              <tr key={`${row.projectId}-${index}`} className="hover:bg-gray-50">
+              <tr key={`${row.projectId}-${index}`} className="hover:bg-gray-800">
                 {visibleFields.map((field) => (
                   <td
                     key={field.id}
-                    className={`px-6 py-4 text-sm text-gray-900 border-b border-gray-100 ${
+                    className={`px-6 py-4 text-sm text-white border-b border-gray-700 ${
                       ['accountManager', 'version'].includes(field.id)
                         ? 'text-center'
                         : field.id === 'country'

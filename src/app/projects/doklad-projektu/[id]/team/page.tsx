@@ -61,7 +61,7 @@ export default function ProjectTeamPage() {
 
   const getPersonTypeColor = (type: number): string => {
     const colors: Record<number, string> = {
-      [PersonType.INTERNAL]: 'bg-blue-100 text-blue-800',
+      [PersonType.INTERNAL]: 'bg-blue-100 text-green-800',
       [PersonType.EXTERNAL]: 'bg-orange-100 text-orange-800',
       [PersonType.CUSTOMER]: 'bg-green-100 text-green-800'
     }
@@ -72,7 +72,7 @@ export default function ProjectTeamPage() {
     const colors: Record<string, string> = {
       'ZAK_INV': 'bg-purple-100 text-purple-800',
       'ITMAN': 'bg-red-100 text-red-800',
-      'DEV': 'bg-blue-100 text-blue-800',
+      'DEV': 'bg-blue-100 text-green-800',
       'KON': 'bg-yellow-100 text-yellow-800',
       'TEST': 'bg-gray-100 text-gray-800',
       'SUP': 'bg-green-100 text-green-800'
@@ -207,7 +207,7 @@ export default function ProjectTeamPage() {
           <div className="text-sm text-gray-600">Celkem členů</div>
         </div>
         <div className="bg-white p-4 rounded-lg shadow border border-gray-200">
-          <div className="text-2xl font-bold text-blue-600">
+          <div className="text-2xl font-bold text-green-600">
             {team.filter(p => p.typ_osoby === PersonType.INTERNAL).length}
           </div>
           <div className="text-sm text-gray-600">Vlastní osoby</div>
@@ -263,7 +263,7 @@ export default function ProjectTeamPage() {
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                     {person.email ? (
-                      <a href={`mailto:${person.email}`} className="text-blue-600 hover:text-blue-800">
+                      <a href={`mailto:${person.email}`} className="text-green-600 hover:text-green-800">
                         {person.email}
                       </a>
                     ) : (
@@ -272,7 +272,7 @@ export default function ProjectTeamPage() {
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                     {person.telefon ? (
-                      <a href={`tel:${person.telefon}`} className="text-blue-600 hover:text-blue-800">
+                      <a href={`tel:${person.telefon}`} className="text-green-600 hover:text-green-800">
                         {person.telefon}
                       </a>
                     ) : (

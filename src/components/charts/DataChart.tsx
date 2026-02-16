@@ -190,7 +190,7 @@ export default function DataChart({
               tick={{ fontSize: 12 }}
             />
             <Tooltip content={<CustomTooltip />} />
-            {showLegend && <Legend />}
+            {showLegend && <Legend layout="vertical" verticalAlign="top" align="left" />}
             {data.map((series, index) => (
               <Line
                 key={series.name}
@@ -220,7 +220,7 @@ export default function DataChart({
               tick={{ fontSize: 12 }}
             />
             <Tooltip content={<CustomTooltip />} />
-            {showLegend && <Legend />}
+            {showLegend && <Legend layout="vertical" verticalAlign="top" align="left" />}
             {data.map((series, index) => (
               <Bar
                 key={series.name}
@@ -245,7 +245,7 @@ export default function DataChart({
               tick={{ fontSize: 12 }}
             />
             <Tooltip content={<CustomTooltip />} />
-            {showLegend && <Legend />}
+            {showLegend && <Legend layout="vertical" verticalAlign="top" align="left" />}
             {data.map((series, index) => (
               <Bar
                 key={series.name}
@@ -272,7 +272,7 @@ export default function DataChart({
               tick={{ fontSize: 12 }}
             />
             <Tooltip content={<CustomTooltip />} />
-            {showLegend && <Legend />}
+            {showLegend && <Legend layout="vertical" verticalAlign="top" align="left" />}
             {data.map((series, index) => (
               <Area
                 key={series.name}
@@ -312,7 +312,7 @@ export default function DataChart({
               ))}
             </Pie>
             <Tooltip content={<PieTooltip />} />
-            {showLegend && <Legend />}
+            {showLegend && <Legend layout="vertical" verticalAlign="top" align="left" />}
           </PieChart>
         )
 
@@ -357,7 +357,7 @@ export default function DataChart({
                 return null
               }}
             />
-            {showLegend && <Legend />}
+            {showLegend && <Legend layout="vertical" verticalAlign="top" align="left" />}
             {data.map((series, index) => {
               const seriesData = series.data.map(point => ({
                 x: point.x,
@@ -414,7 +414,7 @@ export default function DataChart({
               tickCount={5}
             />
             <Tooltip content={<CustomTooltip />} />
-            {showLegend && <Legend />}
+            {showLegend && <Legend layout="vertical" verticalAlign="top" align="left" />}
             {data.map((series, index) => (
               <Radar
                 key={series.name}

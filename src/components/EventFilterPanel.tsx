@@ -110,7 +110,7 @@ export default function EventFilterPanel({ filters, onFiltersChange }: EventFilt
               type="checkbox"
               checked={filters.showLocal}
               onChange={(e) => handleSourceFilterChange('showLocal', e.target.checked)}
-              className="rounded text-blue-600 focus:ring-blue-500 bg-gray-700 border-gray-600"
+              className="rounded text-green-600 focus:ring-blue-500 bg-gray-700 border-gray-600"
             />
             <span className="text-sm text-gray-300">Lokální</span>
           </label>
@@ -128,7 +128,7 @@ export default function EventFilterPanel({ filters, onFiltersChange }: EventFilt
               type="checkbox"
               checked={filters.showOutlook}
               onChange={(e) => handleSourceFilterChange('showOutlook', e.target.checked)}
-              className="rounded text-blue-600 focus:ring-blue-500 bg-gray-700 border-gray-600"
+              className="rounded text-green-600 focus:ring-blue-500 bg-gray-700 border-gray-600"
             />
             <span className="text-sm text-gray-300">Outlook</span>
           </label>

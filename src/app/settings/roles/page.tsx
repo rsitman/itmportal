@@ -119,25 +119,25 @@ export default function RoleManagement() {
 
   const getRoleColor = (role: Role): string => {
     const colors: Record<Role, string> = {
-      [Role.USER]: 'bg-gray-100 text-gray-800',
-      [Role.ADMIN]: 'bg-purple-100 text-purple-800',
-      [Role.MANAGER]: 'bg-blue-100 text-blue-800',
-      [Role.VIEWER]: 'bg-green-100 text-green-800',
-      [Role.IT]: 'bg-orange-100 text-orange-800',
+      [Role.USER]: 'bg-gray-900/50 text-gray-200 border border-gray-800',
+      [Role.ADMIN]: 'bg-purple-900/50 text-purple-200 border border-purple-800',
+      [Role.MANAGER]: 'bg-blue-900/50 text-green-200 border border-green-800',
+      [Role.VIEWER]: 'bg-green-900/50 text-green-200 border border-green-800',
+      [Role.IT]: 'bg-orange-900/50 text-orange-200 border border-orange-800',
     }
-    return colors[role] || 'bg-gray-100 text-gray-800'
+    return colors[role] || 'bg-gray-900/50 text-gray-200 border border-gray-800'
   }
 
   return (
     <PermissionGuard roles={[Role.ADMIN]} fallback={<div className="p-8 text-center">Přístup odepřen</div>}>
       <div className="p-6">
         <div className="mb-6">
-          <h1 className="text-2xl font-bold text-gray-900 mb-2">Správa rolí a oprávnění</h1>
-          <p className="text-gray-600">Definujte oprávnění pro jednotlivé role v systému</p>
+          <h1 className="text-2xl font-bold text-gray-100 mb-2">Správa rolí a oprávnění</h1>
+          <p className="text-gray-300">Definujte oprávnění pro jednotlivé role v systému</p>
         </div>
 
         {message && (
-          <div className="mb-4 p-3 rounded-md bg-green-50 text-green-800">
+          <div className="mb-4 p-3 rounded-md bg-green-900/30 text-green-200 border border-green-700">
             {message}
           </div>
         )}
@@ -153,8 +153,8 @@ export default function RoleManagement() {
                   onClick={() => setSelectedRole(role)}
                   className={`w-full text-left px-4 py-3 rounded-lg font-medium transition-colors ${
                     selectedRole === role
-                      ? `${getRoleColor(role)} border-2 border-blue-500`
-                      : 'bg-white border border-gray-200 hover:bg-gray-50'
+                      ? `${getRoleColor(role)} border-2 border-green-500`
+                      : 'bg-gray-800/50 border border-gray-600 hover:bg-gray-700/50 text-gray-200'
                   }`}
                 >
                   <div className="font-semibold">{getRoleName(role)}</div>
@@ -178,7 +178,7 @@ export default function RoleManagement() {
                 return (
                   <div
                     key={permission}
-                    className="flex items-center space-x-3 p-3 border rounded-lg hover:bg-gray-50"
+                    className="flex items-center space-x-3 p-3 border border-gray-600 rounded-lg hover:bg-gray-700/50 bg-gray-800/30"
                   >
                     <input
                       type="checkbox"
@@ -186,16 +186,16 @@ export default function RoleManagement() {
                       checked={isChecked}
                       onChange={(e) => handlePermissionToggle(permission, e.target.checked)}
                       disabled={isLoading}
-                      className="h-4 w-4 text-blue-600 rounded focus:ring-blue-500"
+                      className="h-4 w-4 text-green-600 rounded focus:ring-blue-500"
                     />
                     <label
                       htmlFor={permission}
-                      className="flex-1 text-sm font-medium text-gray-700 cursor-pointer"
+                      className="flex-1 text-sm font-medium text-gray-200 cursor-pointer"
                     >
                       <div className="font-semibold">{getPermissionName(permission)}</div>
-                      <div className="text-xs text-gray-500">{permission}</div>
+                      <div className="text-xs text-gray-400">{permission}</div>
                       {isDefaultPermission && !isChecked && (
-                        <div className="text-xs text-orange-600">Výchozí oprávnění</div>
+                        <div className="text-xs text-orange-400">Výchozí oprávnění</div>
                       )}
                     </label>
                   </div>
@@ -203,9 +203,9 @@ export default function RoleManagement() {
               })}
             </div>
 
-            <div className="mt-6 p-4 bg-blue-50 rounded-lg">
-              <h3 className="font-semibold text-blue-900 mb-2">Souhrn oprávnění</h3>
-              <div className="text-sm text-blue-800">
+            <div className="mt-6 p-4 bg-blue-900/30 rounded-lg border border-green-700">
+              <h3 className="font-semibold text-green-200 mb-2">Souhrn oprávnění</h3>
+              <div className="text-sm text-green-300">
                 <p><strong>Celkem oprávnění:</strong> {rolePermissions.length}</p>
                 <p><strong>Výchozí oprávnění:</strong> {ROLE_PERMISSIONS[selectedRole]?.length || 0}</p>
                 <p><strong>Vlastní oprávnění:</strong> {rolePermissions.length - (ROLE_PERMISSIONS[selectedRole]?.length || 0)}</p>

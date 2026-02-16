@@ -55,7 +55,7 @@ export default function ProjectsRegistryClient({ initialProjects }: ProjectsRegi
     return (
       <div className="px-6">
         <div className="bg-gray-800 border border-gray-700 rounded-md p-6">
-          <h3 className="text-sm font-medium text-blue-400 mb-2">Žádné servisní projekty</h3>
+          <h3 className="text-sm font-medium text-green-400 mb-2">Žádné servisní projekty</h3>
           <p className="text-gray-300">
             Nebyly nalezeny žádné servisní projekty.
           </p>

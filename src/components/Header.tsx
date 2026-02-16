@@ -16,31 +16,31 @@ export default function Header() {
   const getPageTitle = () => {
     switch (pathname) {
       case '/calendar':
-        return 'Kalendář'
+        return <><span className="text-green-400">Servisní portál</span><span className="text-white"> - Kalendář</span></>
       case '/dashboard':
-        return 'Dashboard'
+        return <><span className="text-green-400">Servisní portál</span><span className="text-white"> - Dashboard</span></>
       case '/plan_patchovani':
-        return 'Přehled patchování'
+        return <><span className="text-green-400">Servisní portál</span><span className="text-white"> - Přehled patchování</span></>
       case '/evidence-projektu':
-        return 'Evidence projektů'
+        return <><span className="text-green-400">Servisní portál</span><span className="text-white"> - Evidence projektů</span></>
       case '/upgrades':
-        return 'Upgrady'
+        return <><span className="text-green-400">Servisní portál</span><span className="text-white"> - Upgrady</span></>
       case '/databases':
-        return 'Aktuální stav databází'
+        return <><span className="text-green-400">Servisní portál</span><span className="text-white"> - Aktuální stav databází</span></>
       case '/grafy/db-size':
-        return 'Grafy'
+        return <><span className="text-green-400">Servisní portál</span><span className="text-white"> - Grafy</span></>
       case '/dashboard/mapa':
-        return 'Mapa poboček'
+        return <><span className="text-green-400">Servisní portál</span><span className="text-white"> - Mapa projektů</span></>
       case '/users':
-        return 'Uživatelé'
+        return <><span className="text-green-400">Servisní portál</span><span className="text-white"> - Uživatelé</span></>
       case '/settings':
-        return 'Nastavení'
+        return <><span className="text-green-400">Servisní portál</span><span className="text-white"> - Nastavení</span></>
       case '/settings/roles':
-        return 'Správa rolí'
+        return <><span className="text-green-400">Servisní portál</span><span className="text-white"> - Správa rolí</span></>
       case '/settings/hwsw':
-        return 'HW/SW Konfigurace'
+        return <><span className="text-green-400">Servisní portál</span><span className="text-white"> - HW/SW Konfigurace</span></>
       default:
-        return 'Servisní portál'
+        return <span className="text-green-400">Servisní portál</span>
     }
   }
 
@@ -94,7 +94,7 @@ export default function Header() {
     <header className="flex h-20 items-center justify-between border-b border-gray-700/50 bg-gray-900/90 backdrop-blur-md px-8 shadow-lg">
       <div className="flex items-center">
         <div className="flex flex-col">
-          <h2 className="text-2xl font-semibold text-white tracking-tight">
+          <h2 className="text-2xl font-semibold text-green-400 tracking-tight">
             {getPageTitle()}
           </h2>
         </div>

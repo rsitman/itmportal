@@ -186,7 +186,7 @@ export default function ExternalComponentsPage() {
           <div className="text-sm text-gray-600">Celkem komponent</div>
         </div>
         <div className="bg-white p-4 rounded-lg shadow border border-gray-200">
-          <div className="text-2xl font-bold text-blue-600">
+          <div className="text-2xl font-bold text-green-600">
             {getUniqueSuppliers().length}
           </div>
           <div className="text-sm text-gray-600">Počet dodavatelů</div>
@@ -246,7 +246,7 @@ export default function ExternalComponentsPage() {
                     </div>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm">
-                    <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                    <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-green-800">
                       {component.forma_kom}
                     </span>
                   </td>
@@ -258,7 +258,7 @@ export default function ExternalComponentsPage() {
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                     {component.email ? (
-                      <a href={`mailto:${component.email}`} className="text-blue-600 hover:text-blue-800">
+                      <a href={`mailto:${component.email}`} className="text-green-600 hover:text-green-800">
                         {component.email}
                       </a>
                     ) : (
@@ -267,7 +267,7 @@ export default function ExternalComponentsPage() {
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                     {component.telefon ? (
-                      <a href={`tel:${component.telefon}`} className="text-blue-600 hover:text-blue-800">
+                      <a href={`tel:${component.telefon}`} className="text-green-600 hover:text-green-800">
                         {component.telefon}
                       </a>
                     ) : (

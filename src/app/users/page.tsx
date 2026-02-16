@@ -59,9 +59,9 @@ export default async function UsersPage() {
           Správa uživatelských účtů a oprávnění
         </p>
         {session.user.email && !session.user.email.includes('@itman.cz') && (
-          <div className="mt-4 p-4 bg-blue-900/50 border border-blue-800 rounded-lg">
-            <p className="text-sm text-blue-200">
-              <strong className="text-blue-100">Lokální administrátor:</strong> Jste přihlášen přes lokální účet s administrátorskými právy.
+          <div className="mt-4 p-4 bg-blue-900/50 border border-green-800 rounded-lg">
+            <p className="text-sm text-green-200">
+              <strong className="text-green-100">Lokální administrátor:</strong> Jste přihlášen přes lokální účet s administrátorskými právy.
             </p>
           </div>
         )}

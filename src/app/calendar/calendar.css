@@ -231,3 +231,49 @@
   background-color: rgba(59, 130, 246, 0.1) !important;
   border-radius: 4px !important;
 }
+
+/* Full width calendar styles */
+.rbc-calendar {
+  width: 100% !important;
+}
+
+.rbc-month-view, .rbc-time-view, .rbc-agenda-view {
+  width: 100% !important;
+}
+
+.rbc-row {
+  width: 100% !important;
+}
+
+.rbc-row-segment {
+  width: 100% !important;
+}
+
+.rbc-day-column {
+  width: 100% !important;
+}
+
+.rbc-month-row {
+  width: 100% !important;
+}
+
+.rbc-date-cell {
+  width: 100% !important;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .rbc-calendar {
+    font-size: 12px !important;
+  }
+  
+  .rbc-toolbar {
+    flex-direction: column !important;
+    gap: 8px !important;
+  }
+  
+  .rbc-btn-group {
+    flex-wrap: wrap !important;
+    justify-content: center !important;
+  }
+}

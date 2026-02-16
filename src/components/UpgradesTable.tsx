@@ -82,7 +82,7 @@ export default function UpgradesTable({ upgrades }: UpgradesTableProps) {
               
               {/* JIRA */}
               <div className="px-6 py-3 whitespace-nowrap text-sm border-b border-gray-100 w-[150px] flex-shrink-0">
-                <a href={`https://your-jira-instance.com/browse/${upgrade.jira_klic}`} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:text-blue-800 hover:underline font-mono text-xs block">{upgrade.jira_klic}</a>
+                <a href={`https://your-jira-instance.com/browse/${upgrade.jira_klic}`} target="_blank" rel="noopener noreferrer" className="text-green-600 hover:text-green-800 hover:underline font-mono text-xs block">{upgrade.jira_klic}</a>
               </div>
               
               {/* Status */}

@@ -88,7 +88,7 @@ function DatabasesContent() {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-green-600 mx-auto mb-4"></div>
           <p className="text-gray-600">Načítání databází...</p>
         </div>
       </div>
@@ -116,7 +116,7 @@ function DatabasesContent() {
           <div className="space-y-3">
             <button
               onClick={fetchDatabases}
-              className="w-full px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
+              className="w-full px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700"
             >
               Zkusit znovu
             </button>
@@ -133,18 +133,18 @@ function DatabasesContent() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="w-full py-10 bg-transparent">
       {/* Header */}
-      <div className="bg-white shadow-sm border-b">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center py-6">
+      <div className="card-professional shadow-sm border-b border-gray-700/50">
+        <div className="px-6 py-6">
+          <div className="flex justify-between items-center">
             <div>
-              <h1 className="text-3xl font-bold text-gray-900">Aktuální stav databází</h1>
-              <p className="text-gray-600 mt-1">Přehled stavu a využití databází v IS KARAT</p>
+              <h1 className="text-3xl font-bold text-white">Aktuální stav databází</h1>
+              <p className="text-gray-300 mt-1">Přehled stavu a využití databází v IS KARAT</p>
             </div>
             <button
               onClick={fetchDatabases}
-              className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 flex items-center gap-2"
+              className="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 flex items-center gap-2"
             >
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
@@ -155,80 +155,106 @@ function DatabasesContent() {
         </div>
       </div>
 
-      <div className="w-full px-4 sm:px-6 lg:px-8 py-8">
+      <div className="px-6 py-4">
         {/* Statistiky */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-          <div className="bg-white rounded-lg shadow p-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4 mb-8">
+          <div className="card-professional p-6">
             <div className="flex items-center">
-              <div className="flex-shrink-0 bg-blue-100 rounded-lg p-3">
-                <svg className="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <div className="flex-shrink-0 bg-blue-900/50 rounded-lg p-3">
+                <svg className="w-6 h-6 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4m0 5c0 2.21-3.582 4-8 4s-8-1.79-8-4" />
                 </svg>
               </div>
               <div className="ml-4">
-                <p className="text-sm font-medium text-gray-600">Celkem databází</p>
-                <p className="text-2xl font-bold text-gray-900">{stats.totalDatabases}</p>
+                <p className="text-sm font-medium text-gray-400">Celkem databází</p>
+                <p className="text-2xl font-bold text-white">{stats.totalDatabases}</p>
               </div>
             </div>
           </div>
 
-          <div className="bg-white rounded-lg shadow p-6">
+          <div className="card-professional p-6">
             <div className="flex items-center">
-              <div className="flex-shrink-0 bg-green-100 rounded-lg p-3">
-                <svg className="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <div className="flex-shrink-0 bg-green-900/50 rounded-lg p-3">
+                <svg className="w-6 h-6 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
                 </svg>
               </div>
               <div className="ml-4">
-                <p className="text-sm font-medium text-gray-600">Celková velikost</p>
-                <p className="text-2xl font-bold text-gray-900">{stats.totalSize.toLocaleString()} MB</p>
-                <p className="text-xs text-gray-500">{stats.usagePercentage}% využito</p>
+                <p className="text-sm font-medium text-gray-400">Aktivní databáze</p>
+                <p className="text-2xl font-bold text-white">{stats.totalDatabases}</p>
               </div>
             </div>
           </div>
 
-          <div className="bg-white rounded-lg shadow p-6">
+          <div className="card-professional p-6">
             <div className="flex items-center">
-              <div className="flex-shrink-0 bg-red-100 rounded-lg p-3">
-                <svg className="w-6 h-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
-                </svg>
-              </div>
-              <div className="ml-4">
-                <p className="text-sm font-medium text-gray-600">Kritické DB</p>
-                <p className="text-2xl font-bold text-red-600">{stats.criticalDatabases}</p>
-                <p className="text-xs text-gray-500">&gt; 90% využito</p>
-              </div>
-            </div>
-          </div>
-
-          <div className="bg-white rounded-lg shadow p-6">
-            <div className="flex items-center">
-              <div className="flex-shrink-0 bg-yellow-100 rounded-lg p-3">
-                <svg className="w-6 h-6 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <div className="flex-shrink-0 bg-orange-900/50 rounded-lg p-3">
+                <svg className="w-6 h-6 text-orange-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
               </div>
               <div className="ml-4">
-                <p className="text-sm font-medium text-gray-600">Málo místa</p>
-                <p className="text-2xl font-bold text-yellow-600">{stats.lowSpaceDatabases}</p>
-                <p className="text-xs text-gray-500">&lt; 90 dní</p>
+                <p className="text-sm font-medium text-gray-400">Databáze s upgrady</p>
+                <p className="text-2xl font-bold text-white">{stats.totalDatabases}</p>
+              </div>
+            </div>
+          </div>
+
+          <div className="card-professional p-6">
+            <div className="flex items-center">
+              <div className="flex-shrink-0 bg-purple-900/50 rounded-lg p-3">
+                <svg className="w-6 h-6 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 002.572 1.065c-.426 1.756-2.924 1.756-3.35a1.724 1.724 0 00-2.572-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-2.572 1.065z" />
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 002.572 1.065c-.426 1.756-2.924 1.756-3.35a1.724 1.724 0 00-2.572-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-2.572 1.065z" />
+                </svg>
+              </div>
+              <div className="ml-4">
+                <p className="text-sm font-medium text-gray-400">Celkový objem</p>
+                <p className="text-2xl font-bold text-white">{stats.totalSize}</p>
+              </div>
+            </div>
+          </div>
+
+          <div className="card-professional p-6">
+            <div className="flex items-center">
+              <div className="flex-shrink-0 bg-red-900/50 rounded-lg p-3">
+                <svg className="w-6 h-6 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                </svg>
+              </div>
+              <div className="ml-4">
+                <p className="text-sm font-medium text-gray-400">Kritické DB</p>
+                <p className="text-2xl font-bold text-white">{stats.criticalDatabases}</p>
+              </div>
+            </div>
+          </div>
+
+          <div className="card-professional p-6">
+            <div className="flex items-center">
+              <div className="flex-shrink-0 bg-yellow-900/50 rounded-lg p-3">
+                <svg className="w-6 h-6 text-yellow-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+              </div>
+              <div className="ml-4">
+                <p className="text-sm font-medium text-gray-400">Málo místa</p>
+                <p className="text-2xl font-bold text-white">{stats.lowSpaceDatabases}</p>
               </div>
             </div>
           </div>
         </div>
 
         {/* Filtry */}
-        <div className="bg-white rounded-lg shadow p-6 mb-8">
+        <div className="card-professional p-6 mb-8">
           {/* Indikace aktivního filtru projektu */}
           {selectedProject && (
-            <div className="mb-4 p-3 bg-blue-50 border border-blue-200 rounded-md">
+            <div className="mb-4 p-3 bg-blue-50 border border-green-200 rounded-md">
               <div className="flex items-center justify-between">
                 <div className="flex items-center">
-                  <svg className="w-4 h-4 text-blue-600 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <svg className="w-4 h-4 text-green-600 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4" />
                   </svg>
-                  <span className="text-sm font-medium text-blue-800">
+                  <span className="text-sm font-medium text-green-800">
                     Filtrováno podle projektu: <code className="bg-blue-100 px-2 py-1 rounded text-xs">{selectedProject}</code>
                   </span>
                 </div>
@@ -237,7 +263,7 @@ function DatabasesContent() {
                     setSelectedProject(null)
                     router.push('/databases')
                   }}
-                  className="text-sm text-blue-600 hover:text-blue-800 font-medium"
+                  className="text-sm text-green-600 hover:text-green-800 font-medium"
                 >
                   Zrušit filtr
                 </button>
@@ -276,9 +302,9 @@ function DatabasesContent() {
 
         <div className="w-full">
         {/* Seznam databází */}
-        <div className="bg-white rounded-lg shadow overflow-hidden">
-          <div className="px-4 py-4 border-b border-gray-200">
-            <h2 className="text-lg font-medium text-gray-900">
+        <div className="card-professional rounded-xl overflow-hidden">
+          <div className="px-6 py-4 border-b border-gray-700 bg-gradient-to-r from-gray-800 to-gray-900">
+            <h2 className="text-lg font-medium text-white">
               Seznam databází ({filteredDatabases.length})
             </h2>
           </div>

@@ -106,7 +106,7 @@ export default function LoginPage() {
               Již jste přihlášen
             </h2>
             <div className="mt-4">
-              <div className="mx-auto h-12 w-12 rounded-full bg-blue-500 flex items-center justify-center text-white text-xl font-medium">
+              <div className="mx-auto h-12 w-12 rounded-full bg-green-500 flex items-center justify-center text-white text-xl font-medium">
                 {session.user?.name?.charAt(0).toUpperCase() || 'U'}
               </div>
               <p className="mt-2 text-lg font-medium text-gray-900">
@@ -173,7 +173,7 @@ export default function LoginPage() {
             Použijte admin/admin pro přihlášení
           </p>
           {session && showLoginAsDifferent && (
-            <p className="mt-2 text-center text-sm text-blue-600">
+            <p className="mt-2 text-center text-sm text-green-600">
               Odhlášeni z předchozího účtu. Zadejte nové přihlašovací údaje.
             </p>
           )}
@@ -198,7 +198,7 @@ export default function LoginPage() {
                 required
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 p-2 border"
+                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-green-500 focus:ring-blue-500 p-2 border"
                 placeholder="admin"
               />
             </div>
@@ -214,7 +214,7 @@ export default function LoginPage() {
                 required
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 p-2 border"
+                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-green-500 focus:ring-blue-500 p-2 border"
                 placeholder="admin"
               />
             </div>
@@ -246,7 +246,7 @@ export default function LoginPage() {
             <div className="mt-6">
               <Button
                 onClick={() => signIn('azure-ad', { callbackUrl: '/dashboard' })}
-                className="w-full bg-blue-600 hover:bg-blue-700 text-white"
+                className="w-full bg-green-600 hover:bg-green-700 text-white"
                 variant="default"
               >
                 <svg className="w-5 h-5 mr-2" viewBox="0 0 24 24" fill="currentColor">

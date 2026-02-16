@@ -169,7 +169,7 @@ export default function TestPieChartPage() {
               onClick={() => setMapType('svg')}
               className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${
                 mapType === 'svg' 
-                  ? 'bg-blue-600 text-white' 
+                  ? 'bg-green-600 text-white' 
                   : 'bg-gray-200 text-gray-700'
               }`}
             >

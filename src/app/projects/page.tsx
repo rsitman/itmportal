@@ -38,7 +38,7 @@ export default function ProjectsPage() {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-green-600 mx-auto mb-4"></div>
           <p className="text-gray-600">Načítání projektů...</p>
         </div>
       </div>
@@ -65,20 +65,20 @@ export default function ProjectsPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-transparent">
       {/* Header */}
-      <div className="bg-white shadow">
+      <div className="card-professional shadow">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center py-6">
             <div>
-              <h1 className="text-3xl font-bold text-gray-900">Evidence projektů</h1>
-              <p className="mt-1 text-sm text-gray-600">
+              <h1 className="text-3xl font-bold text-white">Evidence projektů</h1>
+              <p className="mt-1 text-sm text-gray-300">
                 Seznam servisních projektů v realizaci ({projects.length})
               </p>
             </div>
             <button
               onClick={fetchProjects}
-              className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
+              className="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700"
             >
               Obnovit
             </button>
@@ -90,9 +90,9 @@ export default function ProjectsPage() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {projects.length === 0 ? (
           <div className="text-center py-12">
-            <div className="bg-blue-50 border border-blue-200 rounded-md p-6">
-              <h3 className="text-lg font-medium text-blue-800 mb-2">Žádné projekty</h3>
-              <p className="text-blue-600">
+            <div className="card-professional p-6">
+              <h3 className="text-lg font-medium text-green-400 mb-2">Žádné projekty</h3>
+              <p className="text-gray-300">
                 Nebyly nalezeny žádné servisní projekty.
               </p>
             </div>
@@ -100,18 +100,18 @@ export default function ProjectsPage() {
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {projects.map((project) => (
-              <div key={project.doklad_proj} className="bg-white rounded-lg shadow hover:shadow-lg transition-shadow p-6">
+              <div key={project.doklad_proj} className="card-professional p-6">
                 <div className="flex items-start justify-between mb-4">
                   <div className="flex-1">
-                    <h3 className="text-lg font-semibold text-gray-900 mb-1">
+                    <h3 className="text-lg font-semibold text-white mb-1">
                       {project.nazev}
                     </h3>
-                    <p className="text-sm text-gray-600 font-mono">
+                    <p className="text-sm text-gray-400 font-mono">
                       {project.doklad_proj}
                     </p>
                   </div>
                   {project.jira_klic && (
-                    <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                    <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-900/50 text-green-200 border border-green-800">
                       {project.jira_klic}
                     </span>
                   )}

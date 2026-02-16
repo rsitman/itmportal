@@ -26,21 +26,21 @@ export class DatabaseService {
   }
 
   static getUsageColor(percentage: number): string {
-    if (percentage >= 90) return 'bg-red-100 text-red-800'
-    if (percentage >= 75) return 'bg-yellow-100 text-yellow-800'
-    return 'bg-green-100 text-green-800'
+    if (percentage >= 90) return 'bg-red-500/20 text-red-400 border border-red-500/30'
+    if (percentage >= 75) return 'bg-yellow-500/20 text-yellow-400 border border-yellow-500/30'
+    return 'bg-green-500/20 text-green-400 border border-green-500/30'
   }
 
   static getLogUsageColor(percentage: number): string {
-    if (percentage >= 95) return 'bg-red-100 text-red-800'
-    if (percentage >= 80) return 'bg-yellow-100 text-yellow-800'
-    return 'bg-green-100 text-green-800'
+    if (percentage >= 95) return 'bg-red-500/20 text-red-400 border border-red-500/30'
+    if (percentage >= 80) return 'bg-yellow-500/20 text-yellow-400 border border-yellow-500/30'
+    return 'bg-green-500/20 text-green-400 border border-green-500/30'
   }
 
   static getDaysRemainingColor(days: number): string {
-    if (days <= 30) return 'bg-red-100 text-red-800'
-    if (days <= 90) return 'bg-yellow-100 text-yellow-800'
-    return 'bg-green-100 text-green-800'
+    if (days <= 30) return 'bg-red-500/20 text-red-400 border border-red-500/30'
+    if (days <= 90) return 'bg-yellow-500/20 text-yellow-400 border border-yellow-500/30'
+    return 'bg-green-500/20 text-green-400 border border-green-500/30'
   }
 
   static calculateUsagePercentage(used: number, max: number): number {

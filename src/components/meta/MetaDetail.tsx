@@ -84,7 +84,7 @@ function renderFieldValue(field: MetaField, value: any): React.ReactNode {
             href={`https://itmancz.atlassian.net/browse/${value}`}
             target="_blank"
             rel="noopener noreferrer"
-            className="text-blue-600 hover:text-blue-800 hover:underline"
+            className="text-green-400 hover:text-green-300 hover:underline"
           >
             {value}
           </a>

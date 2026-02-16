@@ -57,15 +57,15 @@ export class UpgradeService {
   static getStatusColor(stav: string): string {
     switch (stav.toLowerCase()) {
       case 'realizováno':
-        return 'text-green-600 bg-green-100'
+        return 'status-badge-realizovano'
       case 'v přípravě':
-        return 'text-yellow-600 bg-yellow-100'
+        return 'status-badge-v-priprave'
       case 'plánováno':
-        return 'text-blue-600 bg-blue-100'
+        return 'status-badge-planovano'
       case 'pozastaveno':
-        return 'text-red-600 bg-red-100'
+        return 'status-badge-pozastaveno'
       default:
-        return 'text-gray-600 bg-gray-100'
+        return 'bg-gray-700/70 text-gray-100 border border-gray-500'
     }
   }
 }

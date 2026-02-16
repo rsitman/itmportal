@@ -48,7 +48,7 @@ export class AuthErrorBoundary extends React.Component<AuthErrorBoundaryProps, A
             </p>
             <button
               onClick={() => window.location.href = '/login'}
-              className="w-full bg-blue-600 text-white py-2 px-4 rounded hover:bg-blue-700"
+              className="w-full bg-green-600 text-white py-2 px-4 rounded hover:bg-green-700"
             >
               Zpět na přihlášení
             </button>

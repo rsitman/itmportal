@@ -258,7 +258,7 @@ export default function GeoMapChart({
             <p className="text-sm font-medium text-gray-700 mb-2">Hodnoty bodů:</p>
             <div className="flex flex-wrap gap-4 text-sm">
               <div className="flex items-center gap-2">
-                <div className="w-4 h-4 bg-blue-500 rounded-full"></div>
+                <div className="w-4 h-4 bg-green-500 rounded-full"></div>
                 <span className="text-gray-600">0-20</span>
               </div>
               <div className="flex items-center gap-2">

@@ -81,7 +81,7 @@ export default function SettingsPage() {
   if (status === 'loading' || isLoading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-green-600"></div>
       </div>
     )
   }
@@ -123,7 +123,7 @@ export default function SettingsPage() {
                   rememberLogin: e.target.checked,
                   sessionPreference: e.target.checked ? 'REMEMBER' : 'TEMPORARY'
                 }))}
-                className="w-4 h-4 text-blue-600 bg-gray-700 border-gray-600 rounded focus:ring-blue-500"
+                className="w-4 h-4 text-green-600 bg-gray-700 border-gray-600 rounded focus:ring-blue-500"
               />
               <div>
                 <div className="font-medium text-white">Pamatovat si přihlášení</div>
@@ -157,8 +157,8 @@ export default function SettingsPage() {
 
             <div className="pt-4 border-t border-gray-700">
               <h3 className="text-sm font-medium text-white mb-2">Chování odhlašování</h3>
-              <div className="bg-blue-900/50 p-3 rounded-md text-sm text-blue-200 border border-blue-800">
-                <strong className="text-blue-100">Důležité:</strong> Kliknutí na tlačítko "Odhlásit se" vždy provede úplné odhlášení 
+              <div className="bg-blue-900/50 p-3 rounded-md text-sm text-green-200 border border-green-800">
+                <strong className="text-green-100">Důležité:</strong> Kliknutí na tlačítko "Odhlásit se" vždy provede úplné odhlášení 
                 z aplikace i z Microsoft účtu, bez ohledu na toto nastavení. 
                 Toto nastavení ovlivňuje pouze automatické odhlášení po neaktivitě.
               </div>

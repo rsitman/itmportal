@@ -48,12 +48,21 @@ export default function CollapsibleSection({
         onClick={handleClick}
         className={cn(
           'flex items-center w-full rounded-lg px-3 py-2 text-sm font-medium transition-all duration-200',
-          isActive
+          isActive && !href
             ? 'bg-gray-800/80 text-gray-100 shadow-sm'
+            : isActive && href
+            ? 'bg-green-600/20 text-green-100 shadow-sm border-l-2 border-green-500'
             : 'text-gray-400 hover:bg-gray-800/80 hover:text-gray-200'
         )}
       >
-        <Icon className="mr-3 h-4 w-4 text-gray-400" />
+        <Icon className={cn(
+          'mr-3 h-4 w-4 transition-colors duration-200',
+          isActive && !href
+            ? 'text-gray-100'
+            : isActive && href
+            ? 'text-green-400'
+            : 'text-gray-400'
+        )} />
         <span className="flex-1 text-left font-semibold">{title}</span>
         {href && hasVisibleChildren && (
           <span
