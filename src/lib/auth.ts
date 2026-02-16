@@ -17,6 +17,10 @@ console.error = (...args: any[]) => {
   if (typeof message === 'object' && message?.error?.message?.includes('CLIENT_FETCH_ERROR')) {
     return
   }
+  // Filter out KARAT 404 errors that are expected in some cases
+  if (typeof message === 'string' && message.includes('KARAT direct fetch error: 404')) {
+    return
+  }
   originalConsoleError.apply(console, args)
 }
 

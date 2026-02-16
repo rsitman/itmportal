@@ -1,7 +1,26 @@
 import { KaratProject, mapKaratProjects } from './karat'
 import { logger } from './logger'
 
-const ERP_BASE_URL = process.env.ERP_API_URL || 'http://itmsql01:44612'
+// Use direct ERP URL - Next.js on Windows can reach ERP server
+const ERP_BASE_URL = process.env.ERP_API_URL || 'http://itmsql01:44612/web'
+
+// Test DNS resolution at startup
+if (process.env.NODE_ENV === 'development') {
+  logger.log('🔍 ERP_BASE_URL:', ERP_BASE_URL)
+  logger.log('🔍 Testing DNS resolution for itmsql01...')
+  
+  // Try to resolve the hostname
+  try {
+    const { execSync } = require('child_process')
+    const result = execSync('nslookup itmsql01 2>&1 || host itmsql01 2>&1 || echo "DNS lookup failed"', { 
+      encoding: 'utf8',
+      timeout: 5000 
+    })
+    logger.log('🔍 DNS resolution result:', result.trim())
+  } catch (error) {
+    logger.log('🔍 DNS resolution error:', error instanceof Error ? error.message : String(error))
+  }
+}
 
 /**
  * Přímé volání KARAT ERP - bez roundtripu přes vlastní API routes.
@@ -9,12 +28,29 @@ const ERP_BASE_URL = process.env.ERP_API_URL || 'http://itmsql01:44612'
  */
 export async function fetchKaratProjectsDirect(): Promise<KaratProject[]> {
   try {
-    const response = await fetch(`${ERP_BASE_URL}/web/patchovani_data`, {
+    const url = `${ERP_BASE_URL}/patchovani_data`
+    logger.log('🔍 Fetching KARAT data from:', url)
+    
+    const response = await fetch(url, {
       next: { revalidate: 300 }, // cache 5 minut
+      headers: {
+        'User-Agent': 'NextJS-Server',
+        'Accept': 'application/json',
+      }
     })
 
+    logger.log('🔍 KARAT response status:', response.status, response.statusText)
+    logger.log('🔍 KARAT response headers:', Object.fromEntries(response.headers.entries()))
+
     if (!response.ok) {
-      logger.error('KARAT direct fetch error:', response.status, response.statusText)
+      // Don't log 404 as error - it might be expected behavior
+      if (response.status === 404) {
+        logger.log('KARAT endpoint not available (404) - returning empty data')
+        logger.log('🔍 Full URL that returned 404:', url)
+        logger.log('🔍 ERP_BASE_URL from env:', ERP_BASE_URL)
+      } else {
+        logger.error('KARAT direct fetch error:', response.status, response.statusText)
+      }
       return []
     }
 
@@ -30,7 +66,8 @@ export async function fetchKaratProjectsDirect(): Promise<KaratProject[]> {
 
 export async function fetchServiceProjectsDirect(): Promise<any[]> {
   try {
-    const response = await fetch(`${ERP_BASE_URL}/web/projects`, {
+    const url = `${ERP_BASE_URL}/projects`
+    const response = await fetch(url, {
       next: { revalidate: 300 },
     })
 
@@ -63,7 +100,7 @@ export async function fetchDatabaseHistoryDirect(
   endDate: string
 ): Promise<any[]> {
   try {
-    const url = `${ERP_BASE_URL}/web/databases/history?projekt=${projekt}&databaze=${database}&datum_od=${startDate}&datum_do=${endDate}`
+    const url = `${ERP_BASE_URL}/databases/history?projekt=${projekt}&databaze=${database}&datum_od=${startDate}&datum_do=${endDate}`
     const response = await fetch(url, {
       next: { revalidate: 3600 }, // cache 1 hodina - historická data se nemění často
     })

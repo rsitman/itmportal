@@ -19,6 +19,16 @@ export function NextAuthProvider(props: NextAuthProviderProps) {
         return
       }
       
+      // Filter out KARAT 404 errors that are expected in some cases
+      if (typeof message === 'string' && message.includes('KARAT direct fetch error: 404')) {
+        return
+      }
+      
+      // Filter out fetch errors for ERP endpoints that might be temporarily unavailable
+      if (typeof message === 'object' && message?.message?.includes('fetch failed')) {
+        return
+      }
+      
       originalError.apply(console, args)
     }
 

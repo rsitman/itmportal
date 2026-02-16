@@ -12,7 +12,10 @@ export async function GET(
     const erpUrl = process.env.ERP_API_URL || 'http://itmsql01:44612/web'
     const fullUrl = `${erpUrl}/${path}`
     
-    logger.log(`ERP Proxy: Fetching ${fullUrl}`)
+    logger.log(`ERP Proxy: Path=${path}`)
+    logger.log(`ERP Proxy: ERP_BASE_URL=${erpUrl}`)
+    logger.log(`ERP Proxy: Full URL=${fullUrl}`)
+    logger.log(`ERP Proxy: Request URL=${request.url}`)
     
     const response = await fetch(fullUrl, {
       method: 'GET',
