@@ -149,13 +149,18 @@ export class ErpCalendarService {
   // Fetch events from ERP system
   static async fetchErpEvents(): Promise<ErpEvent[]> {
     try {
-      // Použijeme absolutní URL pro server-side fetch
-      const baseUrl = process.env.NODE_ENV === 'production' 
-        ? process.env.NEXTAUTH_URL 
-        : 'http://localhost:3000'
+      // Call ERP directly like other services
+      const erpUrl = process.env.ERP_API_URL || 'http://itmsql01:44612/web'
+      const fullUrl = `${erpUrl}/calendar`
       
-      logger.log('ErpCalendarService: Fetching from:', `${baseUrl}/api/erp-proxy/calendar`)
-      const response = await fetch(`${baseUrl}/api/erp-proxy/calendar`)
+      logger.log('ErpCalendarService: Fetching from:', fullUrl)
+      const response = await fetch(fullUrl, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        signal: AbortSignal.timeout(10000), // 10 second timeout
+      })
       
       if (!response.ok) {
         if (response.status === 404) {

@@ -9,11 +9,14 @@ export async function GET(
   const path = resolvedParams.path.join('/')
   
   try {
-    const erpUrl = process.env.ERP_API_URL || 'http://itmsql01:44612/web'
-    const fullUrl = `${erpUrl}/${path}`
+    const erpBaseUrl = process.env.ERP_API_URL || 'http://itmsql01:44612/web'
+    // Remove 'web/' from path if it exists to avoid duplication
+    const cleanPath = path.startsWith('web/') ? path.replace('web/', '') : path
+    const fullUrl = `${erpBaseUrl}/${cleanPath}`
     
-    logger.log(`ERP Proxy: Path=${path}`)
-    logger.log(`ERP Proxy: ERP_BASE_URL=${erpUrl}`)
+    logger.log(`ERP Proxy: Original path=${path}`)
+    logger.log(`ERP Proxy: Clean path=${cleanPath}`)
+    logger.log(`ERP Proxy: ERP_BASE_URL=${erpBaseUrl}`)
     logger.log(`ERP Proxy: Full URL=${fullUrl}`)
     logger.log(`ERP Proxy: Request URL=${request.url}`)
     
