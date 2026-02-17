@@ -35,6 +35,60 @@ export const authOptions: NextAuthOptions = {
   },
   debug: false, // Vypnuto aby se snížily logy
   logger: customLogger,
+  
+  // Cookie settings pro HTTP development
+  cookies: {
+    sessionToken: {
+      name: 'next-auth.session-token',
+      options: {
+        httpOnly: true,
+        sameSite: 'lax',
+        path: '/',
+        secure: false, // Důležité pro HTTP
+        domain: process.env.NODE_ENV === 'production' ? '.itman.cz' : undefined
+      }
+    },
+    callbackUrl: {
+      name: 'next-auth.callback-url',
+      options: {
+        httpOnly: true,
+        sameSite: 'lax',
+        path: '/',
+        secure: false, // Důležité pro HTTP
+        domain: process.env.NODE_ENV === 'production' ? '.itman.cz' : undefined
+      }
+    },
+    csrfToken: {
+      name: 'next-auth.csrf-token',
+      options: {
+        httpOnly: true,
+        sameSite: 'lax',
+        path: '/',
+        secure: false, // Důležité pro HTTP
+        domain: process.env.NODE_ENV === 'production' ? '.itman.cz' : undefined
+      }
+    },
+    pkceCodeVerifier: {
+      name: 'next-auth.pkce.code_verifier',
+      options: {
+        httpOnly: true,
+        sameSite: 'lax',
+        path: '/',
+        secure: false, // Důležité pro HTTP
+        domain: process.env.NODE_ENV === 'production' ? '.itman.cz' : undefined
+      }
+    },
+    state: {
+      name: 'next-auth.state',
+      options: {
+        httpOnly: true,
+        sameSite: 'lax',
+        path: '/',
+        secure: false, // Důležité pro HTTP
+        domain: process.env.NODE_ENV === 'production' ? '.itman.cz' : undefined
+      }
+    }
+  },
   callbacks: {
     async jwt({ token, user, account }) {
       logger.log('JWT callback - user:', user, 'token:', token, 'account:', account)
