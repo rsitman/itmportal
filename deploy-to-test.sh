@@ -56,7 +56,7 @@ rsync -avz --delete \
 
 # 5. Instalace dependencies na serveru
 echo -e "${YELLOW}📦 Installing dependencies on server...${NC}"
-ssh $SERVER "cd $REMOTE_DIR && npm ci --production --legacy-peer-deps"
+ssh $SERVER "cd $REMOTE_DIR && npm install --legacy-peer-deps"
 
 # 6. Build aplikace
 echo -e "${YELLOW}🔨 Building application...${NC}"
