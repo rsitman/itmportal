@@ -66,7 +66,7 @@ ssh $SERVER "cd $REMOTE_DIR && npm run build"
 # 7. Restart aplikace (čistý restart)
 echo -e "${YELLOW}🔄 Restarting application...${NC}"
 ssh $SERVER "cd $REMOTE_DIR && pm2 delete itmportal-test 2>/dev/null || true"
-ssh $SERVER "cd $REMOTE_DIR && pm2 start npm --name itmportal-test -- start"
+ssh $SERVER "cd $REMOTE_DIR && pm2 start ecosystem.config.test.js"
 
 echo -e "${GREEN}🎉 Deployment completed successfully!${NC}"
 echo -e "${GREEN}🌐 Test server: https://portal.itman.cz${NC}"
