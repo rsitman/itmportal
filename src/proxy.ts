@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
 
-export function middleware(request: NextRequest) {
+export function proxy(request: NextRequest) {
   console.log('🔍 MIDDLEWARE:', {
     method: request.method,
     url: request.url,
@@ -21,12 +21,4 @@ export function middleware(request: NextRequest) {
   }
 
   return NextResponse.next()
-}
-
-export const config = {
-  matcher: [
-    '/api/auth/:path*',
-    '/login',
-    '/dashboard'
-  ]
 }
