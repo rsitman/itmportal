@@ -50,6 +50,7 @@ rsync -avz --delete \
     --exclude='.next' \
     --exclude='*.log' \
     --exclude='.env.local' \
+    --exclude='.env.production' \
     --exclude='dist' \
     --exclude='build' \
     ./ $SERVER:$REMOTE_DIR/
