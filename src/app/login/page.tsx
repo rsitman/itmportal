@@ -39,29 +39,46 @@ export default function LoginPage() {
 const handleSubmit = async (e: React.FormEvent) => {
   e.preventDefault()
   console.log('🔥 FORM SUBMIT:', { email, password })
+  logger.log('🔥 FORM SUBMIT:', { email, password })
   setIsLoading(true)
 
-  // CSRF + COOKIES najednou
-  const csrfRes = await fetch('/api/auth/csrf', { 
-    credentials: 'include'  // ← Cookies!
-  })
-  const { csrfToken } = await csrfRes.json()
+  try {
+    // CSRF + COOKIES najednou
+    console.log('🔥 GETTING CSRF TOKEN...')
+    const csrfRes = await fetch('/api/auth/csrf', { 
+      credentials: 'include'  // ← Cookies!
+    })
+    console.log('🔥 CSRF RESPONSE:', csrfRes.status, csrfRes.statusText)
+    
+    const csrfData = await csrfRes.json()
+    console.log('🔥 CSRF DATA:', csrfData)
+    const { csrfToken } = csrfData
 
-  console.log('🔥 CSRF:', csrfToken)
+    console.log('🔥 CSRF TOKEN:', csrfToken)
 
-  const result = await signIn('credentials', {
-    email, password, csrfToken,
-    redirect: false,
-    callbackUrl: '/dashboard'
-  })
+    console.log('🔥 CALLING SIGN IN...')
+    const result = await signIn('credentials', {
+      email, password, csrfToken,
+      redirect: false,
+      callbackUrl: '/dashboard'
+    })
 
-  console.log('🔥 RESULT:', result)
+    console.log('🔥 SIGN IN RESULT:', result)
+    logger.log('🔥 SIGN IN RESULT:', result)
 
-  if (result?.ok) {
-    router.push(callbackUrl)
-  } else {
-    setError(result?.error || 'Chyba')
+    if (result?.ok) {
+      console.log('🔥 LOGIN SUCCESS, redirecting to:', callbackUrl)
+      router.push(callbackUrl)
+    } else {
+      console.log('🔥 LOGIN FAILED:', result?.error)
+      setError(result?.error || 'Chyba')
+    }
+  } catch (error) {
+    console.log('🔥 LOGIN ERROR:', error)
+    logger.error('🔥 LOGIN ERROR:', error)
+    setError('Neočekávaná chyba')
   }
+  
   setIsLoading(false)
 }
 
