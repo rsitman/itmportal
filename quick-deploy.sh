@@ -11,7 +11,9 @@ rsync -avz --delete \
     --exclude='node_modules' \
     --exclude='.next' \
     --exclude='*.log' \
-    --exclude='.env.local' \
+    --exclude='.env*' \
+    --exclude='dist' \
+    --exclude='build' \
     ./ portal.itman.cz:/home/spravce/itmportal-test/
 
 echo "✅ Files synced to test server"

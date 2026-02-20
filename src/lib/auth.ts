@@ -19,6 +19,7 @@ export const authOptions: NextAuthOptions = {
 
   callbacks: {
     async jwt({ token, user, account }) {
+      console.log('🔥 JWT callback:', { token, user, account })
       if (user) {
         token.id = user.id
         token.email = user.email
@@ -53,6 +54,7 @@ export const authOptions: NextAuthOptions = {
         password: { label: 'Password', type: 'password' }
       },
       async authorize(credentials) {
+        console.log('🔥 AUTH CREDENTIALS:', credentials)
         if (credentials?.email === 'admin' && credentials?.password === 'admin') {
 	  console.log('🚨 CREDENTIALS HIT:', credentials?.email)
 	  console.log('ADMIN LOGIN OK')
@@ -63,7 +65,7 @@ export const authOptions: NextAuthOptions = {
             role: 'ADMIN' as UserRole
           }
         }
-	console.log('AUTH FAIL')
+	console.log('AUTH FAIL - invalid credentials')
         return null
       }
     }),
