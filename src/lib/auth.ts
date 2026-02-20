@@ -46,6 +46,18 @@ export const authOptions: NextAuthOptions = {
     }
   },
 
+  events: {
+    async signIn({ user, account, profile, isNewUser }) {
+      console.log('🔥 SIGN IN EVENT:', { user, account, profile, isNewUser })
+    },
+    async signOut({ session, token }) {
+      console.log('🔥 SIGN OUT EVENT:', { session, token })
+    },
+    async createUser({ user }) {
+      console.log('🔥 CREATE USER EVENT:', { user })
+    }
+  },
+
   providers: [
     CredentialsProvider({
       name: 'credentials',
