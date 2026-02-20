@@ -1,8 +1,10 @@
 import { KaratProject, mapKaratProjects } from './karat'
 import { logger } from './logger'
+import { getServerSession } from 'next-auth'
+import { authOptions } from './auth'
 
-// Use direct ERP URL - Next.js on Windows can reach ERP server
-const ERP_BASE_URL = process.env.ERP_API_URL || 'http://itmsql01:44612/web'
+// Use KARAT API URL from environment
+const ERP_BASE_URL = process.env.KARAT_API_URL || process.env.ERP_API_URL || 'http://itmsql01:44612/web'
 
 // Test DNS resolution at startup
 if (process.env.NODE_ENV === 'development') {
@@ -28,15 +30,28 @@ if (process.env.NODE_ENV === 'development') {
  */
 export async function fetchKaratProjectsDirect(): Promise<KaratProject[]> {
   try {
+    // Get server session and token
+    const session = await getServerSession(authOptions)
+    const token = session?.accessToken
+
     const url = `${ERP_BASE_URL}/patchovani_data`
     logger.log('🔍 Fetching KARAT data from:', url)
+    logger.log('🔍 Session available:', !!session)
+    logger.log('🔍 Token available:', !!token)
+    
+    const headers: Record<string, string> = {
+      'User-Agent': 'NextJS-Server',
+      'Accept': 'application/json',
+    }
+
+    // Add authorization header if token is available
+    if (token) {
+      headers['Authorization'] = `Bearer ${token}`
+    }
     
     const response = await fetch(url, {
       cache: 'no-store', // cache 5 minut
-      headers: {
-        'User-Agent': 'NextJS-Server',
-        'Accept': 'application/json',
-      }
+      headers
     })
 
     logger.log('🔍 KARAT response status:', response.status, response.statusText)
