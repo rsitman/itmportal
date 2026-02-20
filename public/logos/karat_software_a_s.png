@@ -1,0 +1,1521 @@
+<!DOCTYPE html>
+<html lang="cs-CZ" class="no-js">
+	<head>
+		<meta charset="utf-8">
+		<!--[if IE]><meta http-equiv="X-UA-Compatible" content="IE=edge"><![endif]-->
+		<meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no">
+		<link rel="apple-touch-icon" sizes="180x180" href="https://www.karatsoftware.cz/wp-content/themes/karat-software/static/img/favicon/apple-touch-icon.png">
+		<link rel="icon" type="image/png" sizes="32x32" href="https://www.karatsoftware.cz/wp-content/themes/karat-software/static/img/favicon/favicon-32x32.png">
+		<link rel="icon" type="image/png" sizes="16x16" href="https://www.karatsoftware.cz/wp-content/themes/karat-software/static/img/favicon/favicon-16x16.png">
+		<link rel="manifest" href="/site.webmanifest">
+		<link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5">
+		<meta name="msapplication-TileColor" content="#da532c">
+		<meta name="theme-color" content="#ffffff">
+
+		<script>
+			(function () {
+				var className = document.documentElement.className;
+				className = className.replace('no-js', 'js');
+
+				(function() {
+					var mediaHover = window.matchMedia('(hover: none), (pointer: coarse), (pointer: none)');
+					mediaHover.addListener(function(media) {
+						document.documentElement.classList[media.matches ? 'add' : 'remove']('no-hoverevents');
+						document.documentElement.classList[!media.matches ? 'add' : 'remove']('hoverevents');
+					});
+					className += (mediaHover.matches ? ' no-hoverevents' : ' hoverevents');
+				})();
+
+				var ua = navigator.userAgent.toLowerCase();
+				var isIOS = /ipad|iphone|ipod/.test(ua) && !window.MSStream;
+
+				if (isIOS === true) {
+					var viewportTag = document.querySelector("meta[name=viewport]");
+					viewportTag.setAttribute("content", "width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no");
+				}
+
+				document.documentElement.className = className;
+			}());
+		</script>
+
+		<!-- Google Consent Mode -->
+		<script>
+		window.dataLayer = window.dataLayer || [];
+			function gtag() { dataLayer.push(arguments); }
+
+			gtag('consent', 'default', {
+				'ad_storage': 'denied',
+				'analytics_storage': 'denied',
+				'functionality_storage': 'granted',
+				'personalization_storage': 'denied',
+				'security_storage': 'denied',
+			});
+		</script>
+		<!-- End of Google Consent Mode -->
+
+		
+				<!-- Google Tag Manager -->
+				<script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src='https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);})(window,document,'script','dataLayer','GTM-N9TJZ9NK');</script>
+				<!-- End Google Tag Manager -->
+				
+		<meta name='robots' content='index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1' />
+<link rel="alternate" hreflang="cs" href="https://www.karatsoftware.cz/" />
+<link rel="alternate" hreflang="sk" href="https://www.karatsoftware.sk/" />
+<link rel="alternate" hreflang="x-default" href="https://www.karatsoftware.cz/" />
+
+	<!-- This site is optimized with the Yoast SEO Premium plugin v24.5 (Yoast SEO v26.8) - https://yoast.com/product/yoast-seo-premium-wordpress/ -->
+	<title>Podnikový informační systém KARAT | Komplexní řízení firmy</title>
+	<meta name="description" content="Efektivní řízení, plánování a optimalizace procesů. Nastartujte svůj byznys díky Informačnímu systému KARAT." />
+	<link rel="canonical" href="https://www.karatsoftware.cz/" />
+	<meta property="og:locale" content="cs_CZ" />
+	<meta property="og:type" content="website" />
+	<meta property="og:title" content="Hlavní strana" />
+	<meta property="og:description" content="Efektivní řízení, plánování a optimalizace procesů. Nastartujte svůj byznys díky Informačnímu systému KARAT." />
+	<meta property="og:url" content="https://www.karatsoftware.cz/" />
+	<meta property="og:site_name" content="Informační systém KARAT" />
+	<meta property="article:modified_time" content="2026-01-05T14:08:26+00:00" />
+	<meta property="og:image" content="https://www.karatsoftware.cz/wp-content/uploads/2024/05/man-using-macbook-air-on-the-table-with-documents_image.png" />
+	<meta property="og:image:width" content="800" />
+	<meta property="og:image:height" content="534" />
+	<meta property="og:image:type" content="image/png" />
+	<meta name="twitter:card" content="summary_large_image" />
+	<script type="application/ld+json" class="yoast-schema-graph">{"@context":"https://schema.org","@graph":[{"@type":"WebPage","@id":"https://www.karatsoftware.cz/","url":"https://www.karatsoftware.cz/","name":"Podnikový informační systém KARAT | Komplexní řízení firmy","isPartOf":{"@id":"https://www.karatsoftware.cz/#website"},"datePublished":"2023-03-27T15:09:37+00:00","dateModified":"2026-01-05T14:08:26+00:00","description":"Efektivní řízení, plánování a optimalizace procesů. Nastartujte svůj byznys díky Informačnímu systému KARAT.","breadcrumb":{"@id":"https://www.karatsoftware.cz/#breadcrumb"},"inLanguage":"cs","potentialAction":[{"@type":"ReadAction","target":["https://www.karatsoftware.cz/"]}]},{"@type":"BreadcrumbList","@id":"https://www.karatsoftware.cz/#breadcrumb","itemListElement":[{"@type":"ListItem","position":1,"name":"Domů"}]},{"@type":"WebSite","@id":"https://www.karatsoftware.cz/#website","url":"https://www.karatsoftware.cz/","name":"KARAT Software","description":"","potentialAction":[{"@type":"SearchAction","target":{"@type":"EntryPoint","urlTemplate":"https://www.karatsoftware.cz/?s={search_term_string}"},"query-input":{"@type":"PropertyValueSpecification","valueRequired":true,"valueName":"search_term_string"}}],"inLanguage":"cs"}]}</script>
+	<!-- / Yoast SEO Premium plugin. -->
+
+
+<link rel='dns-prefetch' href='//fonts.googleapis.com' />
+<link rel="alternate" type="application/rss+xml" title="Informační systém KARAT &raquo; RSS zdroj" href="https://www.karatsoftware.cz/feed/" />
+<link rel="alternate" type="application/rss+xml" title="Informační systém KARAT &raquo; RSS komentářů" href="https://www.karatsoftware.cz/comments/feed/" />
+<link rel="alternate" title="oEmbed (JSON)" type="application/json+oembed" href="https://www.karatsoftware.cz/wp-json/oembed/1.0/embed?url=https%3A%2F%2Fwww.karatsoftware.cz%2F" />
+<link rel="alternate" title="oEmbed (XML)" type="text/xml+oembed" href="https://www.karatsoftware.cz/wp-json/oembed/1.0/embed?url=https%3A%2F%2Fwww.karatsoftware.cz%2F&#038;format=xml" />
+<style id='wp-img-auto-sizes-contain-inline-css' type='text/css'>
+img:is([sizes=auto i],[sizes^="auto," i]){contain-intrinsic-size:3000px 1500px}
+/*# sourceURL=wp-img-auto-sizes-contain-inline-css */
+</style>
+<link rel='stylesheet' id='wp-block-library-css' href='https://www.karatsoftware.cz/wp-includes/css/dist/block-library/style.min.css?ver=6.9.1' type='text/css' media='all' />
+
+<style id='wp-block-columns-inline-css' type='text/css'>
+.wp-block-columns{box-sizing:border-box;display:flex;flex-wrap:wrap!important}@media (min-width:782px){.wp-block-columns{flex-wrap:nowrap!important}}.wp-block-columns{align-items:normal!important}.wp-block-columns.are-vertically-aligned-top{align-items:flex-start}.wp-block-columns.are-vertically-aligned-center{align-items:center}.wp-block-columns.are-vertically-aligned-bottom{align-items:flex-end}@media (max-width:781px){.wp-block-columns:not(.is-not-stacked-on-mobile)>.wp-block-column{flex-basis:100%!important}}@media (min-width:782px){.wp-block-columns:not(.is-not-stacked-on-mobile)>.wp-block-column{flex-basis:0;flex-grow:1}.wp-block-columns:not(.is-not-stacked-on-mobile)>.wp-block-column[style*=flex-basis]{flex-grow:0}}.wp-block-columns.is-not-stacked-on-mobile{flex-wrap:nowrap!important}.wp-block-columns.is-not-stacked-on-mobile>.wp-block-column{flex-basis:0;flex-grow:1}.wp-block-columns.is-not-stacked-on-mobile>.wp-block-column[style*=flex-basis]{flex-grow:0}:where(.wp-block-columns){margin-bottom:1.75em}:where(.wp-block-columns.has-background){padding:1.25em 2.375em}.wp-block-column{flex-grow:1;min-width:0;overflow-wrap:break-word;word-break:break-word}.wp-block-column.is-vertically-aligned-top{align-self:flex-start}.wp-block-column.is-vertically-aligned-center{align-self:center}.wp-block-column.is-vertically-aligned-bottom{align-self:flex-end}.wp-block-column.is-vertically-aligned-stretch{align-self:stretch}.wp-block-column.is-vertically-aligned-bottom,.wp-block-column.is-vertically-aligned-center,.wp-block-column.is-vertically-aligned-top{width:100%}
+/*# sourceURL=https://www.karatsoftware.cz/wp-includes/blocks/columns/style.min.css */
+</style>
+<style id='global-styles-inline-css' type='text/css'>
+:root{--wp--preset--aspect-ratio--square: 1;--wp--preset--aspect-ratio--4-3: 4/3;--wp--preset--aspect-ratio--3-4: 3/4;--wp--preset--aspect-ratio--3-2: 3/2;--wp--preset--aspect-ratio--2-3: 2/3;--wp--preset--aspect-ratio--16-9: 16/9;--wp--preset--aspect-ratio--9-16: 9/16;--wp--preset--color--black: #000000;--wp--preset--color--cyan-bluish-gray: #abb8c3;--wp--preset--color--white: #ffffff;--wp--preset--color--pale-pink: #f78da7;--wp--preset--color--vivid-red: #cf2e2e;--wp--preset--color--luminous-vivid-orange: #ff6900;--wp--preset--color--luminous-vivid-amber: #fcb900;--wp--preset--color--light-green-cyan: #7bdcb5;--wp--preset--color--vivid-green-cyan: #00d084;--wp--preset--color--pale-cyan-blue: #8ed1fc;--wp--preset--color--vivid-cyan-blue: #0693e3;--wp--preset--color--vivid-purple: #9b51e0;--wp--preset--color--primary: #030333;--wp--preset--color--secondary: #9EAB0A;--wp--preset--color--red: #D75757;--wp--preset--color--green: #A8B50A;--wp--preset--color--orange: #ffaa00;--wp--preset--gradient--vivid-cyan-blue-to-vivid-purple: linear-gradient(135deg,rgb(6,147,227) 0%,rgb(155,81,224) 100%);--wp--preset--gradient--light-green-cyan-to-vivid-green-cyan: linear-gradient(135deg,rgb(122,220,180) 0%,rgb(0,208,130) 100%);--wp--preset--gradient--luminous-vivid-amber-to-luminous-vivid-orange: linear-gradient(135deg,rgb(252,185,0) 0%,rgb(255,105,0) 100%);--wp--preset--gradient--luminous-vivid-orange-to-vivid-red: linear-gradient(135deg,rgb(255,105,0) 0%,rgb(207,46,46) 100%);--wp--preset--gradient--very-light-gray-to-cyan-bluish-gray: linear-gradient(135deg,rgb(238,238,238) 0%,rgb(169,184,195) 100%);--wp--preset--gradient--cool-to-warm-spectrum: linear-gradient(135deg,rgb(74,234,220) 0%,rgb(151,120,209) 20%,rgb(207,42,186) 40%,rgb(238,44,130) 60%,rgb(251,105,98) 80%,rgb(254,248,76) 100%);--wp--preset--gradient--blush-light-purple: linear-gradient(135deg,rgb(255,206,236) 0%,rgb(152,150,240) 100%);--wp--preset--gradient--blush-bordeaux: linear-gradient(135deg,rgb(254,205,165) 0%,rgb(254,45,45) 50%,rgb(107,0,62) 100%);--wp--preset--gradient--luminous-dusk: linear-gradient(135deg,rgb(255,203,112) 0%,rgb(199,81,192) 50%,rgb(65,88,208) 100%);--wp--preset--gradient--pale-ocean: linear-gradient(135deg,rgb(255,245,203) 0%,rgb(182,227,212) 50%,rgb(51,167,181) 100%);--wp--preset--gradient--electric-grass: linear-gradient(135deg,rgb(202,248,128) 0%,rgb(113,206,126) 100%);--wp--preset--gradient--midnight: linear-gradient(135deg,rgb(2,3,129) 0%,rgb(40,116,252) 100%);--wp--preset--font-size--small: 13px;--wp--preset--font-size--medium: 20px;--wp--preset--font-size--large: 36px;--wp--preset--font-size--x-large: 42px;--wp--preset--font-size--default: 16;--wp--preset--font-size--h-6: 20;--wp--preset--font-size--h-5: 24;--wp--preset--font-size--h-4: 28;--wp--preset--font-size--h-3: 32;--wp--preset--font-size--h-2: 40;--wp--preset--font-size--h-1: 48;--wp--preset--font-family--primary-font: 'Poppins', -apple-system, blinkmacsystemfont, 'Segoe UI', roboto, helvetica, arial, sans-serif;--wp--preset--font-family--secondary-font: 'Montserrat', -apple-system, blinkmacsystemfont, 'Segoe UI', roboto, helvetica, arial, sans-serif;--wp--preset--spacing--20: 20px;--wp--preset--spacing--30: 0.67rem;--wp--preset--spacing--40: 40px;--wp--preset--spacing--50: 1.5rem;--wp--preset--spacing--60: 60px;--wp--preset--spacing--70: 3.38rem;--wp--preset--spacing--80: 80px;--wp--preset--spacing--0: 0;--wp--preset--spacing--12: 12px;--wp--preset--spacing--100: 100px;--wp--preset--spacing--120: 120px;--wp--preset--shadow--natural: 6px 6px 9px rgba(0, 0, 0, 0.2);--wp--preset--shadow--deep: 12px 12px 50px rgba(0, 0, 0, 0.4);--wp--preset--shadow--sharp: 6px 6px 0px rgba(0, 0, 0, 0.2);--wp--preset--shadow--outlined: 6px 6px 0px -3px rgb(255, 255, 255), 6px 6px rgb(0, 0, 0);--wp--preset--shadow--crisp: 6px 6px 0px rgb(0, 0, 0);}:root { --wp--style--global--content-size: 1000px;--wp--style--global--wide-size: 1400px; }:where(body) { margin: 0; }.wp-site-blocks > .alignleft { float: left; margin-right: 2em; }.wp-site-blocks > .alignright { float: right; margin-left: 2em; }.wp-site-blocks > .aligncenter { justify-content: center; margin-left: auto; margin-right: auto; }:where(.is-layout-flex){gap: 0.5em;}:where(.is-layout-grid){gap: 0.5em;}.is-layout-flow > .alignleft{float: left;margin-inline-start: 0;margin-inline-end: 2em;}.is-layout-flow > .alignright{float: right;margin-inline-start: 2em;margin-inline-end: 0;}.is-layout-flow > .aligncenter{margin-left: auto !important;margin-right: auto !important;}.is-layout-constrained > .alignleft{float: left;margin-inline-start: 0;margin-inline-end: 2em;}.is-layout-constrained > .alignright{float: right;margin-inline-start: 2em;margin-inline-end: 0;}.is-layout-constrained > .aligncenter{margin-left: auto !important;margin-right: auto !important;}.is-layout-constrained > :where(:not(.alignleft):not(.alignright):not(.alignfull)){max-width: var(--wp--style--global--content-size);margin-left: auto !important;margin-right: auto !important;}.is-layout-constrained > .alignwide{max-width: var(--wp--style--global--wide-size);}body .is-layout-flex{display: flex;}.is-layout-flex{flex-wrap: wrap;align-items: center;}.is-layout-flex > :is(*, div){margin: 0;}body .is-layout-grid{display: grid;}.is-layout-grid > :is(*, div){margin: 0;}body{padding-top: 0px;padding-right: 0px;padding-bottom: 0px;padding-left: 0px;}a:where(:not(.wp-element-button)){text-decoration: underline;}:root :where(.wp-element-button, .wp-block-button__link){background-color: #32373c;border-width: 0;color: #fff;font-family: inherit;font-size: inherit;font-style: inherit;font-weight: inherit;letter-spacing: inherit;line-height: inherit;padding-top: calc(0.667em + 2px);padding-right: calc(1.333em + 2px);padding-bottom: calc(0.667em + 2px);padding-left: calc(1.333em + 2px);text-decoration: none;text-transform: inherit;}.has-black-color{color: var(--wp--preset--color--black) !important;}.has-cyan-bluish-gray-color{color: var(--wp--preset--color--cyan-bluish-gray) !important;}.has-white-color{color: var(--wp--preset--color--white) !important;}.has-pale-pink-color{color: var(--wp--preset--color--pale-pink) !important;}.has-vivid-red-color{color: var(--wp--preset--color--vivid-red) !important;}.has-luminous-vivid-orange-color{color: var(--wp--preset--color--luminous-vivid-orange) !important;}.has-luminous-vivid-amber-color{color: var(--wp--preset--color--luminous-vivid-amber) !important;}.has-light-green-cyan-color{color: var(--wp--preset--color--light-green-cyan) !important;}.has-vivid-green-cyan-color{color: var(--wp--preset--color--vivid-green-cyan) !important;}.has-pale-cyan-blue-color{color: var(--wp--preset--color--pale-cyan-blue) !important;}.has-vivid-cyan-blue-color{color: var(--wp--preset--color--vivid-cyan-blue) !important;}.has-vivid-purple-color{color: var(--wp--preset--color--vivid-purple) !important;}.has-primary-color{color: var(--wp--preset--color--primary) !important;}.has-secondary-color{color: var(--wp--preset--color--secondary) !important;}.has-red-color{color: var(--wp--preset--color--red) !important;}.has-green-color{color: var(--wp--preset--color--green) !important;}.has-orange-color{color: var(--wp--preset--color--orange) !important;}.has-black-background-color{background-color: var(--wp--preset--color--black) !important;}.has-cyan-bluish-gray-background-color{background-color: var(--wp--preset--color--cyan-bluish-gray) !important;}.has-white-background-color{background-color: var(--wp--preset--color--white) !important;}.has-pale-pink-background-color{background-color: var(--wp--preset--color--pale-pink) !important;}.has-vivid-red-background-color{background-color: var(--wp--preset--color--vivid-red) !important;}.has-luminous-vivid-orange-background-color{background-color: var(--wp--preset--color--luminous-vivid-orange) !important;}.has-luminous-vivid-amber-background-color{background-color: var(--wp--preset--color--luminous-vivid-amber) !important;}.has-light-green-cyan-background-color{background-color: var(--wp--preset--color--light-green-cyan) !important;}.has-vivid-green-cyan-background-color{background-color: var(--wp--preset--color--vivid-green-cyan) !important;}.has-pale-cyan-blue-background-color{background-color: var(--wp--preset--color--pale-cyan-blue) !important;}.has-vivid-cyan-blue-background-color{background-color: var(--wp--preset--color--vivid-cyan-blue) !important;}.has-vivid-purple-background-color{background-color: var(--wp--preset--color--vivid-purple) !important;}.has-primary-background-color{background-color: var(--wp--preset--color--primary) !important;}.has-secondary-background-color{background-color: var(--wp--preset--color--secondary) !important;}.has-red-background-color{background-color: var(--wp--preset--color--red) !important;}.has-green-background-color{background-color: var(--wp--preset--color--green) !important;}.has-orange-background-color{background-color: var(--wp--preset--color--orange) !important;}.has-black-border-color{border-color: var(--wp--preset--color--black) !important;}.has-cyan-bluish-gray-border-color{border-color: var(--wp--preset--color--cyan-bluish-gray) !important;}.has-white-border-color{border-color: var(--wp--preset--color--white) !important;}.has-pale-pink-border-color{border-color: var(--wp--preset--color--pale-pink) !important;}.has-vivid-red-border-color{border-color: var(--wp--preset--color--vivid-red) !important;}.has-luminous-vivid-orange-border-color{border-color: var(--wp--preset--color--luminous-vivid-orange) !important;}.has-luminous-vivid-amber-border-color{border-color: var(--wp--preset--color--luminous-vivid-amber) !important;}.has-light-green-cyan-border-color{border-color: var(--wp--preset--color--light-green-cyan) !important;}.has-vivid-green-cyan-border-color{border-color: var(--wp--preset--color--vivid-green-cyan) !important;}.has-pale-cyan-blue-border-color{border-color: var(--wp--preset--color--pale-cyan-blue) !important;}.has-vivid-cyan-blue-border-color{border-color: var(--wp--preset--color--vivid-cyan-blue) !important;}.has-vivid-purple-border-color{border-color: var(--wp--preset--color--vivid-purple) !important;}.has-primary-border-color{border-color: var(--wp--preset--color--primary) !important;}.has-secondary-border-color{border-color: var(--wp--preset--color--secondary) !important;}.has-red-border-color{border-color: var(--wp--preset--color--red) !important;}.has-green-border-color{border-color: var(--wp--preset--color--green) !important;}.has-orange-border-color{border-color: var(--wp--preset--color--orange) !important;}.has-vivid-cyan-blue-to-vivid-purple-gradient-background{background: var(--wp--preset--gradient--vivid-cyan-blue-to-vivid-purple) !important;}.has-light-green-cyan-to-vivid-green-cyan-gradient-background{background: var(--wp--preset--gradient--light-green-cyan-to-vivid-green-cyan) !important;}.has-luminous-vivid-amber-to-luminous-vivid-orange-gradient-background{background: var(--wp--preset--gradient--luminous-vivid-amber-to-luminous-vivid-orange) !important;}.has-luminous-vivid-orange-to-vivid-red-gradient-background{background: var(--wp--preset--gradient--luminous-vivid-orange-to-vivid-red) !important;}.has-very-light-gray-to-cyan-bluish-gray-gradient-background{background: var(--wp--preset--gradient--very-light-gray-to-cyan-bluish-gray) !important;}.has-cool-to-warm-spectrum-gradient-background{background: var(--wp--preset--gradient--cool-to-warm-spectrum) !important;}.has-blush-light-purple-gradient-background{background: var(--wp--preset--gradient--blush-light-purple) !important;}.has-blush-bordeaux-gradient-background{background: var(--wp--preset--gradient--blush-bordeaux) !important;}.has-luminous-dusk-gradient-background{background: var(--wp--preset--gradient--luminous-dusk) !important;}.has-pale-ocean-gradient-background{background: var(--wp--preset--gradient--pale-ocean) !important;}.has-electric-grass-gradient-background{background: var(--wp--preset--gradient--electric-grass) !important;}.has-midnight-gradient-background{background: var(--wp--preset--gradient--midnight) !important;}.has-small-font-size{font-size: var(--wp--preset--font-size--small) !important;}.has-medium-font-size{font-size: var(--wp--preset--font-size--medium) !important;}.has-large-font-size{font-size: var(--wp--preset--font-size--large) !important;}.has-x-large-font-size{font-size: var(--wp--preset--font-size--x-large) !important;}.has-default-font-size{font-size: var(--wp--preset--font-size--default) !important;}.has-h-6-font-size{font-size: var(--wp--preset--font-size--h-6) !important;}.has-h-5-font-size{font-size: var(--wp--preset--font-size--h-5) !important;}.has-h-4-font-size{font-size: var(--wp--preset--font-size--h-4) !important;}.has-h-3-font-size{font-size: var(--wp--preset--font-size--h-3) !important;}.has-h-2-font-size{font-size: var(--wp--preset--font-size--h-2) !important;}.has-h-1-font-size{font-size: var(--wp--preset--font-size--h-1) !important;}.has-primary-font-font-family{font-family: var(--wp--preset--font-family--primary-font) !important;}.has-secondary-font-font-family{font-family: var(--wp--preset--font-family--secondary-font) !important;}
+:where(.wp-block-columns.is-layout-flex){gap: 2em;}:where(.wp-block-columns.is-layout-grid){gap: 2em;}
+/*# sourceURL=global-styles-inline-css */
+</style>
+
+<link rel='stylesheet' id='swp-font-css' href='https://fonts.googleapis.com/css2?family=Nunito:ital,wght@0,400;0,600;0,700;1,400&#038;display=swap' type='text/css' media='screen' />
+<link rel='stylesheet' id='swp-style-css' href='https://www.karatsoftware.cz/wp-content/themes/karat-software/static/css/style.css?ver=1739889062' type='text/css' media='screen' />
+<script type="text/javascript" id="wpml-cookie-js-extra">
+/* <![CDATA[ */
+var wpml_cookies = {"wp-wpml_current_language":{"value":"cs","expires":1,"path":"/"}};
+var wpml_cookies = {"wp-wpml_current_language":{"value":"cs","expires":1,"path":"/"}};
+//# sourceURL=wpml-cookie-js-extra
+/* ]]> */
+</script>
+<script type="text/javascript" src="https://www.karatsoftware.cz/wp-content/plugins/sitepress-multilingual-cms/res/js/cookies/language-cookie.js?ver=486900" id="wpml-cookie-js" defer="defer" data-wp-strategy="defer"></script>
+<script type="text/javascript" id="wpml-xdomain-data-js-extra">
+/* <![CDATA[ */
+var wpml_xdomain_data = {"css_selector":"wpml-ls-item","ajax_url":"https://www.karatsoftware.cz/wp-admin/admin-ajax.php","current_lang":"cs","_nonce":"6618fa0ecf"};
+//# sourceURL=wpml-xdomain-data-js-extra
+/* ]]> */
+</script>
+<script type="text/javascript" src="https://www.karatsoftware.cz/wp-content/plugins/sitepress-multilingual-cms/res/js/xdomain-data.js?ver=486900" id="wpml-xdomain-data-js" defer="defer" data-wp-strategy="defer"></script>
+<link rel="preconnect" href="https://fonts.gstatic.com"><style class='wp-fonts-local' type='text/css'>
+@font-face{font-family:Poppins;font-style:normal;font-weight:400;font-display:fallback;src:url('https://www.karatsoftware.cz/wp-content/themes/karat-software/static/fonts/poppins-400.woff2') format('woff2');font-stretch:normal;}
+@font-face{font-family:Poppins;font-style:normal;font-weight:500;font-display:fallback;src:url('https://www.karatsoftware.cz/wp-content/themes/karat-software/static/fonts/poppins-500.woff2') format('woff2');font-stretch:normal;}
+@font-face{font-family:Poppins;font-style:normal;font-weight:600;font-display:fallback;src:url('https://www.karatsoftware.cz/wp-content/themes/karat-software/static/fonts/poppins-600.woff2') format('woff2');font-stretch:normal;}
+@font-face{font-family:Poppins;font-style:normal;font-weight:700;font-display:fallback;src:url('https://www.karatsoftware.cz/wp-content/themes/karat-software/static/fonts/poppins-700.woff2') format('woff2');font-stretch:normal;}
+@font-face{font-family:Montserrat;font-style:normal;font-weight:700;font-display:fallback;src:url('https://www.karatsoftware.cz/wp-content/themes/karat-software/static/fonts/montserrat-700.woff2') format('woff2');font-stretch:normal;}
+</style>
+	</head>
+	<body class="home wp-singular page-template-default page page-id-2 wp-theme-karat-software page-homepage" data-controller="toggle menu" data-toggle-change-class="is-form-open" data-toggle-target="group" data-menu-change-class="is-menu-open" data-menu-target="group">
+
+		
+				<!-- Google Tag Manager (noscript) -->
+				<noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-N9TJZ9NK" height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+				<!-- End Google Tag Manager (noscript) -->
+				
+		<p class="m-accessibility">
+			<a title="Přejít k obsahu (Klávesová zkratka: Alt + 2)" accesskey="2" href="#main">Přejít k obsahu</a>
+			<span class="hide">|</span>
+			<a href="#menu-main">Přejít k hlavnímu menu</a>
+		</p>
+
+		
+<header class="header" data-controller="search" data-search-change-class="is-search-open" data-search-toggle-class="is-active">
+	<div class="row-main row-main--full">
+		<div class="header__inner">
+
+			
+<p class="header__logo">
+	<a href="https://www.karatsoftware.cz">
+
+		
+		<img src="https://www.karatsoftware.cz/wp-content/themes/karat-software/static/img/karat-software-logo.svg" alt="Karat Software" width="320" height="68" class="header__img">
+		<img src="https://www.karatsoftware.cz/wp-content/themes/karat-software/static/img/karat.svg" alt="Karat Software" width="68" height="68" class="header__img-special">
+
+		
+	</a>
+</p>
+
+<button type="button" data-search-target="button_mobile" data-action="click->search#toggle" class="header__search-toggle is-mobile"><span class="icon-svg icon-svg--search"  aria-hidden="true"><svg class="icon-svg__svg" xmlns:xlink="http://www.w3.org/1999/xlink"><use xlink:href="https://www.karatsoftware.cz/wp-content/themes/karat-software/static/img/icons.svg?v=1.3.4#icon-search" width="100%" height="100%" focusable="false"></use></svg></span></button>
+<nav id="menu-main" class="m-main">
+	<button class="m-main__open" data-action="click->menu#toggle">
+		<span class="icon-svg icon-svg--hamburger"  aria-hidden="true"><svg class="icon-svg__svg" xmlns:xlink="http://www.w3.org/1999/xlink"><use xlink:href="https://www.karatsoftware.cz/wp-content/themes/karat-software/static/img/icons.svg?v=1.3.4#icon-hamburger" width="100%" height="100%" focusable="false"></use></svg></span>		<span>Menu</span>
+	</button>
+
+	<div class="m-main__menu">
+		<p class="m-main__top">
+			<button class="m-main__close" data-action="click->menu#close">
+				<span class="icon-svg icon-svg--close"  aria-hidden="true"><svg class="icon-svg__svg" xmlns:xlink="http://www.w3.org/1999/xlink"><use xlink:href="https://www.karatsoftware.cz/wp-content/themes/karat-software/static/img/icons.svg?v=1.3.4#icon-close" width="100%" height="100%" focusable="false"></use></svg></span>			</button>
+		</p>
+
+		<ul id="menu-hlavni-menu" class="m-main__list"><li class="m-main__item erp-karat menu-item menu-item-type-post_type menu-item-object-page" data-controller="toggle" data-toggle-change-class="is-open" data-toggle-target="group"><span class="m-main__inner"><a href="https://www.karatsoftware.cz/erp-karat/" class="m-main__link"><span class="m-main__link-inner">ERP systém KARAT</a><button data-action="click->toggle#toggle"><span class="icon-svg icon-svg--down"  aria-hidden="true"><svg class="icon-svg__svg" xmlns:xlink="http://www.w3.org/1999/xlink"><use xlink:href="https://www.karatsoftware.cz/wp-content/themes/karat-software/static/img/icons.svg?v=1.3.4#icon-down" width="100%" height="100%" focusable="false"></use></svg></span></button></span>
+<div class="m-main__submenu">
+	<div class="row-main">
+		<nav class="m-submenu">
+			<div class="m-submenu__main">
+
+				<p class="m-submenu__title">O ERP</p><ul class="m-submenu__list"><li class="m-submenu__item"><a href="https://www.karatsoftware.cz/erp-karat/" class="m-submenu__link">Představení ERP KARAT</a></li><li class="m-submenu__item"><a href="https://www.karatsoftware.cz/mobilni-klient/" class="m-submenu__link">Mobilní klient</a></li></ul>
+			</div>
+			<div class="m-submenu__side">
+
+				<p class="m-submenu__title">Moduly ERP KARAT</p>
+				<section class="c-fields u-mb-0">
+					<div class="c-fields__list grid">
+
+						
+						<div class="c-fields__item grid__cell size--4-12@lg">
+							<article class="b-field">
+								<p class="b-field__title h6">
+									<a href="https://www.karatsoftware.cz/erp-karat/ucetni-a-ekonomicky-software/" class="b-field__link link-mask">
+																				<span class="b-field__name">Účetnictví a ekonomika</span>
+									</a>
+								</p>
+							</article>
+						</div>
+
+						
+						<div class="c-fields__item grid__cell size--4-12@lg">
+							<article class="b-field">
+								<p class="b-field__title h6">
+									<a href="https://www.karatsoftware.cz/erp-karat/crm-system/" class="b-field__link link-mask">
+																				<span class="b-field__name">CRM</span>
+									</a>
+								</p>
+							</article>
+						</div>
+
+						
+						<div class="c-fields__item grid__cell size--4-12@lg">
+							<article class="b-field">
+								<p class="b-field__title h6">
+									<a href="https://www.karatsoftware.cz/erp-karat/manazersky-informacni-system/" class="b-field__link link-mask">
+																				<span class="b-field__name">Manažerské řízení</span>
+									</a>
+								</p>
+							</article>
+						</div>
+
+						
+						<div class="c-fields__item grid__cell size--4-12@lg">
+							<article class="b-field">
+								<p class="b-field__title h6">
+									<a href="https://www.karatsoftware.cz/oborova-reseni/vyroba/" class="b-field__link link-mask">
+																				<span class="b-field__name">Výroba</span>
+									</a>
+								</p>
+							</article>
+						</div>
+
+						
+						<div class="c-fields__item grid__cell size--4-12@lg">
+							<article class="b-field">
+								<p class="b-field__title h6">
+									<a href="https://www.karatsoftware.cz/erp-karat/nakup/" class="b-field__link link-mask">
+																				<span class="b-field__name">Nákup</span>
+									</a>
+								</p>
+							</article>
+						</div>
+
+						
+						<div class="c-fields__item grid__cell size--4-12@lg">
+							<article class="b-field">
+								<p class="b-field__title h6">
+									<a href="https://www.karatsoftware.cz/erp-karat/system-pro-prodej/" class="b-field__link link-mask">
+																				<span class="b-field__name">Prodej</span>
+									</a>
+								</p>
+							</article>
+						</div>
+
+						
+						<div class="c-fields__item grid__cell size--4-12@lg">
+							<article class="b-field">
+								<p class="b-field__title h6">
+									<a href="https://www.karatsoftware.cz/erp-karat/skladovy-system/" class="b-field__link link-mask">
+																				<span class="b-field__name">Sklady</span>
+									</a>
+								</p>
+							</article>
+						</div>
+
+						
+						<div class="c-fields__item grid__cell size--4-12@lg">
+							<article class="b-field">
+								<p class="b-field__title h6">
+									<a href="https://www.karatsoftware.cz/erp-karat/logisticky-informacni-system/" class="b-field__link link-mask">
+																				<span class="b-field__name">Logistika</span>
+									</a>
+								</p>
+							</article>
+						</div>
+
+						
+						<div class="c-fields__item grid__cell size--4-12@lg">
+							<article class="b-field">
+								<p class="b-field__title h6">
+									<a href="https://www.karatsoftware.cz/erp-karat/mzdovy-software/" class="b-field__link link-mask">
+																				<span class="b-field__name">Personalistika a mzdy</span>
+									</a>
+								</p>
+							</article>
+						</div>
+
+						
+						<div class="c-fields__item grid__cell size--4-12@lg">
+							<article class="b-field">
+								<p class="b-field__title h6">
+									<a href="https://www.karatsoftware.cz/erp-karat/projektove-rizeni/" class="b-field__link link-mask">
+																				<span class="b-field__name">Projektové řízení</span>
+									</a>
+								</p>
+							</article>
+						</div>
+
+						
+						<div class="c-fields__item grid__cell size--4-12@lg">
+							<article class="b-field">
+								<p class="b-field__title h6">
+									<a href="https://www.karatsoftware.cz/erp-karat/sprava-dokumentu-dms/" class="b-field__link link-mask">
+																				<span class="b-field__name">Správa dokumentů (DMS)</span>
+									</a>
+								</p>
+							</article>
+						</div>
+
+						
+						<div class="c-fields__item grid__cell size--4-12@lg">
+							<article class="b-field">
+								<p class="b-field__title h6">
+									<a href="https://www.karatsoftware.cz/erp-karat/workflow-a-bpm/" class="b-field__link link-mask">
+																				<span class="b-field__name">Workflow a BPM</span>
+									</a>
+								</p>
+							</article>
+						</div>
+
+						
+					</div>
+				</section>
+			</div>
+		</nav>
+	</div>
+</div>
+</li>
+<li class="m-main__item oborova-reseni menu-item menu-item-type-post_type menu-item-object-page" data-controller="toggle" data-toggle-change-class="is-open" data-toggle-target="group"><span class="m-main__inner"><a href="https://www.karatsoftware.cz/oborova-reseni/" class="m-main__link"><span class="m-main__link-inner">Oborová řešení</a><button data-action="click->toggle#toggle"><span class="icon-svg icon-svg--down"  aria-hidden="true"><svg class="icon-svg__svg" xmlns:xlink="http://www.w3.org/1999/xlink"><use xlink:href="https://www.karatsoftware.cz/wp-content/themes/karat-software/static/img/icons.svg?v=1.3.4#icon-down" width="100%" height="100%" focusable="false"></use></svg></span></button></span>
+<div class="m-main__submenu">
+	<div class="row-main">
+		<nav class="m-submenu m-submenu--fields">
+			<div class="m-submenu__main">
+
+				<p class="m-submenu__title">Vyberte řešení pro</p>
+				<section class="c-solve c-solve--secondary">
+					<div class="c-solve__list grid grid--md">
+
+						
+						<div class="c-solve__item grid__cell size--4-12@md">
+							<article class="b-solve b-solve--secondary">
+
+								<div class="b-solve__img"><picture><source srcset="https://www.karatsoftware.cz/wp-content/uploads/images/3874/kopie-navrhu-orange-modern-juice-drink-medium-banner-1-1008x760-c.png 2x, https://www.karatsoftware.cz/wp-content/uploads/images/3874/kopie-navrhu-orange-modern-juice-drink-medium-banner-1-504x380-c.png 1x"><img src="https://www.karatsoftware.cz/wp-content/uploads/images/3874/kopie-navrhu-orange-modern-juice-drink-medium-banner-1-504x380-c.png" alt="řešení pro výrobu" width="504" height="380" loading="lazy" /></picture></div>
+								<div class="b-solve__content">
+
+									<h3 class="b-solve__title">Výroba</h3>
+									<p class="b-solve__btn">
+										<a href="https://www.karatsoftware.cz/oborova-reseni/vyroba/" class="btn btn--white btn--hover btn--icon btn--icon-sm link-mask">
+											<span class="btn__text">
+												<span>Zjistit více</span>
+												<span class="icon-svg icon-svg--arrow"  aria-hidden="true"><svg class="icon-svg__svg" xmlns:xlink="http://www.w3.org/1999/xlink"><use xlink:href="https://www.karatsoftware.cz/wp-content/themes/karat-software/static/img/icons.svg?v=1.3.4#icon-arrow" width="100%" height="100%" focusable="false"></use></svg></span>											</span>
+										</a>
+									</p>
+								</div>
+								<div class="b-solve__link">
+									<a href="https://www.karatsoftware.cz/oborova-reseni/vyroba/" class="m-submenu__link">Výroba</a>								</div>
+							</article>
+						</div>
+
+						
+						<div class="c-solve__item grid__cell size--4-12@md">
+							<article class="b-solve b-solve--secondary">
+
+								<div class="b-solve__img"><picture><source srcset="https://www.karatsoftware.cz/wp-content/uploads/images/3878/kopie-navrhu-orange-modern-juice-drink-medium-banner-2-1008x760-c.png 2x, https://www.karatsoftware.cz/wp-content/uploads/images/3878/kopie-navrhu-orange-modern-juice-drink-medium-banner-2-504x380-c.png 1x"><img src="https://www.karatsoftware.cz/wp-content/uploads/images/3878/kopie-navrhu-orange-modern-juice-drink-medium-banner-2-504x380-c.png" alt="řešení pro obchod" width="504" height="380" loading="lazy" /></picture></div>
+								<div class="b-solve__content">
+
+									<h3 class="b-solve__title">Obchod</h3>
+									<p class="b-solve__btn">
+										<a href="https://www.karatsoftware.cz/oborova-reseni/obchod/" class="btn btn--white btn--hover btn--icon btn--icon-sm link-mask">
+											<span class="btn__text">
+												<span>Zjistit více</span>
+												<span class="icon-svg icon-svg--arrow"  aria-hidden="true"><svg class="icon-svg__svg" xmlns:xlink="http://www.w3.org/1999/xlink"><use xlink:href="https://www.karatsoftware.cz/wp-content/themes/karat-software/static/img/icons.svg?v=1.3.4#icon-arrow" width="100%" height="100%" focusable="false"></use></svg></span>											</span>
+										</a>
+									</p>
+								</div>
+								<div class="b-solve__link">
+									<a href="https://www.karatsoftware.cz/oborova-reseni/obchod/" class="m-submenu__link">Obchod</a>								</div>
+							</article>
+						</div>
+
+						
+						<div class="c-solve__item grid__cell size--4-12@md">
+							<article class="b-solve b-solve--secondary">
+
+								<div class="b-solve__img"><picture><source srcset="https://www.karatsoftware.cz/wp-content/uploads/images/3881/kopie-navrhu-orange-modern-juice-drink-medium-banner-3-1008x760-c.png 2x, https://www.karatsoftware.cz/wp-content/uploads/images/3881/kopie-navrhu-orange-modern-juice-drink-medium-banner-3-504x380-c.png 1x"><img src="https://www.karatsoftware.cz/wp-content/uploads/images/3881/kopie-navrhu-orange-modern-juice-drink-medium-banner-3-504x380-c.png" alt="služby" width="504" height="380" loading="lazy" /></picture></div>
+								<div class="b-solve__content">
+
+									<h3 class="b-solve__title">Služby</h3>
+									<p class="b-solve__btn">
+										<a href="https://www.karatsoftware.cz/oborova-reseni/sluzby/" class="btn btn--white btn--hover btn--icon btn--icon-sm link-mask">
+											<span class="btn__text">
+												<span>Zjistit více</span>
+												<span class="icon-svg icon-svg--arrow"  aria-hidden="true"><svg class="icon-svg__svg" xmlns:xlink="http://www.w3.org/1999/xlink"><use xlink:href="https://www.karatsoftware.cz/wp-content/themes/karat-software/static/img/icons.svg?v=1.3.4#icon-arrow" width="100%" height="100%" focusable="false"></use></svg></span>											</span>
+										</a>
+									</p>
+								</div>
+								<div class="b-solve__link">
+									<a href="https://www.karatsoftware.cz/oborova-reseni/sluzby/" class="m-submenu__link">Služby</a>								</div>
+							</article>
+						</div>
+
+						
+					</div>
+				</section>
+			</div>
+			<div class="m-submenu__side">
+
+				<p class="m-submenu__title">Specifické obory</p><div class="b-border"><ul class="list-circle"><li><a href="https://www.karatsoftware.cz/oborova-reseni/specialni/strojirny/"><span class="list-circle__icon"><span class="icon-svg icon-svg--custom"><?xml version="1.0" encoding="UTF-8"?>
+<svg class="icon-svg__svg" xmlns="http://www.w3.org/2000/svg" height="24" viewBox="0 -960 960 960" width="24">
+  <path d="M159-120v-120h124L181-574q-27-15-44.5-44T119-680q0-50 35-85t85-35q39 0 69.5 22.5T351-720h128v-40q0-17 11.5-28.5T519-800q9 0 17.5 4t14.5 12l68-64q9-9 21.5-11.5T665-856l156 72q12 6 16.5 17.5T837-744q-6 12-17.5 15.5T797-730l-144-66-94 88v56l94 86 144-66q11-5 23-1t17 15q6 12 1 23t-17 17l-156 74q-12 6-24.5 3.5T619-512l-68-64q-6 6-14.5 11t-17.5 5q-17 0-28.5-11.5T479-600v-40H351q-3 8-6.5 15t-9.5 15l200 370h144v120H159Zm80-520q17 0 28.5-11.5T279-680q0-17-11.5-28.5T239-720q-17 0-28.5 11.5T199-680q0 17 11.5 28.5T239-640Zm126 400h78L271-560h-4l98 320Zm78 0Z"></path>
+</svg>
+</span></span><span>Strojírny</span></a></li><li><a href="https://www.karatsoftware.cz/oborova-reseni/specialni/slevarny/"><span class="list-circle__icon"><span class="icon-svg icon-svg--custom"><?xml version="1.0" encoding="UTF-8"?>
+<svg class="icon-svg__svg" xmlns="http://www.w3.org/2000/svg" height="24" viewBox="0 -960 960 960" width="24">
+  <path d="m247-904 57-56 343 343q23 23 23 57t-23 57L457-313q-23 23-57 23t-57-23L153-503q-23-23-23-57t23-57l190-191-96-96Zm153 153L209-560h382L400-751Zm360 471q-33 0-56.5-23.5T680-360q0-21 12.5-45t27.5-45q9-12 19-25t21-25q11 12 21 25t19 25q15 21 27.5 45t12.5 45q0 33-23.5 56.5T760-280ZM80 0v-160h800V0H80Z"></path>
+</svg>
+</span></span><span>Slévárny</span></a></li><li><a href="https://www.karatsoftware.cz/oborova-reseni/specialni/napojovy-prumysl/"><span class="list-circle__icon"><span class="icon-svg icon-svg--custom"><?xml version="1.0" encoding="UTF-8"?>
+<svg class="icon-svg__svg" xmlns="http://www.w3.org/2000/svg" height="24" viewBox="0 -960 960 960" width="24">
+  <path d="M279-80q-31 0-53.5-20.5T200-151l-80-729h720l-80 729q-3 30-25.5 50.5T681-80H279Zm-43-480 44 400h400l44-400H236Zm-10-80h508l16-160H210l16 160Zm254 360q-14 0-24-10t-10-24q0-15 8.5-34.5T480-393q17 25 25.5 44.5T514-314q0 14-10 24t-24 10Zm0 80q48 0 81-33t33-81q0-41-26.5-89T480-520q-61 69-87.5 117T366-314q0 48 33 81t81 33Zm-244 40h488-488Z"></path>
+</svg>
+</span></span><span>Nápojový průmysl</span></a></li><li><a href="https://www.karatsoftware.cz/oborova-reseni/specialni/pujcovny-a-servis/"><span class="list-circle__icon"><span class="icon-svg icon-svg--custom"><?xml version="1.0" encoding="UTF-8"?>
+<svg class="icon-svg__svg" xmlns="http://www.w3.org/2000/svg" height="24" viewBox="0 -960 960 960" width="24">
+  <path d="M240-200h240v-40H240v40Zm30-360h180q12 0 21-9t9-21q0-12-9-21t-21-9H270q-12 0-21 9t-9 21q0 12 9 21t21 9Zm0-100h180q12 0 21-9t9-21q0-12-9-21t-21-9H270q-12 0-21 9t-9 21q0 12 9 21t21 9Zm370 140v-80h80v-80h-80v-80h80q33 0 56.5 23.5T800-680h80q17 0 28.5 11.5T920-640q0 17-11.5 28.5T880-600h-80q0 33-23.5 56.5T720-520h-80ZM480-320h-80v-200h160v-240H240q-33 0-56.5 23.5T160-680v80q0 33 23.5 56.5T240-520h80v200h-80v-120q-66 0-113-47T80-600v-80q0-66 47-113t113-47h320q33 0 56.5 23.5T640-760v240q0 33-23.5 56.5T560-440h-80v120ZM220-120q-25 0-42.5-17.5T160-180v-80q0-25 17.5-42.5T220-320h280q25 0 42.5 17.5T560-260v80q0 25-17.5 42.5T500-120H220Zm140-520Zm120 440H240h240Z"></path>
+</svg>
+</span></span><span>Půjčovny a servis</span></a></li><li><a href="https://www.karatsoftware.cz/oborova-reseni/specialni/distribuce-prodej-odevu-obuvi/"><span class="list-circle__icon"><span class="icon-svg icon-svg--custom"><?xml version="1.0" encoding="UTF-8"?>
+<svg class="icon-svg__svg" xmlns="http://www.w3.org/2000/svg" height="24" viewBox="0 -960 960 960" width="24">
+  <path d="M120-160q-29 0-38-27.5T96-232l344-258v-70q0-17 11-28.5t28-11.5q26 1 43.5-16.5T540-660q0-25-17.5-42.5T480-720q-25 0-42.5 17.5T420-660h-80q0-58 41-99t99-41q58 0 99 40t41 98q0 47-27.5 84.5T520-526v36l344 258q23 17 14 44.5T840-160H120Zm120-80h480L480-420 240-240Z"></path>
+</svg>
+</span></span><span>Obchodování s oděvy a obuví</span></a></li><li><a href="https://www.karatsoftware.cz/oborova-reseni/specialni/obchodovani-s-ovocem-a-zeleninou/"><span class="list-circle__icon"><span class="icon-svg icon-svg--custom"><?xml version="1.0" encoding="UTF-8"?>
+<svg class="icon-svg__svg" xmlns="http://www.w3.org/2000/svg" height="24" viewBox="0 -960 960 960" width="24">
+  <path d="M440-120v-319q-64 0-123-24.5T213-533q-45-45-69-104t-24-123v-80h80q63 0 122 24.5T426-746q31 31 51.5 68t31.5 79q5-7 11-13.5t13-13.5q45-45 104-69.5T760-720h80v80q0 64-24.5 123T746-413q-45 45-103.5 69T520-320v200h-80Zm0-400q0-48-18.5-91.5T369-689q-34-34-77.5-52.5T200-760q0 48 18 92t52 78q34 34 78 52t92 18Zm80 120q48 0 91.5-18t77.5-52q34-34 52.5-78t18.5-92q-48 0-92 18.5T590-569q-34 34-52 77.5T520-400Zm0 0Zm-80-120Z"></path>
+</svg>
+</span></span><span>Obchodování s ovocem a zeleninou</span></a></li><li><a href="https://www.karatsoftware.cz/oborova-reseni/specialni/vyroba-nabytku/"><span class="list-circle__icon"><span class="icon-svg icon-svg--custom"><?xml version="1.0" encoding="UTF-8"?>
+<svg class="icon-svg__svg" xmlns="http://www.w3.org/2000/svg" height="24" viewBox="0 -960 960 960" width="24">
+  <path d="M320-640v-120h80v120h-80Zm0 360v-200h80v200h-80ZM240-80q-33 0-56.5-23.5T160-160v-640q0-33 23.5-56.5T240-880h480q33 0 56.5 23.5T800-800v640q0 33-23.5 56.5T720-80H240Zm0-80h480v-360H240v360Zm0-440h480v-200H240v200Z"></path>
+</svg>
+</span></span><span>Výroba nábytku</span></a></li></ul></div>
+			</div>
+		</nav>
+	</div>
+</div>
+</li>
+<li class="m-main__item podpora-sluzby menu-item menu-item-type-post_type menu-item-object-page" data-controller="toggle" data-toggle-change-class="is-open" data-toggle-target="group"><span class="m-main__inner"><a href="https://www.karatsoftware.cz/podpora-a-sluzby/" class="m-main__link"><span class="m-main__link-inner">Podpora a&nbsp;služby</a><button data-action="click->toggle#toggle"><span class="icon-svg icon-svg--down"  aria-hidden="true"><svg class="icon-svg__svg" xmlns:xlink="http://www.w3.org/1999/xlink"><use xlink:href="https://www.karatsoftware.cz/wp-content/themes/karat-software/static/img/icons.svg?v=1.3.4#icon-down" width="100%" height="100%" focusable="false"></use></svg></span></button></span>
+<div class="m-main__submenu">
+	<div class="row-main">
+		<nav class="m-submenu m-submenu--support">
+			<div class="m-submenu__main">
+
+				<p class="m-submenu__title">Zákaznická podpora</p>
+				<div class="b-support">
+
+					
+					<p class="b-support__item">
+						<span class="b-support__img">
+							<img src="https://www.karatsoftware.cz/wp-content/themes/karat-software/static/img/illust/sluzby/computer.svg" alt="Karat Assistance" width="44" height="44" loading="lazy">
+						</span>
+						<a href="https://app.aliteo.com">
+							KARAT Assistance						</a>
+					</p>
+
+					
+					<p class="b-support__item">
+						<span class="b-support__img">
+							<img src="https://www.karatsoftware.cz/wp-content/themes/karat-software/static/img/illust/sluzby/phone.svg" alt="Karat Assistance" width="44" height="44" loading="lazy">
+						</span>
+						<span>
+							<a href="tel:+420581737143">
+								+ 420 581 737 143							</a>
+
+							<span class="b-support__note">Po - Pá: 9.00 - 17.00 hod</span>
+						</span>
+					</p>
+
+					
+					<p class="b-support__item">
+						<span class="b-support__img">
+							<img src="https://www.karatsoftware.cz/wp-content/themes/karat-software/static/img/illust/sluzby/mail.svg" alt="Karat Assistance" width="44" height="44" loading="lazy">
+						</span>
+						<a href="mailto:info@karatsoftware.cz">
+							info@karatsoftware.cz						</a>
+					</p>
+
+					
+					<p>
+						<a href="https://www.karatsoftware.cz/podpora-a-sluzby/technicka-podpora-a-sprava/" class="btn btn--reverse btn--icon btn--icon-sm">
+							<span class="btn__text">
+								<span>
+									Technická podpora a servis								</span>
+								<span class="icon-svg icon-svg--arrow"  aria-hidden="true"><svg class="icon-svg__svg" xmlns:xlink="http://www.w3.org/1999/xlink"><use xlink:href="https://www.karatsoftware.cz/wp-content/themes/karat-software/static/img/icons.svg?v=1.3.4#icon-arrow" width="100%" height="100%" focusable="false"></use></svg></span>							</span>
+						</a>
+					</p>
+
+					
+				</div>
+			</div>
+			<div class="m-submenu__side">
+
+				<p class="m-submenu__title">Poskytované služby</p><ul class="m-submenu__list"><li class="m-submenu__item"><a href="https://www.karatsoftware.cz/podpora-a-sluzby/poradenstvi-a-konzultace/" class="m-submenu__link">Poradenství a konzultace</a></li><li class="m-submenu__item"><a href="https://www.karatsoftware.cz/podpora-a-sluzby/navrh-informacniho-systemu/" class="m-submenu__link">Návrh informačního systému</a></li><li class="m-submenu__item"><a href="https://www.karatsoftware.cz/podpora-a-sluzby/implementace-informacniho-systemu/" class="m-submenu__link">Implementace inform. systému</a></li><li class="m-submenu__item"><a href="https://www.karatsoftware.cz/podpora-a-sluzby/systemova-integrace/" class="m-submenu__link">Systémová integrace</a></li><li class="m-submenu__item"><a href="https://www.karatsoftware.cz/podpora-a-sluzby/vyvoj-software-a-aplikaci/" class="m-submenu__link">Vývoj software a aplikací</a></li><li class="m-submenu__item"><a href="https://www.karatsoftware.cz/podpora-a-sluzby/dodavka-hardware/" class="m-submenu__link">Dodávka hardware</a></li></ul>
+			</div>
+		</nav>
+	</div>
+</div>
+</li>
+<li class="m-main__item financovani menu-item menu-item-type-post_type menu-item-object-page" data-controller="toggle" data-toggle-change-class="is-open" data-toggle-target="group"><span class="m-main__inner"><a href="https://www.karatsoftware.cz/financovani/" class="m-main__link"><span class="m-main__link-inner">Financování</a><button data-action="click->toggle#toggle"><span class="icon-svg icon-svg--down"  aria-hidden="true"><svg class="icon-svg__svg" xmlns:xlink="http://www.w3.org/1999/xlink"><use xlink:href="https://www.karatsoftware.cz/wp-content/themes/karat-software/static/img/icons.svg?v=1.3.4#icon-down" width="100%" height="100%" focusable="false"></use></svg></span></button></span>
+<div class="m-main__submenu">
+	<div class="row-main">
+		<nav class="m-submenu">
+			<div class="m-submenu__main">
+
+				<p class="m-submenu__title">Rozsah poskytovaných služeb</p><ul class="m-submenu__list"><li class="m-submenu__item"><a href="https://www.karatsoftware.cz/financovani/dotace-z-eu/" class="m-submenu__link">Dotace z EU</a></li><li class="m-submenu__item"><a href="https://www.karatsoftware.cz/financovani/pronajem-licence/" class="m-submenu__link">Pronájem licence</a></li><li class="m-submenu__item"><a href="https://www.karatsoftware.cz/financovani/rozlozeni-platby-v-case/" class="m-submenu__link">Rozložení platby v čase</a></li><li class="m-submenu__item"><a href="https://www.karatsoftware.cz/financovani/outsourcing-saas/" class="m-submenu__link">Outsourcing – SaaS</a></li></ul>
+			</div>
+		</nav>
+	</div>
+</div>
+</li>
+<li class="m-main__item reference menu-item menu-item-type-post_type menu-item-object-page" data-controller="toggle" data-toggle-change-class="is-open" data-toggle-target="group"><span class="m-main__inner"><a href="https://www.karatsoftware.cz/reference/" class="m-main__link"><span class="m-main__link-inner">Reference</a><button data-action="click->toggle#toggle"><span class="icon-svg icon-svg--down"  aria-hidden="true"><svg class="icon-svg__svg" xmlns:xlink="http://www.w3.org/1999/xlink"><use xlink:href="https://www.karatsoftware.cz/wp-content/themes/karat-software/static/img/icons.svg?v=1.3.4#icon-down" width="100%" height="100%" focusable="false"></use></svg></span></button></span>
+<div class="m-main__submenu">
+	<div class="row-main">
+		<nav class="m-submenu">
+			<div class="m-submenu__main">
+
+				<p class="m-submenu__title">Reference</p><ul class="m-submenu__list"><li class="m-submenu__item"><a href="https://www.karatsoftware.cz/reference/" class="m-submenu__link">Reference <span>(91)</span></a></li><li class="m-submenu__item"><a href="https://www.karatsoftware.cz/pripadove-studie/" class="m-submenu__link">Případové studie <span>(42)</span></a></li><li class="m-submenu__item"><a href="https://www.karatsoftware.cz/rozhovory/" class="m-submenu__link">Rozhovory <span>(26)</span></a></li></ul>
+			</div>
+			<div class="m-submenu__side">
+
+				<p class="m-submenu__title">Nové případové studie</p>
+				<section class="c-cases u-mb-0">
+					<div class="c-cases__list grid grid--lg">
+
+						
+<div class="c-cases__item grid__cell size--6-12@md">
+	<article class="b-case b-case--secondary">
+
+		<div class="b-case__img"><picture><source srcset="https://www.karatsoftware.cz/wp-content/uploads/images/7167/prodejce_kol-1008x604-c.png 2x, https://www.karatsoftware.cz/wp-content/uploads/images/7167/prodejce_kol-504x302-c.png 1x"><img src="https://www.karatsoftware.cz/wp-content/uploads/images/7167/prodejce_kol-504x302-c.png" alt="prodejce_kol" width="504" height="302" loading="lazy" /></picture></div><p class="b-case__note">BIKEMAX s.r.o.</p>
+		<p class="b-case__title h5">
+			<a href="https://www.karatsoftware.cz/pripadova-studie/bikemax-nejvetsi-prodejce-kol-v-cesku-jede-na-is-karat/" class="b-case__link link-mask">
+				BIKEMAX: Největší prodejce kol v Česku jede na IS KARAT			</a>
+		</p>
+	</article>
+</div>
+
+<div class="c-cases__item grid__cell size--6-12@md">
+	<article class="b-case b-case--secondary">
+
+		<div class="b-case__img"><picture><source srcset="https://www.karatsoftware.cz/wp-content/uploads/images/7087/private_jet-1008x604-c.jpg 2x, https://www.karatsoftware.cz/wp-content/uploads/images/7087/private_jet-504x302-c.jpg 1x"><img src="https://www.karatsoftware.cz/wp-content/uploads/images/7087/private_jet-504x302-c.jpg" alt="Private,Jetplane,Flying,Over,The,Clouds,And,Landscape,Background,At" width="504" height="302" loading="lazy" /></picture></div><p class="b-case__note">ABS Jets, a. s.</p>
+		<p class="b-case__title h5">
+			<a href="https://www.karatsoftware.cz/pripadova-studie/abs-jets-erp-system-i-pro-byznys-v-oblacich/" class="b-case__link link-mask">
+				ABS JETS: ERP systém i pro byznys v oblacích			</a>
+		</p>
+	</article>
+</div>
+
+					</div>
+				</section>
+			</div>
+		</nav>
+	</div>
+</div>
+</li>
+<li class="m-main__item menu-item menu-item-type-post_type menu-item-object-page"><span class="m-main__inner"><a href="https://www.karatsoftware.cz/akce-seminare/" class="m-main__link"><span class="m-main__link-inner">Vzdělávání</span></a></span></li>
+<li class="m-main__item o-nas no-wrap menu-item menu-item-type-post_type menu-item-object-page" data-controller="toggle" data-toggle-change-class="is-open" data-toggle-target="group"><span class="m-main__inner"><a href="https://www.karatsoftware.cz/o-nas/" class="m-main__link"><span class="m-main__link-inner">O nás</span></a><button data-action="click->toggle#toggle"><span class="icon-svg icon-svg--down"  aria-hidden="true"><svg class="icon-svg__svg" xmlns:xlink="http://www.w3.org/1999/xlink"><use xlink:href="https://www.karatsoftware.cz/wp-content/themes/karat-software/static/img/icons.svg?v=1.3.4#icon-down" width="100%" height="100%" focusable="false"></use></svg></span></button></span>
+<div class="m-main__submenu">
+	<div class="row-main">
+		<nav class="m-submenu">
+			<div class="m-submenu__main">
+
+				<p class="m-submenu__title">Poznejte nás</p><ul class="m-submenu__list"><li class="m-submenu__item"><a href="https://www.karatsoftware.cz/o-nas/" class="m-submenu__link">O nás</a></li><li class="m-submenu__item"><a href="https://www.karatsoftware.cz/novinky/" class="m-submenu__link">Novinky</a></li><li class="m-submenu__item"><a href="https://www.karatsoftware.cz/o-nas/oceneni-partnerstvi/" class="m-submenu__link">Ocenění a certifikace</a></li><li class="m-submenu__item"><a href="https://www.kariera-karat.cz/" class="m-submenu__link">Kariéra</a></li><li class="m-submenu__item"><a href="https://www.karatsoftware.cz/karat-v-akci/" class="m-submenu__link">KARAT v akci</a></li><li class="m-submenu__item"><a href="https://www.karatsoftware.cz/o-nas/loga/" class="m-submenu__link">Loga ke stažení</a></li></ul>
+			</div>
+			<div class="m-submenu__side">
+				<section class="c-cases u-mb-0">
+					<div class="c-cases__list grid grid--lg">
+						<div class="c-cases__item grid__cell size--6-12@md">
+
+							<p class="m-submenu__title">Poslední novinka</p>
+<article class="b-case b-case--secondary">
+
+	<div class="b-case__img"><picture><source srcset="https://www.karatsoftware.cz/wp-content/uploads/images/7134/novy_partner-1008x604-c.png 2x, https://www.karatsoftware.cz/wp-content/uploads/images/7134/novy_partner-504x302-c.png 1x"><img src="https://www.karatsoftware.cz/wp-content/uploads/images/7134/novy_partner-504x302-c.png" alt="novy_partner" width="504" height="302" loading="lazy" /></picture></div>
+	<p class="b-case__title h5">
+		<a href="https://www.karatsoftware.cz/novy-karat-solution-partner-na-slovensku/" class="b-case__link link-mask">
+			Nový KARAT Solution Partner na Slovensku		</a>
+	</p>
+	<p class="b-case__date">
+		<span class="icon-svg icon-svg--calendar"  aria-hidden="true"><svg class="icon-svg__svg" xmlns:xlink="http://www.w3.org/1999/xlink"><use xlink:href="https://www.karatsoftware.cz/wp-content/themes/karat-software/static/img/icons.svg?v=1.3.4#icon-calendar" width="100%" height="100%" focusable="false"></use></svg></span>		<span>
+			13. října 2025		</span>
+	</p>
+</article>
+
+						</div>
+
+						
+						<div class="c-cases__item grid__cell size--6-12@md">
+
+							<p class="m-submenu__title">Kariéra v KARATu</p>
+							<div class="b-cta-jobs b-cta-jobs--secondary">
+
+								<div class="b-cta-jobs__img"><picture><source srcset="https://www.karatsoftware.cz/wp-content/uploads/images/547/karat-kariera-800x1040-c.jpg 2x, https://www.karatsoftware.cz/wp-content/uploads/images/547/karat-kariera-400x520-c.jpg 1x"><img src="https://www.karatsoftware.cz/wp-content/uploads/images/547/karat-kariera-400x520-c.jpg" alt="karat-kariera" width="400" height="520" loading="lazy" /></picture></div>
+								<div class="b-cta-jobs__content">
+									<p class="b-cta-jobs__logo">
+										<img src="https://www.karatsoftware.cz/wp-content/themes/karat-software/static/img/karat-software-logo-round.svg" alt="KARAT Software" width="80" height="80" loading="lazy">
+									</p>
+
+									<p class="b-cta-jobs__title h4">Podílej se na tvorbě ERP systému pro přední firmy v Česku a na Slovensku.</p>
+									<p>
+										<a href="https://www.kariera-karat.cz/" class="btn btn--secondary btn--icon btn--md link-mask">
+											<span class="btn__text">
+												<span>
+													Zobrazit volné pozice												</span>
+												<span class="icon-svg icon-svg--arrow"  aria-hidden="true"><svg class="icon-svg__svg" xmlns:xlink="http://www.w3.org/1999/xlink"><use xlink:href="https://www.karatsoftware.cz/wp-content/themes/karat-software/static/img/icons.svg?v=1.3.4#icon-arrow" width="100%" height="100%" focusable="false"></use></svg></span>											</span>
+										</a>
+									</p>
+								</div>
+							</div>
+						</div>
+
+						
+					</div>
+				</section>
+			</div>
+		</nav>
+	</div>
+</div>
+</li>
+<li class="m-main__item menu-item menu-item-type-post_type menu-item-object-page"><span class="m-main__inner"><a href="https://www.karatsoftware.cz/kontakt/" class="m-main__link"><span class="m-main__link-inner">Kontakt</span></a></span></li>
+
+		<div class="m-main__side">
+
+			
+			<div class="m-lang" data-controller="toggle" data-toggle-change-class="is-open" data-toggle-target="group">
+				<button class="m-lang__open" data-action="click->toggle#toggle">
+					<img src="https://www.karatsoftware.cz/wp-content/plugins/sitepress-multilingual-cms/res/flags/cs.svg" alt="Čeština" width="24" height="16" class="m-lang__current" /><span class="icon-svg icon-svg--down"  aria-hidden="true"><svg class="icon-svg__svg" xmlns:xlink="http://www.w3.org/1999/xlink"><use xlink:href="https://www.karatsoftware.cz/wp-content/themes/karat-software/static/img/icons.svg?v=1.3.4#icon-down" width="100%" height="100%" focusable="false"></use></svg></span>				</button>
+				<ul class="m-lang__list">
+
+					<li class="m-lang__item"><a href="https://www.karatsoftware.sk/" title="Slovenčina" class="m-lang__link"><img src="https://www.karatsoftware.cz/wp-content/plugins/sitepress-multilingual-cms/res/flags/sk.svg" alt="Slovenčina" width="24" height="16" class="m-lang__img" /></a></li>
+				</ul>
+			</div>
+
+			
+			<p class="m-main__btn">
+				<a href="javascript:;" class="btn btn--icon btn--secondary" data-action="click->toggle#toggle" data-gtm="form-open">
+					<span class="btn__text">
+						<span>
+							Mám zájem						</span>
+						<span class="icon-svg icon-svg--arrow"  aria-hidden="true"><svg class="icon-svg__svg" xmlns:xlink="http://www.w3.org/1999/xlink"><use xlink:href="https://www.karatsoftware.cz/wp-content/themes/karat-software/static/img/icons.svg?v=1.3.4#icon-arrow" width="100%" height="100%" focusable="false"></use></svg></span>					</span>
+				</a>
+			</p>
+		</div>
+	</div>
+</nav>
+
+<div class="header__side">
+
+	<button type="button" data-search-target="button" data-action="click->search#toggle" class="header__search-toggle"><span class="icon-svg icon-svg--search"  aria-hidden="true"><svg class="icon-svg__svg" xmlns:xlink="http://www.w3.org/1999/xlink"><use xlink:href="https://www.karatsoftware.cz/wp-content/themes/karat-software/static/img/icons.svg?v=1.3.4#icon-search" width="100%" height="100%" focusable="false"></use></svg></span></button>
+	<div class="m-lang" data-controller="toggle" data-toggle-change-class="is-open" data-toggle-target="group">
+		<button class="m-lang__open" data-action="click->toggle#toggle">
+			<img src="https://www.karatsoftware.cz/wp-content/plugins/sitepress-multilingual-cms/res/flags/cs.svg" alt="Čeština" width="24" height="16" class="m-lang__current" /><span class="icon-svg icon-svg--down"  aria-hidden="true"><svg class="icon-svg__svg" xmlns:xlink="http://www.w3.org/1999/xlink"><use xlink:href="https://www.karatsoftware.cz/wp-content/themes/karat-software/static/img/icons.svg?v=1.3.4#icon-down" width="100%" height="100%" focusable="false"></use></svg></span>		</button>
+		<ul class="m-lang__list">
+
+			<li class="m-lang__item"><a href="https://www.karatsoftware.sk/" title="Slovenčina" class="m-lang__link"><img src="https://www.karatsoftware.cz/wp-content/plugins/sitepress-multilingual-cms/res/flags/sk.svg" alt="Slovenčina" width="24" height="16" class="m-lang__img" /></a></li>
+		</ul>
+	</div>
+
+	<p class="header__btn">
+		<a href="javascript:;" class="btn btn--icon btn--secondary" data-action="click->toggle#toggle" data-gtm="form-open">
+			<span class="btn__text">
+				<span>
+					Mám zájem				</span>
+				<span class="icon-svg icon-svg--arrow"  aria-hidden="true"><svg class="icon-svg__svg" xmlns:xlink="http://www.w3.org/1999/xlink"><use xlink:href="https://www.karatsoftware.cz/wp-content/themes/karat-software/static/img/icons.svg?v=1.3.4#icon-arrow" width="100%" height="100%" focusable="false"></use></svg></span>			</span>
+		</a>
+	</p>
+</div>
+
+		</div>
+	</div>
+	<div class="header__search">
+		<div class="row-main row-main--full">
+			<form method="get" action="https://www.karatsoftware.cz" class="f-search">
+				<div class="f-search__input">
+					<button type="submit" class="f-search__submit"><span class="icon-svg icon-svg--search"  aria-hidden="true"><svg class="icon-svg__svg" xmlns:xlink="http://www.w3.org/1999/xlink"><use xlink:href="https://www.karatsoftware.cz/wp-content/themes/karat-software/static/img/icons.svg?v=1.3.4#icon-search" width="100%" height="100%" focusable="false"></use></svg></span></button>
+					<input type="search" name="s" value="" placeholder="Hledaný výraz" class="inp-text" />
+				</div>
+			</form>
+		</div>
+	</div>
+</header>
+
+	<main role="main" id="main" class="main">
+
+		
+<div id="intro-block_7a3d34172d5b99bf98b93bda928b1fc0" class="b-hp">
+	<div class="row-main">
+		<div class="b-hp__inner">
+			<div class="b-hp__content">
+				<h1 class="b-hp__title"><span class="b-hp__note">Informační systém KARAT</span>Efektivní řízení, plánování a&nbsp;optimalizace procesů</h1><p class="b-hp__btn"><a href="https://www.karatsoftware.cz/erp-karat/" class="btn btn--md btn--reverse btn--icon btn--icon-sm"><span class="btn__text">Objevit ERP KARAT<span><span class="icon-svg icon-svg--arrow"  aria-hidden="true"><svg class="icon-svg__svg" xmlns:xlink="http://www.w3.org/1999/xlink"><use xlink:href="https://www.karatsoftware.cz/wp-content/themes/karat-software/static/img/icons.svg?v=1.3.4#icon-arrow" width="100%" height="100%" focusable="false"></use></svg></span></span></span></a></p>			</div>
+			<div class="b-hp__side">
+							</div>
+		</div>
+	</div>
+
+	<div class="b-hp__video"><video width="840" height="500" autoplay loop muted playsinline loading="lazy" poster="https://www.karatsoftware.cz/wp-content/uploads/2023/11/karat-video-placeholder.jpg"><source src="https://www.karatsoftware.cz/wp-content/uploads/2023/09/homepage_smycka_karat_final.mp4" type="video/mp4"></video><svg width="840" height="500" viewBox="0 0 840 500" preserveAspectRatio="xMinYMin slice" fill="none" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" clip-rule="evenodd" d="M840 500V398.072C752.644 462.126 645.037 499.945 528.646 500H840ZM528.133 500H0V0C16.5188 278.842 246.635 499.866 528.133 500Z" fill="white"/></svg></div>
+</div>
+
+
+
+<div id="clients-block_b62209eedc96c40ef458bbb0ff270577" class="b-clients b-clients--28">
+	<div class="row-main">
+
+		<p class="b-clients__title">Přizpůsobí se lehce vaší firmě</p>
+		<div class="b-clients__wrap" data-controller="embla" data-embla>
+			<ul class="b-clients__list" data-embla-target="slide">
+				<li class="b-clients__item"><a href="https://www.karatsoftware.cz/reference/atalian-cz-s-r-o/" target="_blank"><img fetchpriority="high" decoding="async" width="640" height="480" src="https://www.karatsoftware.cz/wp-content/uploads/2023/05/atalian-1.png" class="attachment-large size-large" alt="atalian" /></a></li><li class="b-clients__item"><a href="https://www.karatsoftware.cz/reference/benes-a-lat-a-s/" target="_blank"><img decoding="async" width="300" height="225" src="https://www.karatsoftware.cz/wp-content/uploads/2023/05/logo-benes-a-lat.png" class="attachment-large size-large" alt="logo-benes-a-lat" /></a></li><li class="b-clients__item"><a href="https://www.karatsoftware.cz/reference/brazzale-moravia-a-s/" target="_blank"><img decoding="async" width="394" height="305" src="https://www.karatsoftware.cz/wp-content/uploads/2023/03/gran-moravia-kopie.png" class="attachment-large size-large" alt="gram moravia logo" /></a></li><li class="b-clients__item"><a href="https://www.karatsoftware.cz/reference/conteg-spol-s-r-o/" target="_blank"><img decoding="async" width="250" height="188" src="https://www.karatsoftware.cz/wp-content/uploads/2023/05/conteg.png" class="attachment-large size-large" alt="conteg-logo" /></a></li><li class="b-clients__item"><a href="https://www.karatsoftware.cz/reference/diton-s-r-o/" target="_blank"><img decoding="async" width="300" height="225" src="https://www.karatsoftware.cz/wp-content/uploads/2023/05/logo-diton-1.png" class="attachment-large size-large" alt="logo-diton-1" /></a></li><li class="b-clients__item"><a href="https://www.karatsoftware.cz/reference/exponex-s-r-o/" target="_blank"><img decoding="async" width="160" height="120" src="https://www.karatsoftware.cz/wp-content/uploads/2023/05/exponex.png" class="attachment-large size-large" alt="exponex" /></a></li><li class="b-clients__item"><a href="https://www.karatsoftware.cz/reference/fruko-schulz-s-r-o/" target="_blank"><img decoding="async" width="300" height="225" src="https://www.karatsoftware.cz/wp-content/uploads/2023/05/logo-fruko-schulz.png" class="attachment-large size-large" alt="logo-fruko-schulz" /></a></li><li class="b-clients__item"><a href="https://www.karatsoftware.cz/reference/gemini-ocni-klinika-a-s/" target="_blank"><img decoding="async" width="640" height="480" src="https://www.karatsoftware.cz/wp-content/uploads/2023/05/gemini.png" class="attachment-large size-large" alt="gemini" /></a></li><li class="b-clients__item"><a href="https://www.karatsoftware.cz/reference/hortim-international-spol-s-r-o/" target="_blank"><img decoding="async" width="640" height="480" src="https://www.karatsoftware.cz/wp-content/uploads/2023/05/hortim-1.png" class="attachment-large size-large" alt="hortim-logo" /></a></li><li class="b-clients__item"><a href="https://www.karatsoftware.cz/reference/ice-industrial-services-a-s/" target="_blank"><img decoding="async" width="300" height="225" src="https://www.karatsoftware.cz/wp-content/uploads/2023/05/ice.png" class="attachment-large size-large" alt="ice-logo" /></a></li><li class="b-clients__item"><a href="https://www.karatsoftware.cz/reference/kostka-kolobka-s-r-o/" target="_blank"><img decoding="async" width="600" height="450" src="https://www.karatsoftware.cz/wp-content/uploads/2023/05/kostka_web_2025.jpg" class="attachment-large size-large" alt="" /></a></li><li class="b-clients__item"><a href="https://www.karatsoftware.cz/reference/linea-nivnice-a-s/" target="_blank"><img decoding="async" width="640" height="480" src="https://www.karatsoftware.cz/wp-content/uploads/2023/05/linea-nivnice.png" class="attachment-large size-large" alt="linea-nivnice-logo" /></a></li><li class="b-clients__item"><a href="https://www.karatsoftware.cz/reference/lunys-s-r-o/" target="_blank"><img decoding="async" width="640" height="480" src="https://www.karatsoftware.cz/wp-content/uploads/2023/05/lunys-1.png" class="attachment-large size-large" alt="lunys-logo" /></a></li><li class="b-clients__item"><a href="https://www.karatsoftware.cz/reference/malfini-a-s/" target="_blank"><img decoding="async" width="300" height="225" src="https://www.karatsoftware.cz/wp-content/uploads/2023/05/logo-malfini-czech.png" class="attachment-large size-large" alt="logo-malfini-czech" /></a></li><li class="b-clients__item"><a href="https://www.karatsoftware.cz/reference/metalimex-a-s/" target="_blank"><img decoding="async" width="600" height="450" src="https://www.karatsoftware.cz/wp-content/uploads/2023/05/metalimex_logo_2025.png" class="attachment-large size-large" alt="" /></a></li><li class="b-clients__item"><a href="https://www.karatsoftware.cz/reference/narodni-divadlo/" target="_blank"><img decoding="async" width="444" height="333" src="https://www.karatsoftware.cz/wp-content/uploads/2023/05/narodni-divadlo-1.png" class="attachment-large size-large" alt="narodni-divadlo-1" /></a></li><li class="b-clients__item"><a href="https://www.karatsoftware.cz/reference/nc-line-a-s/" target="_blank"><img decoding="async" width="1200" height="905" src="https://www.karatsoftware.cz/wp-content/uploads/2023/05/ncl-logo-secondary-center-b-1200x905.png" class="attachment-large size-large" alt="" /></a></li><li class="b-clients__item"><a href="https://www.karatsoftware.cz/reference/ofz-a-s/" target="_blank"><img decoding="async" width="640" height="480" src="https://www.karatsoftware.cz/wp-content/uploads/2023/05/ofz-1.png" class="attachment-large size-large" alt="ofz-1" /></a></li><li class="b-clients__item"><a href="https://www.karatsoftware.cz/reference/okk-koksovny-a-s/" target="_blank"><img decoding="async" width="640" height="480" src="https://www.karatsoftware.cz/wp-content/uploads/2023/05/okk-1.png" class="attachment-large size-large" alt="logo okk" /></a></li><li class="b-clients__item"><a href="https://www.karatsoftware.cz/reference/pfanner-spol-s-r-o/" target="_blank"><img decoding="async" width="551" height="371" src="https://www.karatsoftware.cz/wp-content/uploads/2023/11/pfanner1.png" class="attachment-large size-large" alt="pfanner logo" /></a></li><li class="b-clients__item"><a href="https://www.karatsoftware.cz/reference/respect-a-s/" target="_blank"><img decoding="async" width="640" height="480" src="https://www.karatsoftware.cz/wp-content/uploads/2023/05/respect1.png" class="attachment-large size-large" alt="respect logo" /></a></li><li class="b-clients__item"><a href="https://www.karatsoftware.cz/reference/rodinny-pivovar-bernard-a-s/" target="_blank"><img decoding="async" width="640" height="480" src="https://www.karatsoftware.cz/wp-content/uploads/2023/05/bernard.png" class="attachment-large size-large" alt="logo bernard" /></a></li><li class="b-clients__item"><a href="https://www.karatsoftware.cz/reference/torola-electronic-spol-s-r-o/" target="_blank"><img decoding="async" width="640" height="480" src="https://www.karatsoftware.cz/wp-content/uploads/2023/05/torola.png" class="attachment-large size-large" alt="torola logo" /></a></li><li class="b-clients__item"><a href="https://www.karatsoftware.cz/reference/triola-a-s/" target="_blank"><img decoding="async" width="640" height="480" src="https://www.karatsoftware.cz/wp-content/uploads/2023/05/triola1.png" class="attachment-large size-large" alt="triola logo" /></a></li><li class="b-clients__item"><a href="https://www.karatsoftware.cz/reference/tvd-technicka-vyroba-a-s/" target="_blank"><img decoding="async" width="641" height="481" src="https://www.karatsoftware.cz/wp-content/uploads/2023/05/tvd.png" class="attachment-large size-large" alt="tvd" /></a></li><li class="b-clients__item"><a href="https://www.karatsoftware.cz/reference/vf-a-s/" target="_blank"><img decoding="async" width="300" height="225" src="https://www.karatsoftware.cz/wp-content/uploads/2023/05/vf-1.png" class="attachment-large size-large" alt="vf-1" /></a></li><li class="b-clients__item"><a href="https://www.karatsoftware.cz/reference/vw-wachal-a-s/" target="_blank"><img decoding="async" width="641" height="481" src="https://www.karatsoftware.cz/wp-content/uploads/2023/05/wachal.png" class="attachment-large size-large" alt="wachal" /></a></li><li class="b-clients__item"><a href="https://www.karatsoftware.cz/reference/zamet-spol-s-r-o/" target="_blank"><img decoding="async" width="640" height="480" src="https://www.karatsoftware.cz/wp-content/uploads/2023/05/zamet.png" class="attachment-large size-large" alt="zamet logo" /></a></li>			</ul>
+
+			<p class="b-clients__prev" data-embla-target="prev" data-action="click-&gt;embla#prev">
+				<button>
+					<span class="icon-svg icon-svg--chevron"  aria-hidden="true"><svg class="icon-svg__svg" xmlns:xlink="http://www.w3.org/1999/xlink"><use xlink:href="https://www.karatsoftware.cz/wp-content/themes/karat-software/static/img/icons.svg?v=1.3.4#icon-chevron" width="100%" height="100%" focusable="false"></use></svg></span>				</button>
+			</p>
+			<p class="b-clients__next" data-embla-target="next" data-action="click-&gt;embla#next">
+				<button>
+					<span class="icon-svg icon-svg--chevron"  aria-hidden="true"><svg class="icon-svg__svg" xmlns:xlink="http://www.w3.org/1999/xlink"><use xlink:href="https://www.karatsoftware.cz/wp-content/themes/karat-software/static/img/icons.svg?v=1.3.4#icon-chevron" width="100%" height="100%" focusable="false"></use></svg></span>				</button>
+			</p>
+		</div>
+	</div>
+</div>
+
+
+
+<section id="navigation-images-block_0a09ec764c2171eee187e31eaafc84d8" class="c-solve">
+	<div class="row-main">
+
+		<h2 class="c-solve__title h6">Vyberte řešení pro</h2>
+		<div class="c-solve__list grid grid--lg">
+
+			
+			<div class="c-solve__item grid__cell size--4-12@md">
+				<article class="b-solve">
+					<div class="b-solve__img"><picture><source srcset="https://www.karatsoftware.cz/wp-content/uploads/images/5180/banner-vyroba-1008x760.png 2x, https://www.karatsoftware.cz/wp-content/uploads/images/5180/banner-vyroba-504x380.png 1x"><img decoding="async" src="https://www.karatsoftware.cz/wp-content/uploads/images/5180/banner-vyroba-504x380.png" alt="manager ve výrobě s notebookem" width="504" height="284" loading="lazy" /></picture></div>
+					<div class="b-solve__content">
+						<h3 class="b-solve__title">Výroba</h3><p class="b-solve__btn"><a href="https://www.karatsoftware.cz/oborova-reseni/vyroba/" class="btn btn--white btn--hover btn--icon btn--icon-sm link-mask"><span class="btn__text"><span>Zjistit více</span><span class="icon-svg icon-svg--arrow"  aria-hidden="true"><svg class="icon-svg__svg" xmlns:xlink="http://www.w3.org/1999/xlink"><use xlink:href="https://www.karatsoftware.cz/wp-content/themes/karat-software/static/img/icons.svg?v=1.3.4#icon-arrow" width="100%" height="100%" focusable="false"></use></svg></span></span></a></p>					</div>
+				</article>
+			</div>
+
+			
+			<div class="c-solve__item grid__cell size--4-12@md">
+				<article class="b-solve">
+					<div class="b-solve__img"><picture><source srcset="https://www.karatsoftware.cz/wp-content/uploads/images/3878/kopie-navrhu-orange-modern-juice-drink-medium-banner-2-1008x760.png 2x, https://www.karatsoftware.cz/wp-content/uploads/images/3878/kopie-navrhu-orange-modern-juice-drink-medium-banner-2-504x380.png 1x"><img decoding="async" src="https://www.karatsoftware.cz/wp-content/uploads/images/3878/kopie-navrhu-orange-modern-juice-drink-medium-banner-2-504x380.png" alt="řešení pro obchod" width="504" height="284" loading="lazy" /></picture></div>
+					<div class="b-solve__content">
+						<h3 class="b-solve__title">Obchod</h3><p class="b-solve__btn"><a href="https://www.karatsoftware.cz/oborova-reseni/obchod/" class="btn btn--white btn--hover btn--icon btn--icon-sm link-mask"><span class="btn__text"><span>Zjistit více</span><span class="icon-svg icon-svg--arrow"  aria-hidden="true"><svg class="icon-svg__svg" xmlns:xlink="http://www.w3.org/1999/xlink"><use xlink:href="https://www.karatsoftware.cz/wp-content/themes/karat-software/static/img/icons.svg?v=1.3.4#icon-arrow" width="100%" height="100%" focusable="false"></use></svg></span></span></a></p>					</div>
+				</article>
+			</div>
+
+			
+			<div class="c-solve__item grid__cell size--4-12@md">
+				<article class="b-solve">
+					<div class="b-solve__img"><picture><source srcset="https://www.karatsoftware.cz/wp-content/uploads/images/3881/kopie-navrhu-orange-modern-juice-drink-medium-banner-3-1008x760.png 2x, https://www.karatsoftware.cz/wp-content/uploads/images/3881/kopie-navrhu-orange-modern-juice-drink-medium-banner-3-504x380.png 1x"><img decoding="async" src="https://www.karatsoftware.cz/wp-content/uploads/images/3881/kopie-navrhu-orange-modern-juice-drink-medium-banner-3-504x380.png" alt="služby" width="504" height="284" loading="lazy" /></picture></div>
+					<div class="b-solve__content">
+						<h3 class="b-solve__title">Služby</h3><p class="b-solve__btn"><a href="https://www.karatsoftware.cz/oborova-reseni/sluzby/" class="btn btn--white btn--hover btn--icon btn--icon-sm link-mask"><span class="btn__text"><span>Zjistit více</span><span class="icon-svg icon-svg--arrow"  aria-hidden="true"><svg class="icon-svg__svg" xmlns:xlink="http://www.w3.org/1999/xlink"><use xlink:href="https://www.karatsoftware.cz/wp-content/themes/karat-software/static/img/icons.svg?v=1.3.4#icon-arrow" width="100%" height="100%" focusable="false"></use></svg></span></span></a></p>					</div>
+				</article>
+			</div>
+
+			
+		</div>
+
+		
+		<div class="c-solve__bottom">
+			<h3 class="c-solve__title h6">Speciální oborová řešení</h3><ul class="c-solve__sublist"><li class="c-solve__subitem"><a href="https://www.karatsoftware.cz/oborova-reseni/specialni/strojirny/" class="c-solve__sublink"><span class="icon-svg icon-svg--custom"><?xml version="1.0" encoding="UTF-8"?>
+<svg class="icon-svg__svg" xmlns="http://www.w3.org/2000/svg" height="24" viewBox="0 -960 960 960" width="24">
+  <path d="M159-120v-120h124L181-574q-27-15-44.5-44T119-680q0-50 35-85t85-35q39 0 69.5 22.5T351-720h128v-40q0-17 11.5-28.5T519-800q9 0 17.5 4t14.5 12l68-64q9-9 21.5-11.5T665-856l156 72q12 6 16.5 17.5T837-744q-6 12-17.5 15.5T797-730l-144-66-94 88v56l94 86 144-66q11-5 23-1t17 15q6 12 1 23t-17 17l-156 74q-12 6-24.5 3.5T619-512l-68-64q-6 6-14.5 11t-17.5 5q-17 0-28.5-11.5T479-600v-40H351q-3 8-6.5 15t-9.5 15l200 370h144v120H159Zm80-520q17 0 28.5-11.5T279-680q0-17-11.5-28.5T239-720q-17 0-28.5 11.5T199-680q0 17 11.5 28.5T239-640Zm126 400h78L271-560h-4l98 320Zm78 0Z"></path>
+</svg>
+</span>Strojírny</a></li><li class="c-solve__subitem"><a href="https://www.karatsoftware.cz/oborova-reseni/specialni/slevarny/" class="c-solve__sublink"><span class="icon-svg icon-svg--custom"><?xml version="1.0" encoding="UTF-8"?>
+<svg class="icon-svg__svg" xmlns="http://www.w3.org/2000/svg" height="24" viewBox="0 -960 960 960" width="24">
+  <path d="m247-904 57-56 343 343q23 23 23 57t-23 57L457-313q-23 23-57 23t-57-23L153-503q-23-23-23-57t23-57l190-191-96-96Zm153 153L209-560h382L400-751Zm360 471q-33 0-56.5-23.5T680-360q0-21 12.5-45t27.5-45q9-12 19-25t21-25q11 12 21 25t19 25q15 21 27.5 45t12.5 45q0 33-23.5 56.5T760-280ZM80 0v-160h800V0H80Z"></path>
+</svg>
+</span>Slévárny</a></li><li class="c-solve__subitem"><a href="https://www.karatsoftware.cz/oborova-reseni/specialni/napojovy-prumysl/" class="c-solve__sublink"><span class="icon-svg icon-svg--custom"><?xml version="1.0" encoding="UTF-8"?>
+<svg class="icon-svg__svg" xmlns="http://www.w3.org/2000/svg" height="24" viewBox="0 -960 960 960" width="24">
+  <path d="M279-80q-31 0-53.5-20.5T200-151l-80-729h720l-80 729q-3 30-25.5 50.5T681-80H279Zm-43-480 44 400h400l44-400H236Zm-10-80h508l16-160H210l16 160Zm254 360q-14 0-24-10t-10-24q0-15 8.5-34.5T480-393q17 25 25.5 44.5T514-314q0 14-10 24t-24 10Zm0 80q48 0 81-33t33-81q0-41-26.5-89T480-520q-61 69-87.5 117T366-314q0 48 33 81t81 33Zm-244 40h488-488Z"></path>
+</svg>
+</span>Nápojový průmysl</a></li><li class="c-solve__subitem"><a href="https://www.karatsoftware.cz/oborova-reseni/specialni/pujcovny-a-servis/" class="c-solve__sublink"><span class="icon-svg icon-svg--custom"><?xml version="1.0" encoding="UTF-8"?>
+<svg class="icon-svg__svg" xmlns="http://www.w3.org/2000/svg" height="24" viewBox="0 -960 960 960" width="24">
+  <path d="M240-200h240v-40H240v40Zm30-360h180q12 0 21-9t9-21q0-12-9-21t-21-9H270q-12 0-21 9t-9 21q0 12 9 21t21 9Zm0-100h180q12 0 21-9t9-21q0-12-9-21t-21-9H270q-12 0-21 9t-9 21q0 12 9 21t21 9Zm370 140v-80h80v-80h-80v-80h80q33 0 56.5 23.5T800-680h80q17 0 28.5 11.5T920-640q0 17-11.5 28.5T880-600h-80q0 33-23.5 56.5T720-520h-80ZM480-320h-80v-200h160v-240H240q-33 0-56.5 23.5T160-680v80q0 33 23.5 56.5T240-520h80v200h-80v-120q-66 0-113-47T80-600v-80q0-66 47-113t113-47h320q33 0 56.5 23.5T640-760v240q0 33-23.5 56.5T560-440h-80v120ZM220-120q-25 0-42.5-17.5T160-180v-80q0-25 17.5-42.5T220-320h280q25 0 42.5 17.5T560-260v80q0 25-17.5 42.5T500-120H220Zm140-520Zm120 440H240h240Z"></path>
+</svg>
+</span>Půjčovny a&nbsp;servis</a></li><li class="c-solve__subitem"><a href="https://www.karatsoftware.cz/oborova-reseni/specialni/vyroba-nabytku/" class="c-solve__sublink"><span class="icon-svg icon-svg--custom"><?xml version="1.0" encoding="UTF-8"?>
+<svg class="icon-svg__svg" xmlns="http://www.w3.org/2000/svg" height="24" viewBox="0 -960 960 960" width="24">
+  <path d="M320-640v-120h80v120h-80Zm0 360v-200h80v200h-80ZM240-80q-33 0-56.5-23.5T160-160v-640q0-33 23.5-56.5T240-880h480q33 0 56.5 23.5T800-800v640q0 33-23.5 56.5T720-80H240Zm0-80h480v-360H240v360Zm0-440h480v-200H240v200Z"></path>
+</svg>
+</span>Výroba nábytku</a></li><li class="c-solve__subitem"><a href="https://www.karatsoftware.cz/oborova-reseni/specialni/distribuce-prodej-odevu-obuvi/" class="c-solve__sublink"><span class="icon-svg icon-svg--custom"><?xml version="1.0" encoding="UTF-8"?>
+<svg class="icon-svg__svg" xmlns="http://www.w3.org/2000/svg" height="24" viewBox="0 -960 960 960" width="24">
+  <path d="M120-160q-29 0-38-27.5T96-232l344-258v-70q0-17 11-28.5t28-11.5q26 1 43.5-16.5T540-660q0-25-17.5-42.5T480-720q-25 0-42.5 17.5T420-660h-80q0-58 41-99t99-41q58 0 99 40t41 98q0 47-27.5 84.5T520-526v36l344 258q23 17 14 44.5T840-160H120Zm120-80h480L480-420 240-240Z"></path>
+</svg>
+</span>Obchodování s&nbsp;oděvy a&nbsp;obuví</a></li><li class="c-solve__subitem"><a href="https://www.karatsoftware.cz/oborova-reseni/specialni/obchodovani-s-ovocem-a-zeleninou/" class="c-solve__sublink"><span class="icon-svg icon-svg--custom"><?xml version="1.0" encoding="UTF-8"?>
+<svg class="icon-svg__svg" xmlns="http://www.w3.org/2000/svg" height="24" viewBox="0 -960 960 960" width="24">
+  <path d="M440-120v-319q-64 0-123-24.5T213-533q-45-45-69-104t-24-123v-80h80q63 0 122 24.5T426-746q31 31 51.5 68t31.5 79q5-7 11-13.5t13-13.5q45-45 104-69.5T760-720h80v80q0 64-24.5 123T746-413q-45 45-103.5 69T520-320v200h-80Zm0-400q0-48-18.5-91.5T369-689q-34-34-77.5-52.5T200-760q0 48 18 92t52 78q34 34 78 52t92 18Zm80 120q48 0 91.5-18t77.5-52q34-34 52.5-78t18.5-92q-48 0-92 18.5T590-569q-34 34-52 77.5T520-400Zm0 0Zm-80-120Z"></path>
+</svg>
+</span>Obchodování s&nbsp;ovocem a&nbsp;zeleninou</a></li></ul>		</div>
+
+		
+	</div>
+</section>
+
+
+
+<section id="navigation-block_c6f27cc30ed3c81b2c256166f33f54b9" class="c-fields">
+	<div class="row-main">
+
+		<h2 class="c-fields__title">Jaké oblasti ERP systém KARAT řeší</h2><div class="c-fields__perex"><p>KARAT zjednoduší a&nbsp;zrychlí klíčové procesy v&nbsp;oblastech výroby, obchodu, financí, marketingu či&nbsp;logistiky.</p>
+</div>
+		<div class="c-fields__list grid">
+
+			
+			<div class="c-fields__item grid__cell size--auto size--3-12@md">
+				<article class="b-field">
+					<h3 class="b-field__title h6">
+						<a href="https://www.karatsoftware.cz/erp-karat/ucetni-a-ekonomicky-software/" class="b-field__link link-mask"><span class="icon-svg icon-svg--custom"><?xml version="1.0" encoding="UTF-8"?>
+<svg class="icon-svg__svg" xmlns="http://www.w3.org/2000/svg" height="24" viewBox="0 -960 960 960" width="24">
+  <path d="M80-120v-80h800v80H80Zm40-120v-280h120v280H120Zm200 0v-480h120v480H320Zm200 0v-360h120v360H520Zm200 0v-600h120v600H720Z"></path>
+</svg>
+</span><span class="b-field__name">Účetnictví a&nbsp;ekonomika</span></a>					</h3>
+				</article>
+			</div>
+
+			
+			<div class="c-fields__item grid__cell size--auto size--3-12@md">
+				<article class="b-field">
+					<h3 class="b-field__title h6">
+						<a href="https://www.karatsoftware.cz/erp-karat/crm-system/" class="b-field__link link-mask"><span class="icon-svg icon-svg--custom"><?xml version="1.0" encoding="UTF-8"?>
+<svg class="icon-svg__svg" xmlns="http://www.w3.org/2000/svg" height="24" viewBox="0 -960 960 960" width="24">
+  <path d="M640-400q-50 0-85-35t-35-85q0-50 35-85t85-35q50 0 85 35t35 85q0 50-35 85t-85 35ZM400-160v-76q0-21 10-40t28-30q45-27 95.5-40.5T640-360q56 0 106.5 13.5T842-306q18 11 28 30t10 40v76H400Zm86-80h308q-35-20-74-30t-80-10q-41 0-80 10t-74 30Zm154-240q17 0 28.5-11.5T680-520q0-17-11.5-28.5T640-560q-17 0-28.5 11.5T600-520q0 17 11.5 28.5T640-480Zm0-40Zm0 280ZM120-400v-80h320v80H120Zm0-320v-80h480v80H120Zm324 160H120v-80h360q-14 17-22.5 37T444-560Z"></path>
+</svg>
+</span><span class="b-field__name">CRM</span></a>					</h3>
+				</article>
+			</div>
+
+			
+			<div class="c-fields__item grid__cell size--auto size--3-12@md">
+				<article class="b-field">
+					<h3 class="b-field__title h6">
+						<a href="https://www.karatsoftware.cz/erp-karat/manazersky-informacni-system/" class="b-field__link link-mask"><span class="icon-svg icon-svg--custom"><?xml version="1.0" encoding="UTF-8"?>
+<svg class="icon-svg__svg" xmlns="http://www.w3.org/2000/svg" height="24" viewBox="0 -960 960 960" width="24">
+  <path d="M680-360q-42 0-71-29t-29-71q0-42 29-71t71-29q42 0 71 29t29 71q0 42-29 71t-71 29ZM480-160v-56q0-24 12.5-44.5T528-290q36-15 74.5-22.5T680-320q39 0 77.5 7.5T832-290q23 9 35.5 29.5T880-216v56H480Zm-80-320q-66 0-113-47t-47-113q0-66 47-113t113-47q66 0 113 47t47 113q0 66-47 113t-113 47Zm0-160ZM80-160v-112q0-34 17-62.5t47-43.5q60-30 124.5-46T400-440q35 0 70 6t70 14l-34 34-34 34q-18-5-36-6.5t-36-1.5q-58 0-113.5 14T180-306q-10 5-15 14t-5 20v32h240v80H80Zm320-80Zm0-320q33 0 56.5-23.5T480-640q0-33-23.5-56.5T400-720q-33 0-56.5 23.5T320-640q0 33 23.5 56.5T400-560Z"></path>
+</svg>
+</span><span class="b-field__name">Manažerské řízení</span></a>					</h3>
+				</article>
+			</div>
+
+			
+			<div class="c-fields__item grid__cell size--auto size--3-12@md">
+				<article class="b-field">
+					<h3 class="b-field__title h6">
+						<a href="https://www.karatsoftware.cz/oborova-reseni/vyroba/" class="b-field__link link-mask"><span class="icon-svg icon-svg--custom"><?xml version="1.0" encoding="UTF-8"?>
+<svg class="icon-svg__svg" xmlns="http://www.w3.org/2000/svg" height="24" viewBox="0 -960 960 960" width="24">
+  <path d="M159-120v-120h124L181-574q-27-15-44.5-44T119-680q0-50 35-85t85-35q39 0 69.5 22.5T351-720h128v-40q0-17 11.5-28.5T519-800q9 0 17.5 4t14.5 12l68-64q9-9 21.5-11.5T665-856l156 72q12 6 16.5 17.5T837-744q-6 12-17.5 15.5T797-730l-144-66-94 88v56l94 86 144-66q11-5 23-1t17 15q6 12 1 23t-17 17l-156 74q-12 6-24.5 3.5T619-512l-68-64q-6 6-14.5 11t-17.5 5q-17 0-28.5-11.5T479-600v-40H351q-3 8-6.5 15t-9.5 15l200 370h144v120H159Zm80-520q17 0 28.5-11.5T279-680q0-17-11.5-28.5T239-720q-17 0-28.5 11.5T199-680q0 17 11.5 28.5T239-640Zm126 400h78L271-560h-4l98 320Zm78 0Z"></path>
+</svg>
+</span><span class="b-field__name">Výroba</span></a>					</h3>
+				</article>
+			</div>
+
+			
+			<div class="c-fields__item grid__cell size--auto size--3-12@md">
+				<article class="b-field">
+					<h3 class="b-field__title h6">
+						<a href="https://www.karatsoftware.cz/erp-karat/nakup/" class="b-field__link link-mask"><span class="icon-svg icon-svg--custom"><?xml version="1.0" encoding="UTF-8"?>
+<svg class="icon-svg__svg" xmlns="http://www.w3.org/2000/svg" height="24" viewBox="0 -960 960 960" width="24">
+  <path d="M280-80q-33 0-56.5-23.5T200-160q0-33 23.5-56.5T280-240q33 0 56.5 23.5T360-160q0 33-23.5 56.5T280-80Zm400 0q-33 0-56.5-23.5T600-160q0-33 23.5-56.5T680-240q33 0 56.5 23.5T760-160q0 33-23.5 56.5T680-80ZM246-720l96 200h280l110-200H246Zm-38-80h590q23 0 35 20.5t1 41.5L692-482q-11 20-29.5 31T622-440H324l-44 80h480v80H280q-45 0-68-39.5t-2-78.5l54-98-144-304H40v-80h130l38 80Zm134 280h280-280Z"></path>
+</svg>
+</span><span class="b-field__name">Nákup</span></a>					</h3>
+				</article>
+			</div>
+
+			
+			<div class="c-fields__item grid__cell size--auto size--3-12@md">
+				<article class="b-field">
+					<h3 class="b-field__title h6">
+						<a href="https://www.karatsoftware.cz/erp-karat/system-pro-prodej/" class="b-field__link link-mask"><span class="icon-svg icon-svg--custom"><?xml version="1.0" encoding="UTF-8"?>
+<svg class="icon-svg__svg" xmlns="http://www.w3.org/2000/svg" height="24" viewBox="0 -960 960 960" width="24">
+  <path d="M570-104q-23 23-57 23t-57-23L104-456q-11-11-17.5-26T80-514v-286q0-33 23.5-56.5T160-880h286q17 0 32 6.5t26 17.5l352 353q23 23 23 56.5T856-390L570-104Zm-57-56 286-286-353-354H160v286l353 354ZM260-640q25 0 42.5-17.5T320-700q0-25-17.5-42.5T260-760q-25 0-42.5 17.5T200-700q0 25 17.5 42.5T260-640ZM160-800Z"></path>
+</svg>
+</span><span class="b-field__name">Prodej</span></a>					</h3>
+				</article>
+			</div>
+
+			
+			<div class="c-fields__item grid__cell size--auto size--3-12@md">
+				<article class="b-field">
+					<h3 class="b-field__title h6">
+						<a href="https://www.karatsoftware.cz/erp-karat/skladovy-system/" class="b-field__link link-mask"><span class="icon-svg icon-svg--custom"><?xml version="1.0" encoding="UTF-8"?>
+<svg class="icon-svg__svg" xmlns="http://www.w3.org/2000/svg" height="24" viewBox="0 -960 960 960" width="24">
+  <path d="M160-200h80v-320h480v320h80v-426L480-754 160-626v426Zm-80 80v-560l400-160 400 160v560H640v-320H320v320H80Zm280 0v-80h80v80h-80Zm80-120v-80h80v80h-80Zm80 120v-80h80v80h-80ZM240-520h480-480Z"></path>
+</svg>
+</span><span class="b-field__name">Sklady</span></a>					</h3>
+				</article>
+			</div>
+
+			
+			<div class="c-fields__item grid__cell size--auto size--3-12@md">
+				<article class="b-field">
+					<h3 class="b-field__title h6">
+						<a href="https://www.karatsoftware.cz/erp-karat/logisticky-informacni-system/" class="b-field__link link-mask"><span class="icon-svg icon-svg--custom"><?xml version="1.0" encoding="UTF-8"?>
+<svg class="icon-svg__svg" xmlns="http://www.w3.org/2000/svg" height="24" viewBox="0 -960 960 960" width="24">
+  <path d="M240-160q-50 0-85-35t-35-85H40v-440q0-33 23.5-56.5T120-800h560v160h120l120 160v200h-80q0 50-35 85t-85 35q-50 0-85-35t-35-85H360q0 50-35 85t-85 35Zm0-80q17 0 28.5-11.5T280-280q0-17-11.5-28.5T240-320q-17 0-28.5 11.5T200-280q0 17 11.5 28.5T240-240ZM120-360h32q17-18 39-29t49-11q27 0 49 11t39 29h272v-360H120v360Zm600 120q17 0 28.5-11.5T760-280q0-17-11.5-28.5T720-320q-17 0-28.5 11.5T680-280q0 17 11.5 28.5T720-240Zm-40-200h170l-90-120h-80v120ZM360-540Z"></path>
+</svg>
+</span><span class="b-field__name">Logistika</span></a>					</h3>
+				</article>
+			</div>
+
+			
+			<div class="c-fields__item grid__cell size--auto size--3-12@md">
+				<article class="b-field">
+					<h3 class="b-field__title h6">
+						<a href="https://www.karatsoftware.cz/erp-karat/mzdovy-software/" class="b-field__link link-mask"><span class="icon-svg icon-svg--custom"><?xml version="1.0" encoding="UTF-8"?>
+<svg class="icon-svg__svg" xmlns="http://www.w3.org/2000/svg" height="24" viewBox="0 -960 960 960" width="24">
+  <path d="M0-240v-63q0-43 44-70t116-27q13 0 25 .5t23 2.5q-14 21-21 44t-7 48v65H0Zm240 0v-65q0-32 17.5-58.5T307-410q32-20 76.5-30t96.5-10q53 0 97.5 10t76.5 30q32 20 49 46.5t17 58.5v65H240Zm540 0v-65q0-26-6.5-49T754-397q11-2 22.5-2.5t23.5-.5q72 0 116 26.5t44 70.5v63H780Zm-455-80h311q-10-20-55.5-35T480-370q-55 0-100.5 15T325-320ZM160-440q-33 0-56.5-23.5T80-520q0-34 23.5-57t56.5-23q34 0 57 23t23 57q0 33-23 56.5T160-440Zm640 0q-33 0-56.5-23.5T720-520q0-34 23.5-57t56.5-23q34 0 57 23t23 57q0 33-23 56.5T800-440Zm-320-40q-50 0-85-35t-35-85q0-51 35-85.5t85-34.5q51 0 85.5 34.5T600-600q0 50-34.5 85T480-480Zm0-80q17 0 28.5-11.5T520-600q0-17-11.5-28.5T480-640q-17 0-28.5 11.5T440-600q0 17 11.5 28.5T480-560Zm1 240Zm-1-280Z"></path>
+</svg>
+</span><span class="b-field__name">Personalistika a&nbsp;mzdy</span></a>					</h3>
+				</article>
+			</div>
+
+			
+			<div class="c-fields__item grid__cell size--auto size--3-12@md">
+				<article class="b-field">
+					<h3 class="b-field__title h6">
+						<a href="https://www.karatsoftware.cz/erp-karat/projektove-rizeni/" class="b-field__link link-mask"><span class="icon-svg icon-svg--custom"><?xml version="1.0" encoding="UTF-8"?>
+<svg class="icon-svg__svg" xmlns="http://www.w3.org/2000/svg" height="24" viewBox="0 -960 960 960" width="24">
+  <path d="m656-120-56-56 63-64-63-63 56-57 64 64 63-64 57 57-64 63 64 64-57 56-63-63-64 63Zm-416-80q17 0 28.5-11.5T280-240q0-17-11.5-28.5T240-280q-17 0-28.5 11.5T200-240q0 17 11.5 28.5T240-200Zm0 80q-50 0-85-35t-35-85q0-50 35-85t85-35q37 0 67.5 20.5T352-284q39-11 63.5-43t24.5-73v-160q0-83 58.5-141.5T640-760h46l-63-63 57-57 160 160-160 160-57-56 63-64h-46q-50 0-85 35t-35 85v160q0 73-47 128.5T354-203q-12 37-43.5 60T240-120Zm-64-480-56-56 63-64-63-63 56-57 64 64 63-64 57 57-64 63 64 64-57 56-63-63-64 63Z"></path>
+</svg>
+</span><span class="b-field__name">Projektové řízení</span></a>					</h3>
+				</article>
+			</div>
+
+			
+			<div class="c-fields__item grid__cell size--auto size--3-12@md">
+				<article class="b-field">
+					<h3 class="b-field__title h6">
+						<a href="https://www.karatsoftware.cz/erp-karat/sprava-dokumentu-dms/" class="b-field__link link-mask"><span class="icon-svg icon-svg--custom"><?xml version="1.0" encoding="UTF-8"?>
+<svg class="icon-svg__svg" xmlns="http://www.w3.org/2000/svg" height="24" viewBox="0 -960 960 960" width="24">
+  <path d="M320-240h320v-80H320v80Zm0-160h320v-80H320v80ZM240-80q-33 0-56.5-23.5T160-160v-640q0-33 23.5-56.5T240-880h320l240 240v480q0 33-23.5 56.5T720-80H240Zm280-520v-200H240v640h480v-440H520ZM240-800v200-200 640-640Z"></path>
+</svg>
+</span><span class="b-field__name">Správa dokumentů (DMS)</span></a>					</h3>
+				</article>
+			</div>
+
+			
+			<div class="c-fields__item grid__cell size--auto size--3-12@md">
+				<article class="b-field">
+					<h3 class="b-field__title h6">
+						<a href="https://www.karatsoftware.cz/erp-karat/workflow-a-bpm/" class="b-field__link link-mask"><span class="icon-svg icon-svg--custom"><?xml version="1.0" encoding="UTF-8"?>
+<svg class="icon-svg__svg" xmlns="http://www.w3.org/2000/svg" height="24" viewBox="0 -960 960 960" width="24">
+  <path d="m430-30-56-57 73-73H313q-13 35-43.5 57.5T200-80q-50 0-85-35t-35-85q0-39 22.5-69.5T160-313v-334q-35-13-57.5-43.5T80-760q0-50 35-85t85-35q39 0 69.5 22.5T313-800h134l-73-73 56-57 170 170-170 170-56-57 73-73H313q-9 26-28 45t-45 28v334q26 9 45 28t28 45h134l-73-73 56-57 170 170L430-30Zm330-50q-50 0-85-35t-35-85q0-40 22.5-70.5T720-313v-334q-35-12-57.5-42.5T640-760q0-50 35-85t85-35q50 0 85 35t35 85q0 40-22.5 70.5T800-647v334q35 13 57.5 43.5T880-200q0 50-35 85t-85 35Zm-560-80q17 0 28.5-11.5T240-200q0-17-11.5-28.5T200-240q-17 0-28.5 11.5T160-200q0 17 11.5 28.5T200-160Zm560 0q17 0 28.5-11.5T800-200q0-17-11.5-28.5T760-240q-17 0-28.5 11.5T720-200q0 17 11.5 28.5T760-160ZM200-720q17 0 28.5-11.5T240-760q0-17-11.5-28.5T200-800q-17 0-28.5 11.5T160-760q0 17 11.5 28.5T200-720Zm560 0q17 0 28.5-11.5T800-760q0-17-11.5-28.5T760-800q-17 0-28.5 11.5T720-760q0 17 11.5 28.5T760-720ZM200-200Zm560 0ZM200-760Zm560 0Z"></path>
+</svg>
+</span><span class="b-field__name">Workflow a&nbsp;BPM</span></a>					</h3>
+				</article>
+			</div>
+
+			
+		</div>
+
+		
+	</div>
+</section>
+
+
+
+<div class="row-main c-pros">
+	<div class="acf-innerblocks-container">
+
+<div class="wp-block-columns lg is-layout-flex wp-container-core-columns-is-layout-1934916a wp-block-columns-is-layout-flex">
+<div class="wp-block-column is-layout-flow wp-block-column-is-layout-flow">
+<article id="cta-text-block_e1c0798b649fa442f9d8dd31526f6df2" class="b-pros">
+	<div class="b-pros__content">
+		<h3 class="b-pros__title title">Hlavní přednosti ERP KARAT</h3><div class="b-pros__text"><p>Komplexní ERP systém pro řízení střední nebo velké společnosti.</p></div><p class="b-pros__btn"><a href="https://www.karatsoftware.cz/erp-karat/" class="btn btn--border btn--icon btn--md link-mask"><span class="btn__text"><span>Zjistit více</span><span class="icon-svg icon-svg--arrow"  aria-hidden="true"><svg class="icon-svg__svg" xmlns:xlink="http://www.w3.org/1999/xlink"><use xlink:href="https://www.karatsoftware.cz/wp-content/themes/karat-software/static/img/icons.svg?v=1.3.4#icon-arrow" width="100%" height="100%" focusable="false"></use></svg></span></span></a></p>	</div>
+
+	<div class="b-pros__side"><ul class="list">
+<li>Dlouholeté zkušenosti výrobce</li>
+<li>Zlepšení firemních procesů</li>
+<li>Modularita a&nbsp;přizpůsobivost</li>
+<li>Odborné služby a&nbsp;podpora</li>
+<li>Výborné výsledky v&nbsp;praxi</li>
+<li>Stabilita a&nbsp;bezpečnost</li>
+<li>Otevřenost a&nbsp;škálovatelnost</li>
+</ul>
+</div></article>
+</div>
+
+
+
+<div class="wp-block-column is-layout-flow wp-block-column-is-layout-flow">
+<article id="cta-image-block_7963b49e88e1fc98ed8d578a9bd72cdc" class="b-pros b-pros--img">
+	<div class="b-pros__content">
+		<h3 class="b-pros__title title">Mobilní klient</h3><div class="b-pros__text"><p>Mobilní klient umožňuje práci s&nbsp;informačním systémem KARAT na mobilním telefonu i&nbsp;tabletu.</p></div><p class="b-pros__btn"><a href="https://www.karatsoftware.cz/mobilni-klient/" class="btn btn--border btn--icon btn--md link-mask"><span class="btn__text"><span>Zjistit více</span><span class="icon-svg icon-svg--arrow"  aria-hidden="true"><svg class="icon-svg__svg" xmlns:xlink="http://www.w3.org/1999/xlink"><use xlink:href="https://www.karatsoftware.cz/wp-content/themes/karat-software/static/img/icons.svg?v=1.3.4#icon-arrow" width="100%" height="100%" focusable="false"></use></svg></span></span></a></p>	</div>
+
+	<div class="b-pros__side"><picture><source srcset="https://www.karatsoftware.cz/wp-content/uploads/images/377/erp-636x796.jpg 2x, https://www.karatsoftware.cz/wp-content/uploads/images/377/erp-318x398.jpg 1x"><img decoding="async" src="https://www.karatsoftware.cz/wp-content/uploads/images/377/erp-318x398.jpg" alt="KARAT_mobile" width="318" height="398" loading="lazy" /></picture></div></article>
+</div>
+</div>
+
+</div>
+</div>
+
+
+
+<section id="refences-block_6309debd960166715805c832ee4e788a" class="c-cases c-cases--secondary">
+	<div class="row-main">
+
+		<h2 class="c-cases__title">Reference našich zákazníků</h2><div class="c-cases__perex"><p>Informační systém KARAT využívají <strong>stovky středních a velkých firem </strong>v oblastech výroby, obchodu, služeb a&nbsp;servisu v&nbsp;České republice na Slovensku.</p>
+</div>
+		<div class="c-cases__list grid grid--lg">
+
+			
+			<div class="c-cases__item grid__cell size--4-12@md">
+				<article class="b-case b-case--secondary">
+					<div class="b-case__img"><picture><source srcset="https://www.karatsoftware.cz/wp-content/uploads/images/7167/prodejce_kol-1008x640-c.png 2x, https://www.karatsoftware.cz/wp-content/uploads/images/7167/prodejce_kol-504x320-c.png 1x"><img decoding="async" src="https://www.karatsoftware.cz/wp-content/uploads/images/7167/prodejce_kol-504x320-c.png" alt="prodejce_kol" width="504" height="320" loading="lazy" /></picture></div><p class="b-case__note">BIKEMAX s.r.o.</p><h3 class="b-case__title h5"><a href="https://www.karatsoftware.cz/pripadova-studie/bikemax-nejvetsi-prodejce-kol-v-cesku-jede-na-is-karat/" class="b-case__link link-mask">BIKEMAX: Největší prodejce kol v&nbsp;Česku jede na IS KARAT</a></h3>				</article>
+			</div>
+
+			
+			<div class="c-cases__item grid__cell size--4-12@md">
+				<article class="b-case b-case--secondary">
+					<div class="b-case__img"><picture><source srcset="https://www.karatsoftware.cz/wp-content/uploads/images/7087/private_jet-1008x640-c.jpg 2x, https://www.karatsoftware.cz/wp-content/uploads/images/7087/private_jet-504x320-c.jpg 1x"><img decoding="async" src="https://www.karatsoftware.cz/wp-content/uploads/images/7087/private_jet-504x320-c.jpg" alt="Private,Jetplane,Flying,Over,The,Clouds,And,Landscape,Background,At" width="504" height="320" loading="lazy" /></picture></div><p class="b-case__note">ABS Jets, a. s.</p><h3 class="b-case__title h5"><a href="https://www.karatsoftware.cz/pripadova-studie/abs-jets-erp-system-i-pro-byznys-v-oblacich/" class="b-case__link link-mask">ABS JETS: ERP systém i&nbsp;pro byznys v&nbsp;oblacích</a></h3>				</article>
+			</div>
+
+			
+			<div class="c-cases__item grid__cell size--4-12@md">
+				<article class="b-case b-case--secondary">
+					<div class="b-case__img"><picture><source srcset="https://www.karatsoftware.cz/wp-content/uploads/images/7012/dsc02925-1008x640-c.jpg 2x, https://www.karatsoftware.cz/wp-content/uploads/images/7012/dsc02925-504x320-c.jpg 1x"><img decoding="async" src="https://www.karatsoftware.cz/wp-content/uploads/images/7012/dsc02925-504x320-c.jpg" alt="kostka_vyroba" width="504" height="320" loading="lazy" /></picture></div><p class="b-case__note">KOSTKA &#8211; kolobka, s.r.o.</p><h3 class="b-case__title h5"><a href="https://www.karatsoftware.cz/pripadova-studie/kostka-kolobka-kolobezky-z-jeseniku-do-celeho-sveta-rizene-erp-systemem-karat/" class="b-case__link link-mask">KOSTKA KOLOBKA: Koloběžky z&nbsp;Jeseníků do celého světa. Řízené ERP systémem KARAT</a></h3>				</article>
+			</div>
+
+			
+			<div class="c-cases__item grid__cell size--4-12@md">
+				<article class="b-case b-case--secondary">
+					<div class="b-case__img"><picture><source srcset="https://www.karatsoftware.cz/wp-content/uploads/images/6489/dsc_2650-1008x640-c.jpg 2x, https://www.karatsoftware.cz/wp-content/uploads/images/6489/dsc_2650-504x320-c.jpg 1x"><img decoding="async" src="https://www.karatsoftware.cz/wp-content/uploads/images/6489/dsc_2650-504x320-c.jpg" alt="vf_nuclear_reference" width="504" height="320" loading="lazy" /></picture></div><p class="b-case__note">VF, a.s.</p><h3 class="b-case__title h5"><a href="https://www.karatsoftware.cz/pripadova-studie/vf-nuclear-komplexni-informacni-system-karat-pro-rizeni-a-integraci-dat/" class="b-case__link link-mask">VF NUCLEAR: Komplexní informační systém KARAT pro řízení a&nbsp;integraci dat</a></h3>				</article>
+			</div>
+
+			
+			<div class="c-cases__item grid__cell size--4-12@md">
+				<article class="b-case b-case--secondary">
+					<div class="b-case__img"><picture><source srcset="https://www.karatsoftware.cz/wp-content/uploads/images/4837/intro-bg-image-1008x640-c.jpg 2x, https://www.karatsoftware.cz/wp-content/uploads/images/4837/intro-bg-image-504x320-c.jpg 1x"><img decoding="async" src="https://www.karatsoftware.cz/wp-content/uploads/images/4837/intro-bg-image-504x320-c.jpg" alt="Bernard pivo" width="504" height="320" loading="lazy" /></picture></div><p class="b-case__note">Rodinný pivovar BERNARD a.s.</p><h3 class="b-case__title h5"><a href="https://www.karatsoftware.cz/pripadova-studie/rodinny-pivovar-bernard/" class="b-case__link link-mask">RODINNÝ PIVOVAR BERNARD: Moderní řízení pivovaru s&nbsp;ERP KARAT</a></h3>				</article>
+			</div>
+
+			
+			<div class="c-cases__item grid__cell size--4-12@md">
+				<article class="b-case b-case--secondary">
+					<div class="b-case__img"><picture><source srcset="https://www.karatsoftware.cz/wp-content/uploads/images/4842/headbanner-1440x630-1-1008x640-c.jpg 2x, https://www.karatsoftware.cz/wp-content/uploads/images/4842/headbanner-1440x630-1-504x320-c.jpg 1x"><img decoding="async" src="https://www.karatsoftware.cz/wp-content/uploads/images/4842/headbanner-1440x630-1-504x320-c.jpg" alt="DITON budova" width="504" height="320" loading="lazy" /></picture></div><p class="b-case__note">DITON s.r.o.</p><h3 class="b-case__title h5"><a href="https://www.karatsoftware.cz/pripadova-studie/diton/" class="b-case__link link-mask">DITON: IS KARAT efektivně řídí výrobu betonových prvků, distribuci i&nbsp;ekonomiku firmy</a></h3>				</article>
+			</div>
+
+			
+			<div class="c-cases__item grid__cell size--4-12@md">
+				<article class="b-case b-case--secondary">
+					<div class="b-case__img"><picture><source srcset="https://www.karatsoftware.cz/wp-content/uploads/images/856/piovarci_ai-1008x640-c.jpg 2x, https://www.karatsoftware.cz/wp-content/uploads/images/856/piovarci_ai-504x320-c.jpg 1x"><img decoding="async" src="https://www.karatsoftware.cz/wp-content/uploads/images/856/piovarci_ai-504x320-c.jpg" alt="ovládání_přístroje" width="504" height="320" loading="lazy" /></picture></div><p class="b-case__note">BENEŠ a&nbsp;LÁT a. s.</p><h3 class="b-case__title h5"><a href="https://www.karatsoftware.cz/pripadova-studie/benes-a-lat-is-karat-a-umela-inteligence-pri-planovani-vyroby/" class="b-case__link link-mask">BENEŠ A&nbsp;LÁT: IS KARAT a&nbsp;umělá inteligence při&nbsp;plánování výroby</a></h3>				</article>
+			</div>
+
+			
+			<div class="c-cases__item grid__cell size--4-12@md">
+				<article class="b-case b-case--secondary">
+					<div class="b-case__img"><picture><source srcset="https://www.karatsoftware.cz/wp-content/uploads/images/1104/cnc_nc_line-1008x640-c.png 2x, https://www.karatsoftware.cz/wp-content/uploads/images/1104/cnc_nc_line-504x320-c.png 1x"><img decoding="async" src="https://www.karatsoftware.cz/wp-content/uploads/images/1104/cnc_nc_line-504x320-c.png" alt="cnc_nc_line" width="504" height="320" loading="lazy" /></picture></div><p class="b-case__note">NC Line a.s.</p><h3 class="b-case__title h5"><a href="https://www.karatsoftware.cz/pripadova-studie/nc-line-efektivni-rizeni-strojirenske-spolecnosti-s-is-karat/" class="b-case__link link-mask">NC LINE: Efektivní řízení strojírenské společnosti s&nbsp;IS KARAT</a></h3>				</article>
+			</div>
+
+			
+			<div class="c-cases__item grid__cell size--4-12@md">
+				<article class="b-case b-case--secondary">
+					<div class="b-case__img"><picture><source srcset="https://www.karatsoftware.cz/wp-content/uploads/images/1020/img_1721-1008x640-c.jpg 2x, https://www.karatsoftware.cz/wp-content/uploads/images/1020/img_1721-504x320-c.jpg 1x"><img decoding="async" src="https://www.karatsoftware.cz/wp-content/uploads/images/1020/img_1721-504x320-c.jpg" alt="automatický-sklad" width="504" height="320" loading="lazy" /></picture></div><p class="b-case__note">LINEA NIVNICE, a.s.</p><h3 class="b-case__title h5"><a href="https://www.karatsoftware.cz/pripadova-studie/linea-nivnice-plna-automatizace-toku-zbozi-od-balici-linky-az-po-expedici/" class="b-case__link link-mask">LINEA NIVNICE: Plná automatizace toku zboží od balící linky až po&nbsp;expedici</a></h3>				</article>
+			</div>
+
+			
+		</div>
+
+		
+		<div class="b-logo">
+			<ul class="b-logo__list">
+				<li class="b-logo__item"><a href="https://www.karatsoftware.cz/reference/atalian-cz-s-r-o/"><img decoding="async" width="120" height="90" src="https://www.karatsoftware.cz/wp-content/uploads/2023/05/atalian-1.png" class="attachment-120x93 size-120x93" alt="atalian" /></a></li><li class="b-logo__item"><a href="https://www.karatsoftware.cz/reference/benes-a-lat-a-s/"><img decoding="async" width="120" height="90" src="https://www.karatsoftware.cz/wp-content/uploads/2023/05/logo-benes-a-lat.png" class="attachment-120x93 size-120x93" alt="logo-benes-a-lat" /></a></li><li class="b-logo__item"><a href="https://www.karatsoftware.cz/reference/cbg-automation-s-r-o/"><img decoding="async" width="120" height="90" src="https://www.karatsoftware.cz/wp-content/uploads/2023/05/cbg-automation-logo.png" class="attachment-120x93 size-120x93" alt="cbg-automation-logo" /></a></li><li class="b-logo__item"><a href="https://www.karatsoftware.cz/reference/centes-spol-s-r-o/"><img decoding="async" width="120" height="90" src="https://www.karatsoftware.cz/wp-content/uploads/2023/05/centes.png" class="attachment-120x93 size-120x93" alt="centes" /></a></li><li class="b-logo__item"><a href="https://www.karatsoftware.cz/reference/ckd-blansko-holding-a-s/"><img decoding="async" width="120" height="90" src="https://www.karatsoftware.cz/wp-content/uploads/2023/05/ckd-blansko-2.png" class="attachment-120x93 size-120x93" alt="ckd-blansko-2" /></a></li><li class="b-logo__item"><a href="https://www.karatsoftware.cz/reference/conteg-spol-s-r-o/"><img decoding="async" width="120" height="90" src="https://www.karatsoftware.cz/wp-content/uploads/2023/05/conteg.png" class="attachment-120x93 size-120x93" alt="conteg-logo" /></a></li><li class="b-logo__item"><a href="https://www.karatsoftware.cz/reference/transdev/"><img decoding="async" width="120" height="90" src="https://www.karatsoftware.cz/wp-content/uploads/2023/05/transdev1.png" class="attachment-120x93 size-120x93" alt="transdev slezsko" /></a></li><li class="b-logo__item"><a href="https://www.karatsoftware.cz/reference/diskus-s-r-o/"><img decoding="async" width="120" height="57" src="https://www.karatsoftware.cz/wp-content/uploads/2023/05/diskus_distribution-kopie-2.png" class="attachment-120x93 size-120x93" alt="diskus logo" /></a></li><li class="b-logo__item"><a href="https://www.karatsoftware.cz/reference/elv-produkt-a-s/"><img decoding="async" width="120" height="90" src="https://www.karatsoftware.cz/wp-content/uploads/2023/05/elv-logo1.png" class="attachment-120x93 size-120x93" alt="elv-logo1" /></a></li><li class="b-logo__item"><a href="https://www.karatsoftware.cz/reference/global-business-a-s/"><img decoding="async" width="120" height="90" src="https://www.karatsoftware.cz/wp-content/uploads/2023/05/global_business_na_web.png" class="attachment-120x93 size-120x93" alt="global_business_na_web" /></a></li><li class="b-logo__item"><a href="https://www.karatsoftware.cz/reference/kostka-kolobka-s-r-o/"><img decoding="async" width="120" height="90" src="https://www.karatsoftware.cz/wp-content/uploads/2023/05/kostka_web_2025.jpg" class="attachment-120x93 size-120x93" alt="" /></a></li><li class="b-logo__item"><a href="https://www.karatsoftware.cz/reference/gemini-ocni-klinika-a-s/"><img decoding="async" width="120" height="90" src="https://www.karatsoftware.cz/wp-content/uploads/2023/05/gemini.png" class="attachment-120x93 size-120x93" alt="gemini" /></a></li><li class="b-logo__item"><a href="https://www.karatsoftware.cz/reference/narodni-divadlo/"><img decoding="async" width="120" height="90" src="https://www.karatsoftware.cz/wp-content/uploads/2023/05/narodni-divadlo-1.png" class="attachment-120x93 size-120x93" alt="narodni-divadlo-1" /></a></li>			</ul>
+		</div>
+
+		
+		
+		<p class="c-cases__btn">
+			<a href="https://www.karatsoftware.cz/reference/" class="btn btn--secondary btn--lg btn--icon">
+				<span class="btn__text">
+					<span>
+						Zobrazit reference					</span>
+
+					<span class="icon-svg icon-svg--arrow"  aria-hidden="true"><svg class="icon-svg__svg" xmlns:xlink="http://www.w3.org/1999/xlink"><use xlink:href="https://www.karatsoftware.cz/wp-content/themes/karat-software/static/img/icons.svg?v=1.3.4#icon-arrow" width="100%" height="100%" focusable="false"></use></svg></span>				</span>
+			</a>
+		</p>
+	</div>
+</section>
+
+
+
+<div id="video-numbers-block_ce400d0d0cb5aaa3e9f9cfa6ccc9b0de" class="b-background">
+	<div class="row-main">
+		<div class="b-presentation">
+			<div class="b-presentation__video"><iframe width="560" height="315" src="https://www.youtube.com/embed/HYaj7YGzeFI" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen loading="lazy"></iframe></div>
+			<div class="b-presentation__content">
+				<h2 class="b-presentation__title title">Jsme významný výrobce a&nbsp;dodavatel IS</h2><div class="b-presentation__text"><p><p>Svými výkony, počtem pracovníků a&nbsp;spolupracujících partnerů, vybaveností a&nbsp;dalšími ukazateli se KARAT Software řadí mezi přední české a&nbsp;slovenské dodavatele informačních technologií.</p>
+</p></div><p class="b-presentation__btn"><a href="https://www.karatsoftware.cz/o-nas/" class="btn btn--icon btn--lg btn--white"><span class="btn__text"><span>Poznejte společnost KARAT Software</span><span class="icon-svg icon-svg--arrow"  aria-hidden="true"><svg class="icon-svg__svg" xmlns:xlink="http://www.w3.org/1999/xlink"><use xlink:href="https://www.karatsoftware.cz/wp-content/themes/karat-software/static/img/icons.svg?v=1.3.4#icon-arrow" width="100%" height="100%" focusable="false"></use></svg></span></span></a></p>			</div>
+		</div>
+	</div>
+
+	
+	<div class="b-numbers">
+		<div class="row-main">
+			<ul class="b-numbers__list grid grid--lg">
+
+				
+				<li class="b-numbers__item grid__cell size--4-12@md">
+					<span class="b-numbers__main">34 let</span><span class="b-numbers__content">zkušeností s&nbsp;vývojem informačního systému</span>				</li>
+
+				
+				<li class="b-numbers__item grid__cell size--4-12@md">
+					<span class="b-numbers__main">850+</span><span class="b-numbers__content">středních a&nbsp;velkých firem z&nbsp;různých oborů</span>				</li>
+
+				
+				<li class="b-numbers__item grid__cell size--4-12@md">
+					<span class="b-numbers__main">11&nbsp;000</span><span class="b-numbers__content">spokojených uživatelů na různých pozicích</span>				</li>
+
+				
+			</ul>
+		</div>
+	</div>
+
+	
+	<div class="row-main">
+		<section class="c-main">
+			<div class="c-main__list grid grid--md">
+
+				
+				<div class="c-main__item grid__cell size--4-12@md">
+					<article class="b-main b-main--reverse">
+						<div class="b-main__img"><picture><source srcset="https://www.karatsoftware.cz/wp-content/uploads/images/661/karat-klicove-produkty-1024x544-c.jpg 2x, https://www.karatsoftware.cz/wp-content/uploads/images/661/karat-klicove-produkty-512x272-c.jpg 1x"><img decoding="async" src="https://www.karatsoftware.cz/wp-content/uploads/images/661/karat-klicove-produkty-512x272-c.jpg" alt="karat-klicove-produkty" width="512" height="272" loading="lazy" /></picture></div><h3 class="b-main__title h4">Dvojice klíčových produktů</h3><p class="b-main__desc">Podnikový informační systém KARAT pro celkové řízení firemních procesů a&nbsp;nástroj ALITEO pro efektivní správu týmů, projektů a&nbsp;helpdesku.</p><p class="b-main__more"><a href="https://www.karatsoftware.cz/o-nas/#produkty" class="link link-mask"><span>Zobrazit více</span><span class="icon-svg icon-svg--arrow"  aria-hidden="true"><svg class="icon-svg__svg" xmlns:xlink="http://www.w3.org/1999/xlink"><use xlink:href="https://www.karatsoftware.cz/wp-content/themes/karat-software/static/img/icons.svg?v=1.3.4#icon-arrow" width="100%" height="100%" focusable="false"></use></svg></span></a></p>					</article>
+				</div>
+
+				
+				<div class="c-main__item grid__cell size--4-12@md">
+					<article class="b-main b-main--reverse">
+						<div class="b-main__img"><picture><source srcset="https://www.karatsoftware.cz/wp-content/uploads/images/660/karat-microsoft-partner-1024x544-c.jpg 2x, https://www.karatsoftware.cz/wp-content/uploads/images/660/karat-microsoft-partner-512x272-c.jpg 1x"><img decoding="async" src="https://www.karatsoftware.cz/wp-content/uploads/images/660/karat-microsoft-partner-512x272-c.jpg" alt="karat-microsoft-partner" width="512" height="272" loading="lazy" /></picture></div><h3 class="b-main__title h4">Ocenění a&nbsp;certifikáty</h3><p class="b-main__desc">Nejdůležitějším měřítkem naší práce je spokojenost našich klientů a&nbsp;uživatelů. Přesto nás vždy potěší uznání a&nbsp;odborná ocenění od nezávislých subjektů.</p><p class="b-main__more"><a href="https://www.karatsoftware.cz/o-nas/oceneni-partnerstvi/" class="link link-mask"><span>Zobrazit více</span><span class="icon-svg icon-svg--arrow"  aria-hidden="true"><svg class="icon-svg__svg" xmlns:xlink="http://www.w3.org/1999/xlink"><use xlink:href="https://www.karatsoftware.cz/wp-content/themes/karat-software/static/img/icons.svg?v=1.3.4#icon-arrow" width="100%" height="100%" focusable="false"></use></svg></span></a></p>					</article>
+				</div>
+
+				
+				<div class="c-main__item grid__cell size--4-12@md">
+					<article class="b-main b-main--reverse">
+						<div class="b-main__img"><picture><source srcset="https://www.karatsoftware.cz/wp-content/uploads/images/659/karat-kariera-1024x544-c.jpg 2x, https://www.karatsoftware.cz/wp-content/uploads/images/659/karat-kariera-512x272-c.jpg 1x"><img decoding="async" src="https://www.karatsoftware.cz/wp-content/uploads/images/659/karat-kariera-512x272-c.jpg" alt="karat-kariera" width="512" height="272" loading="lazy" /></picture></div><h3 class="b-main__title h4">Přidej se do KARAT týmu</h3><p class="b-main__desc">Staň se součástí jednoho z&nbsp;týmů a&nbsp;podílej se na tvorbě ERP systému pro přední firmy v&nbsp;Česku a&nbsp;na Slovensku.</p><p class="b-main__more"><a href="https://www.kariera-karat.cz/" class="link link-mask"><span>Zobrazit více</span><span class="icon-svg icon-svg--arrow"  aria-hidden="true"><svg class="icon-svg__svg" xmlns:xlink="http://www.w3.org/1999/xlink"><use xlink:href="https://www.karatsoftware.cz/wp-content/themes/karat-software/static/img/icons.svg?v=1.3.4#icon-arrow" width="100%" height="100%" focusable="false"></use></svg></span></a></p>					</article>
+				</div>
+
+				
+			</div>
+		</section>
+	</div>
+
+	
+</div>
+
+
+
+<section id="newest-event-block_ed87413fac81de749a5d11c868a46d5a" class="c-events">
+	<div class="row-main row-main--content">
+
+		<h2 class="c-events__title">Semináře a&nbsp;školení</h2><div class="c-events__perex"><p><p>Pro nové a&nbsp;stávající zákazníky pravidelně pořádáme vzdělávací semináře, školení a&nbsp;konference týkající se Informačního systému KARAT.</p>
+</p></div>
+		<div class="c-events__list">
+
+
+			
+			<div class="c-events__item">
+				<article class="b-event">
+					<p class="b-event__info">
+						<span class="item-icon">
+							<span class="icon-svg icon-svg--calendar"  aria-hidden="true"><svg class="icon-svg__svg" xmlns:xlink="http://www.w3.org/1999/xlink"><use xlink:href="https://www.karatsoftware.cz/wp-content/themes/karat-software/static/img/icons.svg?v=1.3.4#icon-calendar" width="100%" height="100%" focusable="false"></use></svg></span><span class="item-icon__text">18.&nbsp;2.&nbsp;2026</span>						</span>
+
+						<span class="item-icon">
+							<span class="icon-svg icon-svg--place"  aria-hidden="true"><svg class="icon-svg__svg" xmlns:xlink="http://www.w3.org/1999/xlink"><use xlink:href="https://www.karatsoftware.cz/wp-content/themes/karat-software/static/img/icons.svg?v=1.3.4#icon-place" width="100%" height="100%" focusable="false"></use></svg></span><span class="item-icon__text">WEBINÁŘ</span>						</span>
+					</p>
+
+					<h3 class="b-event__title">WEBINÁŘ Legislativní změny – Personalistika a&nbsp;Mzdy (CZ)</h3><p>Získejte přehled novinek ve verzi 25 IS KARAT a&nbsp;připravte se na legislativní změny roku 2026 s&nbsp;dopadem na mzdy, personalistiku a&nbsp;JMHZ.</p><p class="b-event__link"><a href="https://www.karatsoftware.cz/vzdelavani/webinar-legislativni-zmeny-personalistika-a-mzdy-cz/" class="link link-mask"><span>Více informací</span><span class="icon-svg icon-svg--arrow"  aria-hidden="true"><svg class="icon-svg__svg" xmlns:xlink="http://www.w3.org/1999/xlink"><use xlink:href="https://www.karatsoftware.cz/wp-content/themes/karat-software/static/img/icons.svg?v=1.3.4#icon-arrow" width="100%" height="100%" focusable="false"></use></svg></span></a></p>				</article>
+			</div>
+
+			
+		</div>
+
+		
+		<p class="c-events__btn">
+			<a href="https://www.karatsoftware.cz/akce-seminare/" class="btn btn--reverse btn--icon btn--md">
+				<span class="btn__text">
+					<span>Všechny semináře a&nbsp;konference</span><span class="icon-svg icon-svg--arrow"  aria-hidden="true"><svg class="icon-svg__svg" xmlns:xlink="http://www.w3.org/1999/xlink"><use xlink:href="https://www.karatsoftware.cz/wp-content/themes/karat-software/static/img/icons.svg?v=1.3.4#icon-arrow" width="100%" height="100%" focusable="false"></use></svg></span>				</span>
+			</a>
+		</p>
+
+		
+	</div>
+</section>
+
+
+
+<section id="new-content-block_add340a91b57ca0d4cf3bbdaeaead926" class="c-cases c-cases--secondary">
+	<div class="row-main">
+		<div class="c-cases__list grid grid--lg">
+
+			
+			<div class="c-cases__item grid__cell size--4-12@md">
+				<article class="b-case b-case--secondary">
+					<p class="b-case__note b-case__note--secondary">Nejnovější aktualita</p><div class="b-case__img"><picture><source srcset="https://www.karatsoftware.cz/wp-content/uploads/images/7134/novy_partner-1008x640-c.png 2x, https://www.karatsoftware.cz/wp-content/uploads/images/7134/novy_partner-504x320-c.png 1x"><img decoding="async" src="https://www.karatsoftware.cz/wp-content/uploads/images/7134/novy_partner-504x320-c.png" alt="novy_partner" width="504" height="320" loading="lazy" /></picture></div><h3 class="b-case__title h5"><a href="https://www.karatsoftware.cz/novy-karat-solution-partner-na-slovensku/" class="b-case__link link-mask">Nový KARAT Solution Partner na Slovensku</a></h3><p class="b-case__date"><span class="icon-svg icon-svg--calendar"  aria-hidden="true"><svg class="icon-svg__svg" xmlns:xlink="http://www.w3.org/1999/xlink"><use xlink:href="https://www.karatsoftware.cz/wp-content/themes/karat-software/static/img/icons.svg?v=1.3.4#icon-calendar" width="100%" height="100%" focusable="false"></use></svg></span><span>13.&nbsp;října 2025</span></p><p>Máme radost, že jsme uzavřeli partnerskou smlouvu se společností E2N s.r.o. z&nbsp;Ružomberku, která se tak stává naším novým KARAT Solution Partnerem. </p>
+					<p class="b-case__more">
+						<a href="https://www.karatsoftware.cz/novinky/" class="link">
+							<span>
+								Zobrazit více							</span>
+
+							<span class="icon-svg icon-svg--arrow"  aria-hidden="true"><svg class="icon-svg__svg" xmlns:xlink="http://www.w3.org/1999/xlink"><use xlink:href="https://www.karatsoftware.cz/wp-content/themes/karat-software/static/img/icons.svg?v=1.3.4#icon-arrow" width="100%" height="100%" focusable="false"></use></svg></span>						</a>
+					</p>
+				</article>
+			</div>
+
+			
+			<div class="c-cases__item grid__cell size--4-12@md">
+				<article class="b-case b-case--secondary">
+					<p class="b-case__note b-case__note--secondary">Rozhovory se zákazníky</p><div class="b-case__img"><picture><source srcset="https://www.karatsoftware.cz/wp-content/uploads/images/6911/jv1_5116-1008x640-c.jpg 2x, https://www.karatsoftware.cz/wp-content/uploads/images/6911/jv1_5116-504x320-c.jpg 1x"><img decoding="async" src="https://www.karatsoftware.cz/wp-content/uploads/images/6911/jv1_5116-504x320-c.jpg" alt="strojírna" width="504" height="320" loading="lazy" /></picture></div><h3 class="b-case__title h5"><a href="https://www.karatsoftware.cz/rozhovor/35-let-inovaci-a-tvrde-prace-jak-jsme-se-stali-lidrem-ve-strojirenstvi/" class="b-case__link link-mask">35 let inovací a&nbsp;tvrdé práce: Jak jsme se stali lídrem ve strojírenství</a></h3><p class="b-case__date"><span class="icon-svg icon-svg--calendar"  aria-hidden="true"><svg class="icon-svg__svg" xmlns:xlink="http://www.w3.org/1999/xlink"><use xlink:href="https://www.karatsoftware.cz/wp-content/themes/karat-software/static/img/icons.svg?v=1.3.4#icon-calendar" width="100%" height="100%" focusable="false"></use></svg></span><span>31.&nbsp;března 2025</span></p><p>S blížícím se koncem roku mnozí z&nbsp;nás bilancují, co nám rok, chýlící se ke svému závěru, přinesl či&nbsp;vzal. </p>
+					<p class="b-case__more">
+						<a href="https://www.karatsoftware.cz/rozhovory/" class="link">
+							<span>
+								Zobrazit více							</span>
+
+							<span class="icon-svg icon-svg--arrow"  aria-hidden="true"><svg class="icon-svg__svg" xmlns:xlink="http://www.w3.org/1999/xlink"><use xlink:href="https://www.karatsoftware.cz/wp-content/themes/karat-software/static/img/icons.svg?v=1.3.4#icon-arrow" width="100%" height="100%" focusable="false"></use></svg></span>						</a>
+					</p>
+				</article>
+			</div>
+
+			
+			<div class="c-cases__item grid__cell size--4-12@md">
+				<article class="b-case b-case--secondary">
+					<p class="b-case__note b-case__note--secondary">Karat v&nbsp;akci</p><div class="b-case__img"><picture><source srcset="https://www.karatsoftware.cz/wp-content/uploads/images/4677/photo-2022-08-28-11-11-26-4-1-1008x640-c.jpg 2x, https://www.karatsoftware.cz/wp-content/uploads/images/4677/photo-2022-08-28-11-11-26-4-1-504x320-c.jpg 1x"><img decoding="async" src="https://www.karatsoftware.cz/wp-content/uploads/images/4677/photo-2022-08-28-11-11-26-4-1-504x320-c.jpg" alt="karat akce beskydy" width="504" height="320" loading="lazy" /></picture></div><h3 class="b-case__title h5"><a href="https://www.karatsoftware.cz/karat-v-akci/beskydska-sedmicka-2022/" class="b-case__link link-mask">Beskydská sedmička 2022</a></h3><p class="b-case__date"><span class="icon-svg icon-svg--calendar"  aria-hidden="true"><svg class="icon-svg__svg" xmlns:xlink="http://www.w3.org/1999/xlink"><use xlink:href="https://www.karatsoftware.cz/wp-content/themes/karat-software/static/img/icons.svg?v=1.3.4#icon-calendar" width="100%" height="100%" focusable="false"></use></svg></span><span>30.&nbsp;října 2023</span></p><p>Beskydská sedmička, jeden z&nbsp;nejtěžších a&nbsp;nejpopulárnějších extrémních závodů v&nbsp;České republice, jako každý rok opět přilákal velké množství odvážných sportovců.</p>
+					<p class="b-case__more">
+						<a href="https://www.karatsoftware.cz/karat-v-akci/" class="link">
+							<span>
+								Zobrazit více							</span>
+
+							<span class="icon-svg icon-svg--arrow"  aria-hidden="true"><svg class="icon-svg__svg" xmlns:xlink="http://www.w3.org/1999/xlink"><use xlink:href="https://www.karatsoftware.cz/wp-content/themes/karat-software/static/img/icons.svg?v=1.3.4#icon-arrow" width="100%" height="100%" focusable="false"></use></svg></span>						</a>
+					</p>
+				</article>
+			</div>
+
+			
+		</div>
+	</div>
+</section>
+
+	</main>
+
+
+		
+<footer class="footer">
+	<div class="row-main">
+		<div class="footer__inner">
+			<div class="footer__side">
+				<p class="footer__brand">
+					<span class="footer__logo">
+						<img src="https://www.karatsoftware.cz/wp-content/themes/karat-software/static/img/karat-software-logo-round.svg" alt="Karat Software" width="120" height="120">
+					</span>
+
+					<span class="footer__claim">Přizpůsobí se<br />
+lehce Vaší firmě</span>
+				</p>
+
+				
+<div class="b-newsletter">
+	<form class="f-newsletter">
+		<p class="f-newsletter__inp">
+			<label for="email" class="inp-label">
+				Zůstaňte s námi v kontaktu			</label>
+			<span class="inp-fix">
+				<input type="email" name="email" id="email" class="inp-text" placeholder="E-mailová adresa" required>
+			</span>
+		</p>
+		<p class="f-newsletter__check">
+			<label class="inp-item inp-item--checkbox">
+				<input type="checkbox" name="agree" id="agree" class="inp-item__inp">
+				<span class="inp-item__text">
+					<span class="icon-svg icon-svg--check"  aria-hidden="true"><svg class="icon-svg__svg" xmlns:xlink="http://www.w3.org/1999/xlink"><use xlink:href="https://www.karatsoftware.cz/wp-content/themes/karat-software/static/img/icons.svg?v=1.3.4#icon-check" width="100%" height="100%" focusable="false"></use></svg></span>					Souhlasím se zpracováním osobních údajů				</span>
+			</label>
+		</p>
+		<p class="f-newsletter__btn">
+			<button class="btn btn--tertiary btn--md">
+				<span class="btn__text">
+					Odebírat novinky				</span>
+			</button>
+		</p>
+		<div class="message u-vhide"></div>
+	</form>
+</div>
+
+			</div>
+
+			
+<div class="footer__main">
+	<div class="footer__grid grid">
+
+		<div class="footer__col grid__cell size--3-12@lg"><div class="footer__group" data-controller="toggle" data-toggle-change-class="is-open" data-toggle-target="group"><h2 class="footer__title" data-action="click->toggle#toggle">ERP KARAT</h2><ul class="footer__list"><li class="footer__item"><a href="https://www.karatsoftware.cz/erp-karat/ucetni-a-ekonomicky-software/">Účetní a ekonomický software</a></li><li class="footer__item"><a href="https://www.karatsoftware.cz/erp-karat/crm-system/">CRM systém</a></li><li class="footer__item"><a href="https://www.karatsoftware.cz/erp-karat/manazersky-informacni-system/">Manažerský informační systém</a></li><li class="footer__item"><a href="https://www.karatsoftware.cz/erp-karat/skladovy-system/">Skladový systém</a></li><li class="footer__item"><a href="https://www.karatsoftware.cz/erp-karat/logisticky-informacni-system/">Logistický informační systém</a></li><li class="footer__item"><a href="https://www.karatsoftware.cz/oborova-reseni/vyroba/">Výrobní systém</a></li><li class="footer__item"><a href="https://www.karatsoftware.cz/erp-karat/nakup/">Systém pro nákup</a></li><li class="footer__item"><a href="https://www.karatsoftware.cz/erp-karat/system-pro-prodej/">Systém pro prodej</a></li><li class="footer__item"><a href="https://www.karatsoftware.cz/erp-karat/mzdovy-software/">Personalistika a mzdy</a></li><li class="footer__item"><a href="https://www.karatsoftware.cz/erp-karat/projektove-rizeni/">Projektové řízení</a></li><li class="footer__item"><a href="https://www.karatsoftware.cz/erp-karat/sprava-dokumentu-dms/">Správa dokumentů (DMS)</a></li><li class="footer__item"><a href="https://www.karatsoftware.cz/erp-karat/workflow-a-bpm/">Workflow a BPM</a></li></ul></div></div><div class="footer__col grid__cell size--3-12@lg"><div class="footer__group" data-controller="toggle" data-toggle-change-class="is-open" data-toggle-target="group"><h2 class="footer__title" data-action="click->toggle#toggle">Oborová řešení</h2><ul class="footer__list"><li class="footer__item"><a href="https://www.karatsoftware.cz/oborova-reseni/vyroba/">Řešení pro výrobu</a></li><li class="footer__item"><a href="https://www.karatsoftware.cz/oborova-reseni/obchod/">Řešení pro obchod</a></li><li class="footer__item"><a href="https://www.karatsoftware.cz/oborova-reseni/sluzby/">Řešení pro služby</a></li><li class="footer__item"><a href="https://www.karatsoftware.cz/oborova-reseni/specialni/">Speciální oborová řešení</a></li></ul></div><div class="footer__group" data-controller="toggle" data-toggle-change-class="is-open" data-toggle-target="group"><h2 class="footer__title" data-action="click->toggle#toggle">Služby a podpora</h2><ul class="footer__list"><li class="footer__item"><a href="https://app.aliteo.com/" target="_blank">KARAT Assistance (ALITEO)<span class="icon-svg icon-svg--launch"  aria-hidden="true"><svg class="icon-svg__svg" xmlns:xlink="http://www.w3.org/1999/xlink"><use xlink:href="https://www.karatsoftware.cz/wp-content/themes/karat-software/static/img/icons.svg?v=1.3.4#icon-launch" width="100%" height="100%" focusable="false"></use></svg></span></a></li><li class="footer__item"><a href="https://www.karatsoftware.cz/podpora-a-sluzby/technicka-podpora-a-sprava/">Technická podpora a správa</a></li><li class="footer__item"><a href="https://www.karatsoftware.cz/podpora-a-sluzby/poradenstvi-a-konzultace/">Poradenství a konzultace</a></li><li class="footer__item"><a href="https://www.karatsoftware.cz/podpora-a-sluzby/navrh-informacniho-systemu/">Návrh informačního systému</a></li><li class="footer__item"><a href="https://www.karatsoftware.cz/podpora-a-sluzby/implementace-informacniho-systemu/">Implementace inform. systému</a></li><li class="footer__item"><a href="https://www.karatsoftware.cz/podpora-a-sluzby/systemova-integrace/">Systémová integrace</a></li><li class="footer__item"><a href="https://www.karatsoftware.cz/podpora-a-sluzby/vyvoj-software-a-aplikaci/">Vývoj software a aplikací</a></li><li class="footer__item"><a href="https://www.karatsoftware.cz/podpora-a-sluzby/dodavka-hardware/">Dodávka hardware</a></li></ul></div></div><div class="footer__col grid__cell size--3-12@lg"><div class="footer__group" data-controller="toggle" data-toggle-change-class="is-open" data-toggle-target="group"><h2 class="footer__title" data-action="click->toggle#toggle">Financování</h2><ul class="footer__list"><li class="footer__item"><a href="https://www.karatsoftware.cz/financovani/dotace-z-eu/">Dotace z EU</a></li><li class="footer__item"><a href="https://www.karatsoftware.cz/financovani/pronajem-licence/">Pronájem licence</a></li><li class="footer__item"><a href="https://www.karatsoftware.cz/financovani/rozlozeni-platby-v-case/">Rozložení platby v čase</a></li><li class="footer__item"><a href="https://www.karatsoftware.cz/financovani/outsourcing-saas/">SaaS outsourcing</a></li></ul></div><div class="footer__group" data-controller="toggle" data-toggle-change-class="is-open" data-toggle-target="group"><h2 class="footer__title" data-action="click->toggle#toggle">Aktuality</h2><ul class="footer__list"><li class="footer__item"><a href="https://www.karatsoftware.cz/novinky/">Novinky</a></li><li class="footer__item"><a href="https://www.karatsoftware.cz/akce-seminare/">Akce, semináře a školení</a></li></ul></div><div class="footer__group" data-controller="toggle" data-toggle-change-class="is-open" data-toggle-target="group"><h2 class="footer__title" data-action="click->toggle#toggle">Reference</h2><ul class="footer__list"><li class="footer__item"><a href="https://www.karatsoftware.cz/reference/">Reference</a></li><li class="footer__item"><a href="https://www.karatsoftware.cz/pripadove-studie/">Případové studie</a></li><li class="footer__item"><a href="https://www.karatsoftware.cz/reference-2/rozhovory/">Rozhovory</a></li></ul></div></div><div class="footer__col grid__cell size--3-12@lg"><div class="footer__group" data-controller="toggle" data-toggle-change-class="is-open" data-toggle-target="group"><h2 class="footer__title" data-action="click->toggle#toggle">O nás</h2><ul class="footer__list"><li class="footer__item"><a href="https://www.kariera-karat.cz/" target="_blank">Kariéra<span class="icon-svg icon-svg--launch"  aria-hidden="true"><svg class="icon-svg__svg" xmlns:xlink="http://www.w3.org/1999/xlink"><use xlink:href="https://www.karatsoftware.cz/wp-content/themes/karat-software/static/img/icons.svg?v=1.3.4#icon-launch" width="100%" height="100%" focusable="false"></use></svg></span></a></li><li class="footer__item"><a href="https://www.karatsoftware.cz/o-nas/firemni-casopis/">Firemní časopis</a></li><li class="footer__item"><a href="https://www.karatsoftware.cz/karat-v-akci/">KARAT v akci</a></li><li class="footer__item"><a href="https://www.karatsoftware.cz/o-nas/loga/">Loga ke stažení</a></li><li class="footer__item"><a href="https://www.karatsoftware.cz/o-nas/projekty-spolufinancovane-eu/">Projekty spolufinancované EU</a></li></ul></div><div class="footer__group" data-controller="toggle" data-toggle-change-class="is-open" data-toggle-target="group"><h2 class="footer__title" data-action="click->toggle#toggle">Kontakt</h2><ul class="footer__list"><li class="footer__item"><a href="https://www.karatsoftware.cz/kontakt/">Kontaktujte nás</a></li><li class="footer__item"><a href="https://www.karatsoftware.cz/kontakt/partneri/">Prodejní a servisní síť</a></li></ul></div></div>
+	</div>
+</div>
+		</div>
+
+		<div class="footer__bottom">
+
+			
+<div class="footer__socials">
+	<div class="m-socials">
+		<ul class="m-socials__list">
+
+			
+			<li class="m-socials__item">
+				<a href="https://www.facebook.com/karatsoftware" target="_blank" class="m-socials__link">
+					<span class="icon-svg icon-svg--fb"  aria-hidden="true"><svg class="icon-svg__svg" xmlns:xlink="http://www.w3.org/1999/xlink"><use xlink:href="https://www.karatsoftware.cz/wp-content/themes/karat-software/static/img/icons.svg?v=1.3.4#icon-fb" width="100%" height="100%" focusable="false"></use></svg></span>					<span>Facebook</span>
+				</a>
+			</li>
+
+			
+			<li class="m-socials__item">
+				<a href="https://www.linkedin.com/company/karat-software-a.s./" target="_blank" class="m-socials__link">
+					<span class="icon-svg icon-svg--li"  aria-hidden="true"><svg class="icon-svg__svg" xmlns:xlink="http://www.w3.org/1999/xlink"><use xlink:href="https://www.karatsoftware.cz/wp-content/themes/karat-software/static/img/icons.svg?v=1.3.4#icon-li" width="100%" height="100%" focusable="false"></use></svg></span>					<span>LinkedIn</span>
+				</a>
+			</li>
+
+			
+			<li class="m-socials__item">
+				<a href="https://www.instagram.com/karat_software/" target="_blank" class="m-socials__link">
+					<span class="icon-svg icon-svg--ig"  aria-hidden="true"><svg class="icon-svg__svg" xmlns:xlink="http://www.w3.org/1999/xlink"><use xlink:href="https://www.karatsoftware.cz/wp-content/themes/karat-software/static/img/icons.svg?v=1.3.4#icon-ig" width="100%" height="100%" focusable="false"></use></svg></span>					<span>Instagram</span>
+				</a>
+			</li>
+
+			
+			<li class="m-socials__item">
+				<a href="https://www.youtube.com/@karat_software" target="_blank" class="m-socials__link">
+					<span class="icon-svg icon-svg--yt"  aria-hidden="true"><svg class="icon-svg__svg" xmlns:xlink="http://www.w3.org/1999/xlink"><use xlink:href="https://www.karatsoftware.cz/wp-content/themes/karat-software/static/img/icons.svg?v=1.3.4#icon-yt" width="100%" height="100%" focusable="false"></use></svg></span>					<span>YouTube</span>
+				</a>
+			</li>
+
+			
+		</ul>
+	</div>
+</div>
+<p class="footer__copy"><span>Copyright © 2006 - 2026</span><a href="https://www.karatsoftware.cz/ochrana-osobnich-udaju/">Ochrana osobních údajů</a><a href="https://www.karatsoftware.cz/o-nas/projekty-spolufinancovane-eu/">Projekty spolufinancované EU</a><a href="https://www.karatsoftware.cz/slovnik/">Slovník</a></p>
+		</div>
+	</div>
+</footer>
+
+
+<div class="b-form">
+	<div class="b-form__wrap">
+		<div class="f-form__inner" style="display:none;" id="form-after">
+			<div class="f-form__success">
+				<p class="f-form__icon">
+					<span class="icon-svg icon-svg--ok"  aria-hidden="true"><svg class="icon-svg__svg" xmlns:xlink="http://www.w3.org/1999/xlink"><use xlink:href="https://www.karatsoftware.cz/wp-content/themes/karat-software/static/img/icons.svg?v=1.3.4#icon-ok" width="100%" height="100%" focusable="false"></use></svg></span>				</p>
+				<h2 class="f-form__title">
+					Děkujeme za vyplnění formuláře				</h2>
+				<div class="f-form__perex">
+					<p>
+						Do tří pracovních dnů vás budeme kontaktovat.					</p>
+				</div>
+			</div>
+		</div>
+
+		<!-- HTML Forms v1.6.2 - https://wordpress.org/plugins/html-forms/ -->
+<form method="post"  class="hf-form hf-form-4729 " data-id="4729" data-title="Kontaktní formulář CZ" data-slug="kontaktni-formular-cz" data-message-success="Děkujeme! Do tří pracovních dnů vás budeme kontaktovat." data-message-invalid-email="Tato e-mailová adresa vypadá jako neplatná." data-message-required-field-missing="Vyplňte prosím povinná pole." data-message-error="Jejda. Došlo k chybě." data-message-recaptcha-failed="reCAPTCHA verification failed. Please try again." data-message-recaptcha-low-score="Your submission appears to be spam. Please try again."><input type="hidden" name="_hf_form_id" value="4729" /><div style="display: none;"><input type="text" name="_hf_h4729" value="" /></div><div class="hf-fields-wrap"><div class="f-form__inner">
+	<h2 class="f-form__title h1">Máte zájem o schůzku, kalkulaci nebo&nbsp;máte dotaz?</h2>
+	<div class="f-form__perex">
+		<p>
+			Rádi zodpovíme všechny vaše dotazy, předložíme vám nezávaznou cenovou nabídku nebo vám poskytneme přístup do demoverze našich produktů.
+		</p>
+	</div>
+	<div class="f-form__inps">
+		<div class="f-form__wrap grid">
+			<p class="f-form__inp grid__cell size--6-12@md">
+				<label for="form_name" class="inp-label">Jméno a příjmení <span>*</span></label>
+				<span class="inp-fix">
+					<input type="text" name="form_name" id="form_name" class="inp-text" required>
+				</span>
+			</p>
+			<p class="f-form__inp grid__cell size--6-12@md">
+				<label for="form_company" class="inp-label">Společnost <span>*</span></label>
+				<span class="inp-fix">
+					<input type="text" name="form_company" id="form_company" class="inp-text" required>
+				</span>
+			</p>
+			<p class="f-form__inp grid__cell size--6-12@md">
+				<label for="form_email" class="inp-label">E-mailová adresa <span>*</span></label>
+				<span class="inp-fix">
+					<input type="email" name="form_email" id="form_email" class="inp-text" required>
+				</span>
+			</p>
+			<p class="f-form__inp grid__cell size--6-12@md">
+				<label for="form_phone" class="inp-label">Telefonní číslo <span>*</span></label>
+				<span class="inp-fix">
+					<input type="tel" name="form_phone" id="form_phone" class="inp-text" required>
+				</span>
+			</p>
+		</div>
+		<p class="f-form__inp">
+			<label for="form_position" class="inp-label">Pozice, název oddělení</label>
+			<span class="inp-fix">
+				<input type="text" name="form_position" id="form_position" class="inp-text">
+			</span>
+		</p>
+		<p class="f-form__inp">
+			<label for="form_message" class="inp-label">Zpráva <span>*</span></label>
+			<span class="inp-fix">
+				<textarea name="form_message" id="form_message" class="inp-text" cols="40" rows="4" required></textarea>
+			</span>
+		</p>
+	</div>
+	<p class="f-form__btn">
+		<button type="submit" class="btn btn--secondary btn--lg btn--icon">
+			<span class="btn__text">
+				<span class="icon-svg icon-svg--send" aria-hidden="true">
+					<svg class="icon-svg__svg" xmlns:xlink="http://www.w3.org/1999/xlink"><use xlink:href="/wp-content/themes/karat-software/static/img/icons.svg?v=1.0.9#icon-send" width="100%" height="100%" focusable="false"></use></svg>
+				</span>
+				<span>Odeslat formulář</span>
+			</span>
+		</button>
+	</p>
+</div><noscript>Please enable JavaScript for this form to work.</noscript></div></form><!-- / HTML Forms -->	</div>
+	<p class="b-form__close">
+		<button class="f-form__btn" data-action="click->toggle#close">
+			<span class="icon-svg icon-svg--close"  aria-hidden="true"><svg class="icon-svg__svg" xmlns:xlink="http://www.w3.org/1999/xlink"><use xlink:href="https://www.karatsoftware.cz/wp-content/themes/karat-software/static/img/icons.svg?v=1.3.4#icon-close" width="100%" height="100%" focusable="false"></use></svg></span>		</button>
+	</p>
+</div>
+
+<script>
+	const formElement = document.querySelector('.hf-form-4729');
+	if ( formElement ) {
+		// Listen to form success event
+		formElement.addEventListener( 'hf-success', function(e) {
+			formElement.style.display = 'none';
+			document.querySelector('#form-after').style.display = 'block';
+			// Read hf_submission_id cookie
+			const submissionId = document.cookie.replace(/(?:(?:^|.*;\s*)hf_submission_id\s*\=\s*([^;]*).*$)|^.*$/, "$1");
+			// Remove cookie after reading
+			document.cookie = "hf_submission_id=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+			// Get company name from form
+			const company = document.getElementById('form_company').value;
+			const form_email = document.getElementById('form_email').value;
+			const data = {
+				event: 'form-success',
+				submissionId: submissionId,
+				company: company,
+				email: form_email,
+			};
+			window.dataLayer.push(data);
+		});
+	}
+</script>
+<script type="speculationrules">
+{"prefetch":[{"source":"document","where":{"and":[{"href_matches":"/*"},{"not":{"href_matches":["/wp-*.php","/wp-admin/*","/wp-content/uploads/*","/wp-content/*","/wp-content/plugins/*","/wp-content/themes/karat-software/*","/*\\?(.+)"]}},{"not":{"selector_matches":"a[rel~=\"nofollow\"]"}},{"not":{"selector_matches":".no-prefetch, .no-prefetch a"}}]},"eagerness":"conservative"}]}
+</script>
+
+	<script>
+		document.addEventListener('DOMContentLoaded', function() {
+			const form = document.querySelector('.f-newsletter');
+			if (form) {
+				console.log(form);
+				// Create message div if it doesn't exist
+				let agreeInput = form.querySelector('input[type="checkbox"]');
+				let messageDiv = form.querySelector('.message');
+
+				form.addEventListener('submit', function(e) {
+					e.preventDefault();
+
+					// Check if user agreed to terms
+					if (!agreeInput.checked) {
+						messageDiv.textContent = "Musíte souhlasit se zpracováním osobních údajů.";
+						messageDiv.className = 'u-mt-sm u-text-red';
+						return;
+					}
+
+					const emailInput = form.querySelector('input[type="email"]');
+					const email = emailInput.value;
+
+					// Reset message state
+					messageDiv.className = 'u-vhide';
+					messageDiv.textContent = '';
+
+					fetch('/wp-json/newsletter/v1/subscribe', {
+						method: 'POST',
+						headers: {
+							'Content-Type': 'application/json'
+						},
+						body: JSON.stringify({
+							email: email
+						})
+					})
+					.then(response => response.json())
+					.then(data => {
+						if (data.status === 'success') {
+							messageDiv.textContent = "Děkujeme za přihlášení!";
+							messageDiv.className = 'u-mt-sm u-text-green';
+							emailInput.value = '';
+						} else {
+							messageDiv.textContent = data.message || "Došlo k chybě. Zkuste to prosím znovu.";
+							messageDiv.className = 'u-mt-sm u-text-red';
+						}
+					})
+					.catch(error => {
+						messageDiv.textContent = "Došlo k chybě. Zkuste to prosím znovu.";
+						messageDiv.className = 'u-mt-sm u-text-green';
+					});
+				});
+			}
+		});
+	</script>
+
+	<script type="text/javascript" id="swp/app-js-extra">
+/* <![CDATA[ */
+var swp = {"static":"https://www.karatsoftware.cz/wp-content/themes/karat-software/static/","api":{"pagination":"https://www.karatsoftware.cz/wp-json/swp/v1/pagination"},"security":{"nonce":"80de063c73"}};
+//# sourceURL=swp%2Fapp-js-extra
+/* ]]> */
+</script>
+<script type="text/javascript" src="https://www.karatsoftware.cz/wp-content/themes/karat-software/static/js/app.js?ver=1720602271" id="swp/app-js"></script>
+<script type="text/javascript" id="swp/app-js-after">
+/* <![CDATA[ */
+App.run();
+//# sourceURL=swp%2Fapp-js-after
+/* ]]> */
+</script>
+<script type="text/javascript" id="html-forms-js-extra">
+/* <![CDATA[ */
+var hf_js_vars = {"ajax_url":"https://www.karatsoftware.cz/wp-admin/admin-ajax.php?action=hf_form_submit"};
+//# sourceURL=html-forms-js-extra
+/* ]]> */
+</script>
+<script type="text/javascript" defer src="https://www.karatsoftware.cz/wp-content/plugins/html-forms/assets/js/public.js?ver=1.6.2" id="html-forms-js"></script>
+
+	</body>
+</html>

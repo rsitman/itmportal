@@ -1,0 +1,108 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Page {
+  id         String          @id @default(cuid())
+  slug       String          @unique
+  title      String
+  createdAt  DateTime        @default(now())
+  updatedAt  DateTime        @updatedAt
+  components PageComponent[]
+}
+
+model PageComponent {
+  id            String   @id @default(cuid())
+  pageId        String
+  type          String
+  order         Int
+  contentConfig Json
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  page          Page     @relation(fields: [pageId], references: [id], onDelete: Cascade)
+
+  @@index([pageId, order])
+}
+
+model User {
+  id               String            @id @default(cuid())
+  email            String            @unique
+  name             String?
+  password         String?
+  externalId       String?           @unique
+  authProvider     AuthProvider      @default(LOCAL)
+  image            String?
+  role             UserRole          @default(USER)
+  isActive         Boolean           @default(true)
+  rememberLogin    Boolean           @default(true)
+  sessionPreference SessionPreference @default(REMEMBER)
+  createdAt        DateTime          @default(now())
+  updatedAt        DateTime          @updatedAt
+  events           Event[]
+}
+
+model Event {
+  id          String    @id @default(cuid())
+  title       String
+  description String?
+  startDate   DateTime
+  endDate     DateTime
+  type        EventType
+  allDay      Boolean   @default(false)
+  outlookId   String?
+  ownerId     String?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  erpJiraKey  String?
+  erpProject  String?
+  erpResolver String?
+  erpSourceId String?
+  erpSystems  String?
+  erpType     String?
+  isErpEvent  Boolean   @default(false)
+  owner       User?     @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+
+  @@index([ownerId, startDate])
+  @@index([type])
+  @@index([isErpEvent, erpSourceId])
+}
+
+model RolePermission {
+  id         String   @id @default(cuid())
+  role       UserRole
+  permission String
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@unique([role, permission])
+}
+
+enum SessionPreference {
+  REMEMBER
+  TEMPORARY
+}
+
+enum AuthProvider {
+  LOCAL
+  AZURE_AD
+}
+
+enum UserRole {
+  ADMIN
+  USER
+  IT
+}
+
+enum EventType {
+  PROJECT
+  MEETING
+  HOLIDAY
+  OTHER
+  ERP_UPGRADE
+  ERP_PATCH
+}
