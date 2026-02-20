@@ -57,14 +57,29 @@ const handleSubmit = async (e: React.FormEvent) => {
     console.log('🔥 CSRF TOKEN:', csrfToken)
 
     console.log('🔥 CALLING SIGN IN...')
-    const result = await signIn('credentials', {
-      email, password, csrfToken,
-      redirect: false,
-      callbackUrl: '/dashboard'
+    console.log('🔥 SIGN IN PARAMS:', {
+      provider: 'credentials',
+      data: { email, password, csrfToken, redirect: false, callbackUrl: '/dashboard' }
     })
-
-    console.log('🔥 SIGN IN RESULT:', result)
-    logger.log('🔥 SIGN IN RESULT:', result)
+    
+    let result: any
+    
+    try {
+      result = await signIn('credentials', {
+        email, password, csrfToken,
+        redirect: false,
+        callbackUrl: '/dashboard'
+      })
+      
+      console.log('🔥 SIGN IN RESULT:', result)
+      logger.log('🔥 SIGN IN RESULT:', result)
+    } catch (signInError) {
+      console.log('🔥 SIGN IN ERROR:', signInError)
+      logger.error('🔥 SIGN IN ERROR:', signInError)
+      setError('Chyba při přihlašování')
+      setIsLoading(false)
+      return
+    }
 
     if (result?.ok) {
       console.log('🔥 LOGIN SUCCESS, redirecting to:', callbackUrl)
