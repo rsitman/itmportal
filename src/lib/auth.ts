@@ -25,6 +25,7 @@ console.error = (...args: any[]) => {
 }
 
 export const authOptions: NextAuthOptions = {
+  debug: process.env.NODE_ENV === 'development',
   secret: process.env.NEXTAUTH_SECRET,
   session: {
     strategy: 'jwt',
@@ -33,7 +34,6 @@ export const authOptions: NextAuthOptions = {
   jwt: {
     maxAge: 24 * 60 * 60, // Výchozí 24 hodin, bude dynamicky upraveno
   },
-  debug: false, // Vypnuto aby se snížily logy
   logger: customLogger,
   
   // Cookie settings pro HTTP development
@@ -220,40 +220,57 @@ export const authOptions: NextAuthOptions = {
   },
   providers: [
     CredentialsProvider({
+      id: 'credentials',
       name: 'credentials',
       credentials: {
-        email: { label: 'Email', type: 'email' },
+        email: { label: 'Email', type: 'text' },
         password: { label: 'Password', type: 'password' }
       },
       async authorize(credentials) {
+        console.log('=== AUTH DEBUG START ===')
+        console.log('Auth attempt:', credentials?.email)
         logger.log('Auth attempt:', credentials?.email)
         
         if (!credentials?.email || !credentials?.password) {
+          console.log('Missing credentials')
           logger.log('Missing credentials')
           return null
         }
         
         try {
+          console.log('Looking for user:', credentials.email)
           const user = await prisma.user.findUnique({
             where: { email: credentials.email as string }
           })
           
+          console.log('User found:', !!user)
+          if (user) {
+            console.log('User details:', { email: user.email, hasPassword: !!user.password, role: user.role, isActive: user.isActive })
+          }
+          
           if (user && user.password && (await bcrypt.compare(credentials.password, user.password))) {
+            console.log('Auth successful for:', credentials?.email)
             logger.log('Auth successful for:', credentials?.email)
-            return {
+            const result = {
               id: user.id,
               email: user.email,
               name: user.name,
               role: user.role,
               authProvider: user.authProvider
             }
+            console.log('Returning user object:', result)
+            return result
           } else {
+            console.log('Auth failed: Invalid password for:', credentials?.email)
             logger.log('Auth failed: Invalid password for:', credentials?.email)
             return null
           }
         } catch (error) {
+          console.log('Auth error:', error)
           logger.error('Auth error:', error)
           return null
+        } finally {
+          console.log('=== AUTH DEBUG END ===')
         }
       }
     }),

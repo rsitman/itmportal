@@ -1,13 +1,12 @@
 'use client'
 
-import { useState } from 'react'
-import { signIn, signOut, getProviders, useSession } from 'next-auth/react'
+import { useState, useEffect } from 'react'
+import { signIn, signOut, useSession } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
-import { Button } from '@/components/ui/button'
-import { useEffect } from 'react'
+import { use } from 'react'
 import { logger } from '@/lib/logger'
 
-export default function LoginPage() {
+export default function LoginPage({ searchParams }: { searchParams?: Promise<{ callbackUrl?: string }> }) {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [isLoading, setIsLoading] = useState(false)
@@ -15,21 +14,42 @@ export default function LoginPage() {
   const [providers, setProviders] = useState<any>(null)
   const [userPreferences, setUserPreferences] = useState<any>(null)
   const [showLoginAsDifferent, setShowLoginAsDifferent] = useState(false)
+  const [csrfToken, setCsrfToken] = useState('')
   const router = useRouter()
   const { data: session, status } = useSession()
+  
+  // Unwrap searchParams with React.use()
+  const params = searchParams ? use(searchParams) : {}
+
+  // Zpracování callbackUrl a prevence smyček
+  const getSafeCallbackUrl = () => {
+    if (!params?.callbackUrl) return '/dashboard'
+    
+    const callbackUrl = decodeURIComponent(params.callbackUrl)
+    
+    // Pokud callbackUrl obsahuje login, je to smyčka - použijeme výchozí
+    if (callbackUrl.includes('/login')) {
+      return '/dashboard'
+    }
+    
+    return callbackUrl
+  }
 
   useEffect(() => {
-    const loadProviders = async () => {
+    const loadData = async () => {
       try {
-        const availableProviders = await getProviders()
-        setProviders(availableProviders)
-        logger.log('Available providers:', availableProviders)
+        // Load CSRF token
+        const csrfRes = await fetch('/api/auth/csrf')
+        const csrfData = await csrfRes.json()
+        setCsrfToken(csrfData.csrfToken)
+
+        // Load providers
+        const providersRes = await fetch('/api/auth/providers')
+        const providersData = await providersRes.json()
+        setProviders(providersData)
+        logger.log('Available providers:', providersData)
       } catch (error) {
-        logger.warn('Failed to load providers:', error)
-        setProviders({
-          credentials: { id: 'credentials', name: 'Credentials', type: 'credentials' },
-          'azure-ad': { id: 'azure-ad', name: 'Azure Active Directory', type: 'oauth' }
-        })
+        logger.warn('Failed to load auth data:', error)
       }
     }
 
@@ -47,7 +67,7 @@ export default function LoginPage() {
       }
     }
 
-    loadProviders()
+    loadData()
     loadUserPreferences()
   }, [session])
 
@@ -74,24 +94,30 @@ export default function LoginPage() {
     setIsLoading(true)
     setError('')
 
+    console.log('=== LOGIN SUBMIT DEBUG ===')
+    console.log('Email:', email)
+    console.log('Password:', password ? '***' : 'empty')
+    console.log('Callback URL:', getSafeCallbackUrl())
+
     try {
-      const result = await signIn('credentials', {
+      const callbackUrl = getSafeCallbackUrl()
+      console.log('Calling signIn with:', { email, callbackUrl })
+      
+      // Use redirect: true to let NextAuth handle the full flow
+      await signIn('credentials', {
         email: email,
         password: password,
-        redirect: false, // Manuální přesměrování pro lepší kontrolu
+        callbackUrl: callbackUrl,
+        redirect: true, // Let NextAuth handle redirect
       })
-
-      if (result?.error) {
-        setError('Neplatné přihlašovací údaje')
-      } else if (result?.ok) {
-        // Úspěšné přihlášení - přesměrovat na dashboard
-        router.push('/dashboard')
-      }
+      
+      // This code won't execute if redirect: true
     } catch (error) {
+      console.log('Signin exception:', error)
       setError('Došlo k chybě při přihlašování')
-    } finally {
       setIsLoading(false)
     }
+    console.log('=== LOGIN SUBMIT DEBUG END ===')
   }
 
   // Pokud existuje session a uživatel nechce se přihlásit jako jiný
@@ -123,24 +149,21 @@ export default function LoginPage() {
 
           <div className="space-y-3">
             {shouldShowContinueOption && (
-              <Button
+              <button
                 onClick={handleContinueAsUser}
-                className="w-full"
-                size="lg"
+                className="w-full inline-flex justify-center rounded-md border border-transparent bg-green-600 py-2 px-4 text-sm font-medium text-white shadow-sm hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2"
               >
                 Pokračovat jako {session.user?.name}
-              </Button>
+              </button>
             )}
 
-            <Button
+            <button
               onClick={handleLoginAsDifferent}
-              variant="outline"
-              className="w-full"
-              size="lg"
+              className="w-full inline-flex justify-center rounded-md border border-gray-300 bg-white py-2 px-4 text-sm font-medium text-gray-700 shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 disabled:opacity-50"
               disabled={isLoading}
             >
               {isLoading ? 'Odhlašování...' : 'Přihlásit se jako jiný uživatel'}
-            </Button>
+            </button>
           </div>
 
           {userPreferences && (
@@ -170,7 +193,7 @@ export default function LoginPage() {
             Přihlášení do portálu
           </h2>
           <p className="mt-2 text-center text-sm text-gray-600">
-            Použijte admin/admin pro přihlášení
+            Použijte admin@firma.cz / admin123 pro přihlášení
           </p>
           {session && showLoginAsDifferent && (
             <p className="mt-2 text-center text-sm text-green-600">
@@ -179,12 +202,19 @@ export default function LoginPage() {
           )}
         </div>
         
-        <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
+        <form 
+          className="mt-8 space-y-6" 
+          method="post"
+          action="/api/auth/callback/credentials"
+        >
           {error && (
             <div className="rounded-md bg-red-50 p-4">
               <div className="text-sm text-red-800">{error}</div>
             </div>
           )}
+          
+          <input type="hidden" name="csrfToken" value={csrfToken} />
+          <input type="hidden" name="callbackUrl" value={getSafeCallbackUrl()} />
           
           <div className="space-y-4">
             <div>
@@ -196,10 +226,9 @@ export default function LoginPage() {
                 name="email"
                 type="text"
                 required
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
+                defaultValue={email}
                 className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-green-500 focus:ring-blue-500 p-2 border"
-                placeholder="admin"
+                placeholder="admin@firma.cz"
               />
             </div>
             
@@ -212,22 +241,21 @@ export default function LoginPage() {
                 name="password"
                 type="password"
                 required
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
+                defaultValue={password}
                 className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-green-500 focus:ring-blue-500 p-2 border"
-                placeholder="admin"
+                placeholder="admin123"
               />
             </div>
           </div>
 
           <div>
-            <Button
+            <button
               type="submit"
               disabled={isLoading}
-              className="w-full"
+              className="w-full inline-flex justify-center rounded-md border border-transparent bg-green-600 py-2 px-4 text-sm font-medium text-white shadow-sm hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 disabled:opacity-50"
             >
               {isLoading ? 'Přihlašování...' : 'Přihlásit se'}
-            </Button>
+            </button>
           </div>
         </form>
 
@@ -245,7 +273,7 @@ export default function LoginPage() {
 
             <div className="mt-6">
               <Button
-                onClick={() => signIn('azure-ad', { callbackUrl: '/dashboard' })}
+                onClick={() => signIn('azure-ad', { callbackUrl: getSafeCallbackUrl() })}
                 className="w-full bg-green-600 hover:bg-green-700 text-white"
                 variant="default"
               >

@@ -1,22 +1,24 @@
 import { withAuth } from 'next-auth/middleware'
 import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
-import { Role, Permission, hasPermission } from './lib/permissions'
+import { Role, Permission, hasPermission } from './src/lib/permissions'
 
 export default withAuth(
-  function proxy(req: NextRequest & { nextauth: { token: any } }) {
+  function middleware(req: NextRequest & { nextauth: { token: any } }) {
     const token = req.nextauth.token
     const pathname = req.nextUrl.pathname
 
-    // Pokud uživatel není přihlášen, withAuth už se postará o přesměrování na login
-    // Nemusíme to dělat zde znovu
-    
-    // Null check pro token
+    // Pokud není token, withAuth se postará o redirect na login
     if (!token) {
       return NextResponse.next()
     }
     
     const userRole = token.role as Role || Role.USER
+
+    // Přesměrování z root a login na dashboard (pouze pokud JE přihlášen)
+    if (pathname === '/' || pathname === '/login') {
+      return NextResponse.redirect(new URL('/dashboard', req.url))
+    }
 
     // Definice chráněných rout a jejich oprávnění
     const protectedRoutes = [
@@ -66,7 +68,6 @@ export default withAuth(
         )
         
         if (!hasAccess) {
-          // Přesměrování na dashboard s error hláškou
           const errorUrl = new URL('/dashboard?error=access_denied', req.url)
           return NextResponse.redirect(errorUrl)
         }
@@ -74,41 +75,18 @@ export default withAuth(
       }
     }
 
-    // Přesměrování z root a login na dashboard (pokud je přihlášen)
-    if (pathname === '/' || pathname === '/login') {
-      return NextResponse.redirect(new URL('/dashboard', req.url))
-    }
-
     return NextResponse.next()
   },
   {
     callbacks: {
-      authorized: ({ token, req }) => {
-        const { pathname } = req.nextUrl
-        
-        // Povolit přístup na login a API auth routy bez přihlášení
-        if (pathname.startsWith('/api/auth') || pathname === '/login') {
-          return true
-        }
-        
-        // Povolit přístup na ERP proxy bez přihlášení (interní API)
-        if (pathname.startsWith('/api/erp-proxy')) {
-          return true
-        }
-        
-        // Povolit přístup na HW/SW API a stránku bez přihlášení (ERP endpoint zatím neexistuje, mock data)
-        if (pathname.startsWith('/api/hwsw') || pathname.startsWith('/settings/hwsw')) {
-          return true
-        }
-        
-        // Povolit přístup na HWSW config API bez přihlášení
-        if (pathname.startsWith('/api/hwsw-config')) {
-          return true
-        }
-        
-        // Vyžadovat přihlášení pro všechny ostatní routy
+      authorized: ({ token }) => {
+        // Povolit přístup pokud existuje token
+        // withAuth automaticky přesměruje na /login pokud token neexistuje
         return !!token
       },
+    },
+    pages: {
+      signIn: '/login',
     },
   }
 )
@@ -120,8 +98,9 @@ export const config = {
      * - _next/static (static files)
      * - _next/image (image optimization files)
      * - favicon.ico (favicon file)
-     * - public (public files)
+     * - public folder (public files)
+     * - api/auth/* (NextAuth routes must be accessible)
      */
-    '/((?!_next/static|_next/image|favicon.ico|public).*)',
+    '/((?!_next/static|_next/image|favicon.ico|public|api/auth).*)',
   ],
 }

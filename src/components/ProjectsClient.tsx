@@ -4,8 +4,6 @@ import { useState, useMemo } from 'react'
 import { KaratProject } from '@/lib/karat'
 import MetaTable from '@/components/meta/MetaTable'
 import { projectsMeta } from '@/lib/meta/projectsMeta'
-import { logger } from '@/lib/logger'
-
 function StatusBadge({ enabled, label }: { enabled: boolean; label: string }) {
   return (
     <span
@@ -80,12 +78,6 @@ function SearchAndFilter({
 export default function ProjectsClient({ projects }: { projects: KaratProject[] }) {
   const [searchQuery, setSearchQuery] = useState('')
   
-  // Debug logování pro zobrazení datové struktury
-  logger.log('ProjectsClient received projects:', projects.length)
-  if (projects.length > 0) {
-    logger.log('Sample project data:', projects[0])
-  }
-
   const filteredProjects = useMemo(() => {
     if (!searchQuery.trim()) return projects
     

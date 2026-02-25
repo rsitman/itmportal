@@ -1,7 +1,7 @@
 'use client'
 
+import { memo, useMemo } from 'react'
 import { MetaResource, MetaField } from '@/types/meta'
-import { logger } from '@/lib/logger'
 
 interface MetaTableProps {
   meta: MetaResource
@@ -93,7 +93,6 @@ function renderCellValue(field: MetaField, value: any, row: any): React.ReactNod
       return value ? 'Ano' : 'Ne'
 
     case 'actions':
-      logger.log('renderCellValue - actions case, row:', row.projectId)
       return (
         <button
           onClick={() => {
@@ -152,14 +151,8 @@ function renderCellValue(field: MetaField, value: any, row: any): React.ReactNod
 }
 
 function renderCellContent(field: MetaField, row: any): React.ReactNode {
-  // Debug logging pro actions pole
-  if (field.id === 'actions') {
-    logger.log('renderCellContent called for actions field, row:', row.projectId)
-  }
-  
   // Handle actions field - always render regardless of data
   if (field.id === 'actions') {
-    logger.log('Handling actions field directly')
     return renderCellValue(field, 'actions', row)
   }
   
@@ -214,16 +207,12 @@ function renderCellContent(field: MetaField, row: any): React.ReactNode {
   return renderCellValue(field, row[field.id], row)
 }
 
-export default function MetaTable({ meta, rows }: MetaTableProps) {
-  // Filter out compound fields that are handled specially
-  const visibleFields = meta.fields.filter(field => 
-    !['projectId', 'companyId'].includes(field.id)
+const MetaTable = memo(function MetaTableComponent({ meta, rows }: MetaTableProps) {
+  // Filter out compound fields that are handled specially - memoized
+  const visibleFields = useMemo(() => 
+    meta.fields.filter(field => !['projectId', 'companyId'].includes(field.id)),
+    [meta.fields]
   )
-  
-  // Debug logging
-  logger.log('MetaTable - All fields:', meta.fields.map(f => ({ id: f.id, label: f.label, type: f.type })))
-  logger.log('MetaTable - Visible fields:', visibleFields.map(f => ({ id: f.id, label: f.label, type: f.type })))
-  logger.log('MetaTable - Sample row data:', rows[0])
 
   return (
     <div className="overflow-x-auto">
@@ -288,4 +277,6 @@ export default function MetaTable({ meta, rows }: MetaTableProps) {
       </div>
     </div>
   )
-}
+})
+
+export default MetaTable
