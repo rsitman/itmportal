@@ -1,37 +1,38 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, use } from 'react'
 import { signIn, signOut, useSession } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
-import { use } from 'react'
 import { logger } from '@/lib/logger'
+import { Button } from '@/components/ui/button'
 
-export default function LoginPage({ searchParams }: { searchParams?: Promise<{ callbackUrl?: string }> }) {
-  const [email, setEmail] = useState('')
-  const [password, setPassword] = useState('')
+type SearchParams = Promise<{ callbackUrl?: string }>
+type Provider = { id: string; name: string; type: string }
+
+export default function LoginPage({ searchParams }: { searchParams?: SearchParams }) {
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState('')
-  const [providers, setProviders] = useState<any>(null)
+  const [providers, setProviders] = useState<Record<string, Provider> | null>(null)
   const [userPreferences, setUserPreferences] = useState<any>(null)
   const [showLoginAsDifferent, setShowLoginAsDifferent] = useState(false)
   const [csrfToken, setCsrfToken] = useState('')
   const router = useRouter()
   const { data: session, status } = useSession()
-  
+
   // Unwrap searchParams with React.use()
   const params = searchParams ? use(searchParams) : {}
 
   // Zpracování callbackUrl a prevence smyček
   const getSafeCallbackUrl = () => {
     if (!params?.callbackUrl) return '/dashboard'
-    
+
     const callbackUrl = decodeURIComponent(params.callbackUrl)
-    
+
     // Pokud callbackUrl obsahuje login, je to smyčka - použijeme výchozí
     if (callbackUrl.includes('/login')) {
       return '/dashboard'
     }
-    
+
     return callbackUrl
   }
 
@@ -43,9 +44,9 @@ export default function LoginPage({ searchParams }: { searchParams?: Promise<{ c
         const csrfData = await csrfRes.json()
         setCsrfToken(csrfData.csrfToken)
 
-        // Load providers
+        // Load providers (vrací objekt s klíči = id providerů)
         const providersRes = await fetch('/api/auth/providers')
-        const providersData = await providersRes.json()
+        const providersData: Record<string, Provider> = await providersRes.json()
         setProviders(providersData)
         logger.log('Available providers:', providersData)
       } catch (error) {
@@ -54,7 +55,7 @@ export default function LoginPage({ searchParams }: { searchParams?: Promise<{ c
     }
 
     const loadUserPreferences = async () => {
-      if (session?.user?.id) {
+      if ((session as any)?.user?.id) {
         try {
           const response = await fetch('/api/user/preferences')
           if (response.ok) {
@@ -89,41 +90,11 @@ export default function LoginPage({ searchParams }: { searchParams?: Promise<{ c
     }
   }
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setIsLoading(true)
-    setError('')
-
-    console.log('=== LOGIN SUBMIT DEBUG ===')
-    console.log('Email:', email)
-    console.log('Password:', password ? '***' : 'empty')
-    console.log('Callback URL:', getSafeCallbackUrl())
-
-    try {
-      const callbackUrl = getSafeCallbackUrl()
-      console.log('Calling signIn with:', { email, callbackUrl })
-      
-      // Use redirect: true to let NextAuth handle the full flow
-      await signIn('credentials', {
-        email: email,
-        password: password,
-        callbackUrl: callbackUrl,
-        redirect: true, // Let NextAuth handle redirect
-      })
-      
-      // This code won't execute if redirect: true
-    } catch (error) {
-      console.log('Signin exception:', error)
-      setError('Došlo k chybě při přihlašování')
-      setIsLoading(false)
-    }
-    console.log('=== LOGIN SUBMIT DEBUG END ===')
-  }
+  const azureProvider = providers?.['azure-ad']
+  const shouldShowContinueOption = userPreferences?.rememberLogin !== false
 
   // Pokud existuje session a uživatel nechce se přihlásit jako jiný
   if (session && !showLoginAsDifferent) {
-    const shouldShowContinueOption = userPreferences?.rememberLogin !== false
-
     return (
       <div className="flex min-h-screen items-center justify-center bg-gray-50">
         <div className="w-full max-w-md space-y-8">
@@ -142,7 +113,7 @@ export default function LoginPage({ searchParams }: { searchParams?: Promise<{ c
                 {session.user?.email}
               </p>
               <p className="text-xs text-gray-500 mt-1">
-                {session.authProvider === 'AZURE_AD' ? 'Azure AD' : 'Lokální účet'}
+                {(session as any).authProvider === 'AZURE_AD' ? 'Azure AD' : 'Lokální účet'}
               </p>
             </div>
           </div>
@@ -169,7 +140,7 @@ export default function LoginPage({ searchParams }: { searchParams?: Promise<{ c
           {userPreferences && (
             <div className="mt-4 p-3 bg-gray-50 rounded-lg text-xs text-gray-600">
               <p>
-                <strong>Nastavení pamatování:</strong> {' '}
+                <strong>Nastavení pamatování:</strong>{' '}
                 {userPreferences.rememberLogin ? 'Zapnuto (24h)' : 'Vypnuto (1h)'}
               </p>
               {!userPreferences.rememberLogin && (
@@ -201,9 +172,9 @@ export default function LoginPage({ searchParams }: { searchParams?: Promise<{ c
             </p>
           )}
         </div>
-        
-        <form 
-          className="mt-8 space-y-6" 
+
+        <form
+          className="mt-8 space-y-6"
           method="post"
           action="/api/auth/callback/credentials"
         >
@@ -212,10 +183,10 @@ export default function LoginPage({ searchParams }: { searchParams?: Promise<{ c
               <div className="text-sm text-red-800">{error}</div>
             </div>
           )}
-          
+
           <input type="hidden" name="csrfToken" value={csrfToken} />
           <input type="hidden" name="callbackUrl" value={getSafeCallbackUrl()} />
-          
+
           <div className="space-y-4">
             <div>
               <label htmlFor="email" className="block text-sm font-medium text-gray-700">
@@ -226,12 +197,11 @@ export default function LoginPage({ searchParams }: { searchParams?: Promise<{ c
                 name="email"
                 type="text"
                 required
-                defaultValue={email}
                 className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-green-500 focus:ring-blue-500 p-2 border"
                 placeholder="admin@firma.cz"
               />
             </div>
-            
+
             <div>
               <label htmlFor="password" className="block text-sm font-medium text-gray-700">
                 Heslo
@@ -241,7 +211,6 @@ export default function LoginPage({ searchParams }: { searchParams?: Promise<{ c
                 name="password"
                 type="password"
                 required
-                defaultValue={password}
                 className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-green-500 focus:ring-blue-500 p-2 border"
                 placeholder="admin123"
               />
@@ -260,14 +229,16 @@ export default function LoginPage({ searchParams }: { searchParams?: Promise<{ c
         </form>
 
         {/* Azure AD Login */}
-        {providers && providers['azure-ad'] && (
+        {azureProvider && (
           <div className="mt-6">
             <div className="relative">
               <div className="absolute inset-0 flex items-center">
                 <div className="w-full border-t border-gray-300" />
               </div>
               <div className="relative flex justify-center text-sm">
-                <span className="bg-white px-2 text-gray-500">Nebo se přihlaste pomocí</span>
+                <span className="bg-white px-2 text-gray-500">
+                  Nebo se přihlaste pomocí
+                </span>
               </div>
             </div>
 
@@ -278,7 +249,7 @@ export default function LoginPage({ searchParams }: { searchParams?: Promise<{ c
                 variant="default"
               >
                 <svg className="w-5 h-5 mr-2" viewBox="0 0 24 24" fill="currentColor">
-                  <path d="M11.4 1.02C6.62 1.33 3 5.52 3 10.31V20h6v-8h4v8h6V10c0-4.97-4.03-9-9-9-.2 0-.4 0-.6.02z"/>
+                  <path d="M11.4 1.02C6.62 1.33 3 5.52 3 10.31V20h6v-8h4v8h6V10c0-4.97-4.03-9-9-9-.2 0-.4 0-.6.02z" />
                 </svg>
                 Sign in with Azure Active Directory
               </Button>
@@ -289,7 +260,8 @@ export default function LoginPage({ searchParams }: { searchParams?: Promise<{ c
         {/* Debug info */}
         {providers && (
           <div className="mt-4 p-2 bg-gray-100 rounded text-xs">
-            <strong>Dostupné providery:</strong> {Object.keys(providers).join(', ')}
+            <strong>Dostupné providery:</strong>{' '}
+            {Object.keys(providers).join(', ')}
           </div>
         )}
       </div>

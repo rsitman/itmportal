@@ -1,11 +1,28 @@
 import { NextAuthOptions } from 'next-auth'
 import CredentialsProvider from 'next-auth/providers/credentials'
-import { azureADProviderConfig } from './entra-id'
+import AzureADProvider from 'next-auth/providers/azure-ad'
 import bcrypt from 'bcryptjs'
 import { prisma } from './prisma'
 import { UserRole, AuthProvider } from '@prisma/client'
 import { customLogger } from './nextauth-logger'
 import { logger } from './logger'
+import { getServerSession } from 'next-auth'
+
+// Jednoduchý check env proměnných pro Azure AD
+const AZURE_ENV_OK = Boolean(
+  process.env.AZURE_AD_CLIENT_ID &&
+    process.env.AZURE_AD_CLIENT_SECRET &&
+    process.env.AZURE_AD_TENANT_ID,
+)
+
+if (process.env.NODE_ENV === 'development') {
+  console.log('=== AZURE DEBUG ===')
+  console.log('AZURE_ENV_OK:', AZURE_ENV_OK)
+  console.log('CLIENT_ID:', !!process.env.AZURE_AD_CLIENT_ID)
+  console.log('SECRET length:', process.env.AZURE_AD_CLIENT_SECRET?.length)
+  console.log('TENANT_ID:', !!process.env.AZURE_AD_TENANT_ID)
+  console.log('NEXTAUTH_URL:', process.env.NEXTAUTH_URL)
+}
 
 // Globální override pro console.error aby se potlačil CLIENT_FETCH_ERROR
 const originalConsoleError = console.error
@@ -17,7 +34,6 @@ console.error = (...args: any[]) => {
   if (typeof message === 'object' && message?.error?.message?.includes('CLIENT_FETCH_ERROR')) {
     return
   }
-  // Filter out KARAT 404 errors that are expected in some cases
   if (typeof message === 'string' && message.includes('KARAT direct fetch error: 404')) {
     return
   }
@@ -27,16 +43,18 @@ console.error = (...args: any[]) => {
 export const authOptions: NextAuthOptions = {
   debug: process.env.NODE_ENV === 'development',
   secret: process.env.NEXTAUTH_SECRET,
+
   session: {
     strategy: 'jwt',
-    maxAge: 24 * 60 * 60, // Výchozí 24 hodin, bude dynamicky upraveno
+    maxAge: 24 * 60 * 60,
   },
+
   jwt: {
-    maxAge: 24 * 60 * 60, // Výchozí 24 hodin, bude dynamicky upraveno
+    maxAge: 24 * 60 * 60,
   },
+
   logger: customLogger,
-  
-  // Cookie settings pro HTTP development
+
   cookies: {
     sessionToken: {
       name: 'next-auth.session-token',
@@ -44,9 +62,9 @@ export const authOptions: NextAuthOptions = {
         httpOnly: true,
         sameSite: 'lax',
         path: '/',
-        secure: false, // Důležité pro HTTP
-        domain: process.env.NODE_ENV === 'production' ? '.itman.cz' : undefined
-      }
+        secure: false,
+        domain: process.env.NODE_ENV === 'production' ? '.itman.cz' : undefined,
+      },
     },
     callbackUrl: {
       name: 'next-auth.callback-url',
@@ -54,9 +72,9 @@ export const authOptions: NextAuthOptions = {
         httpOnly: true,
         sameSite: 'lax',
         path: '/',
-        secure: false, // Důležité pro HTTP
-        domain: process.env.NODE_ENV === 'production' ? '.itman.cz' : undefined
-      }
+        secure: false,
+        domain: process.env.NODE_ENV === 'production' ? '.itman.cz' : undefined,
+      },
     },
     csrfToken: {
       name: 'next-auth.csrf-token',
@@ -64,9 +82,9 @@ export const authOptions: NextAuthOptions = {
         httpOnly: true,
         sameSite: 'lax',
         path: '/',
-        secure: false, // Důležité pro HTTP
-        domain: process.env.NODE_ENV === 'production' ? '.itman.cz' : undefined
-      }
+        secure: false,
+        domain: process.env.NODE_ENV === 'production' ? '.itman.cz' : undefined,
+      },
     },
     pkceCodeVerifier: {
       name: 'next-auth.pkce.code_verifier',
@@ -74,9 +92,9 @@ export const authOptions: NextAuthOptions = {
         httpOnly: true,
         sameSite: 'lax',
         path: '/',
-        secure: false, // Důležité pro HTTP
-        domain: process.env.NODE_ENV === 'production' ? '.itman.cz' : undefined
-      }
+        secure: false,
+        domain: process.env.NODE_ENV === 'production' ? '.itman.cz' : undefined,
+      },
     },
     state: {
       name: 'next-auth.state',
@@ -84,170 +102,197 @@ export const authOptions: NextAuthOptions = {
         httpOnly: true,
         sameSite: 'lax',
         path: '/',
-        secure: false, // Důležité pro HTTP
-        domain: process.env.NODE_ENV === 'production' ? '.itman.cz' : undefined
-      }
-    }
+        secure: false,
+        domain: process.env.NODE_ENV === 'production' ? '.itman.cz' : undefined,
+      },
+    },
   },
+
   callbacks: {
     async jwt({ token, user, account }) {
       logger.log('JWT callback - user:', user, 'token:', token, 'account:', account)
-      
+
       if (user) {
-        token.role = user.role
-        token.id = user.id
+        token.role = (user as any).role
+        token.id = (user as any).id
         token.email = user.email
         token.name = user.name
-        token.authProvider = user.authProvider
-        
-        // Načíst uživatelské preference pro nastavení délky session
+        token.authProvider = (user as any).authProvider
+
         try {
           const userPrefs = await prisma.user.findUnique({
-            where: { id: user.id },
-            select: { rememberLogin: true, sessionPreference: true }
+            where: { id: (user as any).id },
+            select: { rememberLogin: true, sessionPreference: true },
           })
-          
+
           if (userPrefs) {
             token.rememberLogin = userPrefs.rememberLogin
             token.sessionPreference = userPrefs.sessionPreference
-            
-            // Nastavit dynamickou délku session
-            const sessionAge = userPrefs.sessionPreference === 'REMEMBER' ? 24 * 60 * 60 : 1 * 60 * 60
+
+            const sessionAge =
+              userPrefs.sessionPreference === 'REMEMBER'
+                ? 24 * 60 * 60
+                : 1 * 60 * 60
+
             token.maxAge = sessionAge
-            logger.log('Session maxAge set to:', sessionAge, 'seconds for user:', user.email)
+            logger.log(
+              'Session maxAge set to:',
+              sessionAge,
+              'seconds for user:',
+              user.email,
+            )
           }
         } catch (error) {
           logger.error('Error loading user preferences for JWT:', error)
-          // Výchozí hodnota pokud se nepodaří načíst preference
           token.maxAge = 24 * 60 * 60
         }
       }
-      
-      // Handle Azure AD token
+
       if (account?.provider === 'azure-ad' && account.access_token) {
         token.accessToken = account.access_token
         token.refreshToken = account.refresh_token
         token.expiresAt = account.expires_at
       }
-      
+
       return token
     },
+
     async session({ session, token }) {
       logger.log('Session callback - token:', token)
-      
+
       if (token) {
-        session.user.id = token.id as string
-        session.user.role = token.role as UserRole
+        ;(session.user as any).id = token.id as string
+        ;(session.user as any).role = token.role as UserRole
         session.user.email = token.email as string
         session.user.name = token.name as string
-        session.accessToken = token.accessToken as string
-        session.authProvider = token.authProvider as AuthProvider
-        
-        // Set session expiration to match JWT expiration
-        const expiresAt = token.expiresAt 
+        ;(session as any).accessToken = token.accessToken as string
+        ;(session as any).authProvider = token.authProvider as AuthProvider
+
+        const expiresAt = token.expiresAt
           ? new Date(token.expiresAt * 1000).toISOString()
           : new Date(Date.now() + 1 * 60 * 60 * 1000).toISOString()
-        
+
         session.expires = expiresAt
       }
-      
+
       logger.log('Final session:', session)
       return session
     },
+
     async signIn({ user, account, profile }) {
       logger.log('SignIn callback - user:', user, 'account:', account, 'profile:', profile)
-      
+
       if (account?.provider === 'azure-ad') {
         try {
-          // Extract email from profile if user.email is undefined
-          const userEmail = user.email || profile?.email || profile?.preferred_username
-          
+          const userEmail =
+            user.email ||
+            (profile as any)?.preferred_username ||
+            (profile as any)?.email ||
+            (profile as any)?.upn ||
+            (profile as any)?.mail
+
+          logger.log('Azure AD signIn - userEmail resolved:', userEmail)
+          logger.log('Azure AD signIn - user.email:', user.email)
+          logger.log('Azure AD signIn - profile keys:', profile ? Object.keys(profile) : 'no profile')
+
           if (!userEmail) {
-            logger.error('No email found in Azure AD profile')
+            logger.error('No email found in Azure AD profile. user:', JSON.stringify(user), 'profile:', JSON.stringify(profile))
             return false
           }
-          
-          // Check if user already exists
-          const existingUser = await prisma.user.findUnique({
-            where: { email: userEmail }
-          })
-          
+
+          const externalId = (profile as any)?.oid || (profile as any)?.sub
+
+          // Hledat nejprve podle externalId (OID), pak podle emailu
+          const existingUser =
+            (externalId
+              ? await prisma.user.findFirst({ where: { externalId } })
+              : null) ??
+            (await prisma.user.findFirst({
+              where: { email: { equals: userEmail, mode: 'insensitive' } },
+            }))
+
+          logger.log('Azure AD signIn - existingUser found:', !!existingUser, existingUser?.email)
+
           if (existingUser) {
-            // Update existing user with Azure AD info
             await prisma.user.update({
               where: { id: existingUser.id },
               data: {
-                externalId: profile?.oid || profile?.sub,
+                externalId,
                 authProvider: 'AZURE_AD',
                 isActive: true,
-                updatedAt: new Date()
-              }
+                updatedAt: new Date(),
+              },
             })
-            
-            // Set user ID for JWT callback
-            user.id = existingUser.id
-            user.role = existingUser.role
-            user.authProvider = 'AZURE_AD'
+
+            ;(user as any).id = existingUser.id
+            ;(user as any).role = existingUser.role
+            ;(user as any).authProvider = 'AZURE_AD'
             user.email = userEmail
           } else {
-            // Create new user from Azure AD
             const newUser = await prisma.user.create({
               data: {
                 email: userEmail,
                 name: user.name || userEmail.split('@')[0],
-                externalId: profile?.oid || profile?.sub,
+                externalId,
                 authProvider: 'AZURE_AD',
-                role: 'USER', // Default role for new users
-                isActive: true
-              }
+                role: 'USER',
+                isActive: true,
+              },
             })
-            
-            user.id = newUser.id
-            user.role = newUser.role
-            user.authProvider = 'AZURE_AD'
+
+            ;(user as any).id = newUser.id
+            ;(user as any).role = newUser.role
+            ;(user as any).authProvider = 'AZURE_AD'
             user.email = userEmail
           }
-          
+
           return true
         } catch (error) {
           logger.error('Error during Azure AD user creation/update:', error)
+          logger.error('Error details:', JSON.stringify(error, Object.getOwnPropertyNames(error)))
           return false
         }
       }
-      
+
       return true
-    }
+    },
   },
+
   providers: [
     CredentialsProvider({
       id: 'credentials',
       name: 'credentials',
       credentials: {
         email: { label: 'Email', type: 'text' },
-        password: { label: 'Password', type: 'password' }
+        password: { label: 'Password', type: 'password' },
       },
       async authorize(credentials) {
         console.log('=== AUTH DEBUG START ===')
         console.log('Auth attempt:', credentials?.email)
         logger.log('Auth attempt:', credentials?.email)
-        
+
         if (!credentials?.email || !credentials?.password) {
           console.log('Missing credentials')
           logger.log('Missing credentials')
           return null
         }
-        
+
         try {
           console.log('Looking for user:', credentials.email)
           const user = await prisma.user.findUnique({
-            where: { email: credentials.email as string }
+            where: { email: credentials.email as string },
           })
-          
+
           console.log('User found:', !!user)
           if (user) {
-            console.log('User details:', { email: user.email, hasPassword: !!user.password, role: user.role, isActive: user.isActive })
+            console.log('User details:', {
+              email: user.email,
+              hasPassword: !!user.password,
+              role: user.role,
+              isActive: user.isActive,
+            })
           }
-          
+
           if (user && user.password && (await bcrypt.compare(credentials.password, user.password))) {
             console.log('Auth successful for:', credentials?.email)
             logger.log('Auth successful for:', credentials?.email)
@@ -256,7 +301,7 @@ export const authOptions: NextAuthOptions = {
               email: user.email,
               name: user.name,
               role: user.role,
-              authProvider: user.authProvider
+              authProvider: user.authProvider,
             }
             console.log('Returning user object:', result)
             return result
@@ -272,44 +317,69 @@ export const authOptions: NextAuthOptions = {
         } finally {
           console.log('=== AUTH DEBUG END ===')
         }
-      }
+      },
     }),
-    // Azure AD provider - aktivní pokud jsou nastaveny environment variables
-    ...(process.env.AZURE_AD_CLIENT_ID && process.env.AZURE_AD_CLIENT_SECRET && process.env.AZURE_AD_TENANT_ID
-      ? (() => {
-          const config = azureADProviderConfig()
-          return config ? [config] : []
-        })()
-      : [])
+
+    ...(AZURE_ENV_OK
+      ? [
+          AzureADProvider({
+            clientId: process.env.AZURE_AD_CLIENT_ID!,
+            clientSecret: process.env.AZURE_AD_CLIENT_SECRET!,
+            tenantId: process.env.AZURE_AD_TENANT_ID!,
+            wellKnown: `https://login.microsoftonline.com/${process.env.AZURE_AD_TENANT_ID}/v2.0/.well-known/openid-configuration`,
+            authorization: {
+              params: {
+                scope: 'openid profile email User.Read',
+              },
+            },
+            profile(profile) {
+              logger.log('Azure AD profile received:', profile)
+              // preferred_username je vždy přítomno v JWT claims (= UPN/email)
+              // mail je pouze v Graph API, v /userinfo claims není
+              const email =
+                (profile as any).preferred_username ||
+                (profile as any).email ||
+                (profile as any).upn ||
+                (profile as any).mail
+              return {
+                id: (profile as any).oid || (profile as any).sub,
+                name: (profile as any).name,
+                email,
+                emailVerified: null,
+              }
+            },
+            checks: ['pkce', 'state'],
+          }),
+        ]
+      : []),
   ],
+
   pages: {
     signIn: '/login',
   },
+
   events: {
-    async signOut({ session, token }) {
+    async signOut({ session }) {
       logger.log('User signed out:', session?.user?.email)
       logger.log('Session invalidation complete')
-      
-      // Explicitní cleanup session dat
+
       if (session?.user?.id) {
         try {
-          // Zde můžete přidat další cleanup operace pokud jsou potřeba
-          // Například smazání dočasných dat, logování atd.
-          logger.log(`User ${session.user.email} (${session.user.id}) signed out successfully`)
+          logger.log(
+            `User ${session.user.email} (${(session.user as any).id}) signed out successfully`,
+          )
         } catch (error) {
           logger.error('Error during signOut cleanup:', error)
         }
       }
     },
-    async signIn({ user, account, profile, isNewUser }) {
+    async signIn({ user }) {
       logger.log('User signed in:', user.email)
-    }
+    },
   },
 }
 
 // Pomocná funkce pro získání session na serveru
-import { getServerSession } from 'next-auth'
-
 export async function getSession() {
   try {
     return await getServerSession(authOptions)
@@ -319,31 +389,25 @@ export async function getSession() {
   }
 }
 
-// Get Microsoft Graph access token from session
 export function getAccessToken(session: any): string | null {
-  // Pro Azure AD uživatele by měl být access token v session
   if (session?.accessToken) {
     return session.accessToken as string
   }
   return null
 }
 
-// Helper function to check if user has specific role
 export function hasRole(session: any, role: UserRole): boolean {
   return session?.user?.role === role
 }
 
-// Helper function to check if user is admin
 export function isAdmin(session: any): boolean {
   return hasRole(session, 'ADMIN')
 }
 
-// Helper function to check if user is IT
 export function isIT(session: any): boolean {
   return hasRole(session, 'IT') || isAdmin(session)
 }
 
-// Helper function to handle session errors gracefully
 export function handleSessionError(error: any) {
   if (error?.message?.includes('CLIENT_FETCH_ERROR')) {
     logger.warn('Session fetch error - user may be logged out')

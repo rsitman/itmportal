@@ -79,9 +79,12 @@ export default withAuth(
   },
   {
     callbacks: {
-      authorized: ({ token }) => {
-        // Povolit přístup pokud existuje token
-        // withAuth automaticky přesměruje na /login pokud token neexistuje
+      authorized: ({ token, req }) => {
+        const { pathname } = req.nextUrl
+        // Vždy propustit NextAuth OAuth routes (signin, callback, csrf, session atd.)
+        if (pathname.startsWith('/api/auth')) return true
+        // Vždy propustit login stránku (aby se uživatel mohl přihlásit)
+        if (pathname === '/login') return true
         return !!token
       },
     },
