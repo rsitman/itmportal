@@ -46,44 +46,38 @@ export default function Header() {
 
   const handleSignOut = async () => {
     if (isSigningOut) return
-    
+
     setIsSigningOut(true)
-    
+
+    const isAzureUser = (session as any)?.authProvider === 'AZURE_AD'
+    const userEmail = session?.user?.email
+
     try {
-      // Získat uživatelské preference pro logování
-      const prefsResponse = await fetch('/api/user/preferences')
-      const userPrefs = prefsResponse.ok ? await prefsResponse.json() : null
-      
-      logger.log('User signing out - rememberLogin:', userPrefs?.rememberLogin)
-      
-      // Získat Azure AD logout URL
-      const logoutResponse = await fetch('/api/auth/logout', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' }
-      })
-      
-      const logoutData = await logoutResponse.json()
-      
-      // VŽDY úplné odhlášení - bez ohledu na rememberLogin nastavení
-      // Explicitní odhlášení = vždy smazat cookies
-      await signOut({ 
-        redirect: false,
-        callbackUrl: '/login'
-      })
-      
-      // Pokud máme Azure AD logout URL, přesměrovat tam pro úplné odhlášení
-      if (logoutData.success && logoutData.logoutUrl) {
-        logger.log('Redirecting to Azure AD logout for complete sign out')
-        window.location.href = logoutData.logoutUrl
+      if (isAzureUser) {
+        // Azure AD uživatel — nejprve smazat NextAuth session, pak odhlásit u Microsoftu
+        const logoutResponse = await fetch('/api/auth/logout', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email: userEmail }),
+        })
+        const logoutData = await logoutResponse.json()
+
+        await signOut({ redirect: false })
+
+        if (logoutData.logoutUrl) {
+          logger.log('Redirecting to Azure AD logout:', logoutData.logoutUrl)
+          window.location.href = logoutData.logoutUrl
+        } else {
+          router.push('/login')
+        }
       } else {
-        // Jinak jen přesměrovat na login
+        // Lokální uživatel — pouze NextAuth signOut, žádný Microsoft redirect
+        await signOut({ redirect: false })
         router.push('/login')
         router.refresh()
       }
-      
     } catch (error) {
       logger.error('Error during sign out:', error)
-      // I při chybě se pokusíme přesměrovat
       router.push('/login')
     } finally {
       setIsSigningOut(false)

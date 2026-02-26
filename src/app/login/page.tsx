@@ -244,7 +244,7 @@ export default function LoginPage({ searchParams }: { searchParams?: SearchParam
 
             <div className="mt-6">
               <Button
-                onClick={() => signIn('azure-ad', { callbackUrl: getSafeCallbackUrl() })}
+                onClick={() => signIn('azure-ad', { callbackUrl: getSafeCallbackUrl() }, { prompt: 'select_account' })}
                 className="w-full bg-green-600 hover:bg-green-700 text-white"
                 variant="default"
               >
