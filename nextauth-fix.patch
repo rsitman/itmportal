@@ -1,0 +1,82 @@
+From 8c75adfea989ff9b6997e48c3cb04f39bf5e6d1f Mon Sep 17 00:00:00 2001
+From: RomanS <roman.svobodnik@itman.cz>
+Date: Tue, 17 Feb 2026 08:02:13 +0100
+Subject: [PATCH] fix: Add NextAuth cookie settings for HTTP deployment
+
+- Add cookie configuration for HTTP development environment
+- Set secure: false for non-HTTPS deployments
+- Configure domain for production environment (.itman.cz)
+- Fix middleware/proxy conflicts by using proper cookie settings
+- Resolve CLIENT_FETCH_ERROR and fs import issues
+---
+ src/lib/auth.ts | 54 +++++++++++++++++++++++++++++++++++++++++++++++++
+ 1 file changed, 54 insertions(+)
+
+diff --git a/src/lib/auth.ts b/src/lib/auth.ts
+index 1b05fb2..05dca68 100644
+--- a/src/lib/auth.ts
++++ b/src/lib/auth.ts
+@@ -35,6 +35,60 @@ export const authOptions: NextAuthOptions = {
+   },
+   debug: false, // Vypnuto aby se snížily logy
+   logger: customLogger,
++  
++  // Cookie settings pro HTTP development
++  cookies: {
++    sessionToken: {
++      name: 'next-auth.session-token',
++      options: {
++        httpOnly: true,
++        sameSite: 'lax',
++        path: '/',
++        secure: false, // Důležité pro HTTP
++        domain: process.env.NODE_ENV === 'production' ? '.itman.cz' : undefined
++      }
++    },
++    callbackUrl: {
++      name: 'next-auth.callback-url',
++      options: {
++        httpOnly: true,
++        sameSite: 'lax',
++        path: '/',
++        secure: false, // Důležité pro HTTP
++        domain: process.env.NODE_ENV === 'production' ? '.itman.cz' : undefined
++      }
++    },
++    csrfToken: {
++      name: 'next-auth.csrf-token',
++      options: {
++        httpOnly: true,
++        sameSite: 'lax',
++        path: '/',
++        secure: false, // Důležité pro HTTP
++        domain: process.env.NODE_ENV === 'production' ? '.itman.cz' : undefined
++      }
++    },
++    pkceCodeVerifier: {
++      name: 'next-auth.pkce.code_verifier',
++      options: {
++        httpOnly: true,
++        sameSite: 'lax',
++        path: '/',
++        secure: false, // Důležité pro HTTP
++        domain: process.env.NODE_ENV === 'production' ? '.itman.cz' : undefined
++      }
++    },
++    state: {
++      name: 'next-auth.state',
++      options: {
++        httpOnly: true,
++        sameSite: 'lax',
++        path: '/',
++        secure: false, // Důležité pro HTTP
++        domain: process.env.NODE_ENV === 'production' ? '.itman.cz' : undefined
++      }
++    }
++  },
+   callbacks: {
+     async jwt({ token, user, account }) {
+       logger.log('JWT callback - user:', user, 'token:', token, 'account:', account)
+-- 
+2.34.1
+
