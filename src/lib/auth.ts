@@ -320,7 +320,6 @@ export const authOptions: NextAuthOptions = {
             clientId: process.env.AZURE_AD_CLIENT_ID!,
             clientSecret: process.env.AZURE_AD_CLIENT_SECRET!,
             tenantId: process.env.AZURE_AD_TENANT_ID!,
-            wellKnown: `https://login.microsoftonline.com/${process.env.AZURE_AD_TENANT_ID}/v2.0/.well-known/openid-configuration`,
             authorization: {
               params: {
                 scope: 'openid profile email User.Read',
@@ -328,8 +327,6 @@ export const authOptions: NextAuthOptions = {
             },
             profile(profile) {
               logger.log('Azure AD profile received:', profile)
-              // preferred_username je vždy přítomno v JWT claims (= UPN/email)
-              // mail je pouze v Graph API, v /userinfo claims není
               const email =
                 (profile as any).preferred_username ||
                 (profile as any).email ||
@@ -342,7 +339,7 @@ export const authOptions: NextAuthOptions = {
                 emailVerified: null,
               }
             },
-            checks: ['pkce', 'state'],
+            checks: ['state'],
           }),
         ]
       : []),
