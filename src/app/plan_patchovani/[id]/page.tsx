@@ -17,7 +17,7 @@ export const metadata: Metadata = {
 }
 
 export default async function ProjectDetailPage({ params }: ProjectDetailPageProps) {
-  const session = await getServerSession()
+  const session = await getServerSession(authOptions)
   
   if (!session) {
     redirect('/login')

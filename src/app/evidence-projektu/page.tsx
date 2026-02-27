@@ -10,7 +10,7 @@ export const metadata: Metadata = {
 }
 
 export default async function ProjectsRegistryPage() {
-  const session = await getServerSession()
+  const session = await getServerSession(authOptions)
   
   if (!session) {
     redirect('/login')

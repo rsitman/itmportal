@@ -5,7 +5,7 @@ import { logger } from '@/lib/logger'
 // GET /api/hwsw/hardware - Get hardware assets from ERP
 export async function GET(request: NextRequest) {
   try {
-    const session = await getServerSession()
+    const session = await getServerSession(authOptions)
     
     if (!session) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
@@ -43,7 +43,7 @@ export async function GET(request: NextRequest) {
 // POST /api/hwsw/hardware - Add/update hardware asset
 export async function POST(request: NextRequest) {
   try {
-    const session = await getServerSession()
+    const session = await getServerSession(authOptions)
     
     if (!session || session.user?.role !== 'ADMIN') {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
