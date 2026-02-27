@@ -82,7 +82,8 @@ export default withAuth(
     callbacks: {
       authorized: ({ token, req }) => {
         const { pathname } = req.nextUrl
-        console.log('MIDDLEWARE authorized:', pathname, 'token:', !!token)
+        const secret = process.env.NEXTAUTH_SECRET
+        console.log('MIDDLEWARE authorized:', pathname, 'token:', !!token, 'secret_len:', secret?.length, 'secret_first8:', secret?.substring(0, 8))
         if (pathname.startsWith('/api/auth')) return true
         if (pathname === '/login') return true
         return !!token
