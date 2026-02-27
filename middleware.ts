@@ -1,110 +1,38 @@
-import { withAuth } from 'next-auth/middleware'
+import { getToken } from 'next-auth/jwt'
 import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
-import { Role, Permission, hasPermission } from './src/lib/permissions'
 
-export default withAuth(
-  function middleware(req: NextRequest & { nextauth: { token: any } }) {
-    console.log('MIDDLEWARE cookies:', req.cookies.getAll().map(c => c.name).join(', '))
-    const token = req.nextauth.token
-    const pathname = req.nextUrl.pathname
+export default async function middleware(req: NextRequest) {
+  const { pathname } = req.nextUrl
 
-    // Pokud není token, withAuth se postará o redirect na login
-    if (!token) {
-      return NextResponse.next()
-    }
-    
-    const userRole = token.role as Role || Role.USER
-
-    // Přesměrování z root a login na dashboard (pouze pokud JE přihlášen)
-    if (pathname === '/' || pathname === '/login') {
-      return NextResponse.redirect(new URL('/dashboard', req.url))
-    }
-
-    // Definice chráněných rout a jejich oprávnění
-    const protectedRoutes = [
-      {
-        path: '/dashboard',
-        permissions: [Permission.DASHBOARD_VIEW],
-      },
-      {
-        path: '/plan_patchovani',
-        permissions: [Permission.PROJECTS_VIEW],
-      },
-      {
-        path: '/evidence-projektu',
-        permissions: [Permission.PROJECTS_VIEW],
-      },
-      {
-        path: '/grafy',
-        permissions: [Permission.CHARTS_VIEW],
-      },
-      {
-        path: '/dashboard/mapa',
-        permissions: [Permission.MAP_VIEW],
-      },
-      {
-        path: '/calendar',
-        permissions: [Permission.CALENDAR_VIEW],
-      },
-      {
-        path: '/users',
-        permissions: [Permission.USERS_VIEW],
-      },
-      {
-        path: '/settings',
-        permissions: [Permission.SETTINGS_VIEW],
-      },
-      {
-        path: '/hwsw-config',
-        permissions: [Permission.SETTINGS_VIEW],
-      },
-    ]
-
-    // Kontrola oprávnění pro danou routu
-    for (const route of protectedRoutes) {
-      if (pathname.startsWith(route.path)) {
-        const hasAccess = route.permissions.some(permission => 
-          hasPermission(userRole, permission)
-        )
-        
-        if (!hasAccess) {
-          const errorUrl = new URL('/dashboard?error=access_denied', req.url)
-          return NextResponse.redirect(errorUrl)
-        }
-        break
-      }
-    }
-
+  // Propustit NextAuth routes a login stránku
+  if (pathname.startsWith('/api/auth') || pathname === '/login') {
     return NextResponse.next()
-  },
-  {
-    callbacks: {
-      authorized: ({ token, req }) => {
-        const { pathname } = req.nextUrl
-        const secret = process.env.NEXTAUTH_SECRET
-        console.log('MIDDLEWARE authorized:', pathname, 'token:', !!token, 'secret_len:', secret?.length, 'secret_first8:', secret?.substring(0, 8))
-        if (pathname.startsWith('/api/auth')) return true
-        if (pathname === '/login') return true
-        return !!token
-      },
-    },
-    pages: {
-      signIn: '/login',
-    },
   }
-)
+
+  const token = await getToken({
+    req,
+    secret: process.env.NEXTAUTH_SECRET,
+    cookieName: 'next-auth.session-token',
+  })
+
+  // Pokud není přihlášen, přesměruj na login
+  if (!token) {
+    const loginUrl = new URL('/login', req.url)
+    loginUrl.searchParams.set('callbackUrl', pathname)
+    return NextResponse.redirect(loginUrl)
+  }
+
+  // Přesměrování z root a login na dashboard
+  if (pathname === '/') {
+    return NextResponse.redirect(new URL('/dashboard', req.url))
+  }
+
+  return NextResponse.next()
+}
 
 export const config = {
   matcher: [
-    /*
-     * Match all request paths except for the ones starting with:
-     * - _next/static (static files)
-     * - _next/image (image optimization files)
-     * - favicon.ico (favicon file)
-     * - public folder (public files)
-     * - api/auth/* (NextAuth routes must be accessible)
-     */
     '/((?!_next/static|_next/image|favicon.ico|public|api/auth).*)',
   ],
 }
