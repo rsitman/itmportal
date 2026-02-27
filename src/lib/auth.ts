@@ -311,7 +311,10 @@ export const authOptions: NextAuthOptions = {
             return null
           }
         } catch (error) {
-          console.log('Auth error:', error)
+          console.log('Auth error full:', JSON.stringify(error, Object.getOwnPropertyNames(error)))
+          console.log('Auth error message:', (error as any)?.message)
+          console.log('Auth error code:', (error as any)?.code)
+          console.log('DATABASE_URL at runtime:', process.env.DATABASE_URL?.replace(/:[^:@]+@/, ':***@'))
           logger.error('Auth error:', error)
           return null
         } finally {
