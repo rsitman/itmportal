@@ -41,7 +41,7 @@ console.error = (...args: any[]) => {
 }
 
 export const authOptions: NextAuthOptions = {
-  debug: true,
+  debug: process.env.NODE_ENV === 'development',
   secret: process.env.NEXTAUTH_SECRET,
 
   session: {
@@ -288,8 +288,6 @@ export const authOptions: NextAuthOptions = {
             console.log('User details:', {
               email: user.email,
               hasPassword: !!user.password,
-              passwordLength: user.password?.length,
-              passwordFirst4: user.password?.substring(0, 4),
               role: user.role,
               isActive: user.isActive,
             })
@@ -313,10 +311,6 @@ export const authOptions: NextAuthOptions = {
             return null
           }
         } catch (error) {
-          console.log('Auth error full:', JSON.stringify(error, Object.getOwnPropertyNames(error)))
-          console.log('Auth error message:', (error as any)?.message)
-          console.log('Auth error code:', (error as any)?.code)
-          console.log('DATABASE_URL at runtime:', process.env.DATABASE_URL?.replace(/:[^:@]+@/, ':***@'))
           logger.error('Auth error:', error)
           return null
         } finally {
