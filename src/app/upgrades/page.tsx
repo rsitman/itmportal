@@ -141,16 +141,15 @@ function UpgradesContent() {
 
   return (
     <div className="w-full py-10 bg-transparent">
-      <div className="mb-8 px-6">
-        <h1 className="text-3xl font-bold tracking-tight text-white mb-2">
-          Správa upgradů
-        </h1>
-        <p className="text-lg text-gray-300">
-          Přehled plánovaných a realizovaných upgradů
-        </p>
-      </div>
-      
-      <div className="px-6">
+      <div className="mb-8 px-6 flex items-center justify-between">
+        <div>
+          <h1 className="text-3xl font-bold tracking-tight text-white mb-2">
+            Správa upgradů
+          </h1>
+          <p className="text-lg text-gray-300">
+            Přehled plánovaných a realizovaných upgradů
+          </p>
+        </div>
         <button
           onClick={fetchUpgrades}
           className="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 flex items-center gap-2"
