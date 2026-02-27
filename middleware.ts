@@ -5,6 +5,7 @@ import { Role, Permission, hasPermission } from './src/lib/permissions'
 
 export default withAuth(
   function middleware(req: NextRequest & { nextauth: { token: any } }) {
+    console.log('MIDDLEWARE cookies:', req.cookies.getAll().map(c => c.name).join(', '))
     const token = req.nextauth.token
     const pathname = req.nextUrl.pathname
 
@@ -81,12 +82,13 @@ export default withAuth(
     callbacks: {
       authorized: ({ token, req }) => {
         const { pathname } = req.nextUrl
-        console.log('MIDDLEWARE authorized:', pathname, 'token:', !!token, 'tokenSub:', (token as any)?.sub?.substring(0, 8))
+        console.log('MIDDLEWARE authorized:', pathname, 'token:', !!token)
         if (pathname.startsWith('/api/auth')) return true
         if (pathname === '/login') return true
         return !!token
       },
     },
+    cookieName: 'next-auth.session-token',
     pages: {
       signIn: '/login',
     },
