@@ -288,6 +288,8 @@ export const authOptions: NextAuthOptions = {
             console.log('User details:', {
               email: user.email,
               hasPassword: !!user.password,
+              passwordLength: user.password?.length,
+              passwordFirst4: user.password?.substring(0, 4),
               role: user.role,
               isActive: user.isActive,
             })
