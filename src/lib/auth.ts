@@ -113,7 +113,8 @@ export const authOptions: NextAuthOptions = {
         token.authProvider = (user as any).authProvider
       }
 
-      if (account?.provider === 'azure-ad') {
+      if (account?.provider === 'azure-ad' && account.access_token) {
+        token.accessToken = account.access_token
         token.expiresAt = account.expires_at
       }
 
@@ -127,6 +128,9 @@ export const authOptions: NextAuthOptions = {
         session.user.email = token.email as string
         session.user.name = token.name as string
         ;(session as any).authProvider = token.authProvider as AuthProvider
+        if (token.accessToken) {
+          ;(session as any).accessToken = token.accessToken
+        }
 
         const expiresAt = token.expiresAt
           ? new Date(token.expiresAt * 1000).toISOString()
