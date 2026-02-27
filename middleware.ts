@@ -81,9 +81,8 @@ export default withAuth(
     callbacks: {
       authorized: ({ token, req }) => {
         const { pathname } = req.nextUrl
-        // Vždy propustit NextAuth OAuth routes (signin, callback, csrf, session atd.)
+        console.log('MIDDLEWARE authorized:', pathname, 'token:', !!token, 'tokenSub:', (token as any)?.sub?.substring(0, 8))
         if (pathname.startsWith('/api/auth')) return true
-        // Vždy propustit login stránku (aby se uživatel mohl přihlásit)
         if (pathname === '/login') return true
         return !!token
       },
