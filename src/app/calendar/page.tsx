@@ -587,18 +587,6 @@ export default function CalendarPage() {
                         <p className="mt-2 text-yellow-300">Pokud synchronizace selže, zkuste se znovu přihlásit.</p>
                       </div>
                     </div>
-                    <button
-                      onClick={() => alert('Zobrazit kalendáře - funkce ještě není implementována')}
-                      className="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 transition-colors text-sm font-medium"
-                    >
-                      Zobrazit kalendáře
-                    </button>
-                    <button
-                      onClick={() => alert('Informace o uživateli - funkce ještě není implementována')}
-                      className="px-4 py-2 bg-purple-600 text-white rounded-md hover:bg-purple-700 transition-colors text-sm font-medium"
-                    >
-                      Informace o uživateli
-                    </button>
                     {syncError && (
                       <div className="text-red-400 text-xs mt-1 max-w-xs">
                         {syncError}
