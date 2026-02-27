@@ -88,7 +88,6 @@ export default withAuth(
         return !!token
       },
     },
-    cookieName: 'next-auth.session-token',
     pages: {
       signIn: '/login',
     },
