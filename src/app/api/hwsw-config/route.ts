@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getServerSession } from 'next-auth'
+import { authOptions } from '@/lib/auth'
 import { HwswConfig } from '@/types/hwsw-config'
 import { logger } from '@/lib/logger'
 
