@@ -105,47 +105,15 @@ export const authOptions: NextAuthOptions = {
 
   callbacks: {
     async jwt({ token, user, account }) {
-      logger.log('JWT callback - user:', user, 'token:', token, 'account:', account)
-
       if (user) {
         token.role = (user as any).role
         token.id = (user as any).id
         token.email = user.email
         token.name = user.name
         token.authProvider = (user as any).authProvider
-
-        try {
-          const userPrefs = await prisma.user.findUnique({
-            where: { id: (user as any).id },
-            select: { rememberLogin: true, sessionPreference: true },
-          })
-
-          if (userPrefs) {
-            token.rememberLogin = userPrefs.rememberLogin
-            token.sessionPreference = userPrefs.sessionPreference
-
-            const sessionAge =
-              userPrefs.sessionPreference === 'REMEMBER'
-                ? 24 * 60 * 60
-                : 1 * 60 * 60
-
-            token.maxAge = sessionAge
-            logger.log(
-              'Session maxAge set to:',
-              sessionAge,
-              'seconds for user:',
-              user.email,
-            )
-          }
-        } catch (error) {
-          logger.error('Error loading user preferences for JWT:', error)
-          token.maxAge = 24 * 60 * 60
-        }
       }
 
-      if (account?.provider === 'azure-ad' && account.access_token) {
-        token.accessToken = account.access_token
-        token.refreshToken = account.refresh_token
+      if (account?.provider === 'azure-ad') {
         token.expiresAt = account.expires_at
       }
 
@@ -153,24 +121,20 @@ export const authOptions: NextAuthOptions = {
     },
 
     async session({ session, token }) {
-      logger.log('Session callback - token:', token)
-
       if (token) {
         ;(session.user as any).id = token.id as string
         ;(session.user as any).role = token.role as UserRole
         session.user.email = token.email as string
         session.user.name = token.name as string
-        ;(session as any).accessToken = token.accessToken as string
         ;(session as any).authProvider = token.authProvider as AuthProvider
 
         const expiresAt = token.expiresAt
           ? new Date(token.expiresAt * 1000).toISOString()
-          : new Date(Date.now() + 1 * 60 * 60 * 1000).toISOString()
+          : new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString()
 
         session.expires = expiresAt
       }
 
-      logger.log('Final session:', session)
       return session
     },
 
