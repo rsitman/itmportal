@@ -73,7 +73,7 @@ export default function LoginPage({ searchParams }: { searchParams?: SearchParam
   }, [session])
 
   const handleContinueAsUser = () => {
-    router.push('/dashboard')
+    window.location.href = '/dashboard'
   }
 
   const handleLoginAsDifferent = async () => {
@@ -189,7 +189,7 @@ export default function LoginPage({ searchParams }: { searchParams?: SearchParam
             if (result?.error) {
               setError('Nesprávný email nebo heslo')
             } else {
-              router.push(getSafeCallbackUrl())
+              window.location.href = getSafeCallbackUrl()
             }
           }}
         >
