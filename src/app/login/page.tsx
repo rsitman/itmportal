@@ -175,17 +175,29 @@ export default function LoginPage({ searchParams }: { searchParams?: SearchParam
 
         <form
           className="mt-8 space-y-6"
-          method="post"
-          action="/api/auth/callback/credentials"
+          onSubmit={async (e) => {
+            e.preventDefault()
+            setIsLoading(true)
+            setError('')
+            const formData = new FormData(e.currentTarget)
+            const result = await signIn('credentials', {
+              email: formData.get('email') as string,
+              password: formData.get('password') as string,
+              redirect: false,
+            })
+            setIsLoading(false)
+            if (result?.error) {
+              setError('Nesprávný email nebo heslo')
+            } else {
+              router.push(getSafeCallbackUrl())
+            }
+          }}
         >
           {error && (
             <div className="rounded-md bg-red-50 p-4">
               <div className="text-sm text-red-800">{error}</div>
             </div>
           )}
-
-          <input type="hidden" name="csrfToken" value={csrfToken} />
-          <input type="hidden" name="callbackUrl" value={getSafeCallbackUrl()} />
 
           <div className="space-y-4">
             <div>
