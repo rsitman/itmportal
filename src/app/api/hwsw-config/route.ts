@@ -119,52 +119,61 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: 'projekt parameter is required' }, { status: 400 })
     }
 
-    // Use request origin so internal fetch always hits same app (no NEXTAUTH_URL dependency)
-    let baseUrl: string
-    try {
-      baseUrl = new URL(request.url).origin
-    } catch {
-      baseUrl = process.env.NODE_ENV === 'production'
-        ? (process.env.NEXTAUTH_URL || 'http://localhost:3000')
-        : 'http://localhost:3000'
-    }
-    const proxyUrl = `${baseUrl}/api/erp-proxy/projects/${encodeURIComponent(projekt)}/itconf`
-    logger.log(`Fetching HWSW config from: ${proxyUrl}`)
+    // Voláme ERP přímo (ne přes proxy) – server-side fetch na proxy nemá cookies a middleware by redirectoval na login
+    const erpBaseUrl = process.env.ERP_API_URL || 'http://itmsql01:44612/web'
+    const erpUrl = `${erpBaseUrl}/projects/${encodeURIComponent(projekt)}/itconf`
+    logger.log(`[HWSW_CONFIG] projekt=${projekt} erpUrl=${erpUrl}`)
 
-    const response = await fetch(proxyUrl, {
+    const response = await fetch(erpUrl, {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
       },
-      cache: 'no-store'
+      cache: 'no-store',
+      signal: AbortSignal.timeout(15000),
     })
 
     if (!response.ok) {
       const bodyPreview = await response.text().then((t) => t.slice(0, 200)).catch(() => '')
-      logger.error(`ERP proxy error: ${response.status} ${response.statusText}`, bodyPreview ? ` body: ${bodyPreview}` : '')
+      const errMsg = `[HWSW_CONFIG] ERP error: ${response.status} ${response.statusText} projekt=${projekt}` + (bodyPreview ? ` body: ${bodyPreview}` : '')
+      logger.error(errMsg)
+      console.error(errMsg)
       
-      // Použij mock pouze při skutečném HTTP 500 z ERP/proxy
+      // Použij mock pouze při skutečném HTTP 500 z ERP
       if (response.status === 500) {
-        logger.log(`Proxy returned 500, returning mock data for project ${projekt}`)
+        logger.log(`[HWSW_CONFIG] ERP returned 500 -> returning mock for project ${projekt}`)
         return NextResponse.json(MOCK_HWSW_CONFIG)
       }
 
       // Pro ostatní HTTP kódy vrať reálnou chybu dál
+      logger.log(`[HWSW_CONFIG] ERP returned ${response.status} -> passing through`)
       return NextResponse.json(
-        { error: `Failed to fetch configuration from ERP API: ${response.status}` },
+        { error: `Failed to fetch configuration from ERP: ${response.status}` },
         { status: response.status }
       )
     }
 
-    const data = await response.json()
-    
+    let data: Record<string, unknown>
+    try {
+      data = (await response.json()) as Record<string, unknown>
+    } catch (parseErr) {
+      const err = parseErr instanceof Error ? parseErr : new Error(String(parseErr))
+      const parseErrMsg = `[HWSW_CONFIG] HWSW_CONFIG_PARSE_ERROR projekt=${projekt}: ${err.message}`
+      logger.error(parseErrMsg)
+      console.error(parseErrMsg)
+      return NextResponse.json(
+        { error: 'Invalid JSON from ERP' },
+        { status: 502 }
+      )
+    }
+
     // Validate and transform data if needed
     const hwswConfig: HwswConfig = {
-      fw_pristupy: data.fw_pristupy || [],
-      dom_users: data.dom_users || [],
-      set_send_mail: data.set_send_mail || [],
-      ext_sluzby: data.ext_sluzby || [],
-      servery: data.servery || []
+      fw_pristupy: (data.fw_pristupy as HwswConfig['fw_pristupy']) || [],
+      dom_users: (data.dom_users as HwswConfig['dom_users']) || [],
+      set_send_mail: (data.set_send_mail as HwswConfig['set_send_mail']) || [],
+      ext_sluzby: (data.ext_sluzby as HwswConfig['ext_sluzby']) || [],
+      servery: (data.servery as HwswConfig['servery']) || []
     }
 
     logger.log(`HWSW config for ${projekt}: ${hwswConfig.servery.length} servers, ${hwswConfig.dom_users.length} users`)
@@ -173,7 +182,9 @@ export async function GET(request: NextRequest) {
 
   } catch (error) {
     const err = error instanceof Error ? error : new Error(String(error))
-    logger.error('Error in HWSW config API:', err.message, err.stack)
+    const fetchErrMsg = `[HWSW_CONFIG] HWSW_CONFIG_FETCH_ERROR: ${err.message}`
+    logger.error(fetchErrMsg, err.stack)
+    console.error(fetchErrMsg, err.stack)
     // Při technické chybě (timeout, DNS, atd.) vrať standardní 500 bez mocku
     return NextResponse.json(
       { error: 'Internal server error while fetching HWSW configuration' },

@@ -36,7 +36,16 @@ function HwswConfigContent() {
       const response = await fetch(`/api/hwsw-config?projekt=${encodeURIComponent(projekt || '')}`)
       
       if (!response.ok) {
-        throw new Error(`Failed to fetch configuration: ${response.status}`)
+        let errDetail = `Failed to fetch configuration: ${response.status}`
+        try {
+          const errBody = await response.json()
+          if (errBody?.error && typeof errBody.error === 'string') {
+            errDetail = errBody.error
+          }
+        } catch {
+          // ignore
+        }
+        throw new Error(errDetail)
       }
       
       const data = await response.json()
