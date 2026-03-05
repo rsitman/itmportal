@@ -19,11 +19,16 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: 'projekt parameter is required' }, { status: 400 })
     }
 
-    // Use the existing ERP proxy pattern
-    const proxyUrl = `${process.env.NODE_ENV === 'production' 
-      ? process.env.NEXTAUTH_URL 
-      : 'http://localhost:3000'}/api/erp-proxy/projects/${encodeURIComponent(projekt)}/itconf`
-    
+    // Use request origin so internal fetch always hits same app (no NEXTAUTH_URL dependency)
+    let baseUrl: string
+    try {
+      baseUrl = new URL(request.url).origin
+    } catch {
+      baseUrl = process.env.NODE_ENV === 'production'
+        ? (process.env.NEXTAUTH_URL || 'http://localhost:3000')
+        : 'http://localhost:3000'
+    }
+    const proxyUrl = `${baseUrl}/api/erp-proxy/projects/${encodeURIComponent(projekt)}/itconf`
     logger.log(`Fetching HWSW config from: ${proxyUrl}`)
 
     const response = await fetch(proxyUrl, {
@@ -35,11 +40,12 @@ export async function GET(request: NextRequest) {
     })
 
     if (!response.ok) {
-      logger.error(`ERP proxy error: ${response.status} ${response.statusText}`)
+      const bodyPreview = await response.text().then((t) => t.slice(0, 200)).catch(() => '')
+      logger.error(`ERP proxy error: ${response.status} ${response.statusText}`, bodyPreview ? ` body: ${bodyPreview}` : '')
       
-      // If ERP endpoint doesn't exist yet, return mock data for testing
-      if (response.status === 404) {
-        logger.log('ERP endpoint not found, returning mock data for testing')
+      // 404 or 5xx: return mock/empty config so Konfig page still loads (user can "Zkusit znovu")
+      if (response.status === 404 || response.status >= 500) {
+        logger.log(`Proxy returned ${response.status}, returning mock data for project ${projekt}`)
         const mockConfig: HwswConfig = {
           fw_pristupy: [
             { ip_adresa: "212.20.99.136", id_firmy: "", popis: "" },
@@ -117,10 +123,10 @@ export async function GET(request: NextRequest) {
     return NextResponse.json(hwswConfig)
 
   } catch (error) {
-    logger.error('Error in HWSW config API:', error)
-    
-    return NextResponse.json({ 
-      error: 'Internal server error while fetching HWSW configuration' 
+    const err = error instanceof Error ? error : new Error(String(error))
+    logger.error('Error in HWSW config API:', err.message, err.stack)
+    return NextResponse.json({
+      error: 'Internal server error while fetching HWSW configuration'
     }, { status: 500 })
   }
 }

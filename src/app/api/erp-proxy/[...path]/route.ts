@@ -41,7 +41,17 @@ export async function GET(
       )
     }
 
-    const data = await response.json()
+    let data: unknown
+    try {
+      data = await response.json()
+    } catch (parseErr) {
+      const err = parseErr instanceof Error ? parseErr : new Error(String(parseErr))
+      logger.error('ERP Proxy: Invalid JSON from ERP', err.message)
+      return NextResponse.json(
+        { error: 'ERP returned non-JSON response' },
+        { status: 502 }
+      )
+    }
     logger.log(`ERP Proxy: Successfully fetched data from ${fullUrl}`)
     
     // Add CORS headers
