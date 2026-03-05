@@ -143,15 +143,17 @@ export async function GET(request: NextRequest) {
       const bodyPreview = await response.text().then((t) => t.slice(0, 200)).catch(() => '')
       logger.error(`ERP proxy error: ${response.status} ${response.statusText}`, bodyPreview ? ` body: ${bodyPreview}` : '')
       
-      // 404 or 5xx: return mock/empty config so Konfig page still loads (user can "Zkusit znovu")
-      if (response.status === 404 || response.status >= 500) {
-        logger.log(`Proxy returned ${response.status}, returning mock data for project ${projekt}`)
+      // Použij mock pouze při skutečném HTTP 500 z ERP/proxy
+      if (response.status === 500) {
+        logger.log(`Proxy returned 500, returning mock data for project ${projekt}`)
         return NextResponse.json(MOCK_HWSW_CONFIG)
       }
-      
-      return NextResponse.json({ 
-        error: `Failed to fetch configuration from ERP API: ${response.status}` 
-      }, { status: response.status })
+
+      // Pro ostatní HTTP kódy vrať reálnou chybu dál
+      return NextResponse.json(
+        { error: `Failed to fetch configuration from ERP API: ${response.status}` },
+        { status: response.status }
+      )
     }
 
     const data = await response.json()
@@ -172,7 +174,10 @@ export async function GET(request: NextRequest) {
   } catch (error) {
     const err = error instanceof Error ? error : new Error(String(error))
     logger.error('Error in HWSW config API:', err.message, err.stack)
-    // Pokud vypadne fetch nebo jiná část logiky, vraťme mock tak, aby Konfig nikdy nepadal 500
-    return NextResponse.json(MOCK_HWSW_CONFIG)
+    // Při technické chybě (timeout, DNS, atd.) vrať standardní 500 bez mocku
+    return NextResponse.json(
+      { error: 'Internal server error while fetching HWSW configuration' },
+      { status: 500 }
+    )
   }
 }
