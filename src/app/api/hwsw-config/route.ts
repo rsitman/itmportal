@@ -4,6 +4,106 @@ import { authOptions } from '@/lib/auth'
 import { HwswConfig } from '@/types/hwsw-config'
 import { logger } from '@/lib/logger'
 
+const MOCK_HWSW_CONFIG: HwswConfig = {
+  fw_pristupy: [
+    { ip_adresa: '212.20.99.136', id_firmy: '', popis: '' },
+    { ip_adresa: '80.94.53.206', id_firmy: '', popis: 'STEP' },
+    { ip_adresa: '90.182.118.34', id_firmy: '', popis: 'KSW' },
+  ],
+  dom_users: [
+    {
+      login: 'signum\\itman.augustin',
+      domena: 'signum',
+      username: 'itman.augustin',
+      heslo: '****',
+      poznamka: '',
+    },
+    {
+      login: 'signum\\itman.chodil',
+      domena: 'signum',
+      username: 'itman.chodil',
+      heslo: '****',
+      poznamka: '',
+    },
+    {
+      login: 'signum\\karatsvc',
+      domena: 'signum',
+      username: 'karatsvc',
+      heslo: '****',
+      poznamka: 'Servis SIGNUM a NFS',
+    },
+  ],
+  set_send_mail: [
+    {
+      id_firmy: 'SIGNUM',
+      ip_adresa: '192.168.198.203',
+      port: 25,
+      login: 'karat@signumcz.com',
+      heslo: '****',
+      poznamka: 'Platí i pro NFS',
+    },
+    {
+      id_firmy: 'ELEKTROVOD_SK',
+      ip_adresa: '10.10.10.40',
+      port: 25,
+      login: 'karat@elv-slovakia.sk',
+      heslo: '****',
+      poznamka: '',
+    },
+  ],
+  ext_sluzby: [
+    {
+      nazev: 'AiDOCU',
+      popis: 'Vytěžování dokumentů',
+      poznamka:
+        'URL\nostrá - https://aidocu-isk-api.amitia-ai.com/api/v1\ntestovací - https://aidocu-isk-api-test.amitia-ai.com/api/v1',
+    },
+    {
+      nazev: 'DigReader',
+      popis: 'Vyčítání vyrženého čísla',
+      poznamka: 'URL - http://dig-reader-api.amitia-ai.com',
+    },
+    {
+      nazev: 'PLAiN',
+      popis: 'Plánování',
+      poznamka:
+        'URL\nostrá - https://plain-api.amitia-ai.com/api/v1\ntestovací - https://plain-api-test.amitia-ai.com/api/v1',
+    },
+  ],
+  servery: [
+    {
+      server_id: 1,
+      id_firmy: '',
+      server_typ: 'SQL server',
+      nazev: 'tereza.silroc.lan',
+      popis: 'DB server SILROC',
+      ip_adresa: '192.168.1.207',
+      maska: '255.255.255.0',
+      brana: '192.168.1.201',
+      dns: '192.168.1.204',
+      os_app: 'Windows Server 2016 Standard',
+      os_lic: '',
+      poznamka: '',
+      sluzby: [
+        {
+          poradi: 1,
+          kod: 'SQL_SERVER',
+          typ: 'SQL server',
+          nazev: 'SQL server',
+          popis: '',
+          poznamka:
+            'V rámci instalace serveru 2019 byl instalován CU25, což je poslední CU ke dni instalace.',
+          verze: 'Microsoft SQL Server 2019 (RTM-CU32-GDR)',
+          typ_uctu: 'Lokální účet',
+          login: 'NT Service\\MSSQL$KARAT',
+          heslo: '***',
+          sql_instance: 'karat',
+        },
+      ],
+    },
+  ],
+}
+
 export async function GET(request: NextRequest) {
   try {
     const session = await getServerSession(authOptions)
@@ -46,60 +146,7 @@ export async function GET(request: NextRequest) {
       // 404 or 5xx: return mock/empty config so Konfig page still loads (user can "Zkusit znovu")
       if (response.status === 404 || response.status >= 500) {
         logger.log(`Proxy returned ${response.status}, returning mock data for project ${projekt}`)
-        const mockConfig: HwswConfig = {
-          fw_pristupy: [
-            { ip_adresa: "212.20.99.136", id_firmy: "", popis: "" },
-            { ip_adresa: "80.94.53.206", id_firmy: "", popis: "STEP" },
-            { ip_adresa: "90.182.118.34", id_firmy: "", popis: "KSW" }
-          ],
-          dom_users: [
-            { login: "signum\\itman.augustin", domena: "signum", username: "itman.augustin", heslo: "****", poznamka: "" },
-            { login: "signum\\itman.chodil", domena: "signum", username: "itman.chodil", heslo: "****", poznamka: "" },
-            { login: "signum\\karatsvc", domena: "signum", username: "karatsvc", heslo: "****", poznamka: "Servis SIGNUM a NFS" }
-          ],
-          set_send_mail: [
-            { id_firmy: "SIGNUM", ip_adresa: "192.168.198.203", port: 25, login: "karat@signumcz.com", heslo: "****", poznamka: "Platí i pro NFS" },
-            { id_firmy: "ELEKTROVOD_SK", ip_adresa: "10.10.10.40", port: 25, login: "karat@elv-slovakia.sk", heslo: "****", poznamka: "" }
-          ],
-          ext_sluzby: [
-            { nazev: "AiDOCU", popis: "Vytěžování dokumentů", poznamka: "URL\nostrá - https://aidocu-isk-api.amitia-ai.com/api/v1\ntestovací - https://aidocu-isk-api-test.amitia-ai.com/api/v1" },
-            { nazev: "DigReader", popis: "Vyčítání vyrženého čísla", poznamka: "URL - http://dig-reader-api.amitia-ai.com" },
-            { nazev: "PLAiN", popis: "Plánování", poznamka: "URL\nostrá - https://plain-api.amitia-ai.com/api/v1\ntestovací - https://plain-api-test.amitia-ai.com/api/v1" }
-          ],
-          servery: [
-            {
-              server_id: 1,
-              id_firmy: "",
-              server_typ: "SQL server",
-              nazev: "tereza.silroc.lan",
-              popis: "DB server SILROC",
-              ip_adresa: "192.168.1.207",
-              maska: "255.255.255.0",
-              brana: "192.168.1.201",
-              dns: "192.168.1.204",
-              os_app: "Windows Server 2016 Standard",
-              os_lic: "",
-              poznamka: "",
-              sluzby: [
-                {
-                  poradi: 1,
-                  kod: "SQL_SERVER",
-                  typ: "SQL server",
-                  nazev: "SQL server",
-                  popis: "",
-                  poznamka: "V rámci instalace serveru 2019 byl instalován CU25, což je poslední CU ke dni instalace.",
-                  verze: "Microsoft SQL Server 2019 (RTM-CU32-GDR)",
-                  typ_uctu: "Lokální účet",
-                  login: "NT Service\\MSSQL$KARAT",
-                  heslo: "***",
-                  sql_instance: "karat"
-                }
-              ]
-            }
-          ]
-        }
-        
-        return NextResponse.json(mockConfig)
+        return NextResponse.json(MOCK_HWSW_CONFIG)
       }
       
       return NextResponse.json({ 
@@ -125,8 +172,7 @@ export async function GET(request: NextRequest) {
   } catch (error) {
     const err = error instanceof Error ? error : new Error(String(error))
     logger.error('Error in HWSW config API:', err.message, err.stack)
-    return NextResponse.json({
-      error: 'Internal server error while fetching HWSW configuration'
-    }, { status: 500 })
+    // Pokud vypadne fetch nebo jiná část logiky, vraťme mock tak, aby Konfig nikdy nepadal 500
+    return NextResponse.json(MOCK_HWSW_CONFIG)
   }
 }
