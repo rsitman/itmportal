@@ -13,6 +13,9 @@ ssh "$SERVER" "
   set -e
   cd $SERVER_PATH
 
+  echo '-- git stash (pokud jsou lokální změny)'
+  git stash --include-untracked 2>/dev/null || true
+
   echo '-- git pull'
   git pull origin $BRANCH
 
