@@ -155,7 +155,7 @@ export default function ProjectsRegistryClient({ initialProjects }: ProjectsRegi
                   className="flex items-center justify-center px-3 py-2 text-sm bg-gray-700 text-gray-200 rounded hover:bg-gray-600 transition-colors"
                 >
                   <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 0h.01M6 19a2 2 0 01-2-2V5a2 2 0 012-2h4a2 2 0 012 2v2a2 2 0 001 1h2a2 2 0 001 1v11a2 2 0 01-2 2m0-1h2a2 2 0 002-2V9a2 2 0 00-2-2h-2m0 0h2a2 2 0 002 2v11m-4 0h2a2 2 0 012 2v-3" />
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 10l7-7m0 0l7 7m-7-7v18" />
                   </svg>
                   Upgrady
                 </button>

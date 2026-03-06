@@ -15,11 +15,13 @@ export default function ClientLayout({ children }: { children: React.ReactNode }
     pathname === '/dashboard/mapa' ||
     pathname === '/calendar' ||
     pathname === '/evidence-projektu' ||
+    pathname === '/hwsw-config' ||
     pathname.startsWith('/settings') ||
     pathname.startsWith('/dashboard') ||
     pathname.startsWith('/users') ||
     pathname.startsWith('/plan_patchovani/') ||
-    pathname.startsWith('/patch-modules');
+    pathname.startsWith('/patch-modules') ||
+    pathname.startsWith('/projects/doklad-projektu');
   
   return (
     <AuthErrorBoundary>

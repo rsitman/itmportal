@@ -113,7 +113,7 @@ export default function ExternalComponentsPage() {
           </div>
           <button
             onClick={() => router.back()}
-            className="px-4 py-2 text-gray-700 bg-gray-200 rounded-md hover:bg-gray-300"
+            className="px-4 py-2 bg-gray-600 text-white rounded-md hover:bg-gray-500 transition-colors"
           >
             ← Zpět na projekty
           </button>
@@ -246,7 +246,7 @@ export default function ExternalComponentsPage() {
                     </div>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm">
-                    <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-green-800">
+                    <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-gray-900">
                       {component.forma_kom}
                     </span>
                   </td>

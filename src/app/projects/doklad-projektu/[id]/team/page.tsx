@@ -61,23 +61,23 @@ export default function ProjectTeamPage() {
 
   const getPersonTypeColor = (type: number): string => {
     const colors: Record<number, string> = {
-      [PersonType.INTERNAL]: 'bg-blue-100 text-green-800',
-      [PersonType.EXTERNAL]: 'bg-orange-100 text-orange-800',
-      [PersonType.CUSTOMER]: 'bg-green-100 text-green-800'
+      [PersonType.INTERNAL]: 'bg-blue-100 text-gray-900',
+      [PersonType.EXTERNAL]: 'bg-orange-100 text-gray-900',
+      [PersonType.CUSTOMER]: 'bg-green-100 text-gray-900'
     }
-    return colors[type] || 'bg-gray-100 text-gray-800'
+    return colors[type] || 'bg-gray-100 text-gray-900'
   }
 
   const getRoleColor = (role: string): string => {
     const colors: Record<string, string> = {
-      'ZAK_INV': 'bg-purple-100 text-purple-800',
-      'ITMAN': 'bg-red-100 text-red-800',
-      'DEV': 'bg-blue-100 text-green-800',
-      'KON': 'bg-yellow-100 text-yellow-800',
-      'TEST': 'bg-gray-100 text-gray-800',
-      'SUP': 'bg-green-100 text-green-800'
+      'ZAK_INV': 'bg-purple-100 text-gray-900',
+      'ITMAN': 'bg-red-100 text-gray-900',
+      'DEV': 'bg-blue-100 text-gray-900',
+      'KON': 'bg-yellow-100 text-gray-900',
+      'TEST': 'bg-gray-100 text-gray-900',
+      'SUP': 'bg-green-100 text-gray-900'
     }
-    return colors[role] || 'bg-gray-100 text-gray-800'
+    return colors[role] || 'bg-gray-100 text-gray-900'
   }
 
   const exportToExcel = () => {
@@ -131,7 +131,7 @@ export default function ProjectTeamPage() {
           </div>
           <button
             onClick={() => router.back()}
-            className="px-4 py-2 text-gray-700 bg-gray-200 rounded-md hover:bg-gray-300"
+            className="px-4 py-2 bg-gray-600 text-white rounded-md hover:bg-gray-500 transition-colors"
           >
             ← Zpět na projekty
           </button>

@@ -118,7 +118,7 @@ function HwswConfigContent() {
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
       <div className="bg-white shadow">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="w-full px-6">
           <div className="flex justify-between items-center py-6">
             <div>
               <h1 className="text-3xl font-bold text-gray-900">HWSW Konfigurace</h1>
@@ -137,7 +137,7 @@ function HwswConfigContent() {
       </div>
 
       {/* Configuration Sections */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6">
+      <div className="w-full px-6 py-8 space-y-6">
         
         {/* Firewall Access */}
         <div className="bg-white rounded-lg shadow">
@@ -360,7 +360,7 @@ function HwswConfigContent() {
                         <h3 className="font-semibold text-gray-900">{server.nazev || `Server ${server.server_id}`}</h3>
                         <p className="text-sm text-gray-600">{server.popis}</p>
                       </div>
-                      <span className="px-2 py-1 text-xs font-medium bg-blue-100 text-green-800 rounded">
+                      <span className="px-2 py-1 text-xs font-medium bg-blue-100 text-gray-900 rounded">
                         {server.server_typ}
                       </span>
                     </div>
