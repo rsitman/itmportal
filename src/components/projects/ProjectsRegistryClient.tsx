@@ -80,9 +80,8 @@ export default function ProjectsRegistryClient({ initialProjects }: ProjectsRegi
   return (
     <div className="px-6">
       <div className="mb-8">
-        <h2 className="text-2xl font-bold text-white">Evidence projektů ({filteredProjects.length})</h2>
-        <p className="text-gray-300 mt-2">
-          Seznam všech servisních projektů z IS KARAT
+        <p className="text-gray-300">
+          Seznam všech servisních projektů z IS KARAT ({filteredProjects.length})
         </p>
       </div>
 
