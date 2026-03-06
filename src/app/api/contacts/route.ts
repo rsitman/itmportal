@@ -4,7 +4,11 @@ import { authOptions } from '@/lib/auth'
 import { Contact } from '@/types/contact'
 import { logger } from '@/lib/logger'
 
-const ERP_BASE = process.env.ERP_API_URL || 'http://itmsql01:44612'
+// Stejná normalizace jako database-chart: ERP_API_URL může být "http://host:port" nebo "http://host:port/web"
+function normalizeErpBaseUrl(raw: string): string {
+  const trimmed = raw.replace(/\/+$/, '')
+  return trimmed.endsWith('/web') ? trimmed.slice(0, -4) : trimmed
+}
 
 export async function GET() {
   try {
@@ -14,7 +18,8 @@ export async function GET() {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    const url = `${ERP_BASE}/web/contacts`
+    const erpBase = normalizeErpBaseUrl(process.env.ERP_API_URL || 'http://itmsql01:44612')
+    const url = `${erpBase}/web/contacts`
     logger.log(`Fetching contacts from ${url}`)
 
     const response = await fetch(url, {
