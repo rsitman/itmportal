@@ -71,6 +71,11 @@ const navigation: NavigationItem[] = [
     ]
   },
   {
+    name: 'Osoby ITMAN',
+    href: '/osoby-itman',
+    icon: Users
+  },
+  {
     name: 'Kalendář',
     href: '/calendar',
     icon: Calendar

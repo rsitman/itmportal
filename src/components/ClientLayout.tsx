@@ -13,6 +13,7 @@ export default function ClientLayout({ children }: { children: React.ReactNode }
     pathname === '/upgrades' ||
     pathname === '/databases' ||
     pathname === '/dashboard/mapa' ||
+    pathname === '/osoby-itman' ||
     pathname === '/calendar' ||
     pathname === '/evidence-projektu' ||
     pathname === '/hwsw-config' ||
