@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 import { ServiceProject } from '@/types/project'
 import MetaTable from '@/components/meta/MetaTable'
 import { projectsRegistryMeta } from '@/lib/meta/projectsRegistryMeta'
@@ -13,6 +13,19 @@ interface ProjectsRegistryClientProps {
 export default function ProjectsRegistryClient({ initialProjects }: ProjectsRegistryClientProps) {
   const [serviceProjects, setServiceProjects] = useState<ServiceProject[]>([])
   const [loading, setLoading] = useState(true)
+  const [searchTerm, setSearchTerm] = useState('')
+
+  const filteredProjects = useMemo(() => {
+    if (!searchTerm.trim()) return serviceProjects
+    const q = searchTerm.toLowerCase()
+    return serviceProjects.filter(
+      (p) =>
+        (p.nazev?.toLowerCase().includes(q) ?? false) ||
+        (p.doklad_proj?.toLowerCase().includes(q) ?? false) ||
+        (p.jira_klic?.toLowerCase().includes(q) ?? false) ||
+        (p.nazev_par?.toLowerCase().includes(q) ?? false)
+    )
+  }, [serviceProjects, searchTerm])
 
   useEffect(() => {
     const fetchData = async () => {
@@ -67,14 +80,37 @@ export default function ProjectsRegistryClient({ initialProjects }: ProjectsRegi
   return (
     <div className="px-6">
       <div className="mb-8">
-        <h2 className="text-2xl font-bold text-white">Evidence projektů</h2>
+        <h2 className="text-2xl font-bold text-white">Evidence projektů ({filteredProjects.length})</h2>
         <p className="text-gray-300 mt-2">
           Seznam všech servisních projektů z IS KARAT
         </p>
       </div>
 
+      {/* Filtry */}
+      <div className="card-professional p-6 mb-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <label className="block text-sm font-medium text-gray-300 mb-2">Hledat</label>
+            <input
+              type="text"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              placeholder="Název projektu, doklad, JIRA klíč..."
+              className="w-full px-3 py-2 border border-gray-600 rounded-md bg-gray-800 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            />
+          </div>
+        </div>
+      </div>
+
+      {filteredProjects.length === 0 ? (
+        searchTerm.trim() ? (
+          <div className="bg-gray-800 border border-gray-700 rounded-md p-6">
+            <p className="text-gray-300">Žádné projekty nevyhovují hledání.</p>
+          </div>
+        ) : null
+      ) : (
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {serviceProjects.map((project, index) => (
+        {filteredProjects.map((project, index) => (
           <div key={`${project.doklad_proj || 'no-id'}-${project.nazev || 'no-name'}-${index}`} className="card-professional p-6">
             <div className="flex items-start justify-between mb-4">
               <div className="flex-1">
@@ -177,6 +213,7 @@ export default function ProjectsRegistryClient({ initialProjects }: ProjectsRegi
           </div>
         ))}
       </div>
+      )}
     </div>
   )
 }
