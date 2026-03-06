@@ -3,63 +3,72 @@
 import { Fragment, useState, useEffect } from 'react'
 import { Database } from '@/types/database'
 import { DatabaseService } from '@/lib/database-service'
-import DbSizeChartClient from '@/components/charts/DbSizeChartClient'
 import DataChart from '@/components/charts/DataChart'
 
 interface DatabasesTableProps {
   databases: Database[]
 }
 
-// Wrapper component to pass company filter to DbSizeChartClient
-function DbSizeChartClientWrapper({ companyName }: { companyName: string }) {
-  return (
-    <div style={{ transform: 'scale(0.9)', transformOrigin: 'top left', width: '111%', height: '111%' }}>
-      <DbSizeChartClientWithCompanyFilter companyName={companyName} />
-    </div>
-  )
+function getDefaultDateRange() {
+  const end = new Date()
+  const start = new Date()
+  start.setDate(start.getDate() - 90)
+  return {
+    start: start.toISOString().split('T')[0],
+    end: end.toISOString().split('T')[0]
+  }
 }
 
-// Modified chart client that accepts company prop
-function DbSizeChartClientWithCompanyFilter({ companyName }: { companyName: string }) {
-  const [data, setData] = useState<any>(null)
+interface DatabaseHistoryChartProps {
+  projekt: string
+  databaze: string
+  displayName: string
+}
+
+function DatabaseHistoryChart({ projekt, databaze, displayName }: DatabaseHistoryChartProps) {
+  const defaultRange = getDefaultDateRange()
+  const [dateFrom, setDateFrom] = useState(defaultRange.start)
+  const [dateTo, setDateTo] = useState(defaultRange.end)
+  const [data, setData] = useState<{ mdfData: any[]; ldfData: any[] } | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
-  const [chartType, setChartType] = useState<'area' | 'line' | 'bar'>('area') // Default to area chart
+  const [chartType, setChartType] = useState<'area' | 'line' | 'bar'>('area')
 
   useEffect(() => {
     const fetchData = async () => {
       try {
         setLoading(true)
-        // console.log(`🔍 Fetching chart data for company: ${companyName}`)
+        setError(null)
         const params = new URLSearchParams()
-        params.append('company', companyName)
-        params.append('startDate', '2026-01-01')
-        params.append('endDate', '2026-01-31')
-        
-        const response = await fetch(`/api/charts/db-size?${params}`)
-        // console.log(`📊 Chart response status: ${response.status}`)
-        
-        if (response.ok) {
-          const result = await response.json()
-          // console.log(`📊 Chart data received:`, result)
-          // console.log(`📊 MDF data:`, result.mdfData)
-          // console.log(`📊 LDF data:`, result.ldfData)
-          setData(result)
-        } else {
-          const errorText = await response.text()
-          // console.error(`📊 Chart error response:`, errorText)
-          setError('Nepodařilo se načíst data')
+        params.append('projekt', projekt)
+        params.append('database', databaze)
+        params.append('startDate', dateFrom)
+        params.append('endDate', dateTo)
+
+        const response = await fetch(`/api/database-chart?${params}`)
+        const result = await response.json()
+
+        if (!response.ok || !result.success) {
+          setError(result.error || 'Nepodařilo se načíst data')
+          setData(null)
+          return
         }
-      } catch (error) {
-        // console.error('Error fetching chart data:', error)
+
+        const chartData = result.data || []
+        setData({
+          mdfData: chartData.slice(0, 3),
+          ldfData: chartData.slice(3, 6)
+        })
+      } catch (err) {
         setError('Došlo k chybě při načítání dat')
+        setData(null)
       } finally {
         setLoading(false)
       }
     }
 
     fetchData()
-  }, [companyName])
+  }, [projekt, databaze, dateFrom, dateTo])
 
   if (loading) {
     return (
@@ -88,7 +97,7 @@ function DbSizeChartClientWithCompanyFilter({ companyName }: { companyName: stri
     )
   }
 
-  if (!data || !data.mdfData || !data.ldfData) {
+  if (!data || (data.mdfData.length === 0 && data.ldfData.length === 0)) {
     return (
       <div className="text-center py-8">
         <div className="text-gray-500">
@@ -96,25 +105,45 @@ function DbSizeChartClientWithCompanyFilter({ companyName }: { companyName: stri
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
           </svg>
           <h3 className="mt-2 text-sm font-medium text-gray-900">Žádná data</h3>
-          <p className="mt-1 text-sm text-gray-500">Pro firmu {companyName} nebyla nalezena žádná data.</p>
+          <p className="mt-1 text-sm text-gray-500">Pro {displayName} v zadaném období nebyla nalezena žádná data.</p>
         </div>
       </div>
     )
   }
 
-  // console.log(`🎨 Rendering charts for ${companyName}, MDF series:`, data.mdfData.length, 'LDF series:', data.ldfData.length)
-
   return (
     <div>
       <div className="mb-4">
-        <div className="flex items-center justify-between mb-4">
-          <h4 className="text-sm font-medium text-gray-700">Graf velikosti databáze</h4>
+        <div className="flex flex-wrap items-center justify-between gap-4">
+          <div className="flex items-center gap-4">
+            <h4 className="text-sm font-medium text-gray-700">Graf velikosti databáze</h4>
+            <div className="flex items-center gap-3">
+              <div>
+                <label className="block text-xs text-gray-500 mb-1">Od</label>
+                <input
+                  type="date"
+                  value={dateFrom}
+                  onChange={(e) => setDateFrom(e.target.value)}
+                  className="px-2 py-1.5 text-sm border border-gray-300 rounded-md focus:ring-2 focus:ring-green-500 focus:border-green-500"
+                />
+              </div>
+              <div>
+                <label className="block text-xs text-gray-500 mb-1">Do</label>
+                <input
+                  type="date"
+                  value={dateTo}
+                  onChange={(e) => setDateTo(e.target.value)}
+                  className="px-2 py-1.5 text-sm border border-gray-300 rounded-md focus:ring-2 focus:ring-green-500 focus:border-green-500"
+                />
+              </div>
+            </div>
+          </div>
           <div className="flex gap-1 p-1 bg-gray-800 rounded-lg">
             <button
               onClick={() => setChartType('area')}
               className={`px-3 py-1.5 text-xs font-medium rounded-md transition-all duration-200 ${
-                chartType === 'area' 
-                  ? 'bg-green-500 text-white shadow-md' 
+                chartType === 'area'
+                  ? 'bg-green-500 text-white shadow-md'
                   : 'text-gray-400 hover:text-white hover:bg-gray-700'
               }`}
             >
@@ -123,8 +152,8 @@ function DbSizeChartClientWithCompanyFilter({ companyName }: { companyName: stri
             <button
               onClick={() => setChartType('line')}
               className={`px-3 py-1.5 text-xs font-medium rounded-md transition-all duration-200 ${
-                chartType === 'line' 
-                  ? 'bg-green-500 text-white shadow-md' 
+                chartType === 'line'
+                  ? 'bg-green-500 text-white shadow-md'
                   : 'text-gray-400 hover:text-white hover:bg-gray-700'
               }`}
             >
@@ -133,8 +162,8 @@ function DbSizeChartClientWithCompanyFilter({ companyName }: { companyName: stri
             <button
               onClick={() => setChartType('bar')}
               className={`px-3 py-1.5 text-xs font-medium rounded-md transition-all duration-200 ${
-                chartType === 'bar' 
-                  ? 'bg-green-500 text-white shadow-md' 
+                chartType === 'bar'
+                  ? 'bg-green-500 text-white shadow-md'
                   : 'text-gray-400 hover:text-white hover:bg-gray-700'
               }`}
             >
@@ -143,38 +172,40 @@ function DbSizeChartClientWithCompanyFilter({ companyName }: { companyName: stri
           </div>
         </div>
       </div>
-      
-      {/* MDF Chart */}
-      <div className="mb-8">
-        <h5 className="text-sm font-medium text-gray-600 mb-2">MDF (Data) soubory</h5>
-        <DataChart
-          title={`MDF velikosti: ${companyName}`}
-          type={chartType}
-          data={data?.mdfData || []}
-          width={800}
-          height={300}
-          showLegend={true}
-          showGrid={true}
-          xAxisLabel="Datum"
-          yAxisLabel="Velikost (MB)"
-        />
-      </div>
-      
-      {/* LDF Chart */}
-      <div>
-        <h5 className="text-sm font-medium text-gray-600 mb-2">LDF (Log) soubory</h5>
-        <DataChart
-          title={`LDF velikosti: ${companyName}`}
-          type={chartType}
-          data={data?.ldfData || []}
-          width={800}
-          height={300}
-          showLegend={true}
-          showGrid={true}
-          xAxisLabel="Datum"
-          yAxisLabel="Velikost (MB)"
-        />
-      </div>
+
+      {data.mdfData.length > 0 && (
+        <div className="mb-8">
+          <h5 className="text-sm font-medium text-gray-600 mb-2">MDF (Data) soubory</h5>
+          <DataChart
+            title={`MDF velikosti: ${displayName}`}
+            type={chartType}
+            data={data.mdfData}
+            width={800}
+            height={300}
+            showLegend={true}
+            showGrid={true}
+            xAxisLabel="Datum"
+            yAxisLabel="Velikost (MB)"
+          />
+        </div>
+      )}
+
+      {data.ldfData.length > 0 && (
+        <div>
+          <h5 className="text-sm font-medium text-gray-600 mb-2">LDF (Log) soubory</h5>
+          <DataChart
+            title={`LDF velikosti: ${displayName}`}
+            type={chartType}
+            data={data.ldfData}
+            width={800}
+            height={300}
+            showLegend={true}
+            showGrid={true}
+            xAxisLabel="Datum"
+            yAxisLabel="Velikost (MB)"
+          />
+        </div>
+      )}
     </div>
   )
 }
@@ -345,9 +376,11 @@ export default function DatabasesTable({ databases }: DatabasesTableProps) {
                         Projekt: {database.projekt} | Databáze: {database.databaze}
                       </p>
                     </div>
-                    <div className="bg-white rounded-lg p-4">
-                      <DbSizeChartClientWrapper 
-                        companyName={database.firma_nazev}
+                    <div className="bg-white rounded-lg p-4" style={{ transform: 'scale(0.9)', transformOrigin: 'top left', width: '111%', height: '111%' }}>
+                      <DatabaseHistoryChart
+                        projekt={database.projekt}
+                        databaze={database.databaze}
+                        displayName={database.firma_nazev}
                       />
                     </div>
                   </div>
