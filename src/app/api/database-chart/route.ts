@@ -1,6 +1,14 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { logger } from '@/lib/logger'
 
+function normalizeErpBaseUrl(raw: string) {
+  const trimmed = raw.replace(/\/+$/, '')
+  // Support both:
+  // - ERP_API_URL="http://host:port"
+  // - ERP_API_URL="http://host:port/web"
+  return trimmed.endsWith('/web') ? trimmed.slice(0, -4) : trimmed
+}
+
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url)
@@ -19,8 +27,9 @@ export async function GET(request: NextRequest) {
       )
     }
 
-    const erpUrl = process.env.ERP_API_URL || 'http://itmsql01:44612'
-    const fetchUrl = `${erpUrl}/web/databases/history?projekt=${projekt}&databaze=${database}&datum_od=${startDate}&datum_do=${endDate}`
+    const erpUrlRaw = process.env.ERP_API_URL || 'http://itmsql01:44612'
+    const erpBaseUrl = normalizeErpBaseUrl(erpUrlRaw)
+    const fetchUrl = `${erpBaseUrl}/web/databases/history?projekt=${encodeURIComponent(projekt)}&databaze=${encodeURIComponent(database)}&datum_od=${encodeURIComponent(startDate)}&datum_do=${encodeURIComponent(endDate)}`
     logger.log('Calling database history API:', fetchUrl)
     
     const response = await fetch(fetchUrl, {
@@ -33,7 +42,16 @@ export async function GET(request: NextRequest) {
     })
       
     if (!response.ok) {
-      throw new Error(`Failed to fetch database history: ${response.status} ${response.statusText}`)
+      return NextResponse.json(
+        {
+          success: false,
+          error: `Failed to fetch database history: ${response.status} ${response.statusText}`,
+          details: `HTTP_${response.status}`,
+          isNetworkError: false,
+          fetchUrl
+        },
+        { status: response.status }
+      )
     }
     
     const historyData = await response.json()
@@ -91,10 +109,13 @@ export async function GET(request: NextRequest) {
     logger.error('Error in database chart API:', error)
     
     const errorMessage = error instanceof Error ? error.message : 'Unknown error'
-    const isNetworkError = errorMessage.includes('fetch') || 
-                          errorMessage.includes('NetworkError') || 
-                          errorMessage.includes('ECONNREFUSED') ||
-                          errorMessage.includes('timeout')
+    const isNetworkError =
+      errorMessage.includes('NetworkError') ||
+      errorMessage.includes('ECONNREFUSED') ||
+      errorMessage.includes('ENOTFOUND') ||
+      errorMessage.includes('EAI_AGAIN') ||
+      errorMessage.toLowerCase().includes('timeout') ||
+      errorMessage.toLowerCase().includes('fetch failed')
     
     return NextResponse.json(
       { 
