@@ -22,7 +22,7 @@ function formatDate(dateString: string | Date | null | undefined): string {
 
 function renderFieldValue(field: MetaField, value: any): React.ReactNode {
   if (value === null || value === undefined || value === '') {
-    return <span className="text-gray-400">—</span>
+    return <span className="text-slate-400">—</span>
   }
 
   switch (field.type) {
@@ -31,9 +31,13 @@ function renderFieldValue(field: MetaField, value: any): React.ReactNode {
 
     case 'boolean':
       return (
-        <span className={`px-2 py-1 text-xs rounded-full ${
-          value ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
-        }`}>
+        <span
+          className={`px-2.5 py-0.5 text-xs font-medium rounded-full border ${
+            value
+              ? 'bg-emerald-900/50 text-emerald-200 border-emerald-500/60'
+              : 'bg-red-900/50 text-red-200 border-red-500/60'
+          }`}
+        >
           {value ? 'Ano' : 'Ne'}
         </span>
       )
@@ -41,10 +45,10 @@ function renderFieldValue(field: MetaField, value: any): React.ReactNode {
     case 'enum':
       if (field.id === 'status') {
         const statusColors = {
-          'ACTIVE': 'bg-green-100 text-green-800',
-          'INACTIVE': 'bg-gray-100 text-gray-800',
-          'ARCHIVED': 'bg-yellow-100 text-yellow-800',
-          'SUSPENDED': 'bg-red-100 text-red-800'
+          'ACTIVE': 'bg-emerald-900/60 text-emerald-200 border border-emerald-500/70',
+          'INACTIVE': 'bg-slate-900/60 text-slate-200 border border-slate-600/70',
+          'ARCHIVED': 'bg-amber-900/60 text-amber-200 border border-amber-500/70',
+          'SUSPENDED': 'bg-red-900/60 text-red-200 border border-red-500/70'
         }
         const statusLabels = {
           'ACTIVE': 'Aktivní',
@@ -54,15 +58,15 @@ function renderFieldValue(field: MetaField, value: any): React.ReactNode {
         }
         const color = statusColors[value as keyof typeof statusColors] || 'bg-gray-100 text-gray-800'
         const label = statusLabels[value as keyof typeof statusLabels] || value
-        return <span className={`px-2 py-1 text-xs rounded-full ${color}`}>{label}</span>
+        return <span className={`px-2.5 py-0.5 text-xs font-medium rounded-full ${color}`}>{label}</span>
       }
       
       if (field.id === 'priority') {
         const priorityColors = {
-          'CRITICAL': 'bg-red-100 text-red-800',
-          'HIGH': 'bg-orange-100 text-orange-800',
-          'MEDIUM': 'bg-yellow-100 text-yellow-800',
-          'LOW': 'bg-green-100 text-green-800'
+          'CRITICAL': 'bg-red-900/60 text-red-200 border border-red-500/70',
+          'HIGH': 'bg-orange-900/60 text-orange-200 border border-orange-500/70',
+          'MEDIUM': 'bg-amber-900/60 text-amber-200 border border-amber-500/70',
+          'LOW': 'bg-emerald-900/60 text-emerald-200 border border-emerald-500/70'
         }
         const priorityLabels = {
           'CRITICAL': 'Kritický',
@@ -72,7 +76,7 @@ function renderFieldValue(field: MetaField, value: any): React.ReactNode {
         }
         const color = priorityColors[value as keyof typeof priorityColors] || 'bg-gray-100 text-gray-800'
         const label = priorityLabels[value as keyof typeof priorityLabels] || value
-        return <span className={`px-2 py-1 text-xs rounded-full ${color}`}>{label}</span>
+        return <span className={`px-2.5 py-0.5 text-xs font-medium rounded-full ${color}`}>{label}</span>
       }
       
       return value
@@ -101,16 +105,16 @@ function renderField(field: MetaField, data: any): React.ReactNode {
   if (field.type === 'group') {
     return (
       <div key={field.id} className="mb-8">
-        <h3 className="text-lg font-medium text-gray-900 mb-4 pb-2 border-b border-gray-200">
+        <h3 className="text-lg font-semibold text-slate-50 mb-4 pb-2 border-b border-slate-700">
           {field.label}
         </h3>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {field.fields?.map(subField => (
             <div key={subField.id} className="flex justify-between items-center py-2">
-              <span className="text-sm font-medium text-gray-600">
+              <span className="text-sm font-medium text-slate-300">
                 {subField.label}
               </span>
-              <span className="text-sm text-gray-900 text-right">
+              <span className="text-sm text-slate-50 text-right">
                 {renderFieldValue(subField, data[subField.id])}
               </span>
             </div>
@@ -122,10 +126,10 @@ function renderField(field: MetaField, data: any): React.ReactNode {
 
   return (
     <div key={field.id} className="flex justify-between items-center py-2">
-      <span className="text-sm font-medium text-gray-600">
+      <span className="text-sm font-medium text-slate-300">
         {field.label}
       </span>
-      <span className="text-sm text-gray-900 text-right">
+      <span className="text-sm text-slate-50 text-right">
         {renderFieldValue(field, data[field.id])}
       </span>
     </div>
@@ -134,7 +138,7 @@ function renderField(field: MetaField, data: any): React.ReactNode {
 
 export default function MetaDetail({ meta, data }: MetaDetailProps) {
   return (
-    <div className="bg-white rounded-lg shadow p-6">
+    <div className="bg-slate-900/70 rounded-lg shadow-soft border border-slate-700 p-6">
       {meta.fields.map(field => renderField(field, data))}
     </div>
   )

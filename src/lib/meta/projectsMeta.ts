@@ -54,7 +54,7 @@ export const projectsMeta: MetaResource = {
     },
     {
       id: 'hasServicePatch',
-      label: 'Servisní patch',
+      label: 'Patchservice',
       type: 'boolean',
       optional: false
     },

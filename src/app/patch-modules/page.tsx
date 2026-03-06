@@ -61,13 +61,13 @@ function PatchModulesContent() {
   if (error) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-center">
-          <div className="bg-red-50 border border-red-200 rounded-md p-4 max-w-md">
-            <h3 className="text-lg font-medium text-red-800 mb-2">Chyba při načítání</h3>
-            <p className="text-red-600 mb-4">{error}</p>
+        <div className="text-center px-4">
+          <div className="bg-red-900/70 border border-red-600/80 rounded-md p-5 max-w-md mx-auto shadow-soft">
+            <h3 className="text-lg font-semibold text-red-50 mb-2">Chyba při načítání</h3>
+            <p className="text-sm text-red-100 mb-4">{error}</p>
             <button
               onClick={() => window.location.reload()}
-              className="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700"
+              className="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 transition-colors"
             >
               Zkusit znovu
             </button>
@@ -78,21 +78,24 @@ function PatchModulesContent() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-transparent">
       {/* Header */}
-      <div className="bg-white shadow">
+      <div className="bg-slate-900/70 shadow-soft border-b border-slate-700">
           <div className="px-4 sm:px-6 lg:px-8">
             <div className="flex justify-between items-center py-6">
-            <div className="mb-8 px-6">
-              <h1 className="text-3xl font-bold text-gray-900">Patch moduly</h1>
-              <p className="mt-1 text-sm text-gray-600">
+            <div className="mb-2 px-2">
+              <h1 className="text-3xl font-bold text-white">Patch moduly</h1>
+              <p className="mt-1 text-sm text-slate-200">
                 {projectInfo && (
                   <>Projekt: {projectInfo.projekt} | Firma: {projectInfo.firma}</>
                 )}
               </p>
-              <div className="mt-2 p-3 bg-blue-50 border border-green-200 rounded-md">
-                <p className="text-sm text-green-800">
-                  <strong>Vysvětlení:</strong> Standard = funkční patche (úroveň 40) | Stát = legislativní patche (úroveň 36) | ✓ = aktuální | ⚠ = vyžaduje aktualizaci
+              <div className="mt-3 p-3 rounded-md border border-emerald-500/60 bg-slate-900/80 max-w-3xl">
+                <p className="text-sm text-emerald-100">
+                  <span className="font-semibold">Vysvětlení:</span>{' '}
+                  <span className="text-slate-100">
+                    Standard = funkční patche (úroveň 40) | Stát = legislativní patche (úroveň 36) | ✓ = aktuální | ⚠ = vyžaduje aktualizaci
+                  </span>
                 </p>
               </div>
             </div>
@@ -110,9 +113,9 @@ function PatchModulesContent() {
       <div className="px-4 sm:px-6 lg:px-8 py-8">
         {patchModules.length === 0 ? (
           <div className="text-center py-12">
-            <div className="bg-blue-50 border border-green-200 rounded-md p-8 max-w-md mx-auto">
-              <div className="text-green-500">
-                <svg className="mx-auto h-12 w-12 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <div className="bg-slate-900/70 border border-emerald-500/60 rounded-md p-8 max-w-md mx-auto shadow-soft">
+              <div className="text-emerald-400">
+                <svg className="mx-auto h-12 w-12" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                 </svg>
               </div>
@@ -125,91 +128,91 @@ function PatchModulesContent() {
             </div>
           </div>
         ) : (
-          <div className="bg-white shadow rounded-lg overflow-hidden">
-            <div className="px-6 py-4 border-b border-gray-200">
-              <h2 className="text-lg font-semibold text-gray-900">
+          <div className="bg-slate-900/70 shadow-soft rounded-lg overflow-hidden border border-slate-700">
+            <div className="px-6 py-4 border-b border-slate-700">
+              <h2 className="text-lg font-semibold text-white">
                 Seznam patch modulů ({patchModules.length})
               </h2>
             </div>
             
             <div className="overflow-x-auto">
               <div className="min-w-[1200px]">
-                <table className="w-full divide-y divide-gray-200">
-                  <thead className="bg-gray-50">
+                <table className="w-full divide-y divide-slate-800">
+                  <thead className="bg-slate-950/80">
                   <tr>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    <th className="px-6 py-3 text-left text-xs font-medium text-slate-300 uppercase tracking-wider">
                       ID Modulu
                     </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    <th className="px-6 py-3 text-left text-xs font-medium text-slate-300 uppercase tracking-wider">
                       Název modulu
                     </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    <th className="px-6 py-3 text-left text-xs font-medium text-slate-300 uppercase tracking-wider">
                       Verze
                     </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    <th className="px-6 py-3 text-left text-xs font-medium text-slate-300 uppercase tracking-wider">
                       Stát
                     </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    <th className="px-6 py-3 text-left text-xs font-medium text-slate-300 uppercase tracking-wider">
                       Standard - Nainstalován
                     </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    <th className="px-6 py-3 text-left text-xs font-medium text-slate-300 uppercase tracking-wider">
                       Standard - Dostupný
                     </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    <th className="px-6 py-3 text-left text-xs font-medium text-slate-300 uppercase tracking-wider">
                       Stát - Nainstalován
                     </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    <th className="px-6 py-3 text-left text-xs font-medium text-slate-300 uppercase tracking-wider">
                       Stát - Dostupný
                     </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    <th className="px-6 py-3 text-left text-xs font-medium text-slate-300 uppercase tracking-wider">
                       Stav
                     </th>
                   </tr>
                 </thead>
-                <tbody className="bg-white divide-y divide-gray-200">
+                <tbody className="bg-slate-900 divide-y divide-slate-800">
                   {patchModules.map((module, index) => (
-                    <tr key={index} className="hover:bg-gray-50">
+                    <tr key={index} className="hover:bg-slate-800/80">
                       <td className="px-6 py-4 whitespace-nowrap">
-                        <span className="font-mono text-sm text-gray-900">{module.id_modulu}</span>
+                        <span className="font-mono text-sm text-slate-100">{module.id_modulu}</span>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="text-sm font-medium text-gray-900">
+                        <div className="text-sm font-medium text-slate-100">
                           {module.nazev}
                         </div>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
-                        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-green-800">
+                        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-sky-900/60 text-sky-200 border border-sky-500/70">
                           {module.verze}
                         </span>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
-                        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-emerald-900/60 text-emerald-200 border border-emerald-500/70">
                           {module.stat}
                         </span>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
                         <span className={`font-mono text-sm ${
                           module.posl_patch_40 !== module.max_patch_40 && module.posl_patch_40 !== '000' && module.max_patch_40 !== '000'
-                            ? 'text-red-700 bg-red-50 px-2 py-1 rounded font-semibold'
-                            : 'text-gray-900'
+                            ? 'text-red-100 bg-red-900/60 px-2 py-1 rounded font-semibold border border-red-500/70'
+                            : 'text-slate-100'
                         }`}>
                           {module.posl_patch_40}
                         </span>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
-                        <span className="font-mono text-sm text-gray-900">{module.max_patch_40}</span>
+                        <span className="font-mono text-sm text-slate-100">{module.max_patch_40}</span>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
                         <span className={`font-mono text-sm ${
                           module.posl_patch_36 !== module.max_patch_36 && module.posl_patch_36 !== '000' && module.max_patch_36 !== '000'
-                            ? 'text-red-700 bg-red-50 px-2 py-1 rounded font-semibold'
-                            : 'text-gray-900'
+                            ? 'text-red-100 bg-red-900/60 px-2 py-1 rounded font-semibold border border-red-500/70'
+                            : 'text-slate-100'
                         }`}>
                           {module.posl_patch_36}
                         </span>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
-                        <span className="font-mono text-sm text-gray-900">{module.max_patch_36}</span>
+                        <span className="font-mono text-sm text-slate-100">{module.max_patch_36}</span>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
                         {(() => {
@@ -218,7 +221,7 @@ function PatchModulesContent() {
                           
                           if (standardOk && statOk) {
                             return (
-                              <span className="inline-flex items-center px-2 py-1 text-xs font-medium bg-green-100 text-green-800 rounded-full">
+                              <span className="inline-flex items-center px-2 py-1 text-xs font-medium rounded-full bg-emerald-900/70 text-emerald-200 border border-emerald-500/80">
                                 ✓ Vše OK
                               </span>
                             )
@@ -232,7 +235,7 @@ function PatchModulesContent() {
                             }
                             
                             return (
-                              <span className="inline-flex items-center px-2 py-1 text-xs font-medium bg-red-100 text-red-800 rounded-full">
+                              <span className="inline-flex items-center px-2 py-1 text-xs font-medium rounded-full bg-amber-900/70 text-amber-200 border border-amber-500/80">
                                 ⚠ {problems.join(' + ')}
                               </span>
                             )

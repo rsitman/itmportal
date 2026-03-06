@@ -59,16 +59,16 @@ export default function ProjectDetailClient({ companyId, initialData }: ProjectD
   if (error) {
     return (
       <div className="px-6">
-        <div className="bg-red-50 border border-red-200 rounded-md p-4">
-          <div className="flex">
+        <div className="rounded-md p-4 border border-red-600/70 bg-red-900/60 shadow-soft">
+          <div className="flex items-start">
             <div className="flex-shrink-0">
-              <svg className="h-5 w-5 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg className="h-5 w-5 text-red-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.732-.833-2.502 0L4.268 18.5c-.77.833.192 2.5 1.732 2.5z" />
               </svg>
             </div>
             <div className="ml-3">
-              <h3 className="text-sm font-medium text-red-800">Chyba</h3>
-              <p className="mt-1 text-sm text-red-700">{error}</p>
+              <h3 className="text-sm font-semibold text-red-50">Chyba</h3>
+              <p className="mt-1 text-sm text-red-100">{error}</p>
             </div>
           </div>
         </div>
