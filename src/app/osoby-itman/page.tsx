@@ -167,7 +167,7 @@ export default function OsobyItmanPage() {
                           src={`data:image/jpeg;base64,${c.foto_data}`}
                           alt={`${c.jmeno} ${c.prijmeni}`}
                           className="w-full h-full object-cover"
-                          style={{ objectPosition: '50% 25%' }}
+                          style={{ objectPosition: '50% 15%' }}
                         />
                       ) : (
                         <div className="w-full h-full flex items-center justify-center text-gray-400 text-2xl font-medium">
