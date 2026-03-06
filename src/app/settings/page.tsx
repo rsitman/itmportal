@@ -191,13 +191,6 @@ export default function SettingsPage() {
       <div className="mt-6 card-professional p-6">
         <h2 className="text-lg font-semibold text-white mb-4">Další nastavení</h2>
         <div className="space-y-2">
-          <a
-            href="/settings/hwsw"
-            className="block p-3 rounded-lg border border-gray-700 hover:bg-gray-800 transition-colors"
-          >
-            <div className="font-medium text-white">HW/SW Konfigurace</div>
-            <div className="text-sm text-gray-400">Správa hardwaru a softwaru ve společnosti</div>
-          </a>
           {session.user?.role === 'ADMIN' && (
             <a
               href="/settings/roles"

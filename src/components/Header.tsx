@@ -35,8 +35,6 @@ export default function Header() {
         return <><span className="text-green-400">Servisní portál</span><span className="text-white"> - Nastavení</span></>
       case '/settings/roles':
         return <><span className="text-green-400">Servisní portál</span><span className="text-white"> - Správa rolí</span></>
-      case '/settings/hwsw':
-        return <><span className="text-green-400">Servisní portál</span><span className="text-white"> - HW/SW Konfigurace</span></>
       default:
         return <span className="text-green-400">Servisní portál</span>
     }

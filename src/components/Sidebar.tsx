@@ -14,8 +14,7 @@ import {
   Database,
   Map,
   Users,
-  Shield,
-  Laptop
+  Shield
 } from 'lucide-react'
 import PermissionGuard from './ui/PermissionGuard'
 import CollapsibleSection from './ui/CollapsibleSection'
@@ -96,12 +95,6 @@ const navigation: NavigationItem[] = [
         name: 'Uživatelé',
         href: '/users',
         icon: Users,
-        requiredRoles: [Role.ADMIN]
-      },
-      {
-        name: 'HW/SW Konfigurace',
-        href: '/settings/hwsw',
-        icon: Laptop,
         requiredRoles: [Role.ADMIN]
       }
     ]
