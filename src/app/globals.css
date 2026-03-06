@@ -535,6 +535,13 @@ a:hover {
   color: #f3f4f6 !important;
 }
 
+/* Dark text on light backgrounds – overrides global dark theme for readability */
+.text-readability-dark,
+span.text-readability-dark,
+code.text-readability-dark {
+  color: #111827 !important;
+}
+
 .border-gray-200 {
   border-color: #374151 !important;
 }

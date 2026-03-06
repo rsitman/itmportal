@@ -360,7 +360,7 @@ function HwswConfigContent() {
                         <h3 className="font-semibold text-gray-900">{server.nazev || `Server ${server.server_id}`}</h3>
                         <p className="text-sm text-gray-600">{server.popis}</p>
                       </div>
-                      <span className="px-2 py-1 text-xs font-medium bg-blue-100 text-gray-900 rounded">
+                      <span className="px-2 py-1 text-xs font-medium bg-blue-100 text-readability-dark rounded" style={{ color: '#111827' }}>
                         {server.server_typ}
                       </span>
                     </div>

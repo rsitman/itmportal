@@ -280,12 +280,12 @@ export default function ProjectTeamPage() {
                     )}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm">
-                    <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getRoleColor(person.kod_role)}`}>
+                    <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium text-readability-dark ${getRoleColor(person.kod_role)}`} style={{ color: '#111827' }}>
                       {person.nazev_role}
                     </span>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm">
-                    <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getPersonTypeColor(person.typ_osoby)}`}>
+                    <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium text-readability-dark ${getPersonTypeColor(person.typ_osoby)}`} style={{ color: '#111827' }}>
                       {getPersonTypeLabel(person.typ_osoby)}
                     </span>
                   </td>

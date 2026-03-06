@@ -254,8 +254,8 @@ function DatabasesContent() {
                   <svg className="w-4 h-4 text-green-600 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4" />
                   </svg>
-                  <span className="text-sm font-medium text-green-800">
-                    Filtrováno podle projektu: <code className="bg-blue-100 px-2 py-1 rounded text-xs">{selectedProject}</code>
+                  <span className="text-sm font-medium text-readability-dark" style={{ color: '#111827' }}>
+                    Filtrováno podle projektu: <code className="bg-blue-100 px-2 py-1 rounded text-xs text-readability-dark" style={{ color: '#111827' }}>{selectedProject}</code>
                   </span>
                 </div>
                 <button

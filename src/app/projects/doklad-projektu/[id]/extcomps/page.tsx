@@ -246,7 +246,7 @@ export default function ExternalComponentsPage() {
                     </div>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm">
-                    <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-gray-900">
+                    <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-readability-dark" style={{ color: '#111827' }}>
                       {component.forma_kom}
                     </span>
                   </td>
