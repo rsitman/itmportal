@@ -190,7 +190,7 @@ function DashboardContent() {
                 </div>
                 <div className="ml-5 w-0 flex-1">
                   <dl>
-                    <dt className="text-sm font-medium text-gray-400 truncate">Grafy</dt>
+                    <dt className="text-sm font-medium text-gray-400 truncate">Velikost DB</dt>
                     <dd className="text-lg font-medium text-white">6</dd>
                   </dl>
                 </div>
@@ -198,8 +198,8 @@ function DashboardContent() {
             </div>
             <div className="bg-gray-800 px-4 py-3 border-t border-gray-700">
               <div className="text-sm">
-                <a href="/grafy/db-size" className="font-medium text-green-400 hover:text-green-300">
-                  Zobrazit grafy →
+                <a href="/databases" className="font-medium text-purple-400 hover:text-purple-300">
+                  Vývoj velikosti DB →
                 </a>
               </div>
             </div>
@@ -238,11 +238,11 @@ function DashboardContent() {
           <h2 className="text-lg font-medium text-white mb-4">Rychlé akce</h2>
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
             <a
-              href="/plan_patchovani"
+              href="/evidence-projektu"
               className="card-professional p-6 block hover:shadow-md transition-all"
             >
-              <h3 className="text-base font-medium text-white">Nový projekt</h3>
-              <p className="mt-1 text-sm text-gray-400">Vytvořit nový projekt</p>
+              <h3 className="text-base font-medium text-white">Evidence projektů</h3>
+              <p className="mt-1 text-sm text-gray-400">Spravovat projekty</p>
             </a>
             
             <a
@@ -254,11 +254,11 @@ function DashboardContent() {
             </a>
             
             <a
-              href="/grafy/db-size"
+              href="/databases"
               className="card-professional p-6 block hover:shadow-md transition-all"
             >
-              <h3 className="text-base font-medium text-white">Reporty</h3>
-              <p className="mt-1 text-sm text-gray-400">Zobrazit reporty a grafy</p>
+              <h3 className="text-base font-medium text-white">Vývoj velikosti DB</h3>
+              <p className="mt-1 text-sm text-gray-400">Grafy růstu a využití databází</p>
             </a>
           </div>
         </div>

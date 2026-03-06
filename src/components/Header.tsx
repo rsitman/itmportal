@@ -27,8 +27,6 @@ export default function Header() {
         return <><span className="text-green-400">Servisní portál</span><span className="text-white"> - Upgrady</span></>
       case '/databases':
         return <><span className="text-green-400">Servisní portál</span><span className="text-white"> - Aktuální stav databází</span></>
-      case '/grafy/db-size':
-        return <><span className="text-green-400">Servisní portál</span><span className="text-white"> - Grafy</span></>
       case '/dashboard/mapa':
         return <><span className="text-green-400">Servisní portál</span><span className="text-white"> - Mapa projektů</span></>
       case '/users':
