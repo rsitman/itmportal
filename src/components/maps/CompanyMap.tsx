@@ -211,7 +211,7 @@ export default function CompanyMap({ companies, height = '400px', showControls =
             icon={createCustomIcon(company, DivIcon)}
           >
             <Popup>
-              <div className="p-2">
+              <div className="map-popup-content p-2">
                 <h3 className="font-semibold text-lg mb-2">{company.name}</h3>
                 <p className="text-sm text-gray-600 mb-1">
                   📍 {company.address}, {company.city}, {company.country}
@@ -269,7 +269,7 @@ export default function CompanyMap({ companies, height = '400px', showControls =
                 
                 {company.website && (
                   <p className="text-sm mt-1">
-                    🌐 <a href={company.website} target="_blank" rel="noopener noreferrer" className="text-green-400 hover:underline">
+                    🌐 <a href={company.website} target="_blank" rel="noopener noreferrer" className="map-popup-link hover:underline">
                       {company.website}
                     </a>
                   </p>
