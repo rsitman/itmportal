@@ -2,21 +2,27 @@
 
 import { useSession } from 'next-auth/react'
 import { useRouter, useSearchParams } from 'next/navigation'
-import { useEffect, useState, Suspense } from 'react'
+import { useEffect, Suspense } from 'react'
 import { logger } from '@/lib/logger'
-
-interface DashboardStats {
-  projects: number
-  users: number
-  events: number
-}
+import HlavickaIntranetu from '@/components/dashboard/HlavickaIntranetu'
+import StatusovyProuzek from '@/components/dashboard/StatusovyProuzek'
+import AplikaceASystemy from '@/components/dashboard/AplikaceASystemy'
+import MojePrace from '@/components/dashboard/MojePrace'
+import ProvozniInformace from '@/components/dashboard/ProvozniInformace'
+import DokumentyANavody from '@/components/dashboard/DokumentyANavody'
+import {
+  mockStatusZpravy,
+  mockAplikace,
+  mockMojePrace,
+  mockProvozniInformace,
+  mockDokumentyANavody,
+} from '@/data/dashboard-mock'
 
 function DashboardContent() {
   const { data: session, status } = useSession()
   const router = useRouter()
   const searchParams = useSearchParams()
   const error = searchParams.get('error')
-  const [stats, setStats] = useState<DashboardStats>({ projects: 0, users: 0, events: 0 })
 
   useEffect(() => {
     if (error === 'access_denied') {
@@ -33,37 +39,10 @@ function DashboardContent() {
     }
   }, [session, status, router])
 
-  // Fetch real stats
-  useEffect(() => {
-    if (status !== 'authenticated') return
-
-    const fetchStats = async () => {
-      const [projectsRes, usersRes, eventsRes] = await Promise.allSettled([
-        fetch('/api/karat/projects'),
-        fetch('/api/users'),
-        fetch('/api/events'),
-      ])
-
-      setStats({
-        projects: projectsRes.status === 'fulfilled' && projectsRes.value.ok
-          ? (await projectsRes.value.json()).length ?? 0
-          : 0,
-        users: usersRes.status === 'fulfilled' && usersRes.value.ok
-          ? (await usersRes.value.json()).length ?? 0
-          : 0,
-        events: eventsRes.status === 'fulfilled' && eventsRes.value.ok
-          ? (await eventsRes.value.json()).length ?? 0
-          : 0,
-      })
-    }
-
-    fetchStats()
-  }, [status])
-
   if (status === 'loading') {
     return (
-      <div className="flex items-center justify-center min-h-screen">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-green-600"></div>
+      <div className="flex items-center justify-center min-h-[40vh]">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-green-600" />
       </div>
     )
   }
@@ -74,10 +53,10 @@ function DashboardContent() {
 
   return (
     <div className="min-h-screen bg-transparent">
-      <div className="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
-        {/* Error message */}
+      <div className="space-y-6">
+        {/* Chybové hlášky z query parametrů */}
         {error === 'access_denied' && (
-          <div className="mb-6 bg-red-900/50 border border-red-800 rounded-md p-4">
+          <div className="bg-red-900/50 border border-red-800 rounded-md p-4">
             <div className="flex">
               <div className="flex-shrink-0">
                 <svg className="h-5 w-5 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -93,9 +72,9 @@ function DashboardContent() {
             </div>
           </div>
         )}
-        
+
         {error === 'azure_ad_users_restricted' && (
-          <div className="mb-6 bg-yellow-900/50 border border-yellow-800 rounded-md p-4">
+          <div className="bg-yellow-900/50 border border-yellow-800 rounded-md p-4">
             <div className="flex">
               <div className="flex-shrink-0">
                 <svg className="h-5 w-5 text-yellow-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -112,154 +91,29 @@ function DashboardContent() {
           </div>
         )}
 
-        {/* Welcome Header */}
-        <div className="card-professional p-6 mb-6">
-          <h1 className="text-2xl font-bold text-white">
-            Vítejte zpět, {session.user?.name}!
-          </h1>
-          <p className="mt-1 text-sm text-gray-300">
-            Přihlášen jako: {session.user?.email} | Role: {session.user?.role}
-          </p>
-        </div>
+        {/* Řádek 1: Hlavička + vyhledávání */}
+        <HlavickaIntranetu />
 
-        {/* Quick Stats */}
-        <div className="mt-6 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
-          <div className="card-professional">
-            <div className="p-5">
-              <div className="flex items-center">
-                <div className="flex-shrink-0">
-                  <div className="w-8 h-8 bg-green-500 rounded-md flex items-center justify-center">
-                    <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
-                    </svg>
-                  </div>
-                </div>
-                <div className="ml-5 w-0 flex-1">
-                  <dl>
-                    <dt className="text-sm font-medium text-gray-400 truncate">Projekty</dt>
-                    <dd className="text-lg font-medium text-white">{stats.projects}</dd>
-                  </dl>
-                </div>
-              </div>
-            </div>
-            <div className="bg-gray-800 px-4 py-3 border-t border-gray-700">
-              <div className="text-sm">
-                <a href="/plan_patchovani" className="font-medium text-green-400 hover:text-green-300">
-                  Zobrazit všechny projekty →
-                </a>
-              </div>
-            </div>
+        {/* Řádek 2: Statusový proužek */}
+        <StatusovyProuzek zpravy={mockStatusZpravy} />
+
+        {/* Řádek 3: Aplikace a systémy (8) | Moje práce (4) */}
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+          <div className="lg:col-span-8">
+            <AplikaceASystemy polozky={mockAplikace} />
           </div>
-
-          <div className="card-professional">
-            <div className="p-5">
-              <div className="flex items-center">
-                <div className="flex-shrink-0">
-                  <div className="w-8 h-8 bg-blue-500 rounded-md flex items-center justify-center">
-                    <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
-                    </svg>
-                  </div>
-                </div>
-                <div className="ml-5 w-0 flex-1">
-                  <dl>
-                    <dt className="text-sm font-medium text-gray-400 truncate">Uživatelé</dt>
-                    <dd className="text-lg font-medium text-white">{stats.users}</dd>
-                  </dl>
-                </div>
-              </div>
-            </div>
-            <div className="bg-gray-800 px-4 py-3 border-t border-gray-700">
-              <div className="text-sm">
-                <a href="/users" className="font-medium text-blue-400 hover:text-blue-300">
-                  Spravovat uživatele →
-                </a>
-              </div>
-            </div>
-          </div>
-
-          <div className="card-professional">
-            <div className="p-5">
-              <div className="flex items-center">
-                <div className="flex-shrink-0">
-                  <div className="w-8 h-8 bg-purple-500 rounded-md flex items-center justify-center">
-                    <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
-                    </svg>
-                  </div>
-                </div>
-                <div className="ml-5 w-0 flex-1">
-                  <dl>
-                    <dt className="text-sm font-medium text-gray-400 truncate">Velikost DB</dt>
-                    <dd className="text-lg font-medium text-white">6</dd>
-                  </dl>
-                </div>
-              </div>
-            </div>
-            <div className="bg-gray-800 px-4 py-3 border-t border-gray-700">
-              <div className="text-sm">
-                <a href="/databases" className="font-medium text-purple-400 hover:text-purple-300">
-                  Vývoj velikosti DB →
-                </a>
-              </div>
-            </div>
-          </div>
-
-          <div className="card-professional">
-            <div className="p-5">
-              <div className="flex items-center">
-                <div className="flex-shrink-0">
-                  <div className="w-8 h-8 bg-orange-500 rounded-md flex items-center justify-center">
-                    <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                    </svg>
-                  </div>
-                </div>
-                <div className="ml-5 w-0 flex-1">
-                  <dl>
-                    <dt className="text-sm font-medium text-gray-400 truncate">Kalendář</dt>
-                    <dd className="text-lg font-medium text-white">{stats.events}</dd>
-                  </dl>
-                </div>
-              </div>
-            </div>
-            <div className="bg-gray-800 px-4 py-3 border-t border-gray-700">
-              <div className="text-sm">
-                <a href="/calendar" className="font-medium text-green-400 hover:text-green-300">
-                  Zobrazit kalendář →
-                </a>
-              </div>
-            </div>
+          <div className="lg:col-span-4">
+            <MojePrace polozky={mockMojePrace} />
           </div>
         </div>
 
-        {/* Quick Actions */}
-        <div className="mt-8">
-          <h2 className="text-lg font-medium text-white mb-4">Rychlé akce</h2>
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            <a
-              href="/evidence-projektu"
-              className="card-professional p-6 block hover:shadow-md transition-all"
-            >
-              <h3 className="text-base font-medium text-white">Evidence projektů</h3>
-              <p className="mt-1 text-sm text-gray-400">Spravovat projekty</p>
-            </a>
-            
-            <a
-              href="/dashboard/mapa"
-              className="card-professional p-6 block hover:shadow-md transition-all"
-            >
-              <h3 className="text-base font-medium text-white">Mapa projektů</h3>
-              <p className="mt-1 text-sm text-gray-400">Zobrazit mapu</p>
-            </a>
-            
-            <a
-              href="/databases"
-              className="card-professional p-6 block hover:shadow-md transition-all"
-            >
-              <h3 className="text-base font-medium text-white">Vývoj velikosti DB</h3>
-              <p className="mt-1 text-sm text-gray-400">Grafy růstu a využití databází</p>
-            </a>
+        {/* Řádek 4: Provozní informace (8) | Dokumenty a návody (4) */}
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+          <div className="lg:col-span-8">
+            <ProvozniInformace polozky={mockProvozniInformace} />
+          </div>
+          <div className="lg:col-span-4">
+            <DokumentyANavody polozky={mockDokumentyANavody} />
           </div>
         </div>
       </div>
@@ -269,7 +123,7 @@ function DashboardContent() {
 
 export default function DashboardPage() {
   return (
-    <Suspense fallback={<div>Loading...</div>}>
+    <Suspense fallback={<div className="flex items-center justify-center min-h-[40vh] text-gray-400">Načítání…</div>}>
       <DashboardContent />
     </Suspense>
   )
