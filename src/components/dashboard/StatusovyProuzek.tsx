@@ -25,15 +25,20 @@ export default function StatusovyProuzek({ zpravy }: StatusovyProuzekProps) {
   if (zpravy.length === 0) return null
 
   return (
-    <div className="w-full space-y-2">
+    <div
+      className="w-full space-y-2"
+      role="region"
+      aria-label="Provozní informace"
+    >
       {zpravy.map((z) => {
         const Icon = typIkona[z.typ]
         return (
           <div
             key={z.id}
             className={`flex items-center gap-3 px-4 py-2 rounded-lg border ${typTridy[z.typ]}`}
+            role="status"
           >
-            <Icon className="w-5 h-5 flex-shrink-0" />
+            <Icon className="w-5 h-5 flex-shrink-0" aria-hidden />
             <span className="text-sm font-medium">{z.text}</span>
             {z.datum && (
               <span className="text-xs opacity-80 ml-auto flex-shrink-0">{z.datum}</span>
