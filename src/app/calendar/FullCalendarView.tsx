@@ -6,7 +6,7 @@ import dayGridPlugin from '@fullcalendar/daygrid'
 import timeGridPlugin from '@fullcalendar/timegrid'
 import listPlugin from '@fullcalendar/list'
 import csLocale from '@fullcalendar/core/locales/cs'
-import type { CalendarApi, EventClickArg, DatesSetArg, MoreLinkArg } from '@fullcalendar/core'
+import type { CalendarApi, EventClickArg, DatesSetArg } from '@fullcalendar/core'
 import { CalendarEvent } from '@/types/calendar'
 
 const VIEW_MAP: Record<string, string> = {
@@ -82,6 +82,14 @@ export interface FullCalendarViewProps {
   onEventClick: (event: CalendarEvent) => void
 }
 
+function isSameDay(a: Date, b: Date): boolean {
+  return (
+    a.getFullYear() === b.getFullYear() &&
+    a.getMonth() === b.getMonth() &&
+    a.getDate() === b.getDate()
+  )
+}
+
 export default function FullCalendarView({
   events,
   currentDate,
@@ -91,43 +99,44 @@ export default function FullCalendarView({
   onEventClick,
 }: FullCalendarViewProps) {
   const calendarRef = useRef<FullCalendar>(null)
+  const skipNextDatesSetRef = useRef(false)
+  const syncFromMoreLinkRef = useRef(false)
   const fcView = VIEW_MAP[currentView] ?? 'dayGridMonth'
 
   const fcEvents = useMemo(() => events.map(toFullCalendarEvent), [events])
 
-  const isSameDay = (a: Date, b: Date) => {
-    return (
-      a.getFullYear() === b.getFullYear() &&
-      a.getMonth() === b.getMonth() &&
-      a.getDate() === b.getDate()
-    )
-  }
-
   useEffect(() => {
-    const api: CalendarApi | undefined = calendarRef.current?.getApi()
-    if (!api) return
-
-    // Měň view a datum jen když se opravdu liší, ať se to zbytečně „nepere“ s interní navigací
-    if (api.view.type !== fcView) {
-      api.changeView(fcView)
+    const run = () => {
+      const api: CalendarApi | undefined = calendarRef.current?.getApi()
+      if (!api) return false
+      if (api.view.type !== fcView) {
+        api.changeView(fcView)
+      }
+      const apiDate = api.getDate()
+      if (!isSameDay(apiDate, currentDate)) {
+        skipNextDatesSetRef.current = true
+        api.gotoDate(currentDate)
+      }
+      return true
     }
-
-    const apiDate = api.getDate()
-    if (!isSameDay(apiDate, currentDate)) {
-      api.gotoDate(currentDate)
+    if (!run()) {
+      const t = setTimeout(run, 50)
+      return () => clearTimeout(t)
     }
   }, [currentDate, fcView])
 
   const handleDatesSet = (arg: DatesSetArg) => {
+    if (skipNextDatesSetRef.current) {
+      skipNextDatesSetRef.current = false
+      return
+    }
+    if (!syncFromMoreLinkRef.current) return
+    syncFromMoreLinkRef.current = false
     const start = arg.start
     const viewType = arg.view.type
-    if (start && !isSameDay(start, currentDate)) {
-      onDateChange(start)
-    }
+    if (start) onDateChange(start)
     const mapped = VIEW_FROM_FC[viewType]
-    if (mapped && mapped !== currentView) {
-      onViewChange(mapped)
-    }
+    if (mapped) onViewChange(mapped)
   }
 
   return (
@@ -140,11 +149,8 @@ export default function FullCalendarView({
       locale={csLocale}
       firstDay={1}
       dayMaxEventRows={true}
-      moreLinkClick={(arg: MoreLinkArg) => {
-        // Přepni na denní pohled a zároveň zapiš změnu i do rodiče,
-        // aby nadpis a lokální stav odpovídal.
-        onDateChange(arg.date)
-        onViewChange('day')
+      moreLinkClick={() => {
+        syncFromMoreLinkRef.current = true
         return 'timeGridDay'
       }}
       slotLabelFormat={{
