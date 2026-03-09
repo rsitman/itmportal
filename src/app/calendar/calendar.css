@@ -261,6 +261,51 @@
   width: 100% !important;
 }
 
+/* FullCalendar dark theme (used when RBC is replaced) */
+.fc {
+  --fc-border-color: #374151;
+  --fc-page-bg-color: #1f2937;
+  --fc-neutral-bg-color: #1f2937;
+  --fc-list-event-hover-bg-color: #374151;
+  --fc-today-bg-color: rgba(59, 130, 246, 0.15);
+}
+.fc-theme-standard .fc-scrollgrid,
+.fc-theme-standard td,
+.fc-theme-standard th {
+  border-color: #374151;
+}
+.fc .fc-col-header-cell-cushion,
+.fc .fc-daygrid-day-number,
+.fc .fc-list-day-text,
+.fc .fc-list-day-side-text {
+  color: #d1d5db;
+}
+.fc .fc-button {
+  background: #374151;
+  border-color: #4b5563;
+  color: #f9fafb;
+}
+.fc .fc-button:hover {
+  background: #4b5563;
+  border-color: #6b7280;
+}
+.fc .fc-button-primary:not(:disabled).fc-button-active {
+  background: #3b82f6;
+  border-color: #3b82f6;
+}
+.fc-direction-ltr .fc-daygrid-event.fc-event-start {
+  border-radius: 6px;
+}
+.fc-event {
+  cursor: pointer;
+}
+.fc-more-link {
+  color: #60a5fa;
+}
+.fc-more-link:hover {
+  text-decoration: underline;
+}
+
 /* Responsive adjustments */
 @media (max-width: 768px) {
   .rbc-calendar {

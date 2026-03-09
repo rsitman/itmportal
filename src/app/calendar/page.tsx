@@ -1,71 +1,16 @@
 'use client'
 
-import { useState, useEffect, useRef } from 'react'
-import { Calendar, dateFnsLocalizer, Views } from 'react-big-calendar'
-import { format, parse, startOfWeek, getDay } from 'date-fns'
-import { cs } from 'date-fns/locale'
-import 'react-big-calendar/lib/css/react-big-calendar.css'
-import './calendar.css'
-import { useSession, signOut } from 'next-auth/react'
+import { useState, useEffect } from 'react'
+import { useSession } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
 import { Event, CalendarEvent } from '@/types/calendar'
 import { OutlookCalendarService } from '@/lib/outlook-calendar'
-import { ErpCalendarService } from '@/lib/erp-calendar'
 import EventFilterPanel from '@/components/EventFilterPanel'
+import FullCalendarView from './FullCalendarView'
 import { logger } from '@/lib/logger'
+import './calendar.css'
 
-// Setup localizer
-const locales = {
-  'cs': cs,
-}
-
-const localizer = dateFnsLocalizer({
-  format,
-  parse,
-  startOfWeek: () => startOfWeek(new Date(), { weekStartsOn: 1 }), // Pondělí jako začátek týdne
-  getDay,
-  locales: {
-    'cs': cs
-  },
-  culture: 'cs'
-})
-
-// Event styling function with hover
-const eventStyleGetter = (event: CalendarEvent) => {
-  const isOutlookEvent = event.id.startsWith('outlook-')
-  const isErpEvent = event.resource?.isErpEvent
-  
-  const baseColor = {
-    PROJECT: '#3b82f6', // blue-500
-    MEETING: '#f97316', // orange-500
-    HOLIDAY: '#10b981', // emerald-500
-    OTHER: '#6b7280', // gray-500
-    ERP_UPGRADE: '#8b5cf6', // violet-500
-    ERP_PATCH: '#a855f7', // purple-500
-    ERP_HOLIDAY: '#22c55e', // green-500
-  }[event.resource?.type || 'OTHER']
-  
-  const backgroundColor = isOutlookEvent ? '#0078d4' : baseColor
-  
-  return {
-    style: {
-      backgroundColor,
-      borderRadius: '6px',
-      opacity: isOutlookEvent ? 0.8 : 0.9,
-      border: 'none',
-      color: 'white',
-      padding: '2px 6px',
-      fontSize: '12px',
-      fontWeight: '500',
-      cursor: 'pointer',
-      minHeight: '24px',
-      whiteSpace: 'normal',
-      overflow: 'visible',
-      zIndex: 10,
-      lineHeight: '1.3'
-    }
-  }
-}
+const Views = { MONTH: 'month', WEEK: 'week', DAY: 'day', AGENDA: 'agenda' } as const
 
 export default function CalendarPage() {
   const { data: session, status } = useSession()
@@ -88,8 +33,6 @@ export default function CalendarPage() {
   const [localEventCount, setLocalEventCount] = useState(0)
   const [userRole, setUserRole] = useState<string>('')
   
-  // Calendar refs
-  const calendarRef = useRef<Calendar>(null)
   const [currentDate, setCurrentDate] = useState(new Date())
   const [currentView, setCurrentView] = useState<string>('month')
   
@@ -107,27 +50,6 @@ export default function CalendarPage() {
     }
   })
   
-  // Tooltip cleanup on mount
-  useEffect(() => {
-    const handleGlobalMouseLeave = () => {
-      const tooltip = document.querySelector('.event-tooltip')
-      if (tooltip) {
-        tooltip.remove()
-      }
-    }
-    
-    document.addEventListener('mouseleave', handleGlobalMouseLeave, true)
-    
-    return () => {
-      document.removeEventListener('mouseleave', handleGlobalMouseLeave)
-      const tooltip = document.querySelector('.event-tooltip')
-      if (tooltip) {
-        tooltip.remove()
-      }
-    }
-  }, []) 
-  
-  // Navigation functions
   const navigateDate = (direction: 'prev' | 'next' | 'today') => {
     const newDate = new Date(currentDate)
     switch (direction) {
@@ -150,14 +72,10 @@ export default function CalendarPage() {
         }
         break
       case 'today':
-        // Already today
-        break
+        setCurrentDate(new Date())
+        return
     }
     setCurrentDate(newDate)
-  }
-
-  const changeView = (view: string) => {
-    setCurrentView(view)
   }
 
   // Session check
@@ -251,61 +169,6 @@ export default function CalendarPage() {
 
       return true
     })
-  }
-
-  // Tooltip functions
-  const showTooltip = (event: React.MouseEvent, title: string, description?: string) => {
-    // Remove existing tooltip
-    const existingTooltip = document.querySelector('.event-tooltip')
-    if (existingTooltip) {
-      existingTooltip.remove()
-    }
-
-    // Create tooltip with better formatting
-    const tooltip = document.createElement('div')
-    tooltip.className = 'event-tooltip'
-    
-    // Format description properly with HTML line breaks
-    const formattedDescription = description ? description.replace(/\n/g, '<br>') : ''
-    
-    tooltip.innerHTML = `
-      <div class="event-tooltip-title">${title}</div>
-      ${formattedDescription ? `<div class="event-tooltip-description">${formattedDescription}</div>` : ''}
-    `
-    
-    // Position tooltip better with more accurate positioning
-    const rect = (event.target as HTMLElement).getBoundingClientRect()
-    const scrollTop = window.pageYOffset || document.documentElement.scrollTop
-    const scrollLeft = window.pageXOffset || document.documentElement.scrollLeft
-    
-    // Calculate position to avoid viewport issues
-    let left = rect.left + scrollLeft
-    let top = rect.bottom + scrollTop + 8
-    
-    // Adjust if tooltip would go off screen
-    if (left + 350 > window.innerWidth) {
-      left = window.innerWidth - 370
-    }
-    if (top + 200 > window.innerHeight) {
-      top = rect.top + scrollTop - 220
-    }
-    
-    tooltip.style.position = 'fixed'
-    tooltip.style.left = `${left}px`
-    tooltip.style.top = `${top}px`
-    tooltip.style.zIndex = '10000'
-    
-    document.body.appendChild(tooltip)
-    
-    // Debug log
-    logger.log('Tooltip created:', { title, description, left, top })
-  }
-
-  const hideTooltip = () => {
-    const tooltip = document.querySelector('.event-tooltip')
-    if (tooltip) {
-      tooltip.remove()
-    }
   }
 
   const handleSelectEvent = (event: CalendarEvent) => {
@@ -464,54 +327,6 @@ export default function CalendarPage() {
     }
   }, [session, status])
 
-  // Add debug styles to make calendar visible and force re-render
-  useEffect(() => {
-    // Force calendar to be visible
-    const calendarElements = document.querySelectorAll('.rbc-calendar')
-    calendarElements.forEach((el: any) => {
-      if (el) {
-        ;(el as HTMLElement).style.display = 'block'
-        ;(el as HTMLElement).style.visibility = 'visible'
-        ;(el as HTMLElement).style.opacity = '1'
-        ;(el as HTMLElement).style.height = '500px'
-        ;(el as HTMLElement).style.minHeight = '500px'
-      }
-    })
-    
-    // Force re-render of calendar
-    if (events.length > 0) {
-      logger.log('Forcing calendar re-render with events:', events.length)
-      const calendarElement = document.querySelector('.rbc-calendar')
-      if (calendarElement) {
-        ;(calendarElement as HTMLElement).style.display = 'none'
-        ;(calendarElement as HTMLElement).style.visibility = 'hidden'
-        
-        setTimeout(() => {
-          ;(calendarElement as HTMLElement).style.display = 'block'
-          ;(calendarElement as HTMLElement).style.visibility = 'visible'
-        }, 100)
-      }
-    }
-    
-    // Add event listeners to ensure tooltips work
-    const handleGlobalClick = () => {
-      const tooltip = document.querySelector('.event-tooltip')
-      if (tooltip) {
-        tooltip.remove()
-      }
-    }
-    
-    document.addEventListener('click', handleGlobalClick, true)
-    
-    return () => {
-      document.removeEventListener('click', handleGlobalClick)
-      const tooltip = document.querySelector('.event-tooltip')
-      if (tooltip) {
-        tooltip.remove()
-      }
-    }
-  }, [events, currentView, currentDate])
-
   if (status === 'loading' || loading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
@@ -604,252 +419,77 @@ export default function CalendarPage() {
             onFiltersChange={setEventFilters}
           />
           
-          <Calendar
-              localizer={localizer}
-              events={filterEvents(events)}
-              startAccessor="start"
-              endAccessor="end"
-              className="w-full"
-              style={{ height: 800, width: '100%' }}
-              date={currentDate}
-              view={Views[currentView.toUpperCase() as keyof typeof Views]}
-              onNavigate={(date, view, action) => {
-                setCurrentDate(date)
-                setCurrentView(view)
-              }}
-              onSelectEvent={handleSelectEvent}
-              onSelectSlot={handleSelectSlot}
-              eventPropGetter={eventStyleGetter}
-              messages={{
-                next: "Další",
-                previous: "Předchozí",
-                today: "Dnes",
-                month: "Měsíc",
-                week: "Týden",
-                day: "Den",
-                agenda: "Seznam",
-                date: "Datum",
-                time: "Čas",
-                event: "Událost",
-                noEventsInRange: "Žádné události v tomto období.",
-                showMore: (total: number) => {
-                  // Custom logic to show correct number
-                  const actualEvents = total > 2 ? total - 1 : total
-                  return `+${actualEvents} další`
-                }
-              }}
-              formats={{
-                weekdayFormat: (date: any) => {
-                  const days = ['Po', 'Út', 'St', 'Čt', 'Pá', 'So', 'Ne']
-                  const dayIndex = date.getDay() === 0 ? 6 : date.getDay() - 1
-                  return days[dayIndex]
-                },
-                monthHeaderFormat: (date: any) => {
-                  const dateObj = new Date(date)
-                  return dateObj.toLocaleDateString('cs-CZ', { month: 'long', year: 'numeric' })
-                },
-                dayHeaderFormat: (date: any) => {
-                  const days = ['Neděle', 'Pondělí', 'Úterý', 'Středa', 'Čtvrtek', 'Pátek', 'Sobota']
-                  const dateObj = new Date(date)
-                  return days[dateObj.getDay()]
-                },
-                dayFormat: (date: any) => {
-                  const dateObj = new Date(date)
-                  return dateObj.getDate().toString()
-                },
-                agendaHeaderFormat: (date: any) => {
-                  const dateObj = new Date(date)
-                  return dateObj.toLocaleDateString('cs-CZ', { 
-                    weekday: 'long', 
-                    year: 'numeric', 
-                    month: 'long', 
-                    day: 'numeric' 
-                  })
-                },
-                agendaTimeRangeFormat: ({ start, end }: { start: any; end: any }) => {
-                  const formatTime = (date: any) => {
-                    const dateObj = new Date(date)
-                    return dateObj.toLocaleTimeString('cs-CZ', { 
-                      hour: '2-digit', 
-                      minute: '2-digit',
-                      hour12: false 
-                    })
-                  }
-                  return `${formatTime(start)} - ${formatTime(end)}`
-                },
-                agendaDateFormat: (date: any) => {
-                  const dateObj = new Date(date)
-                  return dateObj.toLocaleDateString('cs-CZ', { 
-                    weekday: 'long', 
-                    year: 'numeric', 
-                    month: 'long', 
-                    day: 'numeric' 
-                  })
-                },
-                timeGutterFormat: (date: any) => {
-                  const dateObj = new Date(date)
-                  return dateObj.toLocaleTimeString('cs-CZ', { 
-                    hour: '2-digit', 
-                    minute: '2-digit',
-                    hour12: false 
-                  })
-                },
-                eventTimeRangeFormat: ({ start, end }: { start: any; end: any }) => {
-                  const formatTime = (date: any) => {
-                    const dateObj = new Date(date)
-                    return dateObj.toLocaleTimeString('cs-CZ', { 
-                      hour: '2-digit', 
-                      minute: '2-digit',
-                      hour12: false 
-                    })
-                  }
-                  return `${formatTime(start)} - ${formatTime(end)}`
-                },
-                eventTimeRangeStartFormat: ({ start }: { start: any }) => {
-                  const formatTime = (date: any) => {
-                    const dateObj = new Date(date)
-                    return dateObj.toLocaleTimeString('cs-CZ', { 
-                      hour: '2-digit', 
-                      minute: '2-digit',
-                      hour12: false 
-                    })
-                  }
-                  return formatTime(start)
-                },
-                eventTimeRangeEndFormat: ({ end }: { end: any }) => {
-                  const formatTime = (date: any) => {
-                    const dateObj = new Date(date)
-                    return dateObj.toLocaleTimeString('cs-CZ', { 
-                      hour: '2-digit', 
-                      minute: '2-digit',
-                      hour12: false 
-                    })
-                  }
-                  return formatTime(end)
-                },
-                dateFormat: (date: any) => {
-                  const dateObj = new Date(date)
-                  return dateObj.toLocaleDateString('cs-CZ', { 
-                    day: 'numeric', 
-                    month: 'long', 
-                    year: 'numeric' 
-                  })
-                }
-              }}
-              components={{
-                toolbar: () => (
-                  <div className="flex flex-col sm:flex-row justify-between items-center mb-4 space-y-2 sm:space-y-0 sm:space-x-4">
-                    {/* Left side - Date Navigation */}
-                    <div className="flex items-center space-x-2">
-                      <button
-                        onClick={() => navigateDate('prev')}
-                        className="px-3 py-1 bg-gray-700 text-gray-200 rounded hover:bg-gray-600 transition-colors text-sm font-medium"
-                      >
-                        ← Předchozí
-                      </button>
-                      <button
-                        onClick={() => navigateDate('today')}
-                        className="px-3 py-1 bg-green-600 text-white rounded hover:bg-green-700 transition-colors text-sm font-medium"
-                      >
-                        Dnes
-                      </button>
-                      <button
-                        onClick={() => navigateDate('next')}
-                        className="px-3 py-1 bg-gray-700 text-gray-200 rounded hover:bg-gray-600 transition-colors text-sm font-medium"
-                      >
-                        Další →
-                      </button>
-                    </div>
-
-                    {/* Center - Date Display */}
-                    <div className="text-lg font-semibold text-white">
-                      {currentDate.toLocaleDateString('cs-CZ', { 
-                        month: 'long', 
-                        year: 'numeric',
-                        day: currentView === Views.DAY ? 'numeric' : undefined
-                      })}
-                    </div>
-
-                    {/* Right side - View Switcher */}
-                    <div className="flex items-center space-x-2">
-                      <button
-                        onClick={() => setCurrentView(Views.MONTH)}
-                        className={`px-3 py-1 rounded text-sm font-medium transition-colors ${
-                          currentView === Views.MONTH ? 'bg-green-600 text-white' : 'bg-gray-700 text-gray-200 hover:bg-gray-600'
-                        }`}
-                      >
-                        Měsíc
-                      </button>
-                      <button
-                        onClick={() => setCurrentView(Views.WEEK)}
-                        className={`px-3 py-1 rounded text-sm font-medium transition-colors ${
-                          currentView === Views.WEEK ? 'bg-green-600 text-white' : 'bg-gray-700 text-gray-200 hover:bg-gray-600'
-                        }`}
-                      >
-                        Týden
-                      </button>
-                      <button
-                        onClick={() => setCurrentView(Views.DAY)}
-                        className={`px-3 py-1 rounded text-sm font-medium transition-colors ${
-                          currentView === Views.DAY ? 'bg-green-600 text-white' : 'bg-gray-700 text-gray-200 hover:bg-gray-600'
-                        }`}
-                      >
-                        Den
-                      </button>
-                      <button
-                        onClick={() => setCurrentView(Views.AGENDA)}
-                        className={`px-3 py-1 rounded text-sm font-medium transition-colors ${
-                          currentView === Views.AGENDA ? 'bg-green-600 text-white' : 'bg-gray-700 text-gray-200 hover:bg-gray-600'
-                        }`}
-                      >
-                        Agenda
-                      </button>
-                    </div>
-                  </div>
-                ),
-                event: ({ event }: { event: CalendarEvent }) => (
-                  <div
-                    onMouseEnter={(e) => {
-                      logger.log('Hover event triggered:', event.title, event.resource?.description)
-                      const description = event.resource?.description || ''
-                      showTooltip(e, event.title, description)
-                    }}
-                    onMouseLeave={hideTooltip}
-                    style={{
-                      backgroundColor: eventStyleGetter(event).style.backgroundColor,
-                      borderRadius: '6px',
-                      padding: '2px 6px',
-                      fontSize: '12px',
-                      fontWeight: '500',
-                      cursor: 'pointer',
-                      color: 'white',
-                      minHeight: '24px',
-                      whiteSpace: 'normal',
-                      overflow: 'visible',
-                      zIndex: 10,
-                      lineHeight: '1.3'
-                    }}
-                  >
-                    {event.title}
-                  </div>
-                ),
-                showMore: ({ events }: { events: CalendarEvent[] }) => (
-                  <div
-                    onMouseEnter={(e) => {
-                      logger.log('ShowMore hover triggered:', events.length, events)
-                      const eventDetails = events.map(event => 
-                        `${event.title}${event.resource?.description ? ': ' + event.resource.description : ''}`
-                      ).join('\n')
-                      showTooltip(e, `${events.length} událostí`, eventDetails)
-                    }}
-                    onMouseLeave={hideTooltip}
-                    className="rbc-show-more"
-                  >
-                    +{events.length} více
-                  </div>
-                )
-              }}
-            />
+          <div className="flex flex-col sm:flex-row justify-between items-center mb-4 space-y-2 sm:space-y-0 sm:space-x-4">
+            <div className="flex items-center space-x-2">
+              <button
+                onClick={() => navigateDate('prev')}
+                className="px-3 py-1 bg-gray-700 text-gray-200 rounded hover:bg-gray-600 transition-colors text-sm font-medium"
+              >
+                ← Předchozí
+              </button>
+              <button
+                onClick={() => navigateDate('today')}
+                className="px-3 py-1 bg-green-600 text-white rounded hover:bg-green-700 transition-colors text-sm font-medium"
+              >
+                Dnes
+              </button>
+              <button
+                onClick={() => navigateDate('next')}
+                className="px-3 py-1 bg-gray-700 text-gray-200 rounded hover:bg-gray-600 transition-colors text-sm font-medium"
+              >
+                Další →
+              </button>
+            </div>
+            <div className="text-lg font-semibold text-white">
+              {currentDate.toLocaleDateString('cs-CZ', { 
+                month: 'long', 
+                year: 'numeric',
+                day: currentView === Views.DAY ? 'numeric' : undefined
+              })}
+            </div>
+            <div className="flex items-center space-x-2">
+              <button
+                onClick={() => setCurrentView(Views.MONTH)}
+                className={`px-3 py-1 rounded text-sm font-medium transition-colors ${
+                  currentView === Views.MONTH ? 'bg-green-600 text-white' : 'bg-gray-700 text-gray-200 hover:bg-gray-600'
+                }`}
+              >
+                Měsíc
+              </button>
+              <button
+                onClick={() => setCurrentView(Views.WEEK)}
+                className={`px-3 py-1 rounded text-sm font-medium transition-colors ${
+                  currentView === Views.WEEK ? 'bg-green-600 text-white' : 'bg-gray-700 text-gray-200 hover:bg-gray-600'
+                }`}
+              >
+                Týden
+              </button>
+              <button
+                onClick={() => setCurrentView(Views.DAY)}
+                className={`px-3 py-1 rounded text-sm font-medium transition-colors ${
+                  currentView === Views.DAY ? 'bg-green-600 text-white' : 'bg-gray-700 text-gray-200 hover:bg-gray-600'
+                }`}
+              >
+                Den
+              </button>
+              <button
+                onClick={() => setCurrentView(Views.AGENDA)}
+                className={`px-3 py-1 rounded text-sm font-medium transition-colors ${
+                  currentView === Views.AGENDA ? 'bg-green-600 text-white' : 'bg-gray-700 text-gray-200 hover:bg-gray-600'
+                }`}
+              >
+                Agenda
+              </button>
+            </div>
+          </div>
+          <FullCalendarView
+            events={filterEvents(events)}
+            currentDate={currentDate}
+            currentView={currentView}
+            onDateChange={setCurrentDate}
+            onViewChange={setCurrentView}
+            onEventClick={handleSelectEvent}
+          />
         </div>
       </main>
       
