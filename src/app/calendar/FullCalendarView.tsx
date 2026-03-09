@@ -6,7 +6,7 @@ import dayGridPlugin from '@fullcalendar/daygrid'
 import timeGridPlugin from '@fullcalendar/timegrid'
 import listPlugin from '@fullcalendar/list'
 import csLocale from '@fullcalendar/core/locales/cs'
-import type { EventClickArg, DatesSetArg } from '@fullcalendar/core'
+import type { CalendarApi, EventClickArg, DatesSetArg, MoreLinkArg } from '@fullcalendar/core'
 import { CalendarEvent } from '@/types/calendar'
 
 const VIEW_MAP: Record<string, string> = {
@@ -95,19 +95,39 @@ export default function FullCalendarView({
 
   const fcEvents = useMemo(() => events.map(toFullCalendarEvent), [events])
 
+  const isSameDay = (a: Date, b: Date) => {
+    return (
+      a.getFullYear() === b.getFullYear() &&
+      a.getMonth() === b.getMonth() &&
+      a.getDate() === b.getDate()
+    )
+  }
+
   useEffect(() => {
-    const api = calendarRef.current?.getApi()
+    const api: CalendarApi | undefined = calendarRef.current?.getApi()
     if (!api) return
-    api.gotoDate(currentDate)
-    api.changeView(fcView)
+
+    // Měň view a datum jen když se opravdu liší, ať se to zbytečně „nepere“ s interní navigací
+    if (api.view.type !== fcView) {
+      api.changeView(fcView)
+    }
+
+    const apiDate = api.getDate()
+    if (!isSameDay(apiDate, currentDate)) {
+      api.gotoDate(currentDate)
+    }
   }, [currentDate, fcView])
 
   const handleDatesSet = (arg: DatesSetArg) => {
     const start = arg.start
     const viewType = arg.view.type
-    if (start) onDateChange(start)
+    if (start && !isSameDay(start, currentDate)) {
+      onDateChange(start)
+    }
     const mapped = VIEW_FROM_FC[viewType]
-    if (mapped) onViewChange(mapped)
+    if (mapped && mapped !== currentView) {
+      onViewChange(mapped)
+    }
   }
 
   return (
@@ -120,7 +140,13 @@ export default function FullCalendarView({
       locale={csLocale}
       firstDay={1}
       dayMaxEventRows={true}
-      moreLinkClick="timeGridDay"
+      moreLinkClick={(arg: MoreLinkArg) => {
+        // Přepni na denní pohled a zároveň zapiš změnu i do rodiče,
+        // aby nadpis a lokální stav odpovídal.
+        onDateChange(arg.date)
+        onViewChange('day')
+        return 'timeGridDay'
+      }}
       slotLabelFormat={{
         hour: '2-digit',
         minute: '2-digit',
