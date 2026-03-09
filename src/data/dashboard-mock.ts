@@ -31,12 +31,12 @@ export const mockStatusZpravy: StatusZprava[] = [
 
 export const mockAplikace: PolozkaAplikace[] = [
   { id: '1', nazev: 'Servisní portál', popis: 'Hlavní stránka a přehled portálu', href: aplikace.servisniPortal, ikona: 'LayoutDashboard' },
-  { id: '2', nazev: 'Projekty', popis: 'Evidence projektů a přehled patchování', href: aplikace.projekty, ikona: 'FolderTree' },
+  { id: '2', nazev: 'Projekty', popis: 'Evidence projektů a patchování', href: aplikace.projekty, ikona: 'FolderTree' },
   { id: '3', nazev: 'KARAT', popis: 'ERP systém – objednávky a evidence', href: aplikace.karat || '#', external: true, badge: 'externi', ikona: 'Package' },
   { id: '4', nazev: 'SharePoint', popis: 'Týmové weby a spolupráce', href: aplikace.sharepoint || '#', external: true, badge: 'nove_okno', ikona: 'Share2' },
   { id: '5', nazev: 'Dokumentový SharePoint', popis: 'Dokumenty a úložiště', href: aplikace.sharepointDokumenty || '#', external: true, badge: 'nove_okno', ikona: 'FileText' },
   { id: '6', nazev: 'Firemní web', popis: 'Veřejné stránky společnosti', href: aplikace.firemniWeb || '#', external: true, badge: 'externi', ikona: 'Globe' },
-  { id: '7', nazev: 'Helpdesk', popis: 'Podání požadavků a sledování ticketů', href: aplikace.helpdesk || '#', external: true, badge: 'externi', ikona: 'Headphones' },
+  { id: '7', nazev: 'Helpdesk', popis: 'Požadavky a sledování ticketů', href: aplikace.helpdesk || '#', external: true, badge: 'externi', ikona: 'Headphones' },
   { id: '8', nazev: 'Znalostní báze', popis: 'Návody a časté dotazy', href: aplikace.znalostniBaze || '#', external: true, ikona: 'BookOpen' },
   { id: '9', nazev: 'Kontakty', popis: 'Osoby ITMAN a kontakty', href: aplikace.kontakty, ikona: 'Users' },
 ]
