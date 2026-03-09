@@ -52,7 +52,7 @@ function DashboardContent() {
   }
 
   return (
-    <div className="min-h-screen bg-transparent w-full max-w-7xl mx-auto px-6 sm:px-8">
+    <div className="min-h-screen bg-transparent w-full px-6 sm:px-8">
       <div className="space-y-6">
         {/* Chybové hlášky z query parametrů */}
         {error === 'access_denied' && (
