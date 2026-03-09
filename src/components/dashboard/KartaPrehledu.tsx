@@ -11,7 +11,7 @@ export default function KartaPrehledu({ polozka }: KartaPrehleduProps) {
   return (
     <Link
       href={polozka.href}
-      className="block card-professional p-3 rounded-lg hover:shadow-md transition-all border border-gray-700/60"
+      className="block card-professional p-3 rounded-lg border border-gray-700/60 transition-all hover:shadow-md focus:outline-none focus-visible:ring-2 focus-visible:ring-green-500/50 focus-visible:ring-offset-2 focus-visible:ring-offset-gray-900"
     >
       <div className="flex items-center justify-between gap-2">
         <div className="min-w-0">

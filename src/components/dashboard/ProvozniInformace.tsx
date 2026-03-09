@@ -50,7 +50,10 @@ export default function ProvozniInformace({ polozky }: ProvozniInformaceProps) {
             return (
               <li key={p.id} className="border-b border-gray-700/60 last:border-0 last:pb-0 pb-4 last:pb-0">
                 {p.href && p.href !== '#' ? (
-                  <Link href={p.href} className="block hover:opacity-90 transition-opacity">
+                  <Link
+                    href={p.href}
+                    className="block hover:opacity-90 transition-opacity focus:outline-none focus-visible:ring-2 focus-visible:ring-green-500/50 focus-visible:ring-offset-2 focus-visible:ring-offset-gray-800 rounded"
+                  >
                     {inner}
                   </Link>
                 ) : (

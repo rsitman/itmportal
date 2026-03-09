@@ -37,21 +37,32 @@ interface KartaAplikaceProps {
   polozka: PolozkaAplikace
 }
 
+function isPlaceholderHref(href: string): boolean {
+  return !href || href === '#'
+}
+
 export default function KartaAplikace({ polozka }: KartaAplikaceProps) {
   const Icon = ikonaMap[polozka.ikona] ?? Package
+  const isPlaceholder = polozka.external && isPlaceholderHref(polozka.href)
   const content = (
     <>
-      <div className="flex items-start gap-3">
+      <div className="flex items-start gap-3 min-h-[3.5rem]">
         <div className="flex-shrink-0 w-10 h-10 rounded-lg bg-gray-700/80 flex items-center justify-center text-gray-300">
           <Icon className="w-5 h-5" />
         </div>
         <div className="min-w-0 flex-1">
           <div className="flex items-center gap-2 flex-wrap">
             <span className="font-medium text-white">{polozka.nazev}</span>
-            {polozka.badge && (
-              <span className="text-xs px-2 py-0.5 rounded bg-gray-600/80 text-gray-300">
-                {badgeLabel[polozka.badge] ?? polozka.badge}
+            {isPlaceholder ? (
+              <span className="text-xs px-2 py-0.5 rounded bg-gray-600/80 text-gray-400" aria-hidden>
+                Připravujeme
               </span>
+            ) : (
+              polozka.badge && (
+                <span className="text-xs px-2 py-0.5 rounded bg-gray-600/80 text-gray-300">
+                  {badgeLabel[polozka.badge] ?? polozka.badge}
+                </span>
+              )
             )}
           </div>
           <p className="mt-0.5 text-sm text-gray-400 line-clamp-1">{polozka.popis}</p>
@@ -60,25 +71,36 @@ export default function KartaAplikace({ polozka }: KartaAplikaceProps) {
     </>
   )
 
-  const className =
-    'block card-professional p-4 hover:shadow-md transition-all rounded-lg border border-gray-700/60'
+  const baseClass =
+    'block card-professional p-4 rounded-lg border border-gray-700/60 transition-all min-h-[4.5rem]'
+  const interactiveClass =
+    `${baseClass} hover:shadow-md focus:outline-none focus-visible:ring-2 focus-visible:ring-green-500/50 focus-visible:ring-offset-2 focus-visible:ring-offset-gray-900`
 
   if (polozka.external && polozka.href.startsWith('http')) {
     return (
-      <a href={polozka.href} target="_blank" rel="noopener noreferrer" className={className}>
+      <a
+        href={polozka.href}
+        target="_blank"
+        rel="noopener noreferrer"
+        className={interactiveClass}
+      >
         {content}
       </a>
     )
   }
-  if (polozka.external && polozka.href === '#') {
+  if (isPlaceholder) {
     return (
-      <span className={`${className} opacity-80 cursor-not-allowed`} title="Odkaz bude doplněn">
+      <span
+        className={`${baseClass} opacity-75 cursor-default`}
+        role="status"
+        aria-label={`${polozka.nazev} – Připravujeme`}
+      >
         {content}
       </span>
     )
   }
   return (
-    <Link href={polozka.href} className={className}>
+    <Link href={polozka.href} className={interactiveClass}>
       {content}
     </Link>
   )
