@@ -26,9 +26,9 @@ function sortProjects(
 }
 
 const chipBase =
-  'inline-flex items-center justify-center px-2.5 py-1.5 text-xs font-medium rounded-md border border-emerald-500/50 bg-gray-800/80 text-gray-50 shadow-sm transform transition-all hover:bg-gray-700/80 hover:border-emerald-400/60 hover:shadow-md hover:-translate-y-0.5 focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500/60 focus-visible:ring-offset-2 focus-visible:ring-offset-gray-900'
+  'inline-flex items-center justify-center px-2.5 py-1.5 text-xs font-medium rounded-md border border-emerald-500/50 bg-gray-800/80 text-white hover:text-white visited:text-white shadow-sm transform transition-all hover:bg-gray-700/80 hover:border-emerald-400/60 hover:shadow-md hover:-translate-y-0.5 focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500/60 focus-visible:ring-offset-2 focus-visible:ring-offset-gray-900'
 const chipSecondary =
-  'inline-flex items-center justify-center px-2 py-1 text-[11px] font-medium rounded-md border border-emerald-500/30 bg-gray-800/80 text-gray-100 shadow-sm transform transition-all hover:bg-gray-700/80 hover:border-emerald-400/50 hover:shadow-md hover:-translate-y-0.5 focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500/50 focus-visible:ring-offset-2 focus-visible:ring-offset-gray-900'
+  'inline-flex items-center justify-center px-2 py-1 text-[11px] font-medium rounded-md border border-emerald-500/30 bg-gray-800/80 text-gray-100 hover:text-gray-100 visited:text-gray-100 shadow-sm transform transition-all hover:bg-gray-700/80 hover:border-emerald-400/50 hover:shadow-md hover:-translate-y-0.5 focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500/50 focus-visible:ring-offset-2 focus-visible:ring-offset-gray-900'
 const chipDisabled =
   'inline-flex items-center justify-center px-2.5 py-1.5 text-xs rounded-md bg-gray-800/40 border border-gray-700/40 text-gray-500 cursor-not-allowed'
 
