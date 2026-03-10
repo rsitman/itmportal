@@ -37,7 +37,7 @@ function AkceProjektu({ project }: { project: ServiceProject }) {
   const hwswUrl = `/hwsw-config?projekt=${encodeURIComponent(dokladProjektu)}`
 
   return (
-    <div className="flex flex-wrap gap-2 justify-end">
+    <div className="flex flex-wrap gap-2 justify-end items-center">
       <Link
         href={`/projects/doklad-projektu/${encodeURIComponent(dokladProjektu)}`}
         className="px-3 py-1 text-sm bg-gray-700 text-gray-200 rounded hover:bg-gray-600 transition-colors"
@@ -56,30 +56,37 @@ function AkceProjektu({ project }: { project: ServiceProject }) {
       >
         Externí komponenty
       </Link>
-      <Link
-        href={patchUrl}
-        className="px-3 py-1 text-sm bg-gray-700 text-gray-200 rounded hover:bg-gray-600 transition-colors"
-      >
-        Patchování
-      </Link>
-      <Link
-        href={upgradesUrl}
-        className="px-3 py-1 text-sm bg-gray-700 text-gray-200 rounded hover:bg-gray-600 transition-colors"
-      >
-        Upgrady
-      </Link>
-      <Link
-        href={dbUrl}
-        className="px-3 py-1 text-sm bg-gray-700 text-gray-200 rounded hover:bg-gray-600 transition-colors"
-      >
-        DB
-      </Link>
-      <Link
-        href={hwswUrl}
-        className="px-3 py-1 text-sm bg-gray-700 text-gray-200 rounded hover:bg-gray-600 transition-colors"
-      >
-        HW/SW
-      </Link>
+      <details className="relative">
+        <summary className="list-none cursor-pointer px-3 py-1 text-sm bg-gray-800 text-gray-200 rounded border border-gray-700 hover:bg-gray-700 transition-colors">
+          Další
+        </summary>
+        <div className="absolute right-0 mt-2 w-56 rounded-md border border-gray-700 bg-gray-900 shadow-strong z-10 overflow-hidden">
+          <Link
+            href={patchUrl}
+            className="block px-4 py-2 text-sm text-gray-200 hover:bg-gray-800 transition-colors"
+          >
+            Patchování
+          </Link>
+          <Link
+            href={upgradesUrl}
+            className="block px-4 py-2 text-sm text-gray-200 hover:bg-gray-800 transition-colors"
+          >
+            Upgrady
+          </Link>
+          <Link
+            href={dbUrl}
+            className="block px-4 py-2 text-sm text-gray-200 hover:bg-gray-800 transition-colors"
+          >
+            Stav DB
+          </Link>
+          <Link
+            href={hwswUrl}
+            className="block px-4 py-2 text-sm text-gray-200 hover:bg-gray-800 transition-colors"
+          >
+            HW/SW konfigurace
+          </Link>
+        </div>
+      </details>
     </div>
   )
 }
@@ -199,6 +206,14 @@ export default function ProjectsRegistryClient() {
               className="w-full sm:w-[420px] pl-4 pr-3 py-2 border border-gray-600 rounded-md bg-gray-800 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
           </div>
+          {searchTerm.trim() ? (
+            <button
+              onClick={() => setSearchTerm('')}
+              className="px-4 py-2 bg-gray-700 text-gray-100 rounded-md hover:bg-gray-600 transition-colors"
+            >
+              Vymazat
+            </button>
+          ) : null}
           <button
             onClick={fetchData}
             className="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 transition-colors"
