@@ -25,6 +25,10 @@ function sortProjects(
   })
 }
 
+const chipBase =
+  'px-2 py-1 text-xs font-medium rounded-md border border-gray-700/50 bg-gray-800/50 text-gray-300 hover:bg-gray-700/50 hover:text-white focus:outline-none focus:ring-2 focus:ring-green-500/50 focus:ring-offset-2 focus:ring-offset-gray-900 transition-colors'
+const chipDisabled = 'px-2 py-1 text-xs rounded-md bg-gray-800/40 border border-gray-700/40 text-gray-500 cursor-not-allowed'
+
 function AkceProjektu({ project }: { project: ServiceProject }) {
   const dokladProjektu = project.doklad_proj
   const nazevFirmy = project.nazev_par
@@ -41,54 +45,54 @@ function AkceProjektu({ project }: { project: ServiceProject }) {
   const jiraUrl = hasJira ? `https://itmancz.atlassian.net/browse/${project.jira_klic}` : null
   const mapUrl = hasGps ? `https://www.google.com/maps?q=${encodeURIComponent(project.gps)}` : null
 
-  const btnBase =
-    'px-3 py-1.5 text-sm font-medium rounded-lg border border-gray-600/60 bg-gray-700/80 text-gray-100 hover:bg-gray-600/80 focus:outline-none focus:ring-2 focus:ring-green-500/50 focus:border-green-500/50 transition-colors'
-  const linkBase =
-    'text-gray-400 hover:text-white underline-offset-4 hover:underline focus:outline-none focus:ring-2 focus:ring-green-500/50 focus:ring-offset-2 focus:ring-offset-gray-900 rounded'
-
   return (
-    <div className="flex flex-col gap-2 items-end">
-      <div className="flex flex-wrap gap-2 justify-end">
-        <Link href={`/projects/doklad-projektu/${encodeURIComponent(dokladProjektu)}`} className={btnBase}>
-          Detail
-        </Link>
-        <Link href={teamUrl} className={btnBase}>
+    <div className="flex flex-col gap-1.5 items-end">
+      <div className="flex flex-wrap gap-1.5 justify-end">
+        <Link href={teamUrl} className={chipBase}>
           Tým
         </Link>
-        <Link href={extcompsUrl} className={btnBase}>
+        <Link href={extcompsUrl} className={chipBase}>
           Externí komponenty
         </Link>
         {jiraUrl ? (
-          <a href={jiraUrl} target="_blank" rel="noopener noreferrer" className={btnBase}>
+          <a href={jiraUrl} target="_blank" rel="noopener noreferrer" className={chipBase}>
             Helpdesk
           </a>
         ) : (
-          <span className="px-3 py-1.5 text-sm rounded-lg bg-gray-800/60 border border-gray-700/60 text-gray-500 cursor-not-allowed">
-            Helpdesk
-          </span>
+          <span className={chipDisabled}>Helpdesk</span>
         )}
         {mapUrl ? (
-          <a href={mapUrl} target="_blank" rel="noopener noreferrer" className={btnBase}>
+          <a href={mapUrl} target="_blank" rel="noopener noreferrer" className={chipBase}>
             Mapa
           </a>
         ) : (
-          <span className="px-3 py-1.5 text-sm rounded-lg bg-gray-800/60 border border-gray-700/60 text-gray-500 cursor-not-allowed">
-            Mapa
-          </span>
+          <span className={chipDisabled}>Mapa</span>
         )}
       </div>
-      <div className="flex flex-wrap gap-x-4 gap-y-1 justify-end text-sm">
-        <Link href={patchUrl} className={linkBase}>
+      <div className="flex flex-wrap gap-x-3 gap-y-0.5 justify-end text-xs">
+        <Link
+          href={patchUrl}
+          className="text-gray-500 hover:text-gray-300 hover:underline focus:outline-none focus:ring-2 focus:ring-green-500/50 focus:ring-offset-2 focus:ring-offset-gray-900 rounded"
+        >
           Patchování
         </Link>
-        <Link href={upgradesUrl} className={linkBase}>
+        <Link
+          href={upgradesUrl}
+          className="text-gray-500 hover:text-gray-300 hover:underline focus:outline-none focus:ring-2 focus:ring-green-500/50 focus:ring-offset-2 focus:ring-offset-gray-900 rounded"
+        >
           Upgrady
         </Link>
-        <Link href={dbUrl} className={linkBase}>
+        <Link
+          href={dbUrl}
+          className="text-gray-500 hover:text-gray-300 hover:underline focus:outline-none focus:ring-2 focus:ring-green-500/50 focus:ring-offset-2 focus:ring-offset-gray-900 rounded"
+        >
           Stav DB
         </Link>
-        <Link href={hwswUrl} className={linkBase}>
-          HW/SW konfigurace
+        <Link
+          href={hwswUrl}
+          className="text-gray-500 hover:text-gray-300 hover:underline focus:outline-none focus:ring-2 focus:ring-green-500/50 focus:ring-offset-2 focus:ring-offset-gray-900 rounded"
+        >
+          HW/SW
         </Link>
       </div>
     </div>
@@ -206,7 +210,7 @@ export default function ProjectsRegistryClient() {
             type="text"
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            placeholder="Hledat: projekt, doklad, firma, JIRA, GPS…"
+            placeholder="Hledat projekt, firmu nebo doklad…"
             className="w-full sm:w-[420px] pl-4 pr-4 py-2.5 rounded-lg bg-gray-800/80 border border-gray-600/60 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-green-500/50 focus:border-green-500/50"
           />
           {searchTerm.trim() ? (
@@ -258,16 +262,24 @@ export default function ProjectsRegistryClient() {
                   key={`${project.doklad_proj || 'no-id'}-${index}`}
                   className="hover:bg-gray-800/50 transition-colors"
                 >
-                  <td className="px-4 md:px-6 py-3.5 text-sm text-white border-b border-gray-700/60">
-                    <div className="flex flex-col gap-0.5">
+                  <td className="px-4 md:px-6 py-3.5 text-sm border-b border-gray-700/60">
+                    <div className="flex flex-col gap-1">
                       <Link
                         href={`/projects/doklad-projektu/${encodeURIComponent(project.doklad_proj)}`}
-                        className="font-medium text-green-300 hover:text-green-200 hover:underline focus:outline-none focus:ring-2 focus:ring-green-500/50 focus:ring-offset-2 focus:ring-offset-gray-900 rounded"
+                        className="text-base font-semibold text-white hover:text-green-300 hover:underline focus:outline-none focus:ring-2 focus:ring-green-500/50 focus:ring-offset-2 focus:ring-offset-gray-900 rounded"
                       >
                         {project.nazev || '—'}
                       </Link>
                       <span className="text-sm text-gray-400">{project.nazev_par || '—'}</span>
-                      <span className="text-xs text-gray-500 font-mono">{project.doklad_proj || '—'}</span>
+                      <div className="flex flex-wrap items-center gap-x-3 gap-y-0.5">
+                        <span className="text-xs text-gray-500 font-mono">{project.doklad_proj || '—'}</span>
+                        <Link
+                          href={`/projects/doklad-projektu/${encodeURIComponent(project.doklad_proj)}`}
+                          className="text-xs text-gray-500 hover:text-green-400 focus:outline-none focus:ring-2 focus:ring-green-500/50 focus:ring-offset-2 focus:ring-offset-gray-900 rounded"
+                        >
+                          Otevřít detail
+                        </Link>
+                      </div>
                     </div>
                   </td>
                   <td className="px-4 md:px-6 py-3.5 text-sm border-b border-gray-700/60 align-top">
