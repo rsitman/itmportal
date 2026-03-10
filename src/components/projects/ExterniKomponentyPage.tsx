@@ -202,11 +202,15 @@ function HlavickaExternichKomponent({
           {projectName ? (
             <p className="mt-1 text-sm font-medium text-gray-200 leading-snug">
               {projectName}
+              <span className="ml-1.5 text-[11px] font-normal text-gray-500 font-mono">
+                · {dokladProjektu}
+              </span>
             </p>
-          ) : null}
-          <p className="mt-0.5 text-xs text-gray-500 leading-snug font-mono">
-            Doklad {dokladProjektu}
-          </p>
+          ) : (
+            <p className="mt-1 text-sm text-gray-200 leading-snug">
+              <span className="text-[11px] text-gray-500 font-mono">{dokladProjektu}</span>
+            </p>
+          )}
           <p className="mt-1 text-sm text-gray-400 leading-snug">
             Seznam externích softwarových komponent třetích stran a kontaktů.
           </p>
