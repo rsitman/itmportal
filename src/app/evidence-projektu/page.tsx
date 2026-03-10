@@ -17,18 +17,14 @@ export default async function ProjectsRegistryPage() {
   }
 
   return (
-    <div className="w-full py-10 bg-transparent">
-      {/* Header */}
-      <div className="card-professional shadow-sm border-b border-gray-700/50">
-        <div className="px-6 py-6">
+    <div className="min-h-screen bg-transparent w-full px-6 sm:px-8 pt-6 sm:pt-8">
+      <div className="space-y-6">
+        <header className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <div>
-            <h1 className="text-3xl font-bold text-white">Evidence projektů</h1>
-            <p className="text-gray-300 mt-1">Přehled servisních projektů a rychlý přístup do navazujících oblastí</p>
+            <h1 className="text-2xl font-bold text-white tracking-tight">Evidence projektů</h1>
+            <p className="text-sm text-gray-400 mt-1">Přehled servisních projektů a rychlý přístup do navazujících oblastí</p>
           </div>
-        </div>
-      </div>
-      
-      <div className="px-6 py-4">
+        </header>
         <ProjectsRegistryClient />
       </div>
     </div>
