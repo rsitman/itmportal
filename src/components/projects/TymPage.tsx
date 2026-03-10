@@ -306,7 +306,7 @@ function KontaktClena({ email, telefon }: KontaktClenaProps) {
       {email ? (
         <a
           href={`mailto:${email}`}
-          className="text-green-500/90 hover:text-green-400 break-all focus:outline-none focus-visible:ring-2 focus-visible:ring-green-500/50 focus-visible:ring-offset-2 focus-visible:ring-offset-gray-900 rounded"
+          className="text-gray-300 hover:text-gray-100 break-all focus:outline-none focus-visible:ring-2 focus-visible:ring-green-500/50 focus-visible:ring-offset-2 focus-visible:ring-offset-gray-900 rounded"
         >
           {email}
         </a>
@@ -316,7 +316,7 @@ function KontaktClena({ email, telefon }: KontaktClenaProps) {
       {telefon ? (
         <a
           href={`tel:${telefon}`}
-          className="text-gray-400 hover:text-gray-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-green-500/50 focus-visible:ring-offset-2 focus-visible:ring-offset-gray-900 rounded"
+          className="text-gray-300 hover:text-gray-100 focus:outline-none focus-visible:ring-2 focus-visible:ring-green-500/50 focus-visible:ring-offset-2 focus-visible:ring-offset-gray-900 rounded"
         >
           {telefon}
         </a>
