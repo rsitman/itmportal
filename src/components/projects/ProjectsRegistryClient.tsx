@@ -26,9 +26,9 @@ function sortProjects(
 }
 
 const chipBase =
-  'inline-flex items-center justify-center px-2.5 py-1.5 text-xs font-medium rounded-md border border-emerald-500/50 bg-gray-800/80 text-white hover:text-white visited:text-white shadow-sm transform transition-all hover:bg-gray-700/80 hover:border-emerald-400/60 hover:shadow-md hover:-translate-y-0.5 focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500/60 focus-visible:ring-offset-2 focus-visible:ring-offset-gray-900'
+  'inline-flex items-center justify-center px-2.5 py-1.5 text-xs font-medium rounded-md border border-emerald-500/50 bg-gray-800/80 text-white hover:text-white focus:text-white active:text-white visited:text-white shadow-sm transform transition-all hover:bg-gray-700/80 hover:border-emerald-400/60 hover:shadow-md hover:-translate-y-0.5 focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500/60 focus-visible:ring-offset-2 focus-visible:ring-offset-gray-900'
 const chipSecondary =
-  'inline-flex items-center justify-center px-2 py-1 text-[11px] font-medium rounded-md border border-emerald-500/30 bg-gray-800/80 text-gray-100 hover:text-gray-100 visited:text-gray-100 shadow-sm transform transition-all hover:bg-gray-700/80 hover:border-emerald-400/50 hover:shadow-md hover:-translate-y-0.5 focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500/50 focus-visible:ring-offset-2 focus-visible:ring-offset-gray-900'
+  'inline-flex items-center justify-center px-2 py-1 text-[11px] font-medium rounded-md border border-emerald-500/30 bg-gray-800/80 text-gray-100 hover:text-gray-100 focus:text-gray-100 active:text-gray-100 visited:text-gray-100 shadow-sm transform transition-all hover:bg-gray-700/80 hover:border-emerald-400/50 hover:shadow-md hover:-translate-y-0.5 focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500/50 focus-visible:ring-offset-2 focus-visible:ring-offset-gray-900'
 const chipDisabled =
   'inline-flex items-center justify-center px-2.5 py-1.5 text-xs rounded-md bg-gray-800/40 border border-gray-700/40 text-gray-500 cursor-not-allowed'
 
@@ -51,21 +51,31 @@ function AkceProjektu({ project }: { project: ServiceProject }) {
   return (
     <div className="flex flex-col gap-1.5 items-end">
       <div className="flex flex-wrap gap-1.5 justify-end">
-        <Link href={teamUrl} className={chipBase}>
+        <Link href={teamUrl} className={`${chipBase} chip-action`}>
           Tým
         </Link>
-        <Link href={extcompsUrl} className={chipBase}>
+        <Link href={extcompsUrl} className={`${chipBase} chip-action`}>
           Externí komponenty
         </Link>
         {jiraUrl ? (
-          <a href={jiraUrl} target="_blank" rel="noopener noreferrer" className={chipBase}>
+          <a
+            href={jiraUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className={`${chipBase} chip-action`}
+          >
             Helpdesk
           </a>
         ) : (
           <span className={chipDisabled}>Helpdesk</span>
         )}
         {mapUrl ? (
-          <a href={mapUrl} target="_blank" rel="noopener noreferrer" className={chipBase}>
+          <a
+            href={mapUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className={`${chipBase} chip-action`}
+          >
             Mapa
           </a>
         ) : (
@@ -73,16 +83,16 @@ function AkceProjektu({ project }: { project: ServiceProject }) {
         )}
       </div>
       <div className="flex flex-wrap gap-x-2.5 gap-y-1 justify-end text-xs">
-        <Link href={patchUrl} className={chipSecondary}>
+        <Link href={patchUrl} className={`${chipSecondary} chip-action`}>
           Patchování
         </Link>
-        <Link href={upgradesUrl} className={chipSecondary}>
+        <Link href={upgradesUrl} className={`${chipSecondary} chip-action`}>
           Upgrady
         </Link>
-        <Link href={dbUrl} className={chipSecondary}>
+        <Link href={dbUrl} className={`${chipSecondary} chip-action`}>
           Stav DB
         </Link>
-        <Link href={hwswUrl} className={chipSecondary}>
+        <Link href={hwswUrl} className={`${chipSecondary} chip-action`}>
           HW/SW
         </Link>
       </div>

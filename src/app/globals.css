@@ -640,6 +640,15 @@ td, th {
   color: #e5e7eb !important;
 }
 
+/* Evidence projektů – force light text for action chips to avoid green link color */
+.evidence-projektu-registry .chip-action,
+.evidence-projektu-registry .chip-action:hover,
+.evidence-projektu-registry .chip-action:focus,
+.evidence-projektu-registry .chip-action:active,
+.evidence-projektu-registry .chip-action:visited {
+  color: #f9fafb !important;
+}
+
 /* Specific status badge classes with !important to override everything */
 .status-badge-realizovano {
   background: rgba(34, 197, 94, 0.8) !important;
