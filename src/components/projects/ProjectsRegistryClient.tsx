@@ -26,9 +26,9 @@ function sortProjects(
 }
 
 const chipBase =
-  'inline-flex items-center justify-center px-2.5 py-1.5 text-xs font-medium rounded-md border border-blue-500/35 bg-gray-800/80 text-gray-300 hover:text-gray-300 focus:text-gray-300 active:text-gray-300 visited:text-gray-300 shadow-sm transform transition-all hover:bg-gray-700/80 hover:border-blue-400/45 hover:shadow-md hover:-translate-y-0.5 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500/45 focus-visible:ring-offset-2 focus-visible:ring-offset-gray-900'
+  'inline-flex items-center justify-center px-2.5 py-1.5 text-xs font-medium rounded-md border border-blue-500/35 bg-gray-800/80 shadow-sm transform transition-all hover:bg-gray-700/80 hover:border-blue-400/45 hover:shadow-md hover:-translate-y-0.5 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500/45 focus-visible:ring-offset-2 focus-visible:ring-offset-gray-900'
 const chipSecondary =
-  'inline-flex items-center justify-center px-2 py-1 text-[11px] font-medium rounded-md border border-blue-500/25 bg-gray-800/80 text-gray-400 hover:text-gray-400 focus:text-gray-400 active:text-gray-400 visited:text-gray-400 shadow-sm transform transition-all hover:bg-gray-700/80 hover:border-blue-400/35 hover:shadow-md hover:-translate-y-0.5 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500/35 focus-visible:ring-offset-2 focus-visible:ring-offset-gray-900'
+  'inline-flex items-center justify-center px-2 py-1 text-[11px] font-medium rounded-md border border-blue-500/25 bg-gray-800/80 shadow-sm transform transition-all hover:bg-gray-700/80 hover:border-blue-400/35 hover:shadow-md hover:-translate-y-0.5 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500/35 focus-visible:ring-offset-2 focus-visible:ring-offset-gray-900'
 const chipDisabled =
   'inline-flex items-center justify-center px-2.5 py-1.5 text-xs rounded-md bg-gray-800/40 border border-gray-700/40 text-gray-500 cursor-not-allowed'
 
@@ -52,10 +52,12 @@ function AkceProjektu({ project }: { project: ServiceProject }) {
     <div className="flex flex-col gap-1.5 items-end">
       <div className="flex flex-wrap gap-1.5 justify-end">
         <Link href={teamUrl} className={`${chipBase} chip-action chip-action-top`}>
-          Tým
+          <span className="chip-action-label chip-action-label-top text-gray-300">Tým</span>
         </Link>
         <Link href={extcompsUrl} className={`${chipBase} chip-action chip-action-top`}>
-          Externí komponenty
+          <span className="chip-action-label chip-action-label-top text-gray-300">
+            Externí komponenty
+          </span>
         </Link>
         {jiraUrl ? (
           <a
@@ -64,7 +66,7 @@ function AkceProjektu({ project }: { project: ServiceProject }) {
             rel="noopener noreferrer"
             className={`${chipBase} chip-action chip-action-top`}
           >
-            Helpdesk
+            <span className="chip-action-label chip-action-label-top text-gray-300">Helpdesk</span>
           </a>
         ) : (
           <span className={chipDisabled}>Helpdesk</span>
@@ -76,7 +78,7 @@ function AkceProjektu({ project }: { project: ServiceProject }) {
             rel="noopener noreferrer"
             className={`${chipBase} chip-action chip-action-top`}
           >
-            Mapa
+            <span className="chip-action-label chip-action-label-top text-gray-300">Mapa</span>
           </a>
         ) : (
           <span className={chipDisabled}>Mapa</span>
@@ -84,16 +86,18 @@ function AkceProjektu({ project }: { project: ServiceProject }) {
       </div>
       <div className="flex flex-wrap gap-x-2.5 gap-y-1 justify-end text-xs">
         <Link href={patchUrl} className={`${chipSecondary} chip-action chip-action-bottom`}>
-          Patchování
+          <span className="chip-action-label chip-action-label-bottom text-gray-400">
+            Patchování
+          </span>
         </Link>
         <Link href={upgradesUrl} className={`${chipSecondary} chip-action chip-action-bottom`}>
-          Upgrady
+          <span className="chip-action-label chip-action-label-bottom text-gray-400">Upgrady</span>
         </Link>
         <Link href={dbUrl} className={`${chipSecondary} chip-action chip-action-bottom`}>
-          Stav DB
+          <span className="chip-action-label chip-action-label-bottom text-gray-400">Stav DB</span>
         </Link>
         <Link href={hwswUrl} className={`${chipSecondary} chip-action chip-action-bottom`}>
-          HW/SW
+          <span className="chip-action-label chip-action-label-bottom text-gray-400">HW/SW</span>
         </Link>
       </div>
     </div>
@@ -260,8 +264,8 @@ export default function ProjectsRegistryClient() {
                   >
                     {project.nazev || '—'}
                   </Link>
-                  <span className="text-sm text-gray-300">{project.nazev_par || '—'}</span>
-                  <span className="text-xs text-gray-400 font-mono">{project.doklad_proj || '—'}</span>
+                  <span className="text-sm text-gray-400">{project.nazev_par || '—'}</span>
+                  <span className="text-xs text-gray-500 font-mono">{project.doklad_proj || '—'}</span>
                 </div>
                 <div className="flex justify-start md:justify-end">
                   <AkceProjektu project={project} />
