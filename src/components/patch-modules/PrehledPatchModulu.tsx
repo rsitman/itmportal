@@ -299,13 +299,13 @@ function TabulkaPatchModulu({ modules }: { modules: PatchModule[] }) {
             </th>
             <th
               colSpan={2}
-              className="px-3 py-2 text-left text-[11px] font-medium uppercase tracking-wide text-gray-500 border-l border-gray-600/80 bg-gray-800/70"
+              className="px-3 py-2 text-right text-[11px] font-medium uppercase tracking-wide text-gray-500 bg-gray-800/70"
             >
               Standard
             </th>
             <th
               colSpan={2}
-              className="px-3 py-2 text-left text-[11px] font-medium uppercase tracking-wide text-gray-500 border-l border-gray-600/80 bg-gray-800/70"
+              className="px-3 py-2 text-right text-[11px] font-medium uppercase tracking-wide text-gray-500 bg-gray-800/70"
             >
               Stát (leg.)
             </th>
@@ -318,16 +318,16 @@ function TabulkaPatchModulu({ modules }: { modules: PatchModule[] }) {
             <th className="px-3 py-1" />
             <th className="px-3 py-1" />
             <th className="px-3 py-1" />
-            <th className="px-3 py-1 text-[10px] font-normal text-gray-500 border-l border-gray-600/80 bg-gray-800/70">
+            <th className="px-3 py-1 text-[10px] font-normal text-gray-500 text-right">
               nainst.
             </th>
-            <th className="px-3 py-1 text-[10px] font-normal text-gray-500 bg-gray-800/70">
+            <th className="px-3 py-1 text-[10px] font-normal text-gray-500 text-right">
               dostup.
             </th>
-            <th className="px-3 py-1 text-[10px] font-normal text-gray-500 border-l border-gray-600/80 bg-gray-800/60">
+            <th className="px-3 py-1 text-[10px] font-normal text-gray-500 text-right">
               nainst.
             </th>
-            <th className="px-3 py-1 text-[10px] font-normal text-gray-500 bg-gray-800/60">
+            <th className="px-3 py-1 text-[10px] font-normal text-gray-500 text-right">
               dostup.
             </th>
             <th className="px-3 py-1" />
@@ -378,33 +378,33 @@ function RadekPatchModulu({ module }: { module: PatchModule }) {
           {module.stat || '—'}
         </span>
       </td>
-      <td className="px-3 py-2 align-middle whitespace-nowrap border-l border-gray-700/60">
+      <td className="px-3 py-2 align-middle whitespace-nowrap text-right">
         <span
           className={
             standardNeedsUpdate
-              ? 'font-mono text-xs font-medium text-amber-200/90 bg-amber-900/40 border border-amber-700/40 rounded px-1 py-0.5'
-              : 'font-mono text-xs text-gray-300 tabular-nums'
+              ? 'font-mono text-sm font-medium text-amber-200/90 bg-amber-900/30 rounded px-1.5 py-0.5 tabular-nums'
+              : 'font-mono text-sm text-gray-200 tabular-nums'
           }
         >
           {module.posl_patch_40}
         </span>
       </td>
-      <td className="px-3 py-2 align-middle whitespace-nowrap">
-        <span className="font-mono text-xs text-gray-400 tabular-nums">{module.max_patch_40}</span>
+      <td className="px-3 py-2 align-middle whitespace-nowrap text-right">
+        <span className="font-mono text-sm text-gray-400 tabular-nums">{module.max_patch_40}</span>
       </td>
-      <td className="px-3 py-2 align-middle whitespace-nowrap border-l border-gray-700/60">
+      <td className="px-3 py-2 align-middle whitespace-nowrap text-right">
         <span
           className={
             statNeedsUpdate
-              ? 'font-mono text-xs font-medium text-amber-200/90 bg-amber-900/40 border border-amber-700/40 rounded px-1 py-0.5'
-              : 'font-mono text-xs text-gray-300 tabular-nums'
+              ? 'font-mono text-sm font-medium text-amber-200/90 bg-amber-900/30 rounded px-1.5 py-0.5 tabular-nums'
+              : 'font-mono text-sm text-gray-200 tabular-nums'
           }
         >
           {module.posl_patch_36}
         </span>
       </td>
-      <td className="px-3 py-2 align-middle whitespace-nowrap">
-        <span className="font-mono text-xs text-gray-400 tabular-nums">{module.max_patch_36}</span>
+      <td className="px-3 py-2 align-middle whitespace-nowrap text-right">
+        <span className="font-mono text-sm text-gray-400 tabular-nums">{module.max_patch_36}</span>
       </td>
       <td className="px-3 py-2 align-middle whitespace-nowrap">
         <StavovyBadge module={module} />
