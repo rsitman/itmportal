@@ -170,22 +170,22 @@ function HlavickaTymu({
             Přehled členů týmu, jejich rolí a kontaktních informací pro daný projekt.
           </p>
         </div>
-        <dl className="grid grid-cols-4 gap-x-4 gap-y-0.5 text-xs sm:flex sm:gap-6 sm:text-right">
+        <dl className="grid grid-cols-4 gap-x-4 gap-y-0.5 sm:flex sm:gap-6 sm:text-right">
           <div>
-            <dt className="text-gray-500">Celkem</dt>
-            <dd className="font-medium text-gray-300">{totalCount}</dd>
+            <dt className="text-[11px] font-medium uppercase tracking-wide text-gray-500">Celkem</dt>
+            <dd className="text-sm font-semibold text-white mt-0.5">{totalCount}</dd>
           </div>
           <div>
-            <dt className="text-gray-500">Vlastní</dt>
-            <dd className="font-medium text-gray-400">{internalCount}</dd>
+            <dt className="text-[11px] font-medium uppercase tracking-wide text-gray-500">Vlastní</dt>
+            <dd className="text-sm font-semibold text-gray-200 mt-0.5">{internalCount}</dd>
           </div>
           <div>
-            <dt className="text-gray-500">Externí</dt>
-            <dd className="font-medium text-gray-400">{externalCount}</dd>
+            <dt className="text-[11px] font-medium uppercase tracking-wide text-gray-500">Externí</dt>
+            <dd className="text-sm font-semibold text-gray-200 mt-0.5">{externalCount}</dd>
           </div>
           <div>
-            <dt className="text-gray-500">Zákazníci</dt>
-            <dd className="font-medium text-gray-400">{customerCount}</dd>
+            <dt className="text-[11px] font-medium uppercase tracking-wide text-gray-500">Zákazníci</dt>
+            <dd className="text-sm font-semibold text-gray-200 mt-0.5">{customerCount}</dd>
           </div>
         </dl>
       </div>
@@ -288,8 +288,8 @@ type RoleClenaProps = {
 
 function RoleClena({ kodRole, nazevRole }: RoleClenaProps) {
   return (
-    <span className="inline-flex items-center rounded-md border border-gray-700/50 bg-gray-800/60 px-2 py-0.5 text-[11px] font-medium text-gray-400 leading-snug">
-      <span className="mr-1 text-[10px] font-mono uppercase text-gray-500">{kodRole}</span>
+    <span className="inline-flex items-center rounded-md border border-gray-600/60 bg-gray-800/80 px-2.5 py-1 text-xs font-medium text-gray-200 leading-snug">
+      <span className="mr-1.5 text-[10px] font-mono uppercase text-gray-400">{kodRole}</span>
       <span>{nazevRole}</span>
     </span>
   )
@@ -301,24 +301,23 @@ type KontaktClenaProps = {
 }
 
 function KontaktClena({ email, telefon }: KontaktClenaProps) {
+  const linkBase =
+    'group inline focus:outline-none focus-visible:ring-2 focus-visible:ring-green-500/50 focus-visible:ring-offset-2 focus-visible:ring-offset-gray-900 rounded'
+  const spanMuted =
+    'text-gray-300 transition-colors duration-150 group-hover:text-gray-100'
+
   return (
     <div className="flex flex-col items-start gap-1 text-xs lg:items-end lg:leading-snug">
       {email ? (
-        <a
-          href={`mailto:${email}`}
-          className="text-gray-300 hover:text-gray-100 break-all focus:outline-none focus-visible:ring-2 focus-visible:ring-green-500/50 focus-visible:ring-offset-2 focus-visible:ring-offset-gray-900 rounded"
-        >
-          {email}
+        <a href={`mailto:${email}`} className={`${linkBase} break-all`}>
+          <span className={spanMuted}>{email}</span>
         </a>
       ) : (
         <span className="text-gray-500">—</span>
       )}
       {telefon ? (
-        <a
-          href={`tel:${telefon}`}
-          className="text-gray-300 hover:text-gray-100 focus:outline-none focus-visible:ring-2 focus-visible:ring-green-500/50 focus-visible:ring-offset-2 focus-visible:ring-offset-gray-900 rounded"
-        >
-          {telefon}
+        <a href={`tel:${telefon}`} className={linkBase}>
+          <span className={spanMuted}>{telefon}</span>
         </a>
       ) : (
         <span className="text-gray-500">—</span>
@@ -335,7 +334,7 @@ function StavovyBadge({ typOsoby }: StavovyBadgeProps) {
   const label = getPersonTypeLabel(typOsoby)
 
   return (
-    <span className="inline-flex items-center rounded-md border border-gray-700/50 bg-gray-900/50 px-2 py-0.5 text-[11px] font-medium text-gray-400 leading-snug">
+    <span className="inline-flex items-center rounded-md border border-gray-700/50 bg-gray-900/50 px-2 py-0.5 text-[11px] font-medium text-gray-500 leading-snug">
       {label}
     </span>
   )
