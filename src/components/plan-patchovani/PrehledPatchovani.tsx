@@ -311,46 +311,42 @@ function RadekTabulky({ project }: { project: KaratProject }) {
           />
         </div>
       </td>
-      <td className="px-4 py-3 align-top text-sm text-gray-400 min-w-0">
-        <div className="flex flex-col gap-0.5">
-          {project.version && (
-            <span className="text-gray-400">Verze {project.version}</span>
-          )}
-          {project.country && (
-            <span className="text-gray-500">{project.country}</span>
-          )}
-          {project.accountManager && (
-            <span className="text-xs text-gray-500">{project.accountManager}</span>
-          )}
-          {jiraHref ? (
-            <a
-              href={jiraHref}
-              target="_blank"
-              rel="noopener noreferrer"
-              className={`${linkBase} inline-flex`}
-            >
-              <span className={spanMuted}>{project.jiraKey}</span>
-            </a>
-          ) : project.jiraKey ? (
-            <span className="text-xs text-gray-500">{project.jiraKey}</span>
-          ) : null}
+      <td className="px-4 py-3 align-top text-xs text-gray-400 min-w-0">
+        <div className="flex flex-col gap-px leading-snug">
+          <div>
+            {[project.version && `Verze ${project.version}`, project.country]
+              .filter(Boolean)
+              .join(' · ') || '—'}
+          </div>
+          <div className="text-gray-500 flex flex-wrap items-baseline gap-x-1.5 gap-y-0">
+            {project.accountManager && (
+              <span>{project.accountManager}</span>
+            )}
+            {project.accountManager && (jiraHref || project.jiraKey) && (
+              <span className="text-gray-600">·</span>
+            )}
+            {jiraHref ? (
+              <a
+                href={jiraHref}
+                target="_blank"
+                rel="noopener noreferrer"
+                className={linkBase}
+              >
+                <span className={spanMuted}>{project.jiraKey}</span>
+              </a>
+            ) : project.jiraKey ? (
+              <span>{project.jiraKey}</span>
+            ) : null}
+          </div>
         </div>
       </td>
       <td className="px-4 py-3 align-top text-right pr-4">
-        <div className="flex flex-wrap gap-2 justify-end">
-          <Link
-            href={patchModulesHref}
-            className="inline-flex items-center justify-center px-2.5 py-1.5 text-xs font-medium rounded-md border border-gray-600/50 bg-gray-800/50 hover:bg-gray-700/60 hover:border-gray-500/60 focus:outline-none focus-visible:ring-2 focus-visible:ring-green-500/50 focus-visible:ring-offset-2 focus-visible:ring-offset-gray-900 transition-colors"
-          >
-            <span className={spanSecondary}>Patch moduly</span>
-          </Link>
-          <Link
-            href={detailHref}
-            className="inline-flex items-center justify-center px-2 py-1 text-[11px] font-medium rounded-md border border-gray-600/40 bg-gray-800/40 hover:bg-gray-700/50 hover:border-gray-500/50 focus:outline-none focus-visible:ring-2 focus-visible:ring-green-500/50 focus-visible:ring-offset-2 focus-visible:ring-offset-gray-900 transition-colors"
-          >
-            <span className={spanSecondary}>Detail</span>
-          </Link>
-        </div>
+        <Link
+          href={patchModulesHref}
+          className="inline-flex items-center justify-center px-2.5 py-1.5 text-xs font-medium rounded-md border border-gray-600/50 bg-gray-800/50 hover:bg-gray-700/60 hover:border-gray-500/60 focus:outline-none focus-visible:ring-2 focus-visible:ring-green-500/50 focus-visible:ring-offset-2 focus-visible:ring-offset-gray-900 transition-colors"
+        >
+          <span className={spanSecondary}>Patch moduly</span>
+        </Link>
       </td>
     </>
   )
@@ -385,15 +381,12 @@ function RadekKarty({ project }: { project: KaratProject }) {
         <StavovyBadgePatch label="Nový patch" active={!project.hasNewPatch} attention={project.hasNewPatch} />
         <StavovyBadgePatch label="Legislativa" active={!project.hasNewLegalPatch} attention={project.hasNewLegalPatch} />
       </div>
-      <div className="flex flex-wrap gap-2 pt-1">
+      <div className="flex flex-wrap gap-2 pt-1 items-center">
         <Link
           href={patchModulesHref}
           className="inline-flex items-center justify-center px-2 py-1 text-xs font-medium rounded-md border border-gray-600/50 bg-gray-800/50"
         >
           <span className={spanSecondary}>Patch moduly</span>
-        </Link>
-        <Link href={detailHref} className="inline-flex items-center justify-center px-2 py-1 text-[11px] font-medium rounded-md border border-gray-600/40 bg-gray-800/40">
-          <span className={spanSecondary}>Detail</span>
         </Link>
         {jiraHref && (
           <a href={jiraHref} target="_blank" rel="noopener noreferrer" className={linkBase}>
