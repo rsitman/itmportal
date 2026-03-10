@@ -299,13 +299,13 @@ function TabulkaPatchModulu({ modules }: { modules: PatchModule[] }) {
             </th>
             <th
               colSpan={2}
-              className="px-3 py-2 text-right text-[11px] font-medium uppercase tracking-wide text-gray-500 bg-gray-800/70"
+              className="px-3 py-2 text-center text-[11px] font-medium uppercase tracking-wide text-gray-500 bg-gray-800/70"
             >
               Standard
             </th>
             <th
               colSpan={2}
-              className="px-3 py-2 text-right text-[11px] font-medium uppercase tracking-wide text-gray-500 bg-gray-800/70"
+              className="px-3 py-2 text-center text-[11px] font-medium uppercase tracking-wide text-gray-500 bg-gray-800/70"
             >
               Stát (leg.)
             </th>
