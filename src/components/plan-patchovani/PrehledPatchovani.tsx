@@ -272,17 +272,22 @@ function RadekTabulky({ project }: { project: KaratProject }) {
   return (
     <>
       <td className="px-4 py-3 align-top">
-        <div className="flex flex-col gap-0.5 min-w-0">
+        <div className="flex flex-col gap-px min-w-0 leading-snug">
           <Link href={detailHref} className={linkBase}>
             <span className="font-semibold text-white leading-tight transition-colors duration-150 group-hover:text-gray-200">
               {project.projectName || '—'}
             </span>
           </Link>
-          <span className="text-sm text-gray-400 leading-snug">
+          <div className="text-sm text-gray-400">
             {project.companyName || '—'}
-          </span>
-          <div className="text-[11px] text-gray-500 font-mono leading-tight">
-            {project.projectId || '—'} · {project.companyId || '—'}
+            {(project.projectId || project.companyId) && (
+              <>
+                <span className="text-gray-500"> · </span>
+                <span className="text-[11px] text-gray-500 font-mono">
+                  {[project.projectId, project.companyId].filter(Boolean).join(' · ')}
+                </span>
+              </>
+            )}
           </div>
         </div>
       </td>
