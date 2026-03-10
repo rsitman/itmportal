@@ -26,9 +26,9 @@ function sortProjects(
 }
 
 const chipBase =
-  'inline-flex items-center justify-center px-2.5 py-1.5 text-xs font-medium rounded-md border border-emerald-500/50 bg-gray-800/80 text-white hover:text-white focus:text-white active:text-white visited:text-white shadow-sm transform transition-all hover:bg-gray-700/80 hover:border-emerald-400/60 hover:shadow-md hover:-translate-y-0.5 focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500/60 focus-visible:ring-offset-2 focus-visible:ring-offset-gray-900'
+  'inline-flex items-center justify-center px-2.5 py-1.5 text-xs font-medium rounded-md border border-blue-500/35 bg-gray-800/80 text-gray-300 hover:text-gray-300 focus:text-gray-300 active:text-gray-300 visited:text-gray-300 shadow-sm transform transition-all hover:bg-gray-700/80 hover:border-blue-400/45 hover:shadow-md hover:-translate-y-0.5 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500/45 focus-visible:ring-offset-2 focus-visible:ring-offset-gray-900'
 const chipSecondary =
-  'inline-flex items-center justify-center px-2 py-1 text-[11px] font-medium rounded-md border border-emerald-500/30 bg-gray-800/80 text-gray-100 hover:text-gray-100 focus:text-gray-100 active:text-gray-100 visited:text-gray-100 shadow-sm transform transition-all hover:bg-gray-700/80 hover:border-emerald-400/50 hover:shadow-md hover:-translate-y-0.5 focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500/50 focus-visible:ring-offset-2 focus-visible:ring-offset-gray-900'
+  'inline-flex items-center justify-center px-2 py-1 text-[11px] font-medium rounded-md border border-blue-500/25 bg-gray-800/80 text-gray-400 hover:text-gray-400 focus:text-gray-400 active:text-gray-400 visited:text-gray-400 shadow-sm transform transition-all hover:bg-gray-700/80 hover:border-blue-400/35 hover:shadow-md hover:-translate-y-0.5 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500/35 focus-visible:ring-offset-2 focus-visible:ring-offset-gray-900'
 const chipDisabled =
   'inline-flex items-center justify-center px-2.5 py-1.5 text-xs rounded-md bg-gray-800/40 border border-gray-700/40 text-gray-500 cursor-not-allowed'
 
@@ -51,10 +51,10 @@ function AkceProjektu({ project }: { project: ServiceProject }) {
   return (
     <div className="flex flex-col gap-1.5 items-end">
       <div className="flex flex-wrap gap-1.5 justify-end">
-        <Link href={teamUrl} className={`${chipBase} chip-action`}>
+        <Link href={teamUrl} className={`${chipBase} chip-action chip-action-top`}>
           Tým
         </Link>
-        <Link href={extcompsUrl} className={`${chipBase} chip-action`}>
+        <Link href={extcompsUrl} className={`${chipBase} chip-action chip-action-top`}>
           Externí komponenty
         </Link>
         {jiraUrl ? (
@@ -62,7 +62,7 @@ function AkceProjektu({ project }: { project: ServiceProject }) {
             href={jiraUrl}
             target="_blank"
             rel="noopener noreferrer"
-            className={`${chipBase} chip-action`}
+            className={`${chipBase} chip-action chip-action-top`}
           >
             Helpdesk
           </a>
@@ -74,7 +74,7 @@ function AkceProjektu({ project }: { project: ServiceProject }) {
             href={mapUrl}
             target="_blank"
             rel="noopener noreferrer"
-            className={`${chipBase} chip-action`}
+            className={`${chipBase} chip-action chip-action-top`}
           >
             Mapa
           </a>
@@ -83,16 +83,16 @@ function AkceProjektu({ project }: { project: ServiceProject }) {
         )}
       </div>
       <div className="flex flex-wrap gap-x-2.5 gap-y-1 justify-end text-xs">
-        <Link href={patchUrl} className={`${chipSecondary} chip-action`}>
+        <Link href={patchUrl} className={`${chipSecondary} chip-action chip-action-bottom`}>
           Patchování
         </Link>
-        <Link href={upgradesUrl} className={`${chipSecondary} chip-action`}>
+        <Link href={upgradesUrl} className={`${chipSecondary} chip-action chip-action-bottom`}>
           Upgrady
         </Link>
-        <Link href={dbUrl} className={`${chipSecondary} chip-action`}>
+        <Link href={dbUrl} className={`${chipSecondary} chip-action chip-action-bottom`}>
           Stav DB
         </Link>
-        <Link href={hwswUrl} className={`${chipSecondary} chip-action`}>
+        <Link href={hwswUrl} className={`${chipSecondary} chip-action chip-action-bottom`}>
           HW/SW
         </Link>
       </div>
@@ -256,12 +256,12 @@ export default function ProjectsRegistryClient() {
                 <div className="flex flex-col gap-1">
                   <Link
                     href={`/projects/doklad-projektu/${encodeURIComponent(project.doklad_proj)}`}
-                    className="link-project-name text-base font-semibold text-white hover:text-gray-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-green-500/50 focus-visible:ring-offset-2 focus-visible:ring-offset-gray-900 rounded"
+                    className="link-project-name text-base font-semibold text-white hover:text-gray-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500/45 focus-visible:ring-offset-2 focus-visible:ring-offset-gray-900 rounded"
                   >
                     {project.nazev || '—'}
                   </Link>
-                  <span className="text-sm text-gray-400">{project.nazev_par || '—'}</span>
-                  <span className="text-xs text-gray-500 font-mono">{project.doklad_proj || '—'}</span>
+                  <span className="text-sm text-gray-300">{project.nazev_par || '—'}</span>
+                  <span className="text-xs text-gray-400 font-mono">{project.doklad_proj || '—'}</span>
                 </div>
                 <div className="flex justify-start md:justify-end">
                   <AkceProjektu project={project} />

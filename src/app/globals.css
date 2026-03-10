@@ -640,13 +640,21 @@ td, th {
   color: #e5e7eb !important;
 }
 
-/* Evidence projektů – force light text for action chips to avoid green link color */
-.evidence-projektu-registry .chip-action,
-.evidence-projektu-registry .chip-action:hover,
-.evidence-projektu-registry .chip-action:focus,
-.evidence-projektu-registry .chip-action:active,
-.evidence-projektu-registry .chip-action:visited {
-  color: #f9fafb !important;
+/* Evidence projektů – force muted action text (avoid global green links) */
+.evidence-projektu-registry .chip-action-top,
+.evidence-projektu-registry .chip-action-top:hover,
+.evidence-projektu-registry .chip-action-top:focus,
+.evidence-projektu-registry .chip-action-top:active,
+.evidence-projektu-registry .chip-action-top:visited {
+  color: #d1d5db !important; /* gray-300 */
+}
+
+.evidence-projektu-registry .chip-action-bottom,
+.evidence-projektu-registry .chip-action-bottom:hover,
+.evidence-projektu-registry .chip-action-bottom:focus,
+.evidence-projektu-registry .chip-action-bottom:active,
+.evidence-projektu-registry .chip-action-bottom:visited {
+  color: #9ca3af !important; /* gray-400 */
 }
 
 /* Specific status badge classes with !important to override everything */
