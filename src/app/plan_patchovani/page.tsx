@@ -1,39 +1,35 @@
-import { KaratProject } from '@/lib/karat'
+import { Metadata } from 'next'
+import { getServerSession } from 'next-auth'
+import { authOptions } from '@/lib/auth'
+import { redirect } from 'next/navigation'
 import { fetchKaratProjectsDirect } from '@/lib/karat-service'
-import ProjectsClient from '@/components/ProjectsClient'
+import PrehledPatchovani from '@/components/plan-patchovani/PrehledPatchovani'
 
-export default async function ProjectsPage({ 
-  searchParams 
-}: { 
+export const metadata: Metadata = {
+  title: 'Přehled patchování',
+  description: 'Aktuální stav patchování a plánované termíny projektů',
+}
+
+export default async function PlanPatchovaniPage({
+  searchParams,
+}: {
   searchParams: Promise<{ q?: string }>
 }) {
+  const session = await getServerSession(authOptions)
+
+  if (!session) {
+    redirect('/login')
+  }
+
   const projects = await fetchKaratProjectsDirect()
   const resolvedSearchParams = await searchParams
-  
-  // Filter projects by company name if query parameter is provided
-  const filteredProjects = resolvedSearchParams.q 
-    ? projects.filter(project => 
-        project.companyName.toLowerCase().includes(resolvedSearchParams.q!.toLowerCase())
-      )
-    : projects
-  
+  const initialQuery = resolvedSearchParams.q ?? ''
+
   return (
-    <div className="w-full py-10 bg-transparent">
-      <div className="mb-8 px-6">
-        <h1 className="text-3xl font-bold tracking-tight text-white mb-2">
-          Přehled patchování
-        </h1>
-        <p className="text-lg text-gray-300">
-          {resolvedSearchParams.q 
-            ? `Aktuální stav klientů pro firmu: ${resolvedSearchParams.q} (${filteredProjects.length} projektů)`
-            : `Aktuální stav ${filteredProjects.length} klientů`
-          }
-        </p>
+    <div className="min-h-screen bg-transparent w-full px-6 sm:px-8 pt-6 sm:pt-8">
+      <div className="space-y-6">
+        <PrehledPatchovani projects={projects} initialQuery={initialQuery} />
       </div>
-      
-      <ProjectsClient 
-        projects={filteredProjects} 
-      />
     </div>
   )
 }
