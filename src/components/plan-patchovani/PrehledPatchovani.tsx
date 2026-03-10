@@ -67,7 +67,7 @@ export default function PrehledPatchovani({
           totalCount={totalCount}
         />
 
-        <SeznamPatchovani
+        <PrehledDat
           projects={filteredProjects}
           hasAny={projects.length > 0}
           hasFilters={Boolean(searchTerm.trim())}
@@ -175,18 +175,25 @@ function FiltryPatchovani({
   )
 }
 
-// --- List ---
-type SeznamPatchovaniProps = {
+// --- Data overview: table (desktop) + stacked cards (mobile) ---
+type PrehledDatProps = {
   projects: KaratProject[]
   hasAny: boolean
   hasFilters: boolean
 }
 
-function SeznamPatchovani({
+const linkBase =
+  'group inline focus:outline-none focus-visible:ring-2 focus-visible:ring-green-500/50 focus-visible:ring-offset-2 focus-visible:ring-offset-gray-900 rounded'
+const spanMuted =
+  'text-gray-300 transition-colors duration-150 group-hover:text-gray-100'
+const spanSecondary =
+  'text-gray-400 transition-colors duration-150 group-hover:text-gray-200'
+
+function PrehledDat({
   projects,
   hasAny,
   hasFilters,
-}: SeznamPatchovaniProps) {
+}: PrehledDatProps) {
   if (!projects.length) {
     return (
       <div className="mt-3 rounded-lg border border-gray-700/60 bg-gray-900/40 px-5 py-6 text-center">
@@ -201,39 +208,61 @@ function SeznamPatchovani({
 
   return (
     <div className="mt-3">
-      <div className="hidden lg:grid grid-cols-[minmax(0,1.6fr)_minmax(0,1.2fr)_minmax(0,1.1fr)_minmax(0,0.8fr)] gap-3 px-1 pb-1.5 text-[11px] font-medium text-gray-500 uppercase tracking-wide">
-        <div>Projekt a firma</div>
-        <div>Termíny a stav</div>
-        <div>Metadata</div>
-        <div className="text-right pr-0.5">Akce</div>
+      {/* Desktop: table */}
+      <div className="hidden md:block overflow-x-auto rounded-lg border border-gray-700/60 bg-gray-900/30">
+        <table className="w-full min-w-[900px] border-collapse">
+          <thead>
+            <tr className="border-b border-gray-700 bg-gray-800/50">
+              <th className="px-4 py-3 text-left text-[11px] font-medium uppercase tracking-wide text-gray-500">
+                Projekt / Firma
+              </th>
+              <th className="px-4 py-3 text-left text-[11px] font-medium uppercase tracking-wide text-gray-500 whitespace-nowrap">
+                Plánovaný patch
+              </th>
+              <th className="px-4 py-3 text-left text-[11px] font-medium uppercase tracking-wide text-gray-500 whitespace-nowrap">
+                Poslední instalace
+              </th>
+              <th className="px-4 py-3 text-left text-[11px] font-medium uppercase tracking-wide text-gray-500">
+                Stav
+              </th>
+              <th className="px-4 py-3 text-left text-[11px] font-medium uppercase tracking-wide text-gray-500">
+                Metadata
+              </th>
+              <th className="px-4 py-3 text-right text-[11px] font-medium uppercase tracking-wide text-gray-500 pr-4">
+                Akce
+              </th>
+            </tr>
+          </thead>
+          <tbody className="divide-y divide-gray-700/70">
+            {projects.map((project, index) => (
+              <tr
+                key={`${project.projectId}-${project.companyId}-${index}`}
+                className="transition-colors hover:bg-gray-800/50"
+              >
+                <RadekTabulky project={project} />
+              </tr>
+            ))}
+          </tbody>
+        </table>
       </div>
-      <ul className="space-y-2 mt-0.5" role="list">
+
+      {/* Mobile: stacked cards */}
+      <div className="md:hidden space-y-2">
         {projects.map((project, index) => (
-          <li
+          <div
             key={`${project.projectId}-${project.companyId}-${index}`}
-            className="rounded-lg border border-gray-700/70 bg-gray-900/40 px-4 md:px-5 py-3 shadow-sm transition-all duration-200 hover:bg-gray-800/80 hover:border-gray-500/70 hover:shadow-md hover:-translate-y-0.5"
+            className="rounded-lg border border-gray-700/70 bg-gray-900/40 px-4 py-3"
           >
-            <RadekPatchovani project={project} />
-          </li>
+            <RadekKarty project={project} />
+          </div>
         ))}
-      </ul>
+      </div>
     </div>
   )
 }
 
-// --- Row ---
-type RadekPatchovaniProps = {
-  project: KaratProject
-}
-
-const linkBase =
-  'group inline focus:outline-none focus-visible:ring-2 focus-visible:ring-green-500/50 focus-visible:ring-offset-2 focus-visible:ring-offset-gray-900 rounded'
-const spanMuted =
-  'text-gray-300 transition-colors duration-150 group-hover:text-gray-100'
-const spanSecondary =
-  'text-gray-400 transition-colors duration-150 group-hover:text-gray-200'
-
-function RadekPatchovani({ project }: RadekPatchovaniProps) {
+// --- Table row (desktop) ---
+function RadekTabulky({ project }: { project: KaratProject }) {
   const detailHref = `/plan_patchovani/${project.companyId}`
   const patchModulesHref = `/patch-modules?projekt=${encodeURIComponent(project.projectId)}&firma=${encodeURIComponent(project.companyId)}`
   const jiraHref = project.jiraKey
@@ -241,32 +270,29 @@ function RadekPatchovani({ project }: RadekPatchovaniProps) {
     : null
 
   return (
-    <div className="flex flex-col gap-3 lg:grid lg:grid-cols-[minmax(0,1.6fr)_minmax(0,1.2fr)_minmax(0,1.1fr)_minmax(0,0.8fr)] lg:items-center lg:gap-4">
-      {/* Blok 1 – Identita */}
-      <div className="flex flex-col gap-0.5 min-w-0">
-        <Link href={detailHref} className={linkBase}>
-          <span className="font-semibold text-white leading-tight transition-colors duration-150 group-hover:text-gray-200">
-            {project.projectName || '—'}
+    <>
+      <td className="px-4 py-3 align-top">
+        <div className="flex flex-col gap-0.5 min-w-0">
+          <Link href={detailHref} className={linkBase}>
+            <span className="font-semibold text-white leading-tight transition-colors duration-150 group-hover:text-gray-200">
+              {project.projectName || '—'}
+            </span>
+          </Link>
+          <span className="text-sm text-gray-400 leading-snug">
+            {project.companyName || '—'}
           </span>
-        </Link>
-        <span className="text-sm text-gray-400 leading-snug">
-          {project.companyName || '—'}
-        </span>
-        <div className="text-[11px] text-gray-500 font-mono leading-tight mt-0.5">
-          {project.projectId || '—'} · {project.companyId || '—'}
+          <div className="text-[11px] text-gray-500 font-mono leading-tight">
+            {project.projectId || '—'} · {project.companyId || '—'}
+          </div>
         </div>
-      </div>
-
-      {/* Blok 2 – Termíny a stav */}
-      <div className="flex flex-col gap-1.5 sm:flex-row sm:flex-wrap sm:items-center sm:gap-2">
-        <div className="flex flex-wrap gap-x-3 gap-y-0.5 text-sm">
-          <span className="text-gray-400">
-            Plán: <span className="text-gray-200 tabular-nums">{formatDate(project.nextPlannedPatchDate)}</span>
-          </span>
-          <span className="text-gray-400">
-            Posl.: <span className="text-gray-200 tabular-nums">{formatDate(project.lastInstalledPatchDate)}</span>
-          </span>
-        </div>
+      </td>
+      <td className="px-4 py-3 align-top text-sm text-gray-200 tabular-nums whitespace-nowrap">
+        {formatDate(project.nextPlannedPatchDate)}
+      </td>
+      <td className="px-4 py-3 align-top text-sm text-gray-200 tabular-nums whitespace-nowrap">
+        {formatDate(project.lastInstalledPatchDate)}
+      </td>
+      <td className="px-4 py-3 align-top">
         <div className="flex flex-wrap gap-1.5">
           <StavovyBadgePatch
             label="Patchservice"
@@ -284,51 +310,96 @@ function RadekPatchovani({ project }: RadekPatchovaniProps) {
             attention={project.hasNewLegalPatch}
           />
         </div>
-      </div>
-
-      {/* Blok 3 – Metadata */}
-      <div className="flex flex-col gap-0.5 text-sm min-w-0">
-        <div className="flex flex-wrap gap-x-2 gap-y-0.5">
+      </td>
+      <td className="px-4 py-3 align-top text-sm text-gray-400 min-w-0">
+        <div className="flex flex-col gap-0.5">
           {project.version && (
             <span className="text-gray-400">Verze {project.version}</span>
           )}
           {project.country && (
             <span className="text-gray-500">{project.country}</span>
           )}
+          {project.accountManager && (
+            <span className="text-xs text-gray-500">{project.accountManager}</span>
+          )}
+          {jiraHref ? (
+            <a
+              href={jiraHref}
+              target="_blank"
+              rel="noopener noreferrer"
+              className={`${linkBase} inline-flex`}
+            >
+              <span className={spanMuted}>{project.jiraKey}</span>
+            </a>
+          ) : project.jiraKey ? (
+            <span className="text-xs text-gray-500">{project.jiraKey}</span>
+          ) : null}
         </div>
-        {project.accountManager && (
-          <span className="text-gray-500 text-xs leading-snug">
-            {project.accountManager}
-          </span>
-        )}
-        {jiraHref ? (
-          <a
-            href={jiraHref}
-            target="_blank"
-            rel="noopener noreferrer"
-            className={`${linkBase} inline-flex items-baseline gap-1`}
+      </td>
+      <td className="px-4 py-3 align-top text-right pr-4">
+        <div className="flex flex-wrap gap-2 justify-end">
+          <Link
+            href={patchModulesHref}
+            className="inline-flex items-center justify-center px-2.5 py-1.5 text-xs font-medium rounded-md border border-gray-600/50 bg-gray-800/50 hover:bg-gray-700/60 hover:border-gray-500/60 focus:outline-none focus-visible:ring-2 focus-visible:ring-green-500/50 focus-visible:ring-offset-2 focus-visible:ring-offset-gray-900 transition-colors"
           >
-            <span className={spanMuted}>{project.jiraKey}</span>
-          </a>
-        ) : project.jiraKey ? (
-          <span className="text-gray-500 text-xs">{project.jiraKey}</span>
-        ) : null}
-      </div>
+            <span className={spanSecondary}>Patch moduly</span>
+          </Link>
+          <Link
+            href={detailHref}
+            className="inline-flex items-center justify-center px-2 py-1 text-[11px] font-medium rounded-md border border-gray-600/40 bg-gray-800/40 hover:bg-gray-700/50 hover:border-gray-500/50 focus:outline-none focus-visible:ring-2 focus-visible:ring-green-500/50 focus-visible:ring-offset-2 focus-visible:ring-offset-gray-900 transition-colors"
+          >
+            <span className={spanSecondary}>Detail</span>
+          </Link>
+        </div>
+      </td>
+    </>
+  )
+}
 
-      {/* Blok 4 – Akce */}
-      <div className="flex flex-wrap gap-2 justify-start lg:justify-end">
+// --- Mobile card row ---
+function RadekKarty({ project }: { project: KaratProject }) {
+  const detailHref = `/plan_patchovani/${project.companyId}`
+  const patchModulesHref = `/patch-modules?projekt=${encodeURIComponent(project.projectId)}&firma=${encodeURIComponent(project.companyId)}`
+  const jiraHref = project.jiraKey
+    ? `https://itmancz.atlassian.net/browse/${project.jiraKey}`
+    : null
+
+  return (
+    <div className="flex flex-col gap-2">
+      <div>
+        <Link href={detailHref} className={linkBase}>
+          <span className="font-semibold text-white text-sm group-hover:text-gray-200">
+            {project.projectName || '—'}
+          </span>
+        </Link>
+        <span className="block text-xs text-gray-400">{project.companyName || '—'}</span>
+      </div>
+      <div className="grid grid-cols-2 gap-x-3 gap-y-1 text-xs">
+        <span className="text-gray-500">Plán:</span>
+        <span className="text-gray-200 tabular-nums">{formatDate(project.nextPlannedPatchDate)}</span>
+        <span className="text-gray-500">Posl.:</span>
+        <span className="text-gray-200 tabular-nums">{formatDate(project.lastInstalledPatchDate)}</span>
+      </div>
+      <div className="flex flex-wrap gap-1.5">
+        <StavovyBadgePatch label="Patchservice" active={project.hasServicePatch} attention={false} />
+        <StavovyBadgePatch label="Nový patch" active={!project.hasNewPatch} attention={project.hasNewPatch} />
+        <StavovyBadgePatch label="Legislativa" active={!project.hasNewLegalPatch} attention={project.hasNewLegalPatch} />
+      </div>
+      <div className="flex flex-wrap gap-2 pt-1">
         <Link
           href={patchModulesHref}
-          className="inline-flex items-center justify-center px-2.5 py-1.5 text-xs font-medium rounded-md border border-gray-600/50 bg-gray-800/50 hover:bg-gray-700/60 hover:border-gray-500/60 focus:outline-none focus-visible:ring-2 focus-visible:ring-green-500/50 focus-visible:ring-offset-2 focus-visible:ring-offset-gray-900 transition-colors"
+          className="inline-flex items-center justify-center px-2 py-1 text-xs font-medium rounded-md border border-gray-600/50 bg-gray-800/50"
         >
           <span className={spanSecondary}>Patch moduly</span>
         </Link>
-        <Link
-          href={detailHref}
-          className="inline-flex items-center justify-center px-2 py-1 text-[11px] font-medium rounded-md border border-gray-600/40 bg-gray-800/40 hover:bg-gray-700/50 hover:border-gray-500/50 focus:outline-none focus-visible:ring-2 focus-visible:ring-green-500/50 focus-visible:ring-offset-2 focus-visible:ring-offset-gray-900 transition-colors"
-        >
+        <Link href={detailHref} className="inline-flex items-center justify-center px-2 py-1 text-[11px] font-medium rounded-md border border-gray-600/40 bg-gray-800/40">
           <span className={spanSecondary}>Detail</span>
         </Link>
+        {jiraHref && (
+          <a href={jiraHref} target="_blank" rel="noopener noreferrer" className={linkBase}>
+            <span className={spanMuted}>{project.jiraKey}</span>
+          </a>
+        )}
       </div>
     </div>
   )
