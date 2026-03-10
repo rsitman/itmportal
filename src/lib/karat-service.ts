@@ -1,4 +1,5 @@
 import { KaratProject, mapKaratProjects } from './karat'
+import { PatchModule } from '@/types/project'
 import { logger } from './logger'
 
 // Use direct ERP URL - Next.js on Windows can reach ERP server
@@ -89,6 +90,50 @@ export async function fetchServiceProjectsDirect(): Promise<any[]> {
     }))
   } catch (error) {
     logger.error('KARAT service projects fetch failed:', error)
+    return []
+  }
+}
+
+/**
+ * Patch moduly pro projekt a firmu (KARAT patchovani/{projekt}/firma/{id_firmy}/moduly).
+ * Použití ve server components místo roundtripu přes API route.
+ */
+export async function fetchPatchModulesByCompany(
+  projekt: string,
+  id_firmy: string
+): Promise<PatchModule[]> {
+  try {
+    const url = `${ERP_BASE_URL}/patchovani/${projekt}/firma/${id_firmy}/moduly`
+    logger.log(`Fetching patch modules for project: ${projekt}, company: ${id_firmy}`)
+
+    const response = await fetch(url, {
+      next: { revalidate: 60 },
+      headers: {
+        'User-Agent': 'NextJS-Server',
+        Accept: 'application/json',
+      },
+    })
+
+    if (!response.ok) {
+      logger.error(`Failed to fetch patch modules: ${response.status}`)
+      return []
+    }
+
+    const rawData = await response.json()
+    const patchModules: PatchModule[] = (Array.isArray(rawData) ? rawData : []).map((m: any) => ({
+      id_modulu: m.id_modulu || '',
+      nazev: m.nazev || '',
+      verze: m.verze || '',
+      posl_patch_40: m.posl_patch_40 || '000',
+      posl_patch_36: m.posl_patch_36 || '000',
+      max_patch_40: m.max_patch_40 || '000',
+      max_patch_36: m.max_patch_36 || '000',
+      stat: m.stat || '',
+    }))
+    logger.log(`✅ ${patchModules.length} patch modules from KARAT`)
+    return patchModules
+  } catch (error) {
+    logger.error('KARAT patch modules fetch failed:', error)
     return []
   }
 }
