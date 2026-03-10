@@ -621,13 +621,13 @@ td, th {
   color: #6ee7b7 !important;
 }
 
-/* Evidence projektů – scoped neutral link styling inside registry table */
-.evidence-projektu-registry .overflow-x-auto a {
+/* Evidence projektů – scoped neutral link styling inside registry container */
+.evidence-projektu-registry a {
   color: #e5e7eb !important;
   text-decoration: none !important;
 }
 
-.evidence-projektu-registry .overflow-x-auto a:hover {
+.evidence-projektu-registry a:hover {
   color: #f9fafb !important;
 }
 
