@@ -178,9 +178,9 @@ function HlavickaExternichKomponent({
   formCount,
 }: HlavickaExternichKomponentProps) {
   return (
-    <header className="border-b border-gray-700/50 pb-4">
-      <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
-        <div>
+    <header className="border-b border-gray-700/50 pb-4 mb-0">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between sm:gap-6">
+        <div className="min-w-0">
           <h1 className="text-2xl font-bold tracking-tight text-white leading-tight">
             Externí komponenty projektu{' '}
             <span className="font-mono text-sm text-gray-500 align-middle">{dokladProjektu}</span>
@@ -189,24 +189,28 @@ function HlavickaExternichKomponent({
             Seznam externích softwarových komponent třetích stran a kontaktů.
           </p>
         </div>
-        <dl className="grid grid-cols-3 gap-x-4 gap-y-0.5 sm:flex sm:gap-6 sm:text-right">
-          <div>
-            <dt className="text-[11px] font-medium uppercase tracking-wide text-gray-500">
-              Celkem komponent
+        <dl className="grid grid-cols-3 gap-x-6 gap-y-0.5 sm:flex sm:gap-8 sm:text-right shrink-0">
+          <div className="sm:min-w-[4.5rem]">
+            <dt className="text-[10px] font-medium uppercase tracking-wider text-gray-500">
+              Celkem
             </dt>
-            <dd className="text-sm font-semibold text-white mt-0.5">{totalCount}</dd>
+            <dd className="text-base font-semibold text-white mt-0.5 tabular-nums">{totalCount}</dd>
           </div>
-          <div>
-            <dt className="text-[11px] font-medium uppercase tracking-wide text-gray-500">
+          <div className="sm:min-w-[4.5rem]">
+            <dt className="text-[10px] font-medium uppercase tracking-wider text-gray-500">
               Dodavatelé
             </dt>
-            <dd className="text-sm font-semibold text-gray-200 mt-0.5">{supplierCount}</dd>
+            <dd className="text-base font-semibold text-gray-200 mt-0.5 tabular-nums">
+              {supplierCount}
+            </dd>
           </div>
-          <div>
-            <dt className="text-[11px] font-medium uppercase tracking-wide text-gray-500">
+          <div className="sm:min-w-[4.5rem]">
+            <dt className="text-[10px] font-medium uppercase tracking-wider text-gray-500">
               Formy
             </dt>
-            <dd className="text-sm font-semibold text-gray-200 mt-0.5">{formCount}</dd>
+            <dd className="text-base font-semibold text-gray-200 mt-0.5 tabular-nums">
+              {formCount}
+            </dd>
           </div>
         </dl>
       </div>
@@ -243,74 +247,80 @@ function FiltryExternichKomponent({
   onExport,
 }: FiltryExternichKomponentProps) {
   return (
-    <div className="flex flex-col gap-3">
-      <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between sm:gap-3">
-        <div className="w-full sm:max-w-md">
-          <label
-            htmlFor="extcomps-search"
-            className="block text-sm font-medium text-gray-400 mb-1"
-          >
-            Hledat komponentu
-          </label>
-          <input
-            id="extcomps-search"
-            type="text"
-            value={searchTerm}
-            onChange={(e) => onSearchChange(e.target.value)}
-            placeholder="Kód, název, dodavatel, popis…"
-            className="w-full pl-3.5 pr-3.5 py-2.5 rounded-lg bg-gray-800/80 border border-gray-600/60 text-sm text-white placeholder-gray-500 focus:outline-none focus-visible:ring-2 focus-visible:ring-green-500/50 focus-visible:ring-offset-2 focus-visible:ring-offset-gray-900 focus-visible:border-green-500/50"
-          />
+    <div className="rounded-lg border border-gray-700/50 bg-gray-900/30 px-3 py-2.5 md:px-4 md:py-3">
+      <div className="flex flex-col gap-3">
+        <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:gap-3">
+          <div className="w-full min-w-0 sm:max-w-md">
+            <label
+              htmlFor="extcomps-search"
+              className="block text-xs font-medium text-gray-400 mb-0.5"
+            >
+              Hledat komponentu
+            </label>
+            <input
+              id="extcomps-search"
+              type="text"
+              value={searchTerm}
+              onChange={(e) => onSearchChange(e.target.value)}
+              placeholder="Kód, název, dodavatel, popis…"
+              aria-label="Hledat v komponentách"
+              className="w-full pl-3 pr-3 py-2 rounded-lg bg-gray-800/80 border border-gray-600/60 text-sm text-white placeholder-gray-400 focus:outline-none focus-visible:ring-2 focus-visible:ring-green-500/50 focus-visible:ring-offset-2 focus-visible:ring-offset-gray-900 focus-visible:border-green-500/50"
+            />
+          </div>
+          <div className="text-xs text-gray-500 sm:pb-0.5 sm:text-right shrink-0">
+            Zobrazeno <span className="font-medium text-gray-300">{filteredCount}</span> z{' '}
+            <span className="font-medium text-gray-300">{totalCount}</span> komponent
+          </div>
         </div>
-        <div className="text-xs text-gray-500 sm:text-right sm:pb-0.5">
-          Zobrazeno <span className="font-medium text-gray-300">{filteredCount}</span> z{' '}
-          <span className="font-medium text-gray-300">{totalCount}</span> komponent
-        </div>
-      </div>
-      <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:gap-3">
-        <div className="w-full sm:w-48">
-          <label
-            htmlFor="extcomps-supplier"
-            className="block text-sm font-medium text-gray-400 mb-1"
-          >
-            Dodavatel
-          </label>
-          <select
-            id="extcomps-supplier"
-            value={filterSupplier}
-            onChange={(e) => onFilterSupplierChange(e.target.value)}
-            className="w-full pl-3.5 pr-3.5 py-2.5 rounded-lg bg-gray-800/80 border border-gray-600/60 text-sm text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-green-500/50 focus-visible:ring-offset-2 focus-visible:ring-offset-gray-900"
-          >
-            <option value="">Všichni dodavatelé</option>
-            {uniqueSuppliers.map((s) => (
-              <option key={s} value={s}>
-                {s}
-              </option>
-            ))}
-          </select>
-        </div>
-        <div className="w-full sm:w-48">
-          <label htmlFor="extcomps-form" className="block text-sm font-medium text-gray-400 mb-1">
-            Forma komponenty
-          </label>
-          <select
-            id="extcomps-form"
-            value={filterForm}
-            onChange={(e) => onFilterFormChange(e.target.value)}
-            className="w-full pl-3.5 pr-3.5 py-2.5 rounded-lg bg-gray-800/80 border border-gray-600/60 text-sm text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-green-500/50 focus-visible:ring-offset-2 focus-visible:ring-offset-gray-900"
-          >
-            <option value="">Všechny formy</option>
-            {uniqueForms.map((f) => (
-              <option key={f} value={f}>
-                {f}
-              </option>
-            ))}
-          </select>
-        </div>
-        <div className="flex items-end">
+        <div className="flex flex-wrap items-end gap-2 sm:gap-3">
+          <div className="w-full min-w-0 sm:w-44">
+            <label
+              htmlFor="extcomps-supplier"
+              className="block text-xs font-medium text-gray-400 mb-0.5"
+            >
+              Dodavatel
+            </label>
+            <select
+              id="extcomps-supplier"
+              value={filterSupplier}
+              onChange={(e) => onFilterSupplierChange(e.target.value)}
+              aria-label="Filtr podle dodavatele"
+              className="w-full pl-3 pr-3 py-2 rounded-lg bg-gray-800/80 border border-gray-600/60 text-sm text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-green-500/50 focus-visible:ring-offset-2 focus-visible:ring-offset-gray-900"
+            >
+              <option value="">Všichni dodavatelé</option>
+              {uniqueSuppliers.map((s) => (
+                <option key={s} value={s}>
+                  {s}
+                </option>
+              ))}
+            </select>
+          </div>
+          <div className="w-full min-w-0 sm:w-44">
+            <label
+              htmlFor="extcomps-form"
+              className="block text-xs font-medium text-gray-400 mb-0.5"
+            >
+              Forma
+            </label>
+            <select
+              id="extcomps-form"
+              value={filterForm}
+              onChange={(e) => onFilterFormChange(e.target.value)}
+              aria-label="Filtr podle formy komponenty"
+              className="w-full pl-3 pr-3 py-2 rounded-lg bg-gray-800/80 border border-gray-600/60 text-sm text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-green-500/50 focus-visible:ring-offset-2 focus-visible:ring-offset-gray-900"
+            >
+              <option value="">Všechny formy</option>
+              {uniqueForms.map((f) => (
+                <option key={f} value={f}>
+                  {f}
+                </option>
+              ))}
+            </select>
+          </div>
           <button
             type="button"
             onClick={onExport}
-            className="px-4 py-2.5 rounded-lg bg-gray-700/80 border border-gray-600/60 text-gray-200 text-sm font-medium hover:bg-gray-600/80 focus:outline-none focus-visible:ring-2 focus-visible:ring-green-500/50 focus-visible:ring-offset-2 focus-visible:ring-offset-gray-900 transition-colors"
+            className="px-3 py-2 rounded-lg border border-gray-600/50 bg-gray-800/50 text-gray-400 text-xs font-medium hover:bg-gray-700/60 hover:text-gray-300 hover:border-gray-500/60 focus:outline-none focus-visible:ring-2 focus-visible:ring-green-500/50 focus-visible:ring-offset-2 focus-visible:ring-offset-gray-900 transition-colors shrink-0"
           >
             Export do CSV
           </button>
@@ -340,7 +350,7 @@ function SeznamExternichKomponent({
         {Array.from({ length: 4 }).map((_, i) => (
           <div
             key={i}
-            className="h-20 rounded-lg bg-gray-800/60 border border-gray-700/60 animate-pulse"
+            className="h-[4.5rem] rounded-lg bg-gray-800/60 border border-gray-700/60 animate-pulse"
           />
         ))}
       </div>
@@ -370,7 +380,7 @@ function SeznamExternichKomponent({
         {components.map((c, index) => (
           <li
             key={`${c.kod}-${c.nazev}-${index}`}
-            className="rounded-lg border border-gray-700/70 bg-gray-900/40 px-4 md:px-5 py-2.5 shadow-sm transition-all duration-200 hover:bg-gray-800/80 hover:border-gray-500/70 hover:shadow-md hover:-translate-y-0.5"
+            className="rounded-lg border border-gray-700/70 bg-gray-900/40 px-4 md:px-5 py-3 shadow-sm transition-all duration-200 hover:bg-gray-800/80 hover:border-gray-500/70 hover:shadow-md hover:-translate-y-0.5 min-h-[4.5rem]"
           >
             <RadekExterniKomponenty component={c} />
           </li>
@@ -391,25 +401,25 @@ function RadekExterniKomponenty({ component }: RadekExterniKomponentyProps) {
     popisOneLine.length > 120 ? `${popisOneLine.slice(0, 120)}…` : popisOneLine
 
   return (
-    <div className="flex flex-col gap-2.5 lg:grid lg:grid-cols-[minmax(0,1.5fr)_minmax(0,0.9fr)_minmax(0,1.1fr)] lg:items-center lg:gap-3">
+    <div className="flex flex-col gap-3 lg:grid lg:grid-cols-[minmax(0,1.5fr)_minmax(0,0.9fr)_minmax(0,1.1fr)] lg:items-center lg:gap-4">
       {/* Zóna 1: identita */}
       <div className="flex flex-col gap-1 min-w-0">
-        <div className="flex flex-wrap items-center gap-2 gap-y-1">
-          <span className="text-[15px] font-semibold text-white leading-snug">
+        <div className="flex flex-wrap items-baseline gap-2 gap-y-0.5">
+          <span className="text-base font-semibold text-white leading-tight">
             {component.nazev || '—'}
           </span>
           {component.kod && (
-            <span className="inline-flex items-center rounded-md border border-gray-600/60 bg-gray-800/80 px-2 py-0.5 text-[11px] font-mono text-gray-300">
+            <span className="inline-flex items-center rounded border border-gray-600/50 bg-gray-800/70 px-1.5 py-0.5 text-[10px] font-mono text-gray-400 leading-tight">
               {component.kod}
             </span>
           )}
         </div>
         {component.dodavatel && (
-          <div className="text-xs text-gray-400 leading-snug">{component.dodavatel}</div>
+          <div className="text-xs text-gray-400 leading-snug mt-0.5">{component.dodavatel}</div>
         )}
         {popisTruncated && (
           <div
-            className="text-xs text-gray-500 leading-snug line-clamp-2"
+            className="text-[11px] text-gray-500 leading-snug line-clamp-2 mt-0.5"
             title={popisOneLine || undefined}
           >
             {popisTruncated}
@@ -417,13 +427,15 @@ function RadekExterniKomponenty({ component }: RadekExterniKomponentyProps) {
         )}
       </div>
       {/* Zóna 2: forma */}
-      <div className="flex flex-wrap gap-1.5 lg:justify-start lg:items-center">
-        {component.forma_kom && (
+      <div className="flex flex-wrap gap-1.5 lg:justify-start lg:items-center min-h-[2rem] lg:min-h-0">
+        {component.forma_kom ? (
           <StavovyBadgeForma label={component.forma_kom} />
+        ) : (
+          <span className="text-[11px] text-gray-500">—</span>
         )}
       </div>
       {/* Zóna 3: kontakt */}
-      <div className="lg:text-right lg:leading-tight">
+      <div className="lg:text-right lg:leading-tight min-h-[2rem] lg:min-h-0 flex items-start lg:items-center lg:justify-end">
         <KontaktKomponenty
           jmeno={component.jmeno}
           prijmeni={component.prijmeni}
@@ -444,14 +456,23 @@ type KontaktKomponentyProps = {
 }
 
 function KontaktKomponenty({ jmeno, prijmeni, email, telefon }: KontaktKomponentyProps) {
+  const hasAnyContact = Boolean(jmeno || prijmeni || email || telefon)
   const linkBase =
     'group inline focus:outline-none focus-visible:ring-2 focus-visible:ring-green-500/50 focus-visible:ring-offset-2 focus-visible:ring-offset-gray-900 rounded'
   const spanMuted = 'text-gray-300 transition-colors duration-150 group-hover:text-gray-100'
 
+  if (!hasAnyContact) {
+    return (
+      <div className="flex flex-col items-start gap-0 text-xs lg:items-end">
+        <span className="text-gray-500/80 text-[11px] italic">Bez kontaktu</span>
+      </div>
+    )
+  }
+
   return (
     <div className="flex flex-col items-start gap-1 text-xs lg:items-end lg:leading-snug">
       {(jmeno || prijmeni) && (
-        <div className="text-gray-200 font-medium">
+        <div className="text-gray-200 font-medium leading-tight">
           {[jmeno, prijmeni].filter(Boolean).join(' ')}
         </div>
       )}
@@ -476,7 +497,7 @@ function KontaktKomponenty({ jmeno, prijmeni, email, telefon }: KontaktKomponent
 // --- Badge for forma_kom ---
 function StavovyBadgeForma({ label }: { label: string }) {
   return (
-    <span className="inline-flex items-center rounded-md border border-gray-700/50 bg-gray-900/50 px-2 py-0.5 text-[11px] font-medium text-gray-500 leading-snug">
+    <span className="inline-flex items-center rounded-md border border-gray-600/60 bg-gray-800/60 px-2.5 py-1 text-xs font-medium text-gray-300 leading-snug">
       {label}
     </span>
   )
