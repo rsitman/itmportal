@@ -220,58 +220,45 @@ export default function ProjectsRegistryClient() {
         </div>
       </div>
 
-      <div className="evidence-projektu-registry rounded-lg border border-gray-700/60 overflow-hidden">
-        <div className="overflow-x-auto">
-          <table className="min-w-[980px] w-full border-collapse divide-y divide-gray-700/80">
-            <thead className="bg-gray-800/80 sticky top-0 z-10">
-              <tr>
-                <th
-                  scope="col"
-                  className="px-4 md:px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wide border-b border-gray-700/60"
-                >
-                  <button
-                    type="button"
-                    onClick={() => toggleSort('nazev')}
-                    className="inline-flex items-center gap-2 hover:text-white focus:outline-none focus:ring-2 focus:ring-green-500/50 focus:ring-offset-2 focus:ring-offset-gray-900 rounded"
-                  >
-                    Projekt
-                    {sortKey === 'nazev' ? (sortDirection === 'asc' ? '↑' : '↓') : null}
-                  </button>
-                </th>
-                <th
-                  scope="col"
-                  className="px-4 md:px-6 py-3 text-right text-xs font-medium text-gray-400 uppercase tracking-wide border-b border-gray-700/60"
-                >
-                  Akce
-                </th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-gray-700/80">
-              {filteredProjects.map((project, index) => (
-                <tr
-                  key={`${project.doklad_proj || 'no-id'}-${index}`}
-                  className="hover:bg-gray-800/50 transition-colors"
-                >
-                  <td className="px-4 md:px-6 py-3.5 text-sm border-b border-gray-700/60">
-                    <div className="flex flex-col gap-1">
-                      <Link
-                        href={`/projects/doklad-projektu/${encodeURIComponent(project.doklad_proj)}`}
-                        className="link-project-name text-base font-semibold text-white hover:text-gray-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-green-500/50 focus-visible:ring-offset-2 focus-visible:ring-offset-gray-900 rounded"
-                      >
-                        {project.nazev || '—'}
-                      </Link>
-                      <span className="text-sm text-gray-400">{project.nazev_par || '—'}</span>
-                      <span className="text-xs text-gray-500 font-mono">{project.doklad_proj || '—'}</span>
-                    </div>
-                  </td>
-                  <td className="px-4 md:px-6 py-3.5 text-sm border-b border-gray-700/60 align-top">
-                    <AkceProjektu project={project} />
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+      <div className="evidence-projektu-registry mt-2">
+        {/* Structured list header */}
+        <div className="hidden md:grid grid-cols-[minmax(0,2fr)_minmax(0,1fr)] gap-4 px-2 pb-2 text-xs font-medium text-gray-400 uppercase tracking-wide">
+          <button
+            type="button"
+            onClick={() => toggleSort('nazev')}
+            className="inline-flex items-center gap-2 text-left hover:text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-green-500/50 focus-visible:ring-offset-2 focus-visible:ring-offset-gray-900 rounded"
+          >
+            Projekt
+            {sortKey === 'nazev' ? (sortDirection === 'asc' ? '↑' : '↓') : null}
+          </button>
+          <div className="text-right pr-1">Akce</div>
         </div>
+
+        {/* Structured list body */}
+        <ul className="space-y-2" role="list">
+          {filteredProjects.map((project, index) => (
+            <li
+              key={`${project.doklad_proj || 'no-id'}-${index}`}
+              className="rounded-lg border border-gray-700/70 bg-gray-900/40 px-4 md:px-6 py-3.5 shadow-sm transition-all duration-200 hover:bg-gray-800/80 hover:border-gray-500/70 hover:shadow-md hover:-translate-y-0.5"
+            >
+              <div className="flex flex-col gap-3 md:grid md:grid-cols-[minmax(0,2fr)_minmax(0,1fr)] md:items-start md:gap-6">
+                <div className="flex flex-col gap-1">
+                  <Link
+                    href={`/projects/doklad-projektu/${encodeURIComponent(project.doklad_proj)}`}
+                    className="link-project-name text-base font-semibold text-white hover:text-gray-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-green-500/50 focus-visible:ring-offset-2 focus-visible:ring-offset-gray-900 rounded"
+                  >
+                    {project.nazev || '—'}
+                  </Link>
+                  <span className="text-sm text-gray-400">{project.nazev_par || '—'}</span>
+                  <span className="text-xs text-gray-500 font-mono">{project.doklad_proj || '—'}</span>
+                </div>
+                <div className="flex justify-start md:justify-end">
+                  <AkceProjektu project={project} />
+                </div>
+              </div>
+            </li>
+          ))}
+        </ul>
       </div>
 
       {filteredProjects.length === 0 && searchTerm.trim() ? (
