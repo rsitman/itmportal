@@ -621,6 +621,25 @@ td, th {
   color: #6ee7b7 !important;
 }
 
+/* Evidence projektů – scoped neutral link styling inside registry table */
+.evidence-projektu-registry .overflow-x-auto a {
+  color: #e5e7eb !important;
+  text-decoration: none !important;
+}
+
+.evidence-projektu-registry .overflow-x-auto a:hover {
+  color: #f9fafb !important;
+}
+
+.evidence-projektu-registry .link-project-name {
+  color: #f9fafb !important;
+  font-weight: 600;
+}
+
+.evidence-projektu-registry .link-project-name:hover {
+  color: #e5e7eb !important;
+}
+
 /* Specific status badge classes with !important to override everything */
 .status-badge-realizovano {
   background: rgba(34, 197, 94, 0.8) !important;
