@@ -1,64 +1,170 @@
 'use client'
 
-import { useState, useEffect, useMemo } from 'react'
+import Link from 'next/link'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import { ServiceProject } from '@/types/project'
-import MetaTable from '@/components/meta/MetaTable'
-import { projectsRegistryMeta } from '@/lib/meta/projectsRegistryMeta'
 import { logger } from '@/lib/logger'
 
-interface ProjectsRegistryClientProps {
-  initialProjects: any[]
+type SortKey = 'nazev' | 'doklad_proj' | 'nazev_par' | 'jira_klic'
+type SortDirection = 'asc' | 'desc'
+
+function normalize(value: string | null | undefined): string {
+  return (value ?? '').toString().trim().toLowerCase()
 }
 
-export default function ProjectsRegistryClient({ initialProjects }: ProjectsRegistryClientProps) {
+function sortProjects(
+  projects: ServiceProject[],
+  sortKey: SortKey,
+  direction: SortDirection,
+): ServiceProject[] {
+  const dir = direction === 'asc' ? 1 : -1
+  return [...projects].sort((a, b) => {
+    const av = normalize(a[sortKey])
+    const bv = normalize(b[sortKey])
+    return av.localeCompare(bv, 'cs') * dir
+  })
+}
+
+function AkceProjektu({ project }: { project: ServiceProject }) {
+  const dokladProjektu = project.doklad_proj
+  const nazevFirmy = project.nazev_par
+
+  const patchUrl = `/plan_patchovani?q=${encodeURIComponent(nazevFirmy)}`
+  const teamUrl = `/projects/doklad-projektu/${encodeURIComponent(dokladProjektu)}/team`
+  const extcompsUrl = `/projects/doklad-projektu/${encodeURIComponent(dokladProjektu)}/extcomps`
+  const dbUrl = `/databases?projekt=${encodeURIComponent(dokladProjektu)}`
+  const upgradesUrl = `/upgrades?projekt=${encodeURIComponent(dokladProjektu)}`
+  const hwswUrl = `/hwsw-config?projekt=${encodeURIComponent(dokladProjektu)}`
+
+  return (
+    <div className="flex flex-wrap gap-2 justify-end">
+      <Link
+        href={`/projects/doklad-projektu/${encodeURIComponent(dokladProjektu)}`}
+        className="px-3 py-1 text-sm bg-gray-700 text-gray-200 rounded hover:bg-gray-600 transition-colors"
+      >
+        Detail
+      </Link>
+      <Link
+        href={teamUrl}
+        className="px-3 py-1 text-sm bg-gray-700 text-gray-200 rounded hover:bg-gray-600 transition-colors"
+      >
+        Tým
+      </Link>
+      <Link
+        href={extcompsUrl}
+        className="px-3 py-1 text-sm bg-gray-700 text-gray-200 rounded hover:bg-gray-600 transition-colors"
+      >
+        Externí komponenty
+      </Link>
+      <Link
+        href={patchUrl}
+        className="px-3 py-1 text-sm bg-gray-700 text-gray-200 rounded hover:bg-gray-600 transition-colors"
+      >
+        Patchování
+      </Link>
+      <Link
+        href={upgradesUrl}
+        className="px-3 py-1 text-sm bg-gray-700 text-gray-200 rounded hover:bg-gray-600 transition-colors"
+      >
+        Upgrady
+      </Link>
+      <Link
+        href={dbUrl}
+        className="px-3 py-1 text-sm bg-gray-700 text-gray-200 rounded hover:bg-gray-600 transition-colors"
+      >
+        DB
+      </Link>
+      <Link
+        href={hwswUrl}
+        className="px-3 py-1 text-sm bg-gray-700 text-gray-200 rounded hover:bg-gray-600 transition-colors"
+      >
+        HW/SW
+      </Link>
+    </div>
+  )
+}
+
+export default function ProjectsRegistryClient() {
   const [serviceProjects, setServiceProjects] = useState<ServiceProject[]>([])
   const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
   const [searchTerm, setSearchTerm] = useState('')
+  const [sortKey, setSortKey] = useState<SortKey>('nazev')
+  const [sortDirection, setSortDirection] = useState<SortDirection>('asc')
 
-  const filteredProjects = useMemo(() => {
-    if (!searchTerm.trim()) return serviceProjects
-    const q = searchTerm.toLowerCase()
-    return serviceProjects.filter(
-      (p) =>
-        (p.nazev?.toLowerCase().includes(q) ?? false) ||
-        (p.doklad_proj?.toLowerCase().includes(q) ?? false) ||
-        (p.jira_klic?.toLowerCase().includes(q) ?? false) ||
-        (p.nazev_par?.toLowerCase().includes(q) ?? false)
-    )
-  }, [serviceProjects, searchTerm])
+  const fetchData = useCallback(async () => {
+    try {
+      setLoading(true)
+      setError(null)
 
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        // Fetch service projects from new endpoint
-        const serviceResponse = await fetch('/api/service-projects')
-        if (serviceResponse.ok) {
-          const serviceData = await serviceResponse.json()
-          setServiceProjects(serviceData)
-        }
-      } catch (error) {
-        logger.error('Error fetching data:', error)
-      } finally {
-        setLoading(false)
+      const serviceResponse = await fetch('/api/service-projects')
+      if (!serviceResponse.ok) {
+        throw new Error(`Nepodařilo se načíst projekty (${serviceResponse.status})`)
       }
-    }
 
-    fetchData()
+      const serviceData = await serviceResponse.json()
+      setServiceProjects(serviceData)
+    } catch (e: any) {
+      logger.error('Error fetching service projects:', e)
+      setError(e?.message ?? 'Došlo k chybě při načítání dat')
+    } finally {
+      setLoading(false)
+    }
   }, [])
 
-  const handlePatchClick = (project: ServiceProject) => {
-    // Otevření přehledu patchování zafiltrovaného za firmu ve stejném okně
-    const url = `/plan_patchovani?q=${encodeURIComponent(project.nazev_par)}`
-    window.location.href = url
+  const filteredProjects = useMemo(() => {
+    const q = searchTerm.trim().toLowerCase()
+    const base = q
+      ? serviceProjects.filter(
+          (p) =>
+            normalize(p.nazev).includes(q) ||
+            normalize(p.doklad_proj).includes(q) ||
+            normalize(p.jira_klic).includes(q) ||
+            normalize(p.nazev_par).includes(q) ||
+            normalize(p.gps).includes(q),
+        )
+      : serviceProjects
+
+    return sortProjects(base, sortKey, sortDirection)
+  }, [serviceProjects, searchTerm, sortKey, sortDirection])
+
+  useEffect(() => {
+    fetchData()
+  }, [fetchData])
+
+  const toggleSort = (key: SortKey) => {
+    if (sortKey !== key) {
+      setSortKey(key)
+      setSortDirection('asc')
+      return
+    }
+    setSortDirection((d) => (d === 'asc' ? 'desc' : 'asc'))
   }
 
   if (loading) {
     return (
-      <div className="px-6">
-        <div className="animate-pulse">
-          <div className="h-8 bg-gray-700 rounded w-1/3 mb-4"></div>
-          <div className="h-4 bg-gray-700 rounded w-1/2 mb-2"></div>
-          <div className="h-4 bg-gray-700 rounded w-1/4"></div>
+      <div className="animate-pulse">
+        <div className="h-10 bg-gray-700 rounded w-1/3 mb-6"></div>
+        <div className="h-16 bg-gray-800 rounded mb-6 border border-gray-700"></div>
+        <div className="h-64 bg-gray-800 rounded border border-gray-700"></div>
+      </div>
+    )
+  }
+
+  if (error) {
+    return (
+      <div className="bg-red-900/60 border border-red-700/50 rounded-md p-6 shadow-soft">
+        <div className="flex items-start justify-between gap-6">
+          <div>
+            <h3 className="text-sm font-semibold text-red-50 mb-1">Chyba při načítání</h3>
+            <p className="text-sm text-red-100">{error}</p>
+          </div>
+          <button
+            onClick={fetchData}
+            className="px-4 py-2 bg-gray-700 text-gray-100 rounded hover:bg-gray-600 transition-colors"
+          >
+            Zkusit znovu
+          </button>
         </div>
       </div>
     )
@@ -66,141 +172,169 @@ export default function ProjectsRegistryClient({ initialProjects }: ProjectsRegi
 
   if (serviceProjects.length === 0) {
     return (
-      <div className="px-6">
-        <div className="bg-gray-800 border border-gray-700 rounded-md p-6">
-          <h3 className="text-sm font-medium text-green-400 mb-2">Žádné servisní projekty</h3>
-          <p className="text-gray-300">
-            Nebyly nalezeny žádné servisní projekty.
-          </p>
-        </div>
+      <div className="bg-gray-800 border border-gray-700 rounded-md p-6">
+        <h3 className="text-sm font-medium text-green-400 mb-2">Žádné servisní projekty</h3>
+        <p className="text-gray-300">Nebyly nalezeny žádné servisní projekty.</p>
       </div>
     )
   }
 
   return (
-    <div className="px-6">
-      <div className="mb-8">
-        <p className="text-gray-300">
-          Seznam všech servisních projektů z IS KARAT ({filteredProjects.length})
-        </p>
-      </div>
-
-      {/* Filtry */}
-      <div className="card-professional p-6 mb-8">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div>
-            <label className="block text-sm font-medium text-gray-300 mb-2">Hledat</label>
+    <div className="space-y-6">
+      {/* Souhrn + toolbar */}
+      <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+        <div>
+          <p className="text-gray-300">
+            Zobrazeno <span className="font-semibold text-white">{filteredProjects.length}</span> z{' '}
+            <span className="font-semibold text-white">{serviceProjects.length}</span> projektů
+          </p>
+        </div>
+        <div className="flex flex-col sm:flex-row gap-3 sm:items-center">
+          <div className="relative">
             <input
               type="text"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              placeholder="Název projektu, doklad, JIRA klíč..."
-              className="w-full px-3 py-2 border border-gray-600 rounded-md bg-gray-800 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              placeholder="Hledat: projekt, doklad, firma, JIRA, GPS…"
+              className="w-full sm:w-[420px] pl-4 pr-3 py-2 border border-gray-600 rounded-md bg-gray-800 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
           </div>
+          <button
+            onClick={fetchData}
+            className="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 transition-colors"
+          >
+            Obnovit
+          </button>
         </div>
       </div>
 
-      {filteredProjects.length === 0 ? (
-        searchTerm.trim() ? (
-          <div className="bg-gray-800 border border-gray-700 rounded-md p-6">
-            <p className="text-gray-300">Žádné projekty nevyhovují hledání.</p>
-          </div>
-        ) : null
-      ) : (
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {filteredProjects.map((project, index) => (
-          <div key={`${project.doklad_proj || 'no-id'}-${project.nazev || 'no-name'}-${index}`} className="card-professional p-6">
-            <div className="flex items-start justify-between mb-4">
-              <div className="flex-1">
-                <h3 className="text-lg font-semibold text-white mb-1">
-                  {project.nazev}
-                </h3>
-                <p className="text-sm text-gray-400 font-mono">
-                  {project.doklad_proj}
-                </p>
-              </div>
-            </div>
-            
-            {/* Navigation Links */}
-            <div className="mt-6 pt-4 border-t border-gray-700">
-              <div className="grid grid-cols-2 gap-2">
-                <button 
-                  onClick={() => {
-                    const url = `/projects/doklad-projektu/${project.doklad_proj}/team`
-                    window.location.href = url
-                  }}
-                  className="flex items-center justify-center px-3 py-2 text-sm bg-gray-700 text-gray-200 rounded hover:bg-gray-600 transition-colors"
+      {/* Tabulka */}
+      <div className="card-professional overflow-hidden">
+        <div className="overflow-x-auto">
+          <table className="min-w-[1100px] w-full border-collapse divide-y divide-gray-700">
+            <thead className="bg-gray-800">
+              <tr>
+                <th
+                  scope="col"
+                  className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wide border-b border-gray-700"
                 >
-                  <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
-                  </svg>
-                  Tým
-                </button>
-                <button 
-                  onClick={() => {
-                    const url = `/projects/doklad-projektu/${project.doklad_proj}/extcomps`
-                    window.location.href = url
-                  }}
-                  className="flex items-center justify-center px-3 py-2 text-sm bg-gray-700 text-gray-200 rounded hover:bg-gray-600 transition-colors"
+                  <button
+                    type="button"
+                    onClick={() => toggleSort('nazev')}
+                    className="inline-flex items-center gap-2 hover:text-white"
+                  >
+                    Projekt
+                    {sortKey === 'nazev' ? (sortDirection === 'asc' ? '↑' : '↓') : null}
+                  </button>
+                </th>
+                <th
+                  scope="col"
+                  className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wide border-b border-gray-700"
                 >
-                  <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" />
-                  </svg>
-                  SW
-                </button>
-                <button 
-                  onClick={() => handlePatchClick(project)}
-                  className="flex items-center justify-center px-3 py-2 text-sm bg-gray-700 text-gray-200 rounded hover:bg-gray-600 transition-colors"
+                  <button
+                    type="button"
+                    onClick={() => toggleSort('doklad_proj')}
+                    className="inline-flex items-center gap-2 hover:text-white"
+                  >
+                    Doklad
+                    {sortKey === 'doklad_proj' ? (sortDirection === 'asc' ? '↑' : '↓') : null}
+                  </button>
+                </th>
+                <th
+                  scope="col"
+                  className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wide border-b border-gray-700"
                 >
-                  <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-                  </svg>
-                  Patch
-                </button>
-                <button 
-                  onClick={() => {
-                    const url = `/databases?projekt=${encodeURIComponent(project.doklad_proj)}`
-                    window.location.href = url
-                  }}
-                  className="flex items-center justify-center px-3 py-2 text-sm bg-gray-700 text-gray-200 rounded hover:bg-gray-600 transition-colors"
+                  <button
+                    type="button"
+                    onClick={() => toggleSort('nazev_par')}
+                    className="inline-flex items-center gap-2 hover:text-white"
+                  >
+                    Zákazník
+                    {sortKey === 'nazev_par' ? (sortDirection === 'asc' ? '↑' : '↓') : null}
+                  </button>
+                </th>
+                <th
+                  scope="col"
+                  className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wide border-b border-gray-700"
                 >
-                  <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4" />
-                  </svg>
-                  DB
-                </button>
-                <button 
-                  onClick={() => {
-                    const url = `/upgrades?projekt=${encodeURIComponent(project.doklad_proj)}`
-                    window.location.href = url
-                  }}
-                  className="flex items-center justify-center px-3 py-2 text-sm bg-gray-700 text-gray-200 rounded hover:bg-gray-600 transition-colors"
+                  <button
+                    type="button"
+                    onClick={() => toggleSort('jira_klic')}
+                    className="inline-flex items-center gap-2 hover:text-white"
+                  >
+                    JIRA
+                    {sortKey === 'jira_klic' ? (sortDirection === 'asc' ? '↑' : '↓') : null}
+                  </button>
+                </th>
+                <th
+                  scope="col"
+                  className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wide border-b border-gray-700"
                 >
-                  <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 10l7-7m0 0l7 7m-7-7v18" />
-                  </svg>
-                  Upgrady
-                </button>
-                <button 
-                  onClick={() => {
-                    const url = `/hwsw-config?projekt=${encodeURIComponent(project.doklad_proj)}`
-                    window.location.href = url
-                  }}
-                  className="flex items-center justify-center px-3 py-2 text-sm bg-gray-700 text-gray-200 rounded hover:bg-gray-600 transition-colors"
+                  GPS
+                </th>
+                <th
+                  scope="col"
+                  className="px-6 py-3 text-right text-xs font-medium text-gray-300 uppercase tracking-wide border-b border-gray-700"
                 >
-                  <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                  </svg>
-                  HWSW Konfig
-                </button>
-              </div>
-            </div>
-          </div>
-        ))}
+                  Akce
+                </th>
+              </tr>
+            </thead>
+            <tbody className="bg-gray-900 divide-y divide-gray-700">
+              {filteredProjects.map((project, index) => (
+                <tr
+                  key={`${project.doklad_proj || 'no-id'}-${index}`}
+                  className="hover:bg-gray-800"
+                >
+                  <td className="px-6 py-4 text-sm text-white border-b border-gray-700">
+                    <div className="flex flex-col">
+                      <Link
+                        href={`/projects/doklad-projektu/${encodeURIComponent(project.doklad_proj)}`}
+                        className="text-sm font-semibold text-green-300 hover:text-green-200 hover:underline"
+                      >
+                        {project.nazev || '—'}
+                      </Link>
+                      <span className="text-xs text-gray-400">{project.nazev_par || '—'}</span>
+                    </div>
+                  </td>
+                  <td className="px-6 py-4 text-sm text-white border-b border-gray-700 font-mono">
+                    {project.doklad_proj || '—'}
+                  </td>
+                  <td className="px-6 py-4 text-sm text-white border-b border-gray-700">
+                    {project.nazev_par || '—'}
+                  </td>
+                  <td className="px-6 py-4 text-sm text-white border-b border-gray-700">
+                    {project.jira_klic ? (
+                      <a
+                        href={`https://itmancz.atlassian.net/browse/${project.jira_klic}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-green-300 hover:text-green-200 hover:underline"
+                      >
+                        {project.jira_klic}
+                      </a>
+                    ) : (
+                      <span className="text-gray-400">—</span>
+                    )}
+                  </td>
+                  <td className="px-6 py-4 text-sm text-white border-b border-gray-700">
+                    {project.gps ? <span className="text-gray-200">{project.gps}</span> : <span className="text-gray-400">—</span>}
+                  </td>
+                  <td className="px-6 py-4 text-sm text-white border-b border-gray-700">
+                    <AkceProjektu project={project} />
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       </div>
-      )}
+
+      {filteredProjects.length === 0 && searchTerm.trim() ? (
+        <div className="bg-gray-800 border border-gray-700 rounded-md p-6">
+          <p className="text-gray-300">Žádné projekty nevyhovují hledání.</p>
+        </div>
+      ) : null}
     </div>
   )
 }
