@@ -10,6 +10,7 @@ type ExterniKomponentyPageProps = {
 
 export default function ExterniKomponentyPage({ dokladProjektu }: ExterniKomponentyPageProps) {
   const [components, setComponents] = useState<ExternalComponent[]>([])
+  const [projectName, setProjectName] = useState<string | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [searchTerm, setSearchTerm] = useState('')
@@ -23,18 +24,29 @@ export default function ExterniKomponentyPage({ dokladProjektu }: ExterniKompone
       try {
         setLoading(true)
         setError(null)
-        const response = await fetch(`/api/projects/${encodeURIComponent(dokladProjektu)}/extcomps`)
+        const [extcompsRes, serviceProjectsRes] = await Promise.all([
+          fetch(`/api/projects/${encodeURIComponent(dokladProjektu)}/extcomps`),
+          fetch('/api/service-projects'),
+        ])
 
-        if (!response.ok) {
-          const message = `Nepodařilo se načíst externí komponenty (HTTP ${response.status})`
+        if (!extcompsRes.ok) {
+          const message = `Nepodařilo se načíst externí komponenty (HTTP ${extcompsRes.status})`
           logger.error('Error fetching external components:', message)
           if (isMounted) setError(message)
           return
         }
 
-        const data = await response.json()
+        const data = await extcompsRes.json()
         const list: ExternalComponent[] = Array.isArray(data.components) ? data.components : []
         if (isMounted) setComponents(list)
+
+        if (serviceProjectsRes.ok && isMounted) {
+          const projects = await serviceProjectsRes.json()
+          const project = Array.isArray(projects)
+            ? projects.find((p: { doklad_proj?: string }) => p.doklad_proj === dokladProjektu)
+            : null
+          if (project?.nazev) setProjectName(project.nazev)
+        }
       } catch (e) {
         const message =
           e instanceof Error ? e.message : 'Došlo k chybě při načítání externích komponent'
@@ -123,6 +135,7 @@ export default function ExterniKomponentyPage({ dokladProjektu }: ExterniKompone
         <div className="card-professional rounded-lg border border-gray-700/60 p-4 md:p-5">
           <HlavickaExternichKomponent
             dokladProjektu={dokladProjektu}
+            projectName={projectName}
             totalCount={totalCount}
             supplierCount={supplierCount}
             formCount={formCount}
@@ -166,6 +179,7 @@ export default function ExterniKomponentyPage({ dokladProjektu }: ExterniKompone
 // --- Header ---
 type HlavickaExternichKomponentProps = {
   dokladProjektu: string
+  projectName: string | null
   totalCount: number
   supplierCount: number
   formCount: number
@@ -173,6 +187,7 @@ type HlavickaExternichKomponentProps = {
 
 function HlavickaExternichKomponent({
   dokladProjektu,
+  projectName,
   totalCount,
   supplierCount,
   formCount,
@@ -182,9 +197,16 @@ function HlavickaExternichKomponent({
       <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between sm:gap-6">
         <div className="min-w-0">
           <h1 className="text-2xl font-bold tracking-tight text-white leading-tight">
-            Externí komponenty projektu{' '}
-            <span className="font-mono text-sm text-gray-500 align-middle">{dokladProjektu}</span>
+            Externí komponenty projektu
           </h1>
+          {projectName ? (
+            <p className="mt-1 text-sm font-medium text-gray-200 leading-snug">
+              {projectName}
+            </p>
+          ) : null}
+          <p className="mt-0.5 text-xs text-gray-500 leading-snug font-mono">
+            Doklad {dokladProjektu}
+          </p>
           <p className="mt-1 text-sm text-gray-400 leading-snug">
             Seznam externích softwarových komponent třetích stran a kontaktů.
           </p>
