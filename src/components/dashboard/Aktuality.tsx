@@ -20,17 +20,14 @@ function NewsContent({ html }: { html: string }) {
   const safeHtml = useMemo(() => {
     if (!html) return ''
 
-    const normalized = html.replace(/\r\n/g, '\n')
+    let processed = html
+      .replace(/\\n/g, '<br />')      // literal "\n" -> <br>
+      .replace(/\r\n/g, '<br />')     // Windows newlines
+      .replace(/\n/g, '<br />')       // Unix newlines
 
-    // Jedno \n -> <br />, bloky oddělené prázdným řádkem (\n\n+) -> větší mezera
-    const withBreaks = normalized
-      .split(/\n{2,}/)
-      .map((block) => block.replace(/\n/g, '<br />'))
-      .join('<br /><br />')
-
-    return DOMPurify.sanitize(withBreaks, {
-      ALLOWED_TAGS: NEWS_ALLOWED_TAGS as unknown as string[],
-      ALLOWED_ATTR: NEWS_ALLOWED_ATTR as unknown as string[],
+    return DOMPurify.sanitize(processed, {
+      ALLOWED_TAGS: NEWS_ALLOWED_TAGS,
+      ALLOWED_ATTR: NEWS_ALLOWED_ATTR,
     })
   }, [html])
 
