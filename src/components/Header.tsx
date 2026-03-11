@@ -48,10 +48,11 @@ export default function Header() {
       router.push('/login')
     } finally {
       setIsSigningOut(false)
+    }
   }
 
   return (
-    <header className="flex h-20 items-center justify-end bg-gray-900/80 backdrop-blur-md px-8">
+    <header className="flex h-20 items-center justify-end shell-overlay px-8">
       <div className="flex items-center space-x-6">
         <div className="flex items-center space-x-4">
           <div className="h-12 w-12 rounded-full bg-gray-700/80 flex items-center justify-center text-gray-300 text-lg font-semibold border border-gray-600/50">
