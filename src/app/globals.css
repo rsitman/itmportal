@@ -1145,10 +1145,19 @@ td, th {
 }
 
 .aktualita-content a {
-  color: #22c55e;
-  text-decoration: underline;
+  color: inherit;
+  text-decoration: none;
 }
 
 .aktualita-content a:hover {
-  color: #16a34a;
+  text-decoration: none;
+}
+
+.aktualita-content a span {
+  color: #d1d5db;
+  transition: color 150ms ease;
+}
+
+.aktualita-content a:hover span {
+  color: #f9fafb;
 }

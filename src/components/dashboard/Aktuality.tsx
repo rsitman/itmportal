@@ -7,7 +7,7 @@ import SekceDashboardu from './SekceDashboardu'
 
 const MAX_ITEMS = 8
 
-const NEWS_ALLOWED_TAGS = ['b', 'strong', 'em', 'ul', 'ol', 'li', 'a', 'br', 'p'] as const
+const NEWS_ALLOWED_TAGS = ['b', 'strong', 'em', 'ul', 'ol', 'li', 'a', 'br', 'p', 'span'] as const
 const NEWS_ALLOWED_ATTR = ['href', 'target', 'rel', 'title'] as const
 
 function sortItems(items: PolozkaAktualita[]): PolozkaAktualita[] {
@@ -21,7 +21,12 @@ function NewsContent({ html }: { html: string }) {
     if (!html) return ''
 
     const normalized = html.replace(/\r\n/g, '\n')
-    const withBreaks = normalized.replace(/\n/g, '<br />')
+
+    // Jedno \n -> <br />, bloky oddělené prázdným řádkem (\n\n+) -> větší mezera
+    const withBreaks = normalized
+      .split(/\n{2,}/)
+      .map((block) => block.replace(/\n/g, '<br />'))
+      .join('<br /><br />')
 
     return DOMPurify.sanitize(withBreaks, {
       ALLOWED_TAGS: NEWS_ALLOWED_TAGS as unknown as string[],
