@@ -276,8 +276,17 @@ export default function LoginPage({ searchParams }: { searchParams?: SearchParam
                   />
                 </div>
 
-                <Button type="submit" disabled={isLoading} className="w-full" variant="secondary">
-                  {isLoading ? 'Přihlašování...' : 'Přihlásit lokálním účtem'}
+                <Button
+                  type="submit"
+                  disabled={isLoading}
+                  className="w-full [&>span]:text-gray-900 [&>span]:opacity-100"
+                  variant="secondary"
+                >
+                  {isLoading ? (
+                    <span className="text-gray-900 font-medium">Přihlašování...</span>
+                  ) : (
+                    <span className="text-gray-900 font-medium">Přihlásit lokálním účtem</span>
+                  )}
                 </Button>
               </form>
             )}
