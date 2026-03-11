@@ -191,6 +191,15 @@ export interface User {
   updatedAt: Date
 }
 
+// Project link from ERP /web/projects/{doklad_projektu}/links endpoint
+export interface ProjectLink {
+  id_firmy?: string
+  nazev_firmy?: string
+  url: string
+  nazev: string
+  popis?: string
+}
+
 // External component from ERP /web/projects/{doklad_projektu}/extcomps endpoint
 export interface ExternalComponent {
   kod: string               // Kód komponenty

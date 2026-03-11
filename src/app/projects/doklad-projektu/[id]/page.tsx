@@ -3,6 +3,7 @@ import Link from 'next/link'
 import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth'
 import { redirect } from 'next/navigation'
+import ProjectLinksSection from '@/components/projects/ProjectLinksSection'
 
 interface DetailProjektuPageProps {
   params: Promise<{
@@ -99,6 +100,11 @@ export default async function DetailProjektuPage({ params }: DetailProjektuPageP
             <div className="text-white font-semibold mb-1">HW/SW konfigurace</div>
             <div className="text-sm text-gray-300">Konfigurace prostředí a komponent</div>
           </Link>
+        </div>
+
+        <div className="card-professional p-6">
+          <h2 className="text-base font-semibold text-white mb-3">Související odkazy</h2>
+          <ProjectLinksSection dokladProjektu={dokladProjektu} />
         </div>
       </div>
     </div>
