@@ -65,22 +65,22 @@
   --shadow-sidebar: 0 0 20px rgb(0 0 0 / 0.05);
 
   /* Shell: single source of truth for app background; sidebar/header use overlay only */
-  --shell-overlay: rgba(15, 23, 42, 0.52);
+  --shell-overlay: rgba(15, 23, 42, 0.42);
 }
 
-/* Shell background: gradient + pattern, used once by ClientLayout wrapper */
+/* Shell background: calm dark navy/slate base, very subtle gradient, minimal pattern */
 .app-shell-bg {
   background-color: var(--primary-900);
-  background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="1920" height="1080" viewBox="0 0 1920 1080"><defs><linearGradient id="grad" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="%230f172a"/><stop offset="50%" stop-color="%231e293b"/><stop offset="100%" stop-color="%230f172a"/></linearGradient><pattern id="pattern" x="0" y="0" width="40" height="40" patternUnits="userSpaceOnUse"><circle cx="20" cy="20" r="1" fill="%233b82f6" opacity="0.1"/></pattern></defs><rect width="1920" height="1080" fill="url(%23grad)"/><rect width="1920" height="1080" fill="url(%23pattern)"/></svg>');
+  background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="1920" height="1080" viewBox="0 0 1920 1080"><defs><linearGradient id="grad" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="%230f172a"/><stop offset="50%" stop-color="%23111827"/><stop offset="100%" stop-color="%230f172a"/></linearGradient><pattern id="pattern" x="0" y="0" width="48" height="48" patternUnits="userSpaceOnUse"><circle cx="24" cy="24" r="1" fill="%23475569" opacity="0.06"/></pattern></defs><rect width="1920" height="1080" fill="url(%23grad)"/><rect width="1920" height="1080" fill="url(%23pattern)"/></svg>');
   background-size: cover;
   background-position: center;
   background-attachment: fixed;
 }
 
-/* Subtle overlay for sidebar and topbar so they sit on the same gradient */
+/* Light overlay so sidebar/topbar sit on same gradient with a soft tonal difference */
 .shell-overlay {
   background: var(--shell-overlay);
-  backdrop-filter: blur(8px);
+  backdrop-filter: blur(6px);
 }
 
 /* Professional utility classes */
