@@ -210,7 +210,7 @@ export default function LoginPage({ searchParams }: { searchParams?: SearchParam
 
         {/* Sekundární: lokální administrátorské přihlášení (collapsible) */}
         {credentialsProvider && (
-          <div className="pt-2 border-t border-gray-700/60">
+          <div className="pt-2 border-t border-gray-700/60 text-center">
             <button
               type="button"
               onClick={() => setShowLocalLogin((v) => !v)}
