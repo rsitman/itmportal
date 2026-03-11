@@ -39,7 +39,7 @@ export default function ProjectLinksSection({ dokladProjektu }: ProjectLinksSect
         return
       }
       const data = await res.json()
-      const list = Array.isArray(data?.links) ? data.links : []
+      const list = Array.isArray(data) ? data : (Array.isArray(data?.links) ? data.links : [])
       setLinks(list)
     } catch (e) {
       logger.error('Error fetching project links:', e)

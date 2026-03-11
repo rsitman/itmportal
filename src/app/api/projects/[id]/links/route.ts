@@ -4,7 +4,8 @@ import { authOptions } from '@/lib/auth'
 import { ProjectLink } from '@/types/project'
 import { logger } from '@/lib/logger'
 
-const erpBase = process.env.ERP_API_URL || 'http://itmsql01:44612'
+// Stejný base URL jako /extcomps a /team – hardcoded, aby integrace fungovala konzistentně
+const ERP_BASE = 'http://itmsql01:44612'
 
 function normalizeLinks(raw: unknown): ProjectLink[] {
   if (Array.isArray(raw)) {
@@ -36,7 +37,7 @@ export async function GET(
     const resolvedParams = await params
     const projectCode = resolvedParams.id
 
-    const fetchUrl = `${erpBase}/web/projects/${encodeURIComponent(projectCode)}/links`
+    const fetchUrl = `${ERP_BASE}/web/projects/${projectCode}/links`
     const response = await fetch(fetchUrl, {
       method: 'GET',
       headers: { 'Content-Type': 'application/json' },
