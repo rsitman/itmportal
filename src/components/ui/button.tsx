@@ -5,19 +5,19 @@ import { cva, type VariantProps } from "class-variance-authority"
 import { cn } from "@/lib/utils"
 
 const buttonVariants = cva(
-  "inline-flex items-center justify-center whitespace-nowrap rounded-lg text-sm font-medium ring-offset-background transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-500 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 shadow-sm hover:shadow-medium",
+  "inline-flex items-center justify-center whitespace-nowrap rounded-lg text-sm font-medium ring-offset-background transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-500 focus-visible:ring-offset-2 disabled:pointer-events-none shadow-sm hover:shadow-medium",
   {
     variants: {
       variant: {
-        default: "bg-accent-600 text-white hover:bg-accent-700 hover:shadow-medium hover:-translate-y-0.5",
+        default: "bg-accent-600 text-white hover:bg-accent-700 hover:shadow-medium hover:-translate-y-0.5 disabled:opacity-50",
         destructive:
-          "bg-red-600 text-white hover:bg-red-700 hover:shadow-medium hover:-translate-y-0.5",
+          "bg-red-600 text-white hover:bg-red-700 hover:shadow-medium hover:-translate-y-0.5 disabled:opacity-50",
         outline:
-          "border border-gray-300 bg-white text-gray-700 hover:bg-gray-50 hover:border-gray-400 hover:shadow-medium hover:-translate-y-0.5",
+          "border border-gray-300 bg-white text-gray-700 hover:bg-gray-50 hover:border-gray-400 hover:shadow-medium hover:-translate-y-0.5 disabled:opacity-50",
         secondary:
-          "bg-gray-100 text-gray-900 hover:bg-gray-200 hover:shadow-medium hover:-translate-y-0.5",
-        ghost: "text-gray-700 hover:bg-gray-100 hover:shadow-sm",
-        link: "text-accent-600 underline-offset-4 hover:underline hover:text-accent-700",
+          "bg-gray-100 text-gray-900 hover:bg-gray-200 hover:shadow-medium hover:-translate-y-0.5 disabled:opacity-100 disabled:bg-gray-300 disabled:text-gray-900",
+        ghost: "text-gray-700 hover:bg-gray-100 hover:shadow-sm disabled:opacity-50",
+        link: "text-accent-600 underline-offset-4 hover:underline hover:text-accent-700 disabled:opacity-50",
       },
       size: {
         default: "h-11 px-6 py-2",
