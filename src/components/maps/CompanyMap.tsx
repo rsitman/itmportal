@@ -40,12 +40,24 @@ interface CompanyMapProps {
   className?: string
   onLocationClick?: (lat: number, lng: number) => void
   onMapReady?: (map: any) => void
+  selectedProjectId?: string | null
+  onMarkerClick?: (companyId: string) => void
 }
 
-export default function CompanyMap({ companies, height = '400px', showControls = true, className = '', onLocationClick, onMapReady }: CompanyMapProps) {
+export default function CompanyMap({
+  companies,
+  height = '400px',
+  showControls = true,
+  className = '',
+  onLocationClick,
+  onMapReady,
+  selectedProjectId,
+  onMarkerClick,
+}: CompanyMapProps) {
   const [isClient, setIsClient] = useState(false)
   const [mapComponents, setMapComponents] = useState<any>(null)
   const mapRef = useRef<any>(null)
+  const markersRef = useRef<Record<string, any>>({})
   const containerId = useRef(`map-container-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`).current
 
   useEffect(() => {
@@ -168,6 +180,26 @@ export default function CompanyMap({ companies, height = '400px', showControls =
     })
   }
 
+  // React to externally selected project: center map and open popup
+  useEffect(() => {
+    if (!selectedProjectId || !mapRef.current) return
+    const target = companies.find((c) => c.id === selectedProjectId)
+    if (!target) return
+
+    try {
+      const mapInstance = mapRef.current as any
+      if (typeof mapInstance.setView === 'function') {
+        mapInstance.setView([target.latitude, target.longitude], mapInstance.getZoom?.() ?? 10)
+      }
+      const marker = markersRef.current[selectedProjectId]
+      if (marker && typeof (marker as any).openPopup === 'function') {
+        ;(marker as any).openPopup()
+      }
+    } catch (error) {
+      logger.error('Error focusing on selected project in map:', error)
+    }
+  }, [selectedProjectId, companies])
+
   return (
     <div className={className} style={{ height }}>
       <MapContainer
@@ -176,8 +208,10 @@ export default function CompanyMap({ companies, height = '400px', showControls =
         zoom={zoom}
         style={{ height: '100%', width: '100%' }}
         ref={(map) => {
+          if (map) {
+            mapRef.current = map
+          }
           if (map && onMapReady) {
-            // console.log('MapContainer ref set:', map)
             try {
               onMapReady(map as any)
               
@@ -209,6 +243,21 @@ export default function CompanyMap({ companies, height = '400px', showControls =
             key={company.id}
             position={[company.latitude, company.longitude]}
             icon={createCustomIcon(company, DivIcon)}
+            ref={(marker) => {
+              if (marker) {
+                markersRef.current[company.id] = marker
+              }
+            }}
+            eventHandlers={{
+              click: () => {
+                if (onMarkerClick) {
+                  onMarkerClick(company.id)
+                }
+                if (onLocationClick) {
+                  onLocationClick(company.latitude, company.longitude)
+                }
+              },
+            }}
           >
             <Popup>
               <div className="map-popup-content p-2">
