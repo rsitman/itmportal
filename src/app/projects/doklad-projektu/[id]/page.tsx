@@ -28,20 +28,18 @@ export default async function DetailProjektuPage({ params }: DetailProjektuPageP
 
   let nazevProjektu: string | null = null
   try {
-    const baseUrl = process.env.NEXTAUTH_URL || 'http://localhost:3000'
-    const res = await fetch(`${baseUrl}/api/service-projects`, { cache: 'no-store' })
+    const res = await fetch('http://itmsql01:44612/web/projects', { cache: 'no-store' })
     if (res.ok) {
-      const projects = await res.json()
-      const project = Array.isArray(projects)
-        ? projects.find((p: { doklad_proj?: string }) => p.doklad_proj === dokladProjektu)
-        : null
-      if (project?.nazev) nazevProjektu = project.nazev
+      const raw = await res.json()
+      const list = Array.isArray(raw) ? raw : []
+      const row = list.find((p: { projekt?: string }) => (p.projekt || '') === dokladProjektu)
+      if (row?.nazev) nazevProjektu = String(row.nazev).trim() || null
     }
   } catch {
-    // fallback: zůstane jen doklad
+    // bez názvu zůstane H1 neutrální
   }
 
-  const hlavniNazev = nazevProjektu ?? dokladProjektu
+  const hlavniNazev = nazevProjektu || 'Detail projektu'
 
   return (
     <div className="w-full py-10 bg-transparent">
@@ -56,7 +54,7 @@ export default async function DetailProjektuPage({ params }: DetailProjektuPageP
           </div>
           <Link
             href="/evidence-projektu"
-            className="px-4 py-2 rounded border border-gray-600 bg-gray-800/80 text-gray-300 hover:bg-gray-700 hover:text-gray-200 hover:border-gray-500 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-gray-500 focus-visible:ring-offset-2 focus-visible:ring-offset-gray-900"
+            className="px-4 py-2 rounded border border-gray-600 bg-gray-800/80 !text-gray-300 hover:!text-gray-100 hover:bg-gray-700 hover:border-gray-500 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-gray-500 focus-visible:ring-offset-2 focus-visible:ring-offset-gray-900"
           >
             ← Zpět na přehled
           </Link>
