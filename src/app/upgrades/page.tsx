@@ -35,8 +35,8 @@ function mapToUpgradeArray(input: unknown): Upgrade[] {
     .filter((u) => u.projekt && u.nazev)
 }
 
-function getBaseUrlFromHeaders(): string {
-  const h = headers()
+async function getBaseUrlFromHeaders(): Promise<string> {
+  const h = await headers()
   const host = h.get('x-forwarded-host') ?? h.get('host')
   const proto = h.get('x-forwarded-proto') ?? 'http'
   if (!host) return 'http://localhost:3000'
@@ -58,7 +58,7 @@ export default async function UpgradesPage({
   let errorMessage: string | null = null
 
   try {
-    const baseUrl = getBaseUrlFromHeaders()
+    const baseUrl = await getBaseUrlFromHeaders()
     const response = await fetch(new URL('/api/upgrades-proxy', baseUrl), {
       method: 'GET',
       cache: 'no-store',
