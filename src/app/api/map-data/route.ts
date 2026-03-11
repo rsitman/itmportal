@@ -64,6 +64,7 @@ interface MapCompany {
   jiraKey?: string
   customerName: string
   logoBase64?: string
+  hasValidGps: boolean
 }
 
 // Simple logo generator as base64
@@ -160,12 +161,14 @@ export async function GET() {
       // Parsování GPS souřadnic
       let latitude = 50.0755 // Default Praha
       let longitude = 14.4378
-      
+      let hasValidGps = false
+
       if (project.gps && project.gps.includes(',')) {
         const [lat, lng] = project.gps.split(',').map(coord => parseFloat(coord.trim()))
         if (!isNaN(lat) && !isNaN(lng)) {
           latitude = lat
           longitude = lng
+          hasValidGps = true
         }
       }
       
@@ -207,7 +210,8 @@ export async function GET() {
         projectId: project.projekt,
         jiraKey: project.jira_klic,
         customerName: project.nazev_par,
-        logoBase64
+        logoBase64,
+        hasValidGps
       }
     }))
 
