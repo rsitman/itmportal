@@ -2,12 +2,29 @@
 
 import { useState, useEffect, use } from 'react'
 import { signIn, signOut, useSession } from 'next-auth/react'
-import { useRouter } from 'next/navigation'
 import { logger } from '@/lib/logger'
 import { Button } from '@/components/ui/button'
 
 type SearchParams = Promise<{ callbackUrl?: string }>
 type Provider = { id: string; name: string; type: string }
+
+const ITMAN_LOGO_URL = 'https://www.itman.cz/wp-content/uploads/2023/11/ITMAN-Logo.png'
+
+function LoginLayout({ children }: { children: React.ReactNode }) {
+  return (
+    <div className="flex min-h-screen items-center justify-center app-shell-bg p-4">
+      <div className="w-full max-w-md">{children}</div>
+    </div>
+  )
+}
+
+function LoginCard({ children }: { children: React.ReactNode }) {
+  return (
+    <div className="rounded-lg border border-gray-700/60 bg-gray-800/80 shadow-xl p-8 space-y-6">
+      {children}
+    </div>
+  )
+}
 
 export default function LoginPage({ searchParams }: { searchParams?: SearchParams }) {
   const [isLoading, setIsLoading] = useState(false)
@@ -15,45 +32,40 @@ export default function LoginPage({ searchParams }: { searchParams?: SearchParam
   const [providers, setProviders] = useState<Record<string, Provider> | null>(null)
   const [userPreferences, setUserPreferences] = useState<any>(null)
   const [showLoginAsDifferent, setShowLoginAsDifferent] = useState(false)
-  const [csrfToken, setCsrfToken] = useState('')
-  const router = useRouter()
-  const { data: session, status } = useSession()
+  const [showLocalLogin, setShowLocalLogin] = useState(false)
+  const { data: session } = useSession()
 
-  // Unwrap searchParams with React.use()
   const params = searchParams ? use(searchParams) : {}
 
-  // Zpracování callbackUrl a prevence smyček
   const getSafeCallbackUrl = () => {
     if (!params?.callbackUrl) return '/dashboard'
-
     const callbackUrl = decodeURIComponent(params.callbackUrl)
-
-    // Pokud callbackUrl obsahuje login, je to smyčka - použijeme výchozí
-    if (callbackUrl.includes('/login')) {
-      return '/dashboard'
-    }
-
+    if (callbackUrl.includes('/login')) return '/dashboard'
     return callbackUrl
   }
 
   useEffect(() => {
     const loadData = async () => {
       try {
-        // Load CSRF token
-        const csrfRes = await fetch('/api/auth/csrf')
-        const csrfData = await csrfRes.json()
-        setCsrfToken(csrfData.csrfToken)
-
-        // Load providers (vrací objekt s klíči = id providerů)
         const providersRes = await fetch('/api/auth/providers')
         const providersData: Record<string, Provider> = await providersRes.json()
         setProviders(providersData)
         logger.log('Available providers:', providersData)
-      } catch (error) {
-        logger.warn('Failed to load auth data:', error)
+      } catch (err) {
+        logger.warn('Failed to load auth data:', err)
       }
     }
 
+    loadData()
+  }, [])
+
+  useEffect(() => {
+    if (providers && !providers['azure-ad'] && providers['credentials']) {
+      setShowLocalLogin(true)
+    }
+  }, [providers])
+
+  useEffect(() => {
     const loadUserPreferences = async () => {
       if ((session as any)?.user?.id) {
         try {
@@ -62,28 +74,27 @@ export default function LoginPage({ searchParams }: { searchParams?: SearchParam
             const prefs = await response.json()
             setUserPreferences(prefs)
           }
-        } catch (error) {
-          logger.error('Error loading user preferences:', error)
+        } catch (err) {
+          logger.error('Error loading user preferences:', err)
         }
       }
     }
 
-    loadData()
     loadUserPreferences()
   }, [session])
 
   const handleContinueAsUser = () => {
-    window.location.href = '/dashboard'
+    window.location.href = getSafeCallbackUrl()
   }
 
   const handleLoginAsDifferent = async () => {
     setIsLoading(true)
+    setError('')
     try {
-      // Odhlásit aktuálního uživatele
       await signOut({ redirect: false })
       setShowLoginAsDifferent(true)
-    } catch (error) {
-      logger.error('Error during sign out:', error)
+    } catch (err) {
+      logger.error('Error during sign out:', err)
       setError('Došlo k chybě při odhlášení')
     } finally {
       setIsLoading(false)
@@ -91,192 +102,188 @@ export default function LoginPage({ searchParams }: { searchParams?: SearchParam
   }
 
   const azureProvider = providers?.['azure-ad']
+  const credentialsProvider = providers?.['credentials']
   const shouldShowContinueOption = userPreferences?.rememberLogin !== false
 
-  // Pokud existuje session a uživatel nechce se přihlásit jako jiný
+  // Stav: již přihlášen
   if (session && !showLoginAsDifferent) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-gray-50">
-        <div className="w-full max-w-md space-y-8">
-          <div className="text-center">
-            <h2 className="mt-6 text-3xl font-bold tracking-tight text-gray-900">
+      <LoginLayout>
+        <LoginCard>
+          <div className="text-center space-y-4">
+            <h2 className="text-xl font-bold tracking-tight text-white">
               Již jste přihlášen
             </h2>
-            <div className="mt-4">
-              <div className="mx-auto h-12 w-12 rounded-full bg-green-500 flex items-center justify-center text-white text-xl font-medium">
+            <div className="flex flex-col items-center gap-2">
+              <div className="h-12 w-12 rounded-full bg-accent-600 flex items-center justify-center text-white text-lg font-medium">
                 {session.user?.name?.charAt(0).toUpperCase() || 'U'}
               </div>
-              <p className="mt-2 text-lg font-medium text-gray-900">
-                {session.user?.name}
-              </p>
-              <p className="text-sm text-gray-600">
-                {session.user?.email}
-              </p>
-              <p className="text-xs text-gray-500 mt-1">
+              <p className="font-medium text-white">{session.user?.name}</p>
+              <p className="text-sm text-gray-400">{session.user?.email}</p>
+              <p className="text-xs text-gray-500">
                 {(session as any).authProvider === 'AZURE_AD' ? 'Azure AD' : 'Lokální účet'}
               </p>
             </div>
           </div>
 
-          <div className="space-y-3">
+          <div className="space-y-3 pt-2">
             {shouldShowContinueOption && (
-              <button
+              <Button
                 onClick={handleContinueAsUser}
-                className="w-full inline-flex justify-center rounded-md border border-transparent bg-green-600 py-2 px-4 text-sm font-medium text-white shadow-sm hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2"
+                className="w-full"
+                variant="default"
               >
-                Pokračovat jako {session.user?.name}
-              </button>
+                Pokračovat do portálu
+              </Button>
             )}
-
-            <button
+            <Button
               onClick={handleLoginAsDifferent}
-              className="w-full inline-flex justify-center rounded-md border border-gray-300 bg-white py-2 px-4 text-sm font-medium text-gray-700 shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 disabled:opacity-50"
+              variant="outline"
+              className="w-full border-gray-600 text-gray-300 hover:bg-gray-700/80 hover:text-white"
               disabled={isLoading}
             >
               {isLoading ? 'Odhlašování...' : 'Přihlásit se jako jiný uživatel'}
-            </button>
+            </Button>
           </div>
 
           {userPreferences && (
-            <div className="mt-4 p-3 bg-gray-50 rounded-lg text-xs text-gray-600">
-              <p>
-                <strong>Nastavení pamatování:</strong>{' '}
-                {userPreferences.rememberLogin ? 'Zapnuto (24h)' : 'Vypnuto (1h)'}
-              </p>
+            <div className="pt-2 border-t border-gray-700/60 text-xs text-gray-400">
+              <strong className="text-gray-300">Pamatování přihlášení:</strong>{' '}
+              {userPreferences.rememberLogin ? 'Zapnuto (24h)' : 'Vypnuto (1h)'}
               {!userPreferences.rememberLogin && (
-                <p className="mt-1 text-orange-600">
-                  Protože máte vypnuté pamatování, budete se muset přihlašovat častěji.
-                </p>
+                <span className="block mt-1 text-amber-400/90">
+                  Budete se muset přihlašovat častěji.
+                </span>
               )}
             </div>
           )}
-        </div>
-      </div>
+        </LoginCard>
+      </LoginLayout>
     )
   }
 
-  // Standardní login formulář
+  // Stav: přihlašovací formulář
   return (
-    <div className="flex min-h-screen items-center justify-center bg-gray-50">
-      <div className="w-full max-w-md space-y-8">
-        <div>
-          <h2 className="mt-6 text-center text-3xl font-bold tracking-tight text-gray-900">
-            Přihlášení do portálu
-          </h2>
-          <p className="mt-2 text-center text-sm text-gray-600">
-            Použijte admin@firma.cz / admin123 pro přihlášení
-          </p>
-          {session && showLoginAsDifferent && (
-            <p className="mt-2 text-center text-sm text-green-600">
-              Odhlášeni z předchozího účtu. Zadejte nové přihlašovací údaje.
-            </p>
-          )}
-        </div>
-
-        <form
-          className="mt-8 space-y-6"
-          onSubmit={async (e) => {
-            e.preventDefault()
-            setIsLoading(true)
-            setError('')
-            const formData = new FormData(e.currentTarget)
-            const result = await signIn('credentials', {
-              email: formData.get('email') as string,
-              password: formData.get('password') as string,
-              redirect: false,
-            })
-            setIsLoading(false)
-            if (result?.error) {
-              setError('Nesprávný email nebo heslo')
-            } else {
-              window.location.href = getSafeCallbackUrl()
-            }
-          }}
-        >
-          {error && (
-            <div className="rounded-md bg-red-50 p-4">
-              <div className="text-sm text-red-800">{error}</div>
-            </div>
-          )}
-
-          <div className="space-y-4">
-            <div>
-              <label htmlFor="email" className="block text-sm font-medium text-gray-700">
-                Uživatelské jméno
-              </label>
-              <input
-                id="email"
-                name="email"
-                type="text"
-                required
-                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-green-500 focus:ring-blue-500 p-2 border"
-                placeholder="admin@firma.cz"
-              />
-            </div>
-
-            <div>
-              <label htmlFor="password" className="block text-sm font-medium text-gray-700">
-                Heslo
-              </label>
-              <input
-                id="password"
-                name="password"
-                type="password"
-                required
-                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-green-500 focus:ring-blue-500 p-2 border"
-                placeholder="admin123"
-              />
-            </div>
-          </div>
-
-          <div>
-            <button
-              type="submit"
-              disabled={isLoading}
-              className="w-full inline-flex justify-center rounded-md border border-transparent bg-green-600 py-2 px-4 text-sm font-medium text-white shadow-sm hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 disabled:opacity-50"
-            >
-              {isLoading ? 'Přihlašování...' : 'Přihlásit se'}
-            </button>
-          </div>
-        </form>
-
-        {/* Azure AD Login */}
-        {azureProvider && (
-          <div className="mt-6">
-            <div className="relative">
-              <div className="absolute inset-0 flex items-center">
-                <div className="w-full border-t border-gray-300" />
-              </div>
-              <div className="relative flex justify-center text-sm">
-                <span className="bg-white px-2 text-gray-500">
-                  Nebo se přihlaste pomocí
-                </span>
-              </div>
-            </div>
-
-            <div className="mt-6">
-              <Button
-                onClick={() => signIn('azure-ad', { callbackUrl: getSafeCallbackUrl() }, { prompt: 'select_account' })}
-                className="w-full bg-green-600 hover:bg-green-700 text-white"
-                variant="default"
-              >
-                <svg className="w-5 h-5 mr-2" viewBox="0 0 24 24" fill="currentColor">
-                  <path d="M11.4 1.02C6.62 1.33 3 5.52 3 10.31V20h6v-8h4v8h6V10c0-4.97-4.03-9-9-9-.2 0-.4 0-.6.02z" />
-                </svg>
-                Sign in with Azure Active Directory
-              </Button>
-            </div>
-          </div>
-        )}
-
-        {/* Debug info */}
-        {providers && (
-          <div className="mt-4 p-2 bg-gray-100 rounded text-xs">
-            <strong>Dostupné providery:</strong>{' '}
-            {Object.keys(providers).join(', ')}
-          </div>
-        )}
+    <LoginLayout>
+      {/* Branding */}
+      <div className="text-center mb-6">
+        <img
+          src={ITMAN_LOGO_URL}
+          alt="ITMAN"
+          className="h-7 w-auto mx-auto mb-4 opacity-95"
+        />
+        <h1 className="text-lg font-semibold text-white tracking-tight">
+          Servisní portál ITMAN
+        </h1>
+        <p className="mt-1 text-sm text-gray-400">
+          Přihlaste se firemním účtem Microsoft. Lokální účet je určen pouze pro administrativní přístup.
+        </p>
       </div>
-    </div>
+
+      <LoginCard>
+        {session && showLoginAsDifferent && (
+          <div className="rounded-md bg-accent-900/30 border border-accent-700/50 px-3 py-2 text-sm text-accent-200">
+            Odhlášeni z předchozího účtu. Zadejte nové přihlašovací údaje.
+          </div>
+        )}
+
+        {/* Primární CTA: Azure AD */}
+        {azureProvider && (
+          <div className="space-y-4">
+            <Button
+              onClick={() =>
+                signIn('azure-ad', { callbackUrl: getSafeCallbackUrl() }, { prompt: 'select_account' })
+              }
+              className="w-full h-12 text-base"
+              variant="default"
+            >
+              <svg className="w-5 h-5 mr-2 shrink-0" viewBox="0 0 21 21" fill="none" aria-hidden>
+                <path d="M10.5 0H0v10.5h10.5V0z" fill="#f25022" />
+                <path d="M21 0h-10.5v10.5H21V0z" fill="#7fba00" />
+                <path d="M10.5 10.5H0V21h10.5V10.5z" fill="#00a4ef" />
+                <path d="M21 10.5h-10.5V21H21V10.5z" fill="#ffb900" />
+              </svg>
+              Přihlásit přes Microsoft
+            </Button>
+          </div>
+        )}
+
+        {/* Sekundární: lokální administrátorské přihlášení (collapsible) */}
+        {credentialsProvider && (
+          <div className="pt-2 border-t border-gray-700/60">
+            <button
+              type="button"
+              onClick={() => setShowLocalLogin((v) => !v)}
+              className="text-sm text-gray-400 hover:text-gray-300 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-accent-500 focus-visible:ring-offset-2 focus-visible:ring-offset-gray-800 rounded"
+            >
+              {showLocalLogin ? 'Skrýt lokální přihlášení' : 'Lokální administrátorské přihlášení'}
+            </button>
+
+            {showLocalLogin && (
+              <form
+                className="mt-4 space-y-4"
+                onSubmit={async (e) => {
+                  e.preventDefault()
+                  setIsLoading(true)
+                  setError('')
+                  const formData = new FormData(e.currentTarget)
+                  const result = await signIn('credentials', {
+                    email: formData.get('email') as string,
+                    password: formData.get('password') as string,
+                    redirect: false,
+                  })
+                  setIsLoading(false)
+                  if (result?.error) {
+                    setError('Nesprávný email nebo heslo')
+                  } else {
+                    window.location.href = getSafeCallbackUrl()
+                  }
+                }}
+              >
+                {error && (
+                  <div className="rounded-md bg-red-900/30 border border-red-700/50 px-3 py-2 text-sm text-red-200">
+                    {error}
+                  </div>
+                )}
+
+                <div>
+                  <label htmlFor="login-email" className="block text-sm font-medium text-gray-300 mb-1">
+                    Uživatelské jméno
+                  </label>
+                  <input
+                    id="login-email"
+                    name="email"
+                    type="text"
+                    required
+                    autoComplete="username"
+                    className="block w-full rounded-lg border border-gray-600 bg-gray-900/80 text-white placeholder-gray-500 focus:border-accent-500 focus:ring-2 focus:ring-accent-500/50 focus:ring-offset-0 px-3 py-2 text-sm"
+                    placeholder="např. admin@firma.cz"
+                  />
+                </div>
+
+                <div>
+                  <label htmlFor="login-password" className="block text-sm font-medium text-gray-300 mb-1">
+                    Heslo
+                  </label>
+                  <input
+                    id="login-password"
+                    name="password"
+                    type="password"
+                    required
+                    autoComplete="current-password"
+                    className="block w-full rounded-lg border border-gray-600 bg-gray-900/80 text-white placeholder-gray-500 focus:border-accent-500 focus:ring-2 focus:ring-accent-500/50 focus:ring-offset-0 px-3 py-2 text-sm"
+                    placeholder="••••••••"
+                  />
+                </div>
+
+                <Button type="submit" disabled={isLoading} className="w-full" variant="secondary">
+                  {isLoading ? 'Přihlašování...' : 'Přihlásit lokálním účtem'}
+                </Button>
+              </form>
+            )}
+          </div>
+        )}
+      </LoginCard>
+    </LoginLayout>
   )
 }
