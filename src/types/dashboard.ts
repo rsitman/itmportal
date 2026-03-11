@@ -46,3 +46,12 @@ export interface PolozkaDokumentyANavody {
   kategorie: 'dokument' | 'navod' | 'sablona'
   datum?: string
 }
+
+/** Položka aktuality z ERP /web/news */
+export interface PolozkaAktualita {
+  vip?: boolean
+  nadpis: string
+  obsah: string
+  projekt?: string
+  projekt_nazev?: string
+}

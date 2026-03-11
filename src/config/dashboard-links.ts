@@ -11,8 +11,8 @@ export const DASHBOARD_LINKS = {
     karat: process.env.NEXT_PUBLIC_KARAT_URL ?? '', // placeholder – doplnit env
     sharepoint: process.env.NEXT_PUBLIC_SHAREPOINT_URL ?? '', // placeholder
     sharepointDokumenty: process.env.NEXT_PUBLIC_SHAREPOINT_DOCS_URL ?? '', // placeholder
-    firemniWeb: process.env.NEXT_PUBLIC_FIRMNI_WEB_URL ?? '', // placeholder
-    helpdesk: process.env.NEXT_PUBLIC_HELPDESK_URL ?? '', // placeholder
+    firemniWeb: process.env.NEXT_PUBLIC_FIRMNI_WEB_URL ?? 'https://www.itman.cz',
+    helpdesk: process.env.NEXT_PUBLIC_HELPDESK_URL ?? 'https://itmancz.atlassian.net',
     znalostniBaze: process.env.NEXT_PUBLIC_ZNALOSTNI_BAZE_URL ?? '', // placeholder
     kontakty: '/osoby-itman',
   },
