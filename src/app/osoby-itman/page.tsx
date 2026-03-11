@@ -65,7 +65,7 @@ export default function OsobyItmanPage() {
 
   if (loading) {
     return (
-      <div className="w-full py-10 bg-transparent flex items-center justify-center min-h-[300px]">
+      <div className="min-h-screen bg-transparent w-full px-6 sm:px-8 pt-6 sm:pt-8 flex items-center justify-center">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-green-500 mx-auto mb-4" />
           <p className="text-gray-400">Načítání osob...</p>
@@ -76,14 +76,14 @@ export default function OsobyItmanPage() {
 
   if (error) {
     return (
-      <div className="w-full py-10 bg-transparent flex items-center justify-center min-h-[300px]">
+      <div className="min-h-screen bg-transparent w-full px-6 sm:px-8 pt-6 sm:pt-8 flex items-center justify-center">
         <div className="text-center max-w-md mx-auto p-6">
           <div className="text-red-400 text-5xl mb-4">⚠</div>
           <h2 className="text-xl font-bold text-white mb-2">Chyba při načítání</h2>
           <p className="text-gray-300 mb-6">{error}</p>
           <button
             onClick={fetchContacts}
-            className="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700"
+            className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-green-500/50 focus-visible:ring-offset-2 focus-visible:ring-offset-gray-900"
           >
             Zkusit znovu
           </button>
@@ -93,17 +93,22 @@ export default function OsobyItmanPage() {
   }
 
   return (
-    <div className="w-full py-10 bg-transparent">
-      <div className="card-professional shadow-sm border-b border-gray-700/50">
-        <div className="px-6 py-6">
-          <div className="flex justify-between items-center">
-            <div>
-              <h1 className="text-3xl font-bold text-white">Osoby ITMAN</h1>
-              <p className="text-gray-300 mt-1">Seznam aktuálně platných osob ITMAN</p>
+    <div className="min-h-screen bg-transparent w-full px-6 sm:px-8 pt-6 sm:pt-8">
+      <div className="space-y-6">
+        <div className="card-professional rounded-lg border border-gray-700/60 p-3 md:p-4">
+          <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+            <div className="min-w-0">
+              <h1 className="text-2xl font-bold tracking-tight text-white leading-tight">
+                Osoby ITMAN
+              </h1>
+              <p className="text-sm text-gray-400 mt-1 leading-snug">
+                Seznam aktuálně platných osob ITMAN
+              </p>
             </div>
             <button
+              type="button"
               onClick={fetchContacts}
-              className="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 flex items-center gap-2"
+              className="inline-flex items-center justify-center gap-2 px-3.5 py-2 rounded-lg bg-green-600 text-white hover:bg-green-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-green-500/50 focus-visible:ring-offset-2 focus-visible:ring-offset-gray-900 transition-colors shrink-0"
             >
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
@@ -112,41 +117,51 @@ export default function OsobyItmanPage() {
             </button>
           </div>
         </div>
-      </div>
 
-      <div className="px-6 py-4">
-        <div className="card-professional p-6 mb-8">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
-              <label className="block text-sm font-medium text-gray-200 mb-2">Hledat</label>
-              <input
-                type="text"
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                placeholder="Jméno, příjmení, email, role..."
-                className="w-full px-3 py-2 bg-gray-700 text-white border border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 placeholder-gray-400"
-              />
+        <div className="card-professional rounded-lg border border-gray-700/60 p-3 md:p-4">
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between sm:gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3 w-full min-w-0 md:max-w-2xl">
+              <div>
+                <label htmlFor="osoby-search" className="block text-xs font-medium text-gray-400 mb-0.5">
+                  Hledat
+                </label>
+                <input
+                  id="osoby-search"
+                  type="text"
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  placeholder="Jméno, příjmení, email, role…"
+                  className="w-full pl-3.5 pr-3.5 py-2.5 rounded-lg bg-gray-800/80 border border-gray-600/60 text-sm text-white placeholder-gray-500 focus:outline-none focus-visible:ring-2 focus-visible:ring-green-500/50 focus-visible:ring-offset-2 focus-visible:ring-offset-gray-900 focus-visible:border-green-500/50"
+                />
+              </div>
+              <div>
+                <label htmlFor="osoby-role" className="block text-xs font-medium text-gray-400 mb-0.5">
+                  Role
+                </label>
+                <select
+                  id="osoby-role"
+                  value={filterRole}
+                  onChange={(e) => setFilterRole(e.target.value)}
+                  className="w-full pl-3 pr-3 py-2.5 rounded-lg bg-gray-800/80 border border-gray-600/60 text-sm text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-green-500/50 focus-visible:ring-offset-2 focus-visible:ring-offset-gray-900 focus-visible:border-green-500/50"
+                >
+                  <option value="">Všechny role</option>
+                  {uniqueRoles.map((r) => (
+                    <option key={r} value={r}>
+                      {r}
+                    </option>
+                  ))}
+                </select>
+              </div>
             </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-200 mb-2">Role</label>
-              <select
-                value={filterRole}
-                onChange={(e) => setFilterRole(e.target.value)}
-                className="w-full px-3 py-2 bg-gray-700 text-white border border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
-              >
-                <option value="">Všechny role</option>
-                {uniqueRoles.map((r) => (
-                  <option key={r} value={r}>
-                    {r}
-                  </option>
-                ))}
-              </select>
-            </div>
+            <p className="text-xs text-gray-500 shrink-0 sm:text-right">
+              Zobrazeno <span className="font-medium text-gray-300 tabular-nums">{filteredContacts.length}</span> z{' '}
+              <span className="font-medium text-gray-300 tabular-nums">{contacts.length}</span>
+            </p>
           </div>
         </div>
 
-        <div className="card-professional rounded-xl overflow-hidden">
-          <div className="px-6 py-4 border-b border-gray-700 bg-gradient-to-r from-gray-800 to-gray-900">
+        <div className="card-professional rounded-lg border border-gray-700/60 overflow-hidden">
+          <div className="px-4 py-3 border-b border-gray-700/60 bg-gray-800/40">
             <h2 className="text-lg font-medium text-white">
               Seznam osob ({filteredContacts.length})
             </h2>
@@ -175,7 +190,7 @@ export default function OsobyItmanPage() {
                         </div>
                       )}
                     </div>
-                    <h3 className="font-semibold text-white">
+                    <h3 className="text-base font-semibold text-white">
                       {c.jmeno} {c.prijmeni}
                     </h3>
                     {c.role && (
