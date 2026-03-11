@@ -401,19 +401,19 @@ function RadekUpgradu({ upgrade }: { upgrade: Upgrade }) {
     <>
       <td className="px-4 py-3 align-top">
         <div className="flex flex-col gap-0.5 min-w-0 leading-snug">
-          <div className="text-sm font-semibold text-white leading-tight">
+          <div className="text-base font-semibold text-white leading-tight">
             {upgrade.nazev || '—'}
           </div>
-          <div className="flex flex-wrap items-baseline gap-x-2 gap-y-0.5 text-xs text-gray-500">
+          <div className="flex flex-wrap items-baseline gap-x-2 gap-y-0.5 text-sm text-gray-400">
             {upgrade.projekt ? (
               projektHref ? (
                 <Link href={projektHref} className={linkBase}>
-                  <span className="font-mono text-[11px] text-gray-400 group-hover:text-gray-200">
+                  <span className="font-mono text-xs text-gray-400 group-hover:text-gray-200">
                     {upgrade.projekt}
                   </span>
                 </Link>
               ) : (
-                <span className="font-mono text-[11px] text-gray-400">{upgrade.projekt}</span>
+                <span className="font-mono text-xs text-gray-400">{upgrade.projekt}</span>
               )
             ) : (
               <span className="text-gray-600">—</span>
@@ -481,19 +481,19 @@ function RadekUpgraduMobile({ upgrade }: { upgrade: Upgrade }) {
     <div className="flex flex-col gap-2">
       <div className="flex items-start justify-between gap-3">
         <div className="min-w-0">
-          <div className="text-sm font-semibold text-white leading-tight">
+          <div className="text-base font-semibold text-white leading-tight">
             {upgrade.nazev || '—'}
           </div>
-          <div className="mt-0.5">
+          <div className="mt-0.5 text-sm text-gray-400">
             {upgrade.projekt ? (
               projektHref ? (
                 <Link href={projektHref} className={linkBase}>
-                  <span className="font-mono text-[11px] text-gray-400 group-hover:text-gray-200">
+                  <span className="font-mono text-xs text-gray-400 group-hover:text-gray-200">
                     {upgrade.projekt}
                   </span>
                 </Link>
               ) : (
-                <span className="font-mono text-[11px] text-gray-400">{upgrade.projekt}</span>
+                <span className="font-mono text-xs text-gray-400">{upgrade.projekt}</span>
               )
             ) : (
               <span className="text-xs text-gray-600">—</span>

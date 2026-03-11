@@ -274,7 +274,7 @@ function RadekTabulky({ project }: { project: KaratProject }) {
       <td className="px-4 py-3 align-top">
         <div className="flex flex-col gap-px min-w-0 leading-snug">
           <Link href={detailHref} className={linkBase}>
-            <span className="font-semibold text-white leading-tight transition-colors duration-150 group-hover:text-gray-200">
+            <span className="text-base font-semibold text-white leading-tight transition-colors duration-150 group-hover:text-gray-200">
               {project.projectName || '—'}
             </span>
           </Link>
@@ -283,7 +283,7 @@ function RadekTabulky({ project }: { project: KaratProject }) {
             {(project.projectId || project.companyId) && (
               <>
                 <span className="text-gray-500"> · </span>
-                <span className="text-[11px] text-gray-500 font-mono">
+                <span className="text-xs text-gray-500 font-mono">
                   {[project.projectId, project.companyId].filter(Boolean).join(' · ')}
                 </span>
               </>
@@ -369,11 +369,11 @@ function RadekKarty({ project }: { project: KaratProject }) {
     <div className="flex flex-col gap-2">
       <div>
         <Link href={detailHref} className={linkBase}>
-          <span className="font-semibold text-white text-sm group-hover:text-gray-200">
+          <span className="text-base font-semibold text-white group-hover:text-gray-200">
             {project.projectName || '—'}
           </span>
         </Link>
-        <span className="block text-xs text-gray-400">{project.companyName || '—'}</span>
+        <span className="block text-sm text-gray-400">{project.companyName || '—'}</span>
       </div>
       <div className="grid grid-cols-2 gap-x-3 gap-y-1 text-xs">
         <span className="text-gray-500">Plán:</span>

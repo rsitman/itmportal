@@ -360,25 +360,25 @@ function RadekPatchModulu({ module }: { module: PatchModule }) {
 
   return (
     <>
-      <td className="px-3 py-2 align-middle whitespace-nowrap">
-        <span className="font-mono text-[11px] text-gray-500">{module.id_modulu || '—'}</span>
+      <td className="px-3 py-3 align-middle whitespace-nowrap">
+        <span className="font-mono text-xs text-gray-500">{module.id_modulu || '—'}</span>
       </td>
-      <td className="px-3 py-2 align-middle min-w-0">
-        <span className="text-sm font-semibold text-white leading-snug block truncate max-w-[200px]">
+      <td className="px-3 py-3 align-middle min-w-0">
+        <span className="text-base font-semibold text-white leading-snug block truncate max-w-[200px]">
           {module.nazev || '—'}
         </span>
       </td>
-      <td className="px-3 py-2 align-middle whitespace-nowrap">
+      <td className="px-3 py-3 align-middle whitespace-nowrap">
         <span className="font-mono text-[11px] text-gray-400">
           {module.verze || '—'}
         </span>
       </td>
-      <td className="px-3 py-2 align-middle whitespace-nowrap">
+      <td className="px-3 py-3 align-middle whitespace-nowrap">
         <span className="text-[11px] text-gray-400">
           {module.stat || '—'}
         </span>
       </td>
-      <td className="px-3 py-2 align-middle whitespace-nowrap text-right">
+      <td className="px-3 py-3 align-middle whitespace-nowrap text-right">
         <span
           className={
             standardNeedsUpdate
@@ -389,10 +389,10 @@ function RadekPatchModulu({ module }: { module: PatchModule }) {
           {module.posl_patch_40}
         </span>
       </td>
-      <td className="px-3 py-2 align-middle whitespace-nowrap text-right">
+      <td className="px-3 py-3 align-middle whitespace-nowrap text-right">
         <span className="font-mono text-sm text-gray-400 tabular-nums">{module.max_patch_40}</span>
       </td>
-      <td className="px-3 py-2 align-middle whitespace-nowrap text-right">
+      <td className="px-3 py-3 align-middle whitespace-nowrap text-right">
         <span
           className={
             statNeedsUpdate
@@ -403,10 +403,10 @@ function RadekPatchModulu({ module }: { module: PatchModule }) {
           {module.posl_patch_36}
         </span>
       </td>
-      <td className="px-3 py-2 align-middle whitespace-nowrap text-right">
+      <td className="px-3 py-3 align-middle whitespace-nowrap text-right">
         <span className="font-mono text-sm text-gray-400 tabular-nums">{module.max_patch_36}</span>
       </td>
-      <td className="px-3 py-2 align-middle whitespace-nowrap">
+      <td className="px-3 py-3 align-middle whitespace-nowrap">
         <StavovyBadge module={module} />
       </td>
     </>
