@@ -173,10 +173,10 @@ export default function LoginPage({ searchParams }: { searchParams?: SearchParam
           className="h-7 w-auto mx-auto mb-4 opacity-95"
         />
         <h1 className="text-lg font-semibold text-white tracking-tight">
-          Servisní portál ITMAN
+          Interní servisní portál
         </h1>
         <p className="mt-1 text-sm text-gray-400">
-          Přihlaste se firemním účtem Microsoft. Lokální účet je určen pouze pro administrativní přístup.
+          Přihlaste se firemním účtem Microsoft. Lokální účet jen pro administrativní přístup.
         </p>
       </div>
 
@@ -276,7 +276,12 @@ export default function LoginPage({ searchParams }: { searchParams?: SearchParam
                   />
                 </div>
 
-                <Button type="submit" disabled={isLoading} className="w-full" variant="secondary">
+                <Button
+                  type="submit"
+                  disabled={isLoading}
+                  className="w-full disabled:opacity-90 disabled:text-gray-900"
+                  variant="secondary"
+                >
                   {isLoading ? 'Přihlašování...' : 'Přihlásit lokálním účtem'}
                 </Button>
               </form>
