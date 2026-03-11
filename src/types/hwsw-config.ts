@@ -57,10 +57,22 @@ export interface Server {
   sluzby: ServerService[]
 }
 
+// ERP payload for HW devices is new and may evolve.
+// We intentionally model it loosely to:
+// - support missing section (older payloads)
+// - support empty arrays (section exists but no devices yet)
+// - avoid backend-contract refactors in frontend
+export type HwZarizeni = Record<string, unknown>
+
 export interface HwswConfig {
   fw_pristupy: FirewallAccess[]
   dom_users: DomainUser[]
   set_send_mail: EmailSettings[]
   ext_sluzby: ExternalService[]
   servery: Server[]
+  /**
+   * Volitelná sekce (nový ERP klíč). Pokud chybí v payloadu, sekce se nemá renderovat.
+   * Pokud existuje a je prázdná, sekce se má renderovat s klidným empty statem.
+   */
+  hw_zarizeni?: HwZarizeni[]
 }

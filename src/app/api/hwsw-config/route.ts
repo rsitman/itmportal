@@ -168,12 +168,20 @@ export async function GET(request: NextRequest) {
     }
 
     // Validate and transform data if needed
+    const hasHwZarizeniKey = Object.prototype.hasOwnProperty.call(data, 'hw_zarizeni')
+    const rawHwZarizeni = hasHwZarizeniKey ? (data as any).hw_zarizeni : undefined
+    const hwZarizeni =
+      hasHwZarizeniKey
+        ? (Array.isArray(rawHwZarizeni) ? (rawHwZarizeni as HwswConfig['hw_zarizeni']) : [])
+        : undefined
+
     const hwswConfig: HwswConfig = {
       fw_pristupy: (data.fw_pristupy as HwswConfig['fw_pristupy']) || [],
       dom_users: (data.dom_users as HwswConfig['dom_users']) || [],
       set_send_mail: (data.set_send_mail as HwswConfig['set_send_mail']) || [],
       ext_sluzby: (data.ext_sluzby as HwswConfig['ext_sluzby']) || [],
-      servery: (data.servery as HwswConfig['servery']) || []
+      servery: (data.servery as HwswConfig['servery']) || [],
+      ...(hasHwZarizeniKey ? { hw_zarizeni: hwZarizeni } : {}),
     }
 
     logger.log(`HWSW config for ${projekt}: ${hwswConfig.servery.length} servers, ${hwswConfig.dom_users.length} users`)
