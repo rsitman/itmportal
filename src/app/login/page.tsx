@@ -276,18 +276,13 @@ export default function LoginPage({ searchParams }: { searchParams?: SearchParam
                   />
                 </div>
 
-                <Button
+                <button
                   type="submit"
                   disabled={isLoading}
-                  className="w-full [&>span]:text-gray-900 [&>span]:opacity-100"
-                  variant="secondary"
+                  className="w-full rounded-lg py-2.5 px-4 text-sm font-medium bg-slate-300 text-slate-900 shadow-sm transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-accent-500 focus-visible:ring-offset-2 focus-visible:ring-offset-gray-800 disabled:opacity-80 disabled:cursor-not-allowed hover:enabled:bg-slate-400"
                 >
-                  {isLoading ? (
-                    <span className="text-gray-900 font-medium">Přihlašování...</span>
-                  ) : (
-                    <span className="text-gray-900 font-medium">Přihlásit lokálním účtem</span>
-                  )}
-                </Button>
+                  {isLoading ? 'Přihlašování...' : 'Přihlásit lokálním účtem'}
+                </button>
               </form>
             )}
           </div>
