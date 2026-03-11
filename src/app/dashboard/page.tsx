@@ -26,6 +26,20 @@ function DashboardContent() {
   const error = searchParams.get('error')
 
   useEffect(() => {
+    if (typeof window === 'undefined') return
+    const hash = window.location.hash
+    if (!hash) return
+    const id = hash.startsWith('#') ? hash.slice(1) : hash
+    if (!id) return
+    // Let the DOM paint before scrolling.
+    const t = window.setTimeout(() => {
+      const el = document.getElementById(id)
+      if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' })
+    }, 0)
+    return () => window.clearTimeout(t)
+  }, [])
+
+  useEffect(() => {
     if (error === 'access_denied') {
       logger.warn('Přístup odepřen - nedostatečná oprávnění')
     }

@@ -72,7 +72,7 @@ export default function Aktuality() {
   }, [])
 
   return (
-    <SekceDashboardu title="Aktuality">
+    <SekceDashboardu id="aktuality" title="Aktuality">
       {loading && (
         <p className="text-sm text-gray-400 py-4">Načítání…</p>
       )}
