@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useState } from 'react'
 import { useSearchParams } from 'next/navigation'
 import CompanyMap from './CompanyMap'
+import ProjectLogo from '@/components/projects/ProjectLogo'
 
 interface Company {
   id: string
@@ -25,6 +26,7 @@ interface Company {
   projectId?: string
   jiraKey?: string
   customerName?: string
+  logoBase64?: string
   hasValidGps?: boolean
 }
 
@@ -298,29 +300,37 @@ export default function CompanyMapClient() {
                           : 'bg-transparent border-l-transparent hover:bg-gray-800/60'
                       }`}
                     >
-                      <div className="flex items-start justify-between gap-3">
-                        <div className="min-w-0">
-                          <div className="text-sm font-semibold text-white truncate">
-                            {company.name}
+                      <div className="flex items-start gap-3">
+                        <ProjectLogo
+                          logo={company.logoBase64}
+                          fallbackName={company.customerName || company.name}
+                          size="sm"
+                          className="flex-shrink-0"
+                        />
+                        <div className="flex flex-1 min-w-0 items-start justify-between gap-3">
+                          <div className="min-w-0">
+                            <div className="text-sm font-semibold text-white truncate">
+                              {company.name}
+                            </div>
+                            <div className="text-xs text-gray-400 truncate">
+                              {company.customerName || company.address}
+                            </div>
+                            <div className="mt-1 flex flex-wrap gap-2 text-[11px] text-gray-400">
+                              {company.isProject && (
+                                <span className="inline-flex items-center rounded-md border border-gray-600/60 bg-gray-800/80 px-2 py-0.5 text-[11px] font-medium text-gray-200 leading-snug">
+                                  🗂️ Projekt
+                                </span>
+                              )}
+                              {company.jiraKey && (
+                                <span className="text-[11px] text-gray-400">
+                                  🔑 {company.jiraKey}
+                                </span>
+                              )}
+                            </div>
                           </div>
-                          <div className="text-xs text-gray-400 truncate">
-                            {company.customerName || company.address}
+                          <div className="text-[11px] text-gray-500 tabular-nums whitespace-nowrap flex-shrink-0">
+                            {company.latitude.toFixed(3)}, {company.longitude.toFixed(3)}
                           </div>
-                          <div className="mt-1 flex flex-wrap gap-2 text-[11px] text-gray-400">
-                            {company.isProject && (
-                              <span className="inline-flex items-center rounded-md border border-gray-600/60 bg-gray-800/80 px-2 py-0.5 text-[11px] font-medium text-gray-200 leading-snug">
-                                🗂️ Projekt
-                              </span>
-                            )}
-                            {company.jiraKey && (
-                              <span className="text-[11px] text-gray-400">
-                                🔑 {company.jiraKey}
-                              </span>
-                            )}
-                          </div>
-                        </div>
-                        <div className="text-[11px] text-gray-500 tabular-nums whitespace-nowrap">
-                          {company.latitude.toFixed(3)}, {company.longitude.toFixed(3)}
                         </div>
                       </div>
                     </button>
@@ -338,16 +348,24 @@ export default function CompanyMapClient() {
             <div className="card-professional rounded-lg border border-gray-700/60 p-4 md:p-5">
               {selectedCompany ? (
                 <div className="space-y-3">
-                  <div>
-                    <h2 className="text-sm font-semibold text-white">
-                      {selectedCompany.name}
-                    </h2>
-                    <p className="text-xs text-gray-400 mt-0.5">
-                      {selectedCompany.customerName || selectedCompany.address}
-                    </p>
-                    <p className="text-[11px] text-gray-500 font-mono mt-0.5">
-                      {selectedCompany.projectId || selectedCompany.id}
-                    </p>
+                  <div className="flex gap-3">
+                    <ProjectLogo
+                      logo={selectedCompany.logoBase64}
+                      fallbackName={selectedCompany.customerName || selectedCompany.name}
+                      size="md"
+                      className="flex-shrink-0"
+                    />
+                    <div className="min-w-0">
+                      <h2 className="text-sm font-semibold text-white">
+                        {selectedCompany.name}
+                      </h2>
+                      <p className="text-xs text-gray-400 mt-0.5">
+                        {selectedCompany.customerName || selectedCompany.address}
+                      </p>
+                      <p className="text-[11px] text-gray-500 font-mono mt-0.5">
+                        {selectedCompany.projectId || selectedCompany.id}
+                      </p>
+                    </div>
                   </div>
                   <div className="grid grid-cols-2 gap-3 text-xs">
                     <div>

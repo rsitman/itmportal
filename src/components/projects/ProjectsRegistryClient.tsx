@@ -4,6 +4,7 @@ import Link from 'next/link'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { ServiceProject } from '@/types/project'
 import { logger } from '@/lib/logger'
+import ProjectLogo from './ProjectLogo'
 
 type SortKey = 'nazev'
 type SortDirection = 'asc' | 'desc'
@@ -236,8 +237,9 @@ export default function ProjectsRegistryClient() {
       </div>
 
       <div className="evidence-projektu-registry mt-2">
-        {/* Structured list header */}
-        <div className="hidden md:grid grid-cols-[minmax(0,2fr)_minmax(0,1fr)] gap-4 px-2 pb-2 text-xs font-medium text-gray-400 uppercase tracking-wide">
+        {/* Structured list header: logo column + project + actions */}
+        <div className="hidden md:grid grid-cols-[auto_minmax(0,2fr)_minmax(0,1fr)] gap-4 px-2 pb-2 text-xs font-medium text-gray-400 uppercase tracking-wide items-center">
+          <div className="w-12" aria-hidden />
           <button
             type="button"
             onClick={() => toggleSort('nazev')}
@@ -256,8 +258,15 @@ export default function ProjectsRegistryClient() {
               key={`${project.doklad_proj || 'no-id'}-${index}`}
               className="rounded-lg border border-gray-700/70 bg-gray-900/40 px-4 md:px-6 py-3.5 shadow-sm transition-all duration-200 hover:bg-gray-800/80 hover:border-gray-500/70 hover:shadow-md hover:-translate-y-0.5"
             >
-              <div className="flex flex-col gap-3 md:grid md:grid-cols-[minmax(0,2fr)_minmax(0,1fr)] md:items-start md:gap-6">
-                <div className="flex flex-col gap-1">
+              <div className="flex flex-col gap-3 md:grid md:grid-cols-[auto_minmax(0,2fr)_minmax(0,1fr)] md:items-center md:gap-6">
+                <div className="flex items-center gap-3 md:justify-center md:block">
+                  <ProjectLogo
+                    logo={project.logo}
+                    fallbackName={project.nazev_par}
+                    size="md"
+                  />
+                </div>
+                <div className="flex flex-col gap-1 min-w-0">
                   <Link
                     href={`/projects/doklad-projektu/${encodeURIComponent(project.doklad_proj)}`}
                     className="link-project-name text-base font-semibold text-white hover:text-gray-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500/45 focus-visible:ring-offset-2 focus-visible:ring-offset-gray-900 rounded"

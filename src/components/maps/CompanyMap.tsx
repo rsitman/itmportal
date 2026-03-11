@@ -67,19 +67,19 @@ export default function CompanyMap({
     Promise.all([
       import('leaflet')
     ]).then(([leaflet]) => {
-      // Add custom CSS for logo markers
+      // Add custom CSS for logo markers: contain (no crop), dark surface
       if (typeof document !== 'undefined') {
         const style = document.createElement('style')
         style.textContent = `
           .custom-marker-logo {
             border-radius: 50% !important;
-            background: white !important;
-            border: 2px solid #3b82f6 !important;
+            background: rgba(31, 41, 55, 0.9) !important;
+            border: 2px solid rgba(59, 130, 246, 0.6) !important;
             box-shadow: 0 2px 4px rgba(0,0,0,0.2) !important;
           }
           .custom-marker-logo img {
             border-radius: 50% !important;
-            object-fit: cover !important;
+            object-fit: contain !important;
           }
         `
         document.head.appendChild(style)
@@ -120,41 +120,41 @@ export default function CompanyMap({
   const center = bounds ? bounds.getCenter() : [50.0755, 14.4378]
   const zoom = bounds ? 10 : 10
 
-  // Custom icons using customer logos
+  // Marker fallback initials (no dependency on /logos/default.png)
+  const markerInitials = (name: string | undefined) => {
+    const s = (name ?? '').trim()
+    if (!s) return '—'
+    const parts = s.split(/[\s,]+/).filter(Boolean)
+    if (parts.length >= 2) return (parts[0][0] + parts[1][0]).toUpperCase().slice(0, 2)
+    return s.slice(0, 2).toUpperCase()
+  }
+
+  // Custom icons: contain (full logo visible), dark surface, fallback initials
   const createCustomIcon = (company: Company, DivIcon: any) => {
-    // Use logoBase64 from API if available, otherwise generate fallback
-    const logoUrl = company.logoBase64 || `/logos/default.png`
-    
-    // Create custom DivIcon with base64 logo
+    const hasLogo = Boolean(company.logoBase64?.trim())
+    const initials = markerInitials(company.customerName)
+
     return new DivIcon({
       html: `
         <div style="
-          width: 40px; 
-          height: 40px; 
-          border-radius: 50%; 
-          background: white; 
-          border: 2px solid #3b82f6; 
-          display: flex; 
-          align-items: center; 
+          width: 40px;
+          height: 40px;
+          border-radius: 50%;
+          background: rgba(31, 41, 55, 0.9);
+          border: 2px solid rgba(59, 130, 246, 0.6);
+          display: flex;
+          align-items: center;
           justify-content: center;
           overflow: hidden;
           box-shadow: 0 2px 4px rgba(0,0,0,0.2);
         ">
-          ${company.logoBase64 ? 
-            `<img 
-              src="${logoUrl}" 
-              style="
-                width: 36px; 
-                height: 36px; 
-                border-radius: 50%; 
-                object-fit: cover;
-              "
-            />` :
-            `<div style="
-              font-size: 16px; 
-              font-weight: bold; 
-              color: #3b82f6;
-            ">${company.customerName?.slice(0, 2).toUpperCase() || '📍'}</div>`
+          ${hasLogo
+            ? `<img
+                src="${company.logoBase64}"
+                alt=""
+                style="width: 32px; height: 32px; object-fit: contain; border-radius: 50%;"
+              />`
+            : `<span style="font-size: 14px; font-weight: 600; color: #d1d5db;">${initials}</span>`
           }
         </div>
       `,
