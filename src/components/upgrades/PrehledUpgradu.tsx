@@ -355,7 +355,7 @@ function PrehledDat({ upgrades }: { upgrades: Upgrade[] }) {
               <th className="px-4 py-3 text-left text-[11px] font-medium uppercase tracking-wide text-gray-500">
                 Řešitel
               </th>
-              <th className="px-4 py-3 text-left text-[11px] font-medium uppercase tracking-wide text-gray-500 w-0 whitespace-nowrap">
+              <th className="px-4 py-3 text-left text-[11px] font-medium uppercase tracking-wide text-gray-500 w-0 whitespace-nowrap min-w-[140px]">
                 JIRA
               </th>
               <th className="px-4 py-3 text-left text-[11px] font-medium uppercase tracking-wide text-gray-500 w-0 whitespace-nowrap">
@@ -365,7 +365,10 @@ function PrehledDat({ upgrades }: { upgrades: Upgrade[] }) {
           </thead>
           <tbody className="divide-y divide-gray-700/70">
             {upgrades.map((u, idx) => (
-              <tr key={`${u.projekt}-${u.jira_klic}-${idx}`} className="transition-colors hover:bg-gray-800/50">
+              <tr
+                key={`${u.projekt}-${u.jira_klic}-${idx}`}
+                className="transition-colors hover:bg-gray-800/55 hover:[box-shadow:inset_0_0_0_1px_rgba(148,163,184,0.22),_0_1px_8px_rgba(0,0,0,0.22)]"
+              >
                 <RadekUpgradu upgrade={u} />
               </tr>
             ))}
@@ -443,8 +446,15 @@ function RadekUpgradu({ upgrade }: { upgrade: Upgrade }) {
 
       <td className="px-4 py-3 align-top whitespace-nowrap">
         {jiraHref ? (
-          <a href={jiraHref} target="_blank" rel="noopener noreferrer" className={linkBase}>
-            <span className={`${spanLinkMuted} font-mono text-[11px]`}>{upgrade.jira_klic}</span>
+          <a
+            href={jiraHref}
+            target="_blank"
+            rel="noopener noreferrer"
+            className={`${linkBase} -ml-1`}
+          >
+            <span className="inline-flex items-center rounded-md border border-gray-700/50 bg-gray-900/40 px-2 py-1 text-[11px] font-medium font-mono leading-tight">
+              <span className={spanLinkMuted}>{upgrade.jira_klic}</span>
+            </span>
           </a>
         ) : (
           <span className="font-mono text-[11px] text-gray-500">{upgrade.jira_klic || '—'}</span>
