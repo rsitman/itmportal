@@ -8,6 +8,7 @@ import listPlugin from '@fullcalendar/list'
 import csLocale from '@fullcalendar/core/locales/cs'
 import type { CalendarApi, EventClickArg, DatesSetArg } from '@fullcalendar/core'
 import { CalendarEvent } from '@/types/calendar'
+import { getEventColor } from '@/lib/calendar-event-tokens'
 
 const VIEW_MAP: Record<string, string> = {
   month: 'dayGridMonth',
@@ -22,20 +23,6 @@ const VIEW_FROM_FC: Record<string, string> = {
   timeGridDay: 'day',
   listWeek: 'agenda',
   listMonth: 'agenda',
-}
-
-function eventColor(event: CalendarEvent): string {
-  const isOutlookEvent = event.id.startsWith('outlook-')
-  const baseColor: Record<string, string> = {
-    PROJECT: '#3b82f6',
-    MEETING: '#f97316',
-    HOLIDAY: '#10b981',
-    OTHER: '#6b7280',
-    ERP_UPGRADE: '#8b5cf6',
-    ERP_PATCH: '#a855f7',
-    ERP_HOLIDAY: '#22c55e',
-  }
-  return isOutlookEvent ? '#0078d4' : (baseColor[event.resource?.type || 'OTHER'] ?? '#6b7280')
 }
 
 function toFullCalendarEvent(ce: CalendarEvent): {
@@ -54,8 +41,8 @@ function toFullCalendarEvent(ce: CalendarEvent): {
     start: ce.start,
     end: ce.end,
     allDay: ce.allDay,
-    backgroundColor: eventColor(ce),
-    borderColor: eventColor(ce),
+    backgroundColor: getEventColor(ce),
+    borderColor: getEventColor(ce),
     extendedProps: { resource: ce.resource },
   }
 }

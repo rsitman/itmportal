@@ -105,4 +105,5 @@ enum EventType {
   OTHER
   ERP_UPGRADE
   ERP_PATCH
+  ERP_ABSENCE
 }

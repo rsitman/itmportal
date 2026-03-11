@@ -2,50 +2,58 @@ import { Event } from '@/types/calendar'
 import { prisma } from '@/lib/prisma'
 import crypto from 'crypto'
 import { logger } from '@/lib/logger'
+import {
+  isKnownErpEventTypeCode,
+  getErpCategoryFromTypeCode,
+  getErpTypeFromTypeCode,
+  getErpEventTypeLabel,
+} from '@/lib/erp-event-type-mapping'
 
-// ERP event interfaces
-export interface ErpUpgradeEvent {
-  projekt: string
+/** Raw ERP event z API – může obsahovat typ_udalosti (primární) nebo starší pole */
+export interface ErpEventRaw {
   nazev: string
   datum_od: string
   datum_do: string
-  popis: string
-  resitel: string
+  popis?: string
+  resitel?: string
+  projekt?: string
+  jira_klic?: string
+  /** Explicitní typ události z ERP: 10=Patch, 20=Upgrade, 110–170=absence */
+  typ_udalosti?: number
+}
+
+// Legacy interfaces (pro fallback při chybějícím typ_udalosti)
+export interface ErpUpgradeEvent extends ErpEventRaw {
+  projekt: string
   jira_klic: string
 }
 
-export interface ErpPatchEvent {
-  nazev: string
-  datum_od: string
-  datum_do: string
-  popis: string
+export interface ErpPatchEvent extends ErpEventRaw {
   resitel: string
 }
 
-export interface ErpHolidayEvent {
-  nazev: string
-  datum_od: string
-  datum_do: string
-  popis: string
+export interface ErpHolidayEvent extends ErpEventRaw {
   resitel: string
 }
 
-export type ErpEvent = ErpUpgradeEvent | ErpPatchEvent | ErpHolidayEvent
+export type ErpEvent = ErpEventRaw
 
 export class ErpCalendarService {
   // Generate unique source ID for ERP event
   static generateSourceId(event: ErpEvent): string {
-    if ('projekt' in event) {
-      // Upgrade event - use jira_klic as unique identifier
+    if (event.projekt && event.jira_klic) {
       return event.jira_klic
-    } else if ('resitel' in event) {
-      // Patch or Holiday event - generate hash from resolver and dates
+    }
+    if (event.resitel) {
       return crypto
         .createHash('md5')
         .update(`${event.resitel}-${event.datum_od}-${event.datum_do}`)
         .digest('hex')
     }
-    return 'unknown'
+    return crypto
+      .createHash('md5')
+      .update(`${event.nazev}-${event.datum_od}-${event.datum_do}`)
+      .digest('hex')
   }
 
   // Detect event type
@@ -61,88 +69,93 @@ export class ErpCalendarService {
     return event && typeof event.projekt === 'undefined' && typeof event.resitel === 'string' && event.nazev?.toLowerCase().includes('dovolen')
   }
 
-  // Convert ERP event to database Event format
+  /**
+   * Convert ERP event to database Event format.
+   * Primární zdroj pravdy: typ_udalosti. Pokud chybí, fallback na heuristiky (název, projekt, jira_klic).
+   */
   static convertToDbEvent(event: ErpEvent): any {
     const sourceId = this.generateSourceId(event)
     const startDate = new Date(event.datum_od)
     const endDate = new Date(event.datum_do)
+    const base = {
+      id: `erp-${sourceId}`,
+      title: event.nazev,
+      description: event.popis || undefined,
+      startDate,
+      endDate,
+      allDay: true,
+      isErpEvent: true,
+      erpSourceId: sourceId,
+      outlookId: undefined,
+    }
 
+    // Primární: explicitní typ_udalosti z ERP
+    if (isKnownErpEventTypeCode(event.typ_udalosti)) {
+      const code = event.typ_udalosti
+      const category = getErpCategoryFromTypeCode(code)
+      const erpType = getErpTypeFromTypeCode(code)
+      const label = getErpEventTypeLabel(code)
+      if (category && erpType) {
+        return {
+          ...base,
+          type: category,
+          erpType,
+          erpEventTypeCode: code,
+          erpEventTypeLabel: label,
+          erpProject: event.projekt || undefined,
+          erpJiraKey: event.jira_klic || undefined,
+          erpResolver: event.resitel || undefined,
+          erpSystems: category === 'ERP_PATCH' ? event.popis : undefined,
+        }
+      }
+    }
+
+    // Fallback: heuristiky pro starší data bez typ_udalosti
+    if (this.isHolidayEvent(event)) {
+      return {
+        ...base,
+        type: 'ERP_ABSENCE',
+        erpType: 'ABSENCE',
+        erpEventTypeLabel: 'Dovolená',
+        erpProject: undefined,
+        erpJiraKey: undefined,
+        erpResolver: event.resitel,
+        erpSystems: undefined,
+      }
+    }
     if (this.isUpgradeEvent(event)) {
       return {
-        id: `erp-${sourceId}`,
-        title: event.nazev,
-        description: event.popis || undefined,
-        startDate,
-        endDate,
+        ...base,
         type: 'ERP_UPGRADE',
-        allDay: true,
-        isErpEvent: true,
-        erpSourceId: sourceId,
         erpType: 'UPGRADE',
+        erpEventTypeLabel: 'Upgrade',
         erpProject: event.projekt,
         erpJiraKey: event.jira_klic,
         erpResolver: event.resitel,
         erpSystems: undefined,
-        // ownerId: undefined, // ERP events have no owner
-        outlookId: undefined,
       }
-    } else if (this.isPatchEvent(event)) {
+    }
+    if (this.isPatchEvent(event)) {
       return {
-        id: `erp-${sourceId}`,
-        title: event.nazev,
-        description: event.popis || undefined,
-        startDate,
-        endDate,
+        ...base,
         type: 'ERP_PATCH',
-        allDay: true,
-        isErpEvent: true,
-        erpSourceId: sourceId,
         erpType: 'PATCH',
+        erpEventTypeLabel: 'Patchování',
         erpProject: undefined,
         erpJiraKey: undefined,
         erpResolver: event.resitel,
-        erpSystems: event.popis, // For patch events, description contains systems
-        // ownerId: undefined, // ERP events have no owner
-        outlookId: undefined,
-      }
-    } else if (this.isHolidayEvent(event)) {
-      return {
-        id: `erp-${sourceId}`,
-        title: (event as any).nazev,
-        description: (event as any).popis || undefined,
-        startDate,
-        endDate,
-        type: 'ERP_HOLIDAY',
-        allDay: true,
-        isErpEvent: true,
-        erpSourceId: sourceId,
-        erpType: 'HOLIDAY',
-        erpProject: undefined,
-        erpJiraKey: undefined,
-        erpResolver: (event as any).resitel,
-        erpSystems: undefined,
-        // ownerId: undefined, // ERP events have no owner
-        outlookId: undefined,
+        erpSystems: event.popis,
       }
     }
-    
-    // Fallback for unknown types
+
     return {
-      id: `erp-${sourceId}`,
-      title: (event as any).nazev,
-      description: (event as any).popis || undefined,
-      startDate,
-      endDate,
+      ...base,
       type: 'OTHER',
-      allDay: true,
-      isErpEvent: true,
-      erpSourceId: sourceId,
       erpType: 'OTHER',
       erpProject: undefined,
       erpJiraKey: undefined,
-      erpResolver: (event as any).resitel,
+      erpResolver: event.resitel,
       erpSystems: undefined,
-      outlookId: undefined,
     }
   }
 
@@ -263,6 +276,8 @@ export class ErpCalendarService {
         isErpEvent: true,
         erpSourceId: event.erpSourceId || undefined,
         erpType: event.erpType || undefined,
+        erpEventTypeCode: event.erpEventTypeCode ?? undefined,
+        erpEventTypeLabel: event.erpEventTypeLabel ?? undefined,
         erpProject: event.erpProject || undefined,
         erpJiraKey: event.erpJiraKey || undefined,
         erpResolver: event.erpResolver || undefined,
