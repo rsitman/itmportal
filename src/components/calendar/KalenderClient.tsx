@@ -204,12 +204,23 @@ function HlavickaKalendare(props: {
 function FiltryKalendare(props: {
   filters: EventFilters
   onFiltersChange: (next: EventFilters) => void
+}) {
+  const { filters, onFiltersChange } = props
+
+  return (
+    <section className="card-professional rounded-lg border border-gray-700/60 p-4 md:p-5">
+      <EventFilterPanel filters={filters} onFiltersChange={onFiltersChange} />
+    </section>
+  )
+}
+
+function KalenderToolbar(props: {
   currentDate: Date
   currentView: string
   onNavigate: (direction: 'prev' | 'next' | 'today') => void
   onViewChange: (view: (typeof Views)[keyof typeof Views]) => void
 }) {
-  const { filters, onFiltersChange, currentDate, currentView, onNavigate, onViewChange } = props
+  const { currentDate, currentView, onNavigate, onViewChange } = props
 
   const formattedLabel = currentDate.toLocaleDateString('cs-CZ', {
     month: 'long',
@@ -218,94 +229,80 @@ function FiltryKalendare(props: {
   })
 
   return (
-    <section className="card-professional rounded-lg border border-gray-700/60 p-4 md:p-4 space-y-3">
-      <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
-        <div className="w-full lg:max-w-xl">
-          <EventFilterPanel filters={filters} onFiltersChange={onFiltersChange} />
-        </div>
-        <div className="w-full lg:max-w-sm">
-          <div className="flex flex-col gap-2">
-            <div className="flex flex-wrap items-center justify-between gap-2">
-              <span className="text-xs font-medium uppercase tracking-wide text-gray-500">
-                Navigace v čase
-              </span>
-              <span className="text-sm font-semibold text-white truncate max-w-[60%] text-right">
-                {formattedLabel}
-              </span>
-            </div>
-            <div className="flex flex-wrap items-center gap-2">
-              <button
-                type="button"
-                onClick={() => onNavigate('prev')}
-                className="px-3 py-1 bg-gray-800 text-gray-200 rounded-md hover:bg-gray-700 transition-colors text-xs font-medium"
-              >
-                ← Předchozí
-              </button>
-              <button
-                type="button"
-                onClick={() => onNavigate('today')}
-                className="px-3 py-1 bg-green-600 text-white rounded-md hover:bg-green-700 transition-colors text-xs font-medium"
-              >
-                Dnes
-              </button>
-              <button
-                type="button"
-                onClick={() => onNavigate('next')}
-                className="px-3 py-1 bg-gray-800 text-gray-200 rounded-md hover:bg-gray-700 transition-colors text-xs font-medium"
-              >
-                Další →
-              </button>
-            </div>
-            <div className="inline-flex flex-wrap items-center gap-1 rounded-md bg-gray-900/60 border border-gray-700/70 px-1.5 py-1.5">
-              <button
-                type="button"
-                onClick={() => onViewChange(Views.MONTH)}
-                className={`px-3 py-1 rounded text-xs font-medium transition-colors ${
-                  currentView === Views.MONTH
-                    ? 'bg-green-600 text-white'
-                    : 'text-gray-200 hover:bg-gray-800'
-                }`}
-              >
-                Měsíc
-              </button>
-              <button
-                type="button"
-                onClick={() => onViewChange(Views.WEEK)}
-                className={`px-3 py-1 rounded text-xs font-medium transition-colors ${
-                  currentView === Views.WEEK
-                    ? 'bg-green-600 text-white'
-                    : 'text-gray-200 hover:bg-gray-800'
-                }`}
-              >
-                Týden
-              </button>
-              <button
-                type="button"
-                onClick={() => onViewChange(Views.DAY)}
-                className={`px-3 py-1 rounded text-xs font-medium transition-colors ${
-                  currentView === Views.DAY
-                    ? 'bg-green-600 text-white'
-                    : 'text-gray-200 hover:bg-gray-800'
-                }`}
-              >
-                Den
-              </button>
-              <button
-                type="button"
-                onClick={() => onViewChange(Views.AGENDA)}
-                className={`px-3 py-1 rounded text-xs font-medium transition-colors ${
-                  currentView === Views.AGENDA
-                    ? 'bg-green-600 text-white'
-                    : 'text-gray-200 hover:bg-gray-800'
-                }`}
-              >
-                Agenda
-              </button>
-            </div>
-          </div>
+    <div className="mb-3 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+      <div className="flex flex-wrap items-center gap-2">
+        <button
+          type="button"
+          onClick={() => onNavigate('prev')}
+          className="px-3 py-1 bg-gray-800 text-gray-200 rounded-md hover:bg-gray-700 transition-colors text-xs font-medium"
+        >
+          ← Předchozí
+        </button>
+        <button
+          type="button"
+          onClick={() => onNavigate('today')}
+          className="px-3 py-1 bg-green-600 text-white rounded-md hover:bg-green-700 transition-colors text-xs font-medium"
+        >
+          Dnes
+        </button>
+        <button
+          type="button"
+          onClick={() => onNavigate('next')}
+          className="px-3 py-1 bg-gray-800 text-gray-200 rounded-md hover:bg-gray-700 transition-colors text-xs font-medium"
+        >
+          Další →
+        </button>
+      </div>
+      <div className="flex flex-wrap items-center gap-2 sm:justify-end">
+        <span className="text-sm font-semibold text-white mr-1">{formattedLabel}</span>
+        <div className="inline-flex flex-wrap items-center gap-1 rounded-md bg-gray-900/60 border border-gray-700/70 px-1.5 py-1.5">
+          <button
+            type="button"
+            onClick={() => onViewChange(Views.MONTH)}
+            className={`px-3 py-1 rounded text-xs font-medium transition-colors ${
+              currentView === Views.MONTH
+                ? 'bg-green-600 text-white'
+                : 'text-gray-200 hover:bg-gray-800'
+            }`}
+          >
+            Měsíc
+          </button>
+          <button
+            type="button"
+            onClick={() => onViewChange(Views.WEEK)}
+            className={`px-3 py-1 rounded text-xs font-medium transition-colors ${
+              currentView === Views.WEEK
+                ? 'bg-green-600 text-white'
+                : 'text-gray-200 hover:bg-gray-800'
+            }`}
+          >
+            Týden
+          </button>
+          <button
+            type="button"
+            onClick={() => onViewChange(Views.DAY)}
+            className={`px-3 py-1 rounded text-xs font-medium transition-colors ${
+              currentView === Views.DAY
+                ? 'bg-green-600 text-white'
+                : 'text-gray-200 hover:bg-gray-800'
+            }`}
+          >
+            Den
+          </button>
+          <button
+            type="button"
+            onClick={() => onViewChange(Views.AGENDA)}
+            className={`px-3 py-1 rounded text-xs font-medium transition-colors ${
+              currentView === Views.AGENDA
+                ? 'bg-green-600 text-white'
+                : 'text-gray-200 hover:bg-gray-800'
+            }`}
+          >
+            Agenda
+          </button>
         </div>
       </div>
-    </section>
+    </div>
   )
 }
 
@@ -625,14 +622,16 @@ export default function KalenderClient({ userRole, outlookAvailable }: KalenderC
         <FiltryKalendare
           filters={eventFilters}
           onFiltersChange={setEventFilters}
-          currentDate={currentDate}
-          currentView={currentView}
-          onNavigate={navigateDate}
-          onViewChange={setCurrentView}
         />
 
         <div className="grid grid-cols-1 xl:grid-cols-[minmax(0,0.65fr)_minmax(0,0.35fr)] gap-4 items-start">
           <section className="card-professional rounded-lg border border-gray-700/60 p-3 md:p-4">
+            <KalenderToolbar
+              currentDate={currentDate}
+              currentView={currentView}
+              onNavigate={navigateDate}
+              onViewChange={setCurrentView}
+            />
             <FullCalendarView
               events={filterEvents(events)}
               currentDate={currentDate}

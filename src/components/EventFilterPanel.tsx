@@ -90,73 +90,82 @@ export default function EventFilterPanel({ filters, onFiltersChange }: EventFilt
   }
 
   return (
-    <div className="card-professional p-4 mb-4">
-      <div className="flex items-center justify-between mb-4">
-        <h3 className="text-lg font-semibold text-white">Filtr událostí</h3>
+    <div className="space-y-3">
+      <div className="flex items-center justify-between">
+        <h3 className="text-sm font-semibold text-white">Filtr událostí</h3>
         <button
           onClick={resetFilters}
-          className="px-3 py-1 text-sm bg-gray-700 text-gray-200 rounded hover:bg-gray-600 transition-colors"
+          className="px-2.5 py-1 text-xs border border-gray-600/70 rounded-md bg-gray-800/80 text-gray-200 hover:bg-gray-700/80 transition-colors"
         >
           Resetovat
         </button>
       </div>
 
-      {/* Source filters */}
-      <div className="mb-4">
-        <h4 className="text-sm font-medium text-gray-300 mb-2">Zdroje událostí</h4>
-        <div className="flex flex-wrap gap-3">
-          <label className="flex items-center space-x-2 cursor-pointer">
-            <input
-              type="checkbox"
-              checked={filters.showLocal}
-              onChange={(e) => handleSourceFilterChange('showLocal', e.target.checked)}
-              className="rounded text-green-600 focus:ring-blue-500 bg-gray-700 border-gray-600"
-            />
-            <span className="text-sm text-gray-300">Lokální</span>
-          </label>
-          <label className="flex items-center space-x-2 cursor-pointer">
-            <input
-              type="checkbox"
-              checked={filters.showErp}
-              onChange={(e) => handleSourceFilterChange('showErp', e.target.checked)}
-              className="rounded text-purple-600 focus:ring-purple-500 bg-gray-700 border-gray-600"
-            />
-            <span className="text-sm text-gray-300">ERP</span>
-          </label>
-          <label className="flex items-center space-x-2 cursor-pointer">
-            <input
-              type="checkbox"
-              checked={filters.showOutlook}
-              onChange={(e) => handleSourceFilterChange('showOutlook', e.target.checked)}
-              className="rounded text-green-600 focus:ring-blue-500 bg-gray-700 border-gray-600"
-            />
-            <span className="text-sm text-gray-300">Outlook</span>
-          </label>
-        </div>
-      </div>
-
-      {/* Category filters */}
-      <div>
-        <h4 className="text-sm font-medium text-gray-300 mb-2">Kategorie událostí</h4>
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2">
-          {Object.entries(categoryLabels).map(([category, label]) => (
-            <label key={category} className="flex items-center space-x-2 cursor-pointer">
+      <div className="grid gap-3 sm:grid-cols-[minmax(0,1fr)_minmax(0,1.5fr)]">
+        <div className="space-y-1.5">
+          <div className="text-xs font-medium uppercase tracking-wide text-gray-500">
+            Zdroje událostí
+          </div>
+          <div className="flex flex-wrap gap-2">
+            <label className="inline-flex items-center gap-2 cursor-pointer">
               <input
                 type="checkbox"
-                checked={filters.categories[category as keyof EventFilters['categories']]}
-                onChange={(e) => handleCategoryFilterChange(category as keyof EventFilters['categories'], e.target.checked)}
-                className="rounded focus:ring-gray-500 bg-gray-700 border-gray-600"
-                style={{ accentColor: categoryColors[category as keyof typeof categoryColors] }}
+                checked={filters.showLocal}
+                onChange={(e) => handleSourceFilterChange('showLocal', e.target.checked)}
+                className="h-4 w-4 rounded bg-gray-800 border-gray-600 text-green-500 focus:ring-green-500/60"
               />
-              <div className="flex items-center space-x-1">
-                <div 
-                  className="w-3 h-3 rounded-full"
-                  style={{ backgroundColor: categoryColors[category as keyof typeof categoryColors] }}
-                />
-                <span className="text-sm text-gray-300">{label}</span>
-              </div>
+              <span className="text-xs text-gray-300">Lokální</span>
             </label>
-          ))}
+            <label className="inline-flex items-center gap-2 cursor-pointer">
+              <input
+                type="checkbox"
+                checked={filters.showErp}
+                onChange={(e) => handleSourceFilterChange('showErp', e.target.checked)}
+                className="h-4 w-4 rounded bg-gray-800 border-gray-600 text-purple-500 focus:ring-purple-500/60"
+              />
+              <span className="text-xs text-gray-300">ERP</span>
+            </label>
+            <label className="inline-flex items-center gap-2 cursor-pointer">
+              <input
+                type="checkbox"
+                checked={filters.showOutlook}
+                onChange={(e) => handleSourceFilterChange('showOutlook', e.target.checked)}
+                className="h-4 w-4 rounded bg-gray-800 border-gray-600 text-green-500 focus:ring-green-500/60"
+              />
+              <span className="text-xs text-gray-300">Outlook</span>
+            </label>
+          </div>
+        </div>
+
+        <div className="space-y-1.5">
+          <div className="text-xs font-medium uppercase tracking-wide text-gray-500">
+            Kategorie
+          </div>
+          <div className="grid grid-cols-2 sm:grid-cols-3 gap-1.5">
+            {Object.entries(categoryLabels).map(([category, label]) => (
+              <label key={category} className="inline-flex items-center gap-2 cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={filters.categories[category as keyof EventFilters['categories']]}
+                  onChange={(e) =>
+                    handleCategoryFilterChange(
+                      category as keyof EventFilters['categories'],
+                      e.target.checked,
+                    )
+                  }
+                  className="h-4 w-4 rounded bg-gray-800 border-gray-600 focus:ring-gray-500/60"
+                  style={{ accentColor: categoryColors[category as keyof typeof categoryColors] }}
+                />
+                <div className="flex items-center gap-1">
+                  <div
+                    className="w-2.5 h-2.5 rounded-full"
+                    style={{ backgroundColor: categoryColors[category as keyof typeof categoryColors] }}
+                  />
+                  <span className="text-xs text-gray-300">{label}</span>
+                </div>
+              </label>
+            ))}
+          </div>
         </div>
       </div>
     </div>
