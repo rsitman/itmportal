@@ -67,15 +67,14 @@ export default function CompanyMap({
     Promise.all([
       import('leaflet')
     ]).then(([leaflet]) => {
-      // Add custom CSS for logo markers: contain (no crop), dark surface
+      // Logo plate for markers: neutral background so transparent/dark logos stay readable. No aggressive shadow.
       if (typeof document !== 'undefined') {
         const style = document.createElement('style')
         style.textContent = `
           .custom-marker-logo {
             border-radius: 50% !important;
-            background: rgba(31, 41, 55, 0.9) !important;
-            border: 2px solid rgba(59, 130, 246, 0.6) !important;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.2) !important;
+            background: rgba(55, 65, 81, 0.95) !important;
+            border: 1px solid rgba(75, 85, 99, 0.6) !important;
           }
           .custom-marker-logo img {
             border-radius: 50% !important;
@@ -136,23 +135,21 @@ export default function CompanyMap({
 
     return new DivIcon({
       html: `
-        <div style="
+        <div class="custom-marker-logo" style="
           width: 40px;
           height: 40px;
           border-radius: 50%;
-          background: rgba(31, 41, 55, 0.9);
-          border: 2px solid rgba(59, 130, 246, 0.6);
           display: flex;
           align-items: center;
           justify-content: center;
           overflow: hidden;
-          box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+          padding: 4px;
         ">
           ${hasLogo
             ? `<img
                 src="${company.logoBase64}"
                 alt=""
-                style="width: 32px; height: 32px; object-fit: contain; border-radius: 50%;"
+                style="width: 100%; height: 100%; object-fit: contain; border-radius: 50%;"
               />`
             : `<span style="font-size: 14px; font-weight: 600; color: #d1d5db;">${initials}</span>`
           }

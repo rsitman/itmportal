@@ -51,9 +51,11 @@ export default function ProjectLogo({
 
   const boxClass = sizeClasses[size]
 
+  // Logo plate: always a neutral box so transparent/dark logos stay readable on dark UI.
+  // No white rectangles, no inversion, no crop. Contain only.
   return (
     <div
-      className={`flex flex-shrink-0 items-center justify-center rounded-md border border-gray-600/50 bg-gray-800/80 p-1 ${boxClass} ${className}`}
+      className={`flex flex-shrink-0 items-center justify-center rounded-md border border-gray-600/40 bg-gray-700/90 p-1.5 ${boxClass} ${className}`}
       title={fallbackName ?? undefined}
     >
       {showFallback ? (
