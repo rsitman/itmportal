@@ -26,8 +26,8 @@ function NewsContent({ html }: { html: string }) {
       .replace(/\n/g, '<br />')       // Unix newlines
 
     return DOMPurify.sanitize(processed, {
-      ALLOWED_TAGS: NEWS_ALLOWED_TAGS,
-      ALLOWED_ATTR: NEWS_ALLOWED_ATTR,
+      ALLOWED_TAGS: [...NEWS_ALLOWED_TAGS],
+      ALLOWED_ATTR: [...NEWS_ALLOWED_ATTR],
     })
   }, [html])
 
