@@ -27,6 +27,24 @@ function clampInt(n: number, min: number, max: number): number {
   return Math.max(min, Math.min(max, n))
 }
 
+function splitDateTime(raw: string | null | undefined): { date: string; time: string } {
+  if (!raw) return { date: '—', time: '' }
+  const d = new Date(raw)
+  if (isNaN(d.getTime())) {
+    return { date: raw, time: '' }
+  }
+  const date = d.toLocaleDateString('cs-CZ', {
+    day: '2-digit',
+    month: '2-digit',
+    year: 'numeric',
+  })
+  const time = d.toLocaleTimeString('cs-CZ', {
+    hour: '2-digit',
+    minute: '2-digit',
+  })
+  return { date, time }
+}
+
 function getDefaultDateRange() {
   const end = new Date()
   const start = new Date()
@@ -91,72 +109,53 @@ function StavovyBadge({
 function HlavickaAktualnihoStavuDb({
   lastUpdated,
   onRefresh,
+  summary,
 }: {
   lastUpdated: string | null
   onRefresh: () => void
+  summary: { total: number; crit: number; warn: number; ok: number }
 }) {
   return (
-    <header className="card-professional rounded-lg border border-gray-700/60 p-4 md:p-5">
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+    <header className="card-professional rounded-lg border border-gray-700/60 p-3 md:p-4">
+      <div className="flex flex-col gap-2.5 sm:flex-row sm:items-start sm:justify-between">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight text-white leading-tight">Aktuální stav databází</h1>
-          <p className="mt-1 text-sm text-gray-400 leading-snug">Monitoring stavu, využití a základních metrik DB v IS KARAT.</p>
-          <div className="mt-2 text-xs text-gray-500">
+          <h1 className="text-xl md:text-2xl font-bold tracking-tight text-white leading-tight">Aktuální stav databází</h1>
+          <p className="mt-0.5 text-sm text-gray-400 leading-snug">
+            Monitoring stavu, využití a základních metrik DB v IS KARAT.
+          </p>
+          <div className="mt-1.5 text-xs text-gray-500">
             Aktualizováno: <span className="text-gray-300 tabular-nums">{formatLastUpdated(lastUpdated)}</span>
           </div>
         </div>
-        <button
-          type="button"
-          onClick={onRefresh}
-          className="inline-flex items-center justify-center px-3.5 py-2 rounded-lg bg-green-600 text-white hover:bg-green-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-green-500/50 focus-visible:ring-offset-2 focus-visible:ring-offset-gray-900 transition-colors shrink-0"
-        >
-          Obnovit
-        </button>
-      </div>
-    </header>
-  )
-}
-
-function PrehledAktualnihoStavuDb({
-  total,
-  crit,
-  warn,
-  ok,
-}: {
-  total: number
-  crit: number
-  warn: number
-  ok: number
-}) {
-  return (
-    <div className="card-professional rounded-lg border border-gray-700/60 p-4 md:p-5">
-      <header className="border-b border-gray-700/50 pb-4">
-        <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
-          <div>
-            <h2 className="text-base font-semibold text-white">Přehled stavu</h2>
-            <p className="mt-1 text-sm text-gray-400 leading-snug">Rychlá orientace podle kapacity a predikce volného místa.</p>
-          </div>
-          <dl className="grid grid-cols-4 gap-x-4 gap-y-0.5 sm:flex sm:gap-6 sm:text-right shrink-0">
+        <div className="flex flex-col gap-2 sm:items-end">
+          <button
+            type="button"
+            onClick={onRefresh}
+            className="inline-flex items-center justify-center px-3.5 py-2 rounded-lg bg-green-600 text-white hover:bg-green-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-green-500/50 focus-visible:ring-offset-2 focus-visible:ring-offset-gray-900 transition-colors shrink-0"
+          >
+            Obnovit
+          </button>
+          <dl className="grid grid-cols-4 gap-x-3 gap-y-1 sm:flex sm:gap-4 text-right">
             <div>
-              <dt className="text-[11px] font-medium uppercase tracking-wide text-gray-500">Celkem</dt>
-              <dd className="text-sm font-semibold text-white mt-0.5 tabular-nums">{total}</dd>
+              <dt className="text-[10px] font-medium uppercase tracking-wide text-gray-500">Celkem</dt>
+              <dd className="text-sm font-semibold text-white mt-0.5 tabular-nums">{summary.total}</dd>
             </div>
             <div>
-              <dt className="text-[11px] font-medium uppercase tracking-wide text-gray-500">Kritické</dt>
-              <dd className="text-sm font-semibold text-red-200/90 mt-0.5 tabular-nums">{crit}</dd>
+              <dt className="text-[10px] font-medium uppercase tracking-wide text-gray-500">Kritické</dt>
+              <dd className="text-sm font-semibold text-red-200/90 mt-0.5 tabular-nums">{summary.crit}</dd>
             </div>
             <div>
-              <dt className="text-[11px] font-medium uppercase tracking-wide text-gray-500">Varování</dt>
-              <dd className="text-sm font-semibold text-amber-200/90 mt-0.5 tabular-nums">{warn}</dd>
+              <dt className="text-[10px] font-medium uppercase tracking-wide text-gray-500">Varování</dt>
+              <dd className="text-sm font-semibold text-amber-200/90 mt-0.5 tabular-nums">{summary.warn}</dd>
             </div>
             <div>
-              <dt className="text-[11px] font-medium uppercase tracking-wide text-gray-500">OK</dt>
-              <dd className="text-sm font-semibold text-emerald-200/90 mt-0.5 tabular-nums">{ok}</dd>
+              <dt className="text-[10px] font-medium uppercase tracking-wide text-gray-500">OK</dt>
+              <dd className="text-sm font-semibold text-emerald-200/90 mt-0.5 tabular-nums">{summary.ok}</dd>
             </div>
           </dl>
         </div>
-      </header>
-    </div>
+      </div>
+    </header>
   )
 }
 
@@ -182,21 +181,8 @@ function FiltryAktualnihoStavuDb({
   totalCount: number
 }) {
   return (
-    <div className="card-professional rounded-lg border border-gray-700/60 p-4 md:p-5">
-      <header className="border-b border-gray-700/50 pb-4">
-        <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
-          <div>
-            <h2 className="text-base font-semibold text-white">Filtry</h2>
-            <p className="mt-1 text-sm text-gray-400 leading-snug">Vyhledávání, firma a deep-link filtr projektu.</p>
-          </div>
-          <div className="text-xs text-gray-500 sm:text-right shrink-0">
-            Zobrazeno <span className="font-medium text-gray-300 tabular-nums">{filteredCount}</span> z{' '}
-            <span className="font-medium text-gray-300 tabular-nums">{totalCount}</span>
-          </div>
-        </div>
-      </header>
-
-      <div className="mt-4 flex flex-col gap-3">
+    <div className="card-professional rounded-lg border border-gray-700/60 p-3 md:p-4">
+      <div className="flex flex-col gap-3">
         {selectedProject ? (
           <div className="rounded-lg border border-blue-700/40 bg-blue-900/15 px-4 py-3">
             <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
@@ -215,7 +201,7 @@ function FiltryAktualnihoStavuDb({
           </div>
         ) : null}
 
-        <div className="rounded-lg border border-gray-700/50 bg-gray-900/30 px-3 py-2.5 md:px-4 md:py-3">
+        <div className="rounded-lg border border-gray-700/50 bg-gray-900/30 px-3 py-2.5 md:px-3.5 md:py-2.5">
           <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between sm:gap-3">
             <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:gap-3 w-full min-w-0">
               <div className="w-full min-w-0 sm:max-w-md">
@@ -251,6 +237,10 @@ function FiltryAktualnihoStavuDb({
                 </select>
               </div>
             </div>
+            <div className="text-xs text-gray-500 sm:text-right shrink-0">
+              Zobrazeno <span className="font-medium text-gray-300 tabular-nums">{filteredCount}</span> z{' '}
+              <span className="font-medium text-gray-300 tabular-nums">{totalCount}</span>
+            </div>
           </div>
         </div>
       </div>
@@ -275,15 +265,18 @@ function KartaDatabaze({
     <button
       type="button"
       onClick={onSelect}
-      className={`w-full text-left rounded-lg border px-4 py-3 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-green-500/50 focus-visible:ring-offset-2 focus-visible:ring-offset-gray-900 ${
+      className={`w-full text-left rounded-lg border px-3.5 py-3 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-green-500/50 focus-visible:ring-offset-2 focus-visible:ring-offset-gray-900 ${
         selected
-          ? 'border-green-500/50 bg-gray-800/70'
-          : 'border-gray-700/70 bg-gray-900/40 hover:bg-gray-800/70 hover:border-gray-500/70'
+          ? 'border-gray-600/60 bg-gray-800/80 border-l-[3px] border-l-green-500/60'
+          : 'border-gray-700/70 bg-gray-900/40 border-l-[3px] border-l-transparent hover:bg-gray-800/70 hover:border-gray-500/70'
       }`}
     >
       <div className="flex items-start justify-between gap-3">
         <div className="min-w-0">
-          <div className="text-sm font-semibold text-white truncate" title={`${db.firma_nazev} / ${db.projekt} / ${db.databaze}`}>
+          <div
+            className="text-[15px] font-semibold text-white truncate leading-snug"
+            title={`${db.firma_nazev} / ${db.projekt} / ${db.databaze}`}
+          >
             {db.databaze}
           </div>
           <div className="mt-0.5 text-xs text-gray-400 truncate">{db.firma_nazev}</div>
@@ -334,16 +327,16 @@ function SeznamDatabazi({
         <p className="text-xs text-gray-500 mt-0.5">Klikněte na řádek pro zobrazení detailu a grafů.</p>
       </div>
 
-      {/* Desktop: table-like */}
+      {/* Desktop: table-like — compact but čitelný */}
       <div className="hidden md:block overflow-x-auto">
-        <div className="min-w-[980px]">
+        <div className="min-w-[760px]">
           <div className="flex border-b border-gray-700 bg-gray-800/50 text-[11px] font-medium uppercase tracking-wide text-gray-500">
-            <div className="px-4 py-3 flex-1 min-w-[260px]">Databáze / Firma</div>
-            <div className="px-4 py-3 w-[140px] flex-shrink-0 text-center">DB využití</div>
-            <div className="px-4 py-3 w-[140px] flex-shrink-0 text-center">Log využití</div>
-            <div className="px-4 py-3 w-[130px] flex-shrink-0 text-center">Volné dny</div>
-            <div className="px-4 py-3 w-[130px] flex-shrink-0 text-center">Recovery</div>
-            <div className="px-4 py-3 w-[170px] flex-shrink-0">Posl. full</div>
+            <div className="px-3 py-2.5 flex-1 min-w-[220px]">Databáze / Firma</div>
+            <div className="px-2 py-2 w-[72px] flex-shrink-0 text-center">DB %</div>
+            <div className="px-2 py-2 w-[72px] flex-shrink-0 text-center">Log %</div>
+            <div className="px-2 py-2 w-[76px] flex-shrink-0 text-center">Dny</div>
+            <div className="px-2 py-2 w-[70px] flex-shrink-0 text-center">Rec.</div>
+            <div className="px-3 py-2 w-[132px] flex-shrink-0 text-right">Posl. full</div>
           </div>
 
           {databases.map((db, idx) => {
@@ -356,19 +349,25 @@ function SeznamDatabazi({
             const u = usagePercentDb(db)
             const l = usagePercentLog(db)
             const tone: 'crit' | 'warn' | 'ok' = isCritical(db) ? 'crit' : isWarning(db) ? 'warn' : 'ok'
+            const { date, time } = splitDateTime(db.backup_full)
 
             return (
               <button
                 key={`${db.projekt}-${db.databaze}-${idx}`}
                 type="button"
                 onClick={() => onSelect(db)}
-                className={`w-full flex text-left border-b border-gray-700 hover:bg-gray-800/55 focus:outline-none focus-visible:ring-2 focus-visible:ring-green-500/50 focus-visible:ring-offset-2 focus-visible:ring-offset-gray-900 ${
-                  selected ? 'bg-gray-800/70' : 'bg-transparent'
+                className={`w-full flex text-left border-b border-gray-700 border-l-[3px] transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-green-500/50 focus-visible:ring-offset-2 focus-visible:ring-offset-gray-900 ${
+                  selected
+                    ? 'bg-gray-800/85 border-l-green-500/60'
+                    : 'bg-transparent border-l-transparent hover:bg-gray-800/55'
                 }`}
               >
-                <div className="px-4 py-3 flex-1 min-w-[260px]">
-                  <div className="flex items-center gap-2 min-w-0">
-                    <span className="text-sm font-semibold text-white truncate" title={db.databaze}>
+                <div className="px-3 py-2.5 flex-1 min-w-[220px] min-w-0">
+                  <div className="flex items-center gap-1.5 min-w-0">
+                    <span
+                      className="text-[15px] font-semibold text-white truncate shrink min-w-0 leading-snug"
+                      title={db.databaze}
+                    >
                       {db.databaze}
                     </span>
                     <StavovyBadge
@@ -376,41 +375,42 @@ function SeznamDatabazi({
                       tone={tone}
                     />
                   </div>
-                  <div className="text-xs text-gray-400 truncate" title={db.firma_nazev}>
-                    {db.firma_nazev}{' '}
-                    <span className="text-gray-600">·</span>{' '}
+                  <div className="text-xs text-gray-400 truncate mt-0.5" title={`${db.firma_nazev} · ${db.projekt}`}>
+                    {db.firma_nazev}
+                    <span className="text-gray-600 mx-0.5">·</span>
                     <span className="font-mono text-[11px] text-gray-500">{db.projekt}</span>
                   </div>
                 </div>
 
-                <div className="px-4 py-3 w-[140px] flex-shrink-0 text-center">
-                  <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${DatabaseService.getUsageColor(u)}`}>
+                <div className="px-2 py-2 w-[72px] flex-shrink-0 flex items-center justify-center">
+                  <span className={`inline-flex px-1.5 py-0.5 text-[11px] font-semibold rounded-full ${DatabaseService.getUsageColor(u)}`}>
                     {u}%
                   </span>
                 </div>
-                <div className="px-4 py-3 w-[140px] flex-shrink-0 text-center">
-                  <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${DatabaseService.getLogUsageColor(l)}`}>
+                <div className="px-2 py-2 w-[72px] flex-shrink-0 flex items-center justify-center">
+                  <span className={`inline-flex px-1.5 py-0.5 text-[11px] font-semibold rounded-full ${DatabaseService.getLogUsageColor(l)}`}>
                     {l}%
                   </span>
                 </div>
-                <div className="px-4 py-3 w-[130px] flex-shrink-0 text-center">
-                  <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${DatabaseService.getDaysRemainingColor(db.volne_zbyva_dni)}`}>
-                    {clampInt(db.volne_zbyva_dni, 0, 9999)} dní
+                <div className="px-2 py-2 w-[76px] flex-shrink-0 flex items-center justify-center">
+                  <span className={`inline-flex px-1.5 py-0.5 text-[11px] font-semibold rounded-full ${DatabaseService.getDaysRemainingColor(db.volne_zbyva_dni)}`}>
+                    {clampInt(db.volne_zbyva_dni, 0, 9999)} d
                   </span>
                 </div>
-                <div className="px-4 py-3 w-[130px] flex-shrink-0 text-center">
+                <div className="px-2 py-2 w-[70px] flex-shrink-0 flex items-center justify-center">
                   <span
-                    className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
+                    className={`inline-flex px-1.5 py-0.5 text-[11px] font-semibold rounded-full ${
                       db.recovery_model === 'FULL'
                         ? 'bg-green-500/20 text-green-400 border border-green-500/30'
                         : 'bg-gray-500/20 text-gray-400 border border-gray-500/30'
                     }`}
                   >
-                    {db.recovery_model || '—'}
+                    {db.recovery_model === 'FULL' ? 'FULL' : (db.recovery_model || '—')}
                   </span>
                 </div>
-                <div className="px-4 py-3 w-[170px] flex-shrink-0 text-sm text-gray-200 tabular-nums">
-                  {DatabaseService.formatDate(db.backup_full)}
+                <div className="px-3 py-2 w-[132px] flex-shrink-0 text-right text-xs text-gray-200 tabular-nums">
+                  <div className="leading-tight">{date}</div>
+                  {time && <div className="text-[11px] text-gray-400">{time}</div>}
                 </div>
               </button>
             )
@@ -488,7 +488,7 @@ function GrafVyvojeDatabaze({
   onDateFromChange: (v: string) => void
   onDateToChange: (v: string) => void
 }) {
-  const [chartType, setChartType] = useState<ChartType>('line')
+  const [chartType, setChartType] = useState<ChartType>('area')
   const [data, setData] = useState<ChartSeries[] | null>(null)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -911,9 +911,8 @@ export default function AktualniStavDbClient({
   }
 
   return (
-    <div className="space-y-6">
-      <HlavickaAktualnihoStavuDb lastUpdated={lastUpdated} onRefresh={onRefresh} />
-      <PrehledAktualnihoStavuDb total={overview.total} crit={overview.crit} warn={overview.warn} ok={overview.ok} />
+    <div className="space-y-4">
+      <HlavickaAktualnihoStavuDb lastUpdated={lastUpdated} onRefresh={onRefresh} summary={overview} />
       <FiltryAktualnihoStavuDb
         searchTerm={searchTerm}
         onSearchChange={setSearchTerm}
