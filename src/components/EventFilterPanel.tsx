@@ -1,7 +1,8 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useEffect } from 'react'
 import { logger } from '@/lib/logger'
+import { CATEGORY_FILTER_COLORS } from '@/lib/calendar-event-tokens'
 
 interface EventFilters {
   showLocal: boolean
@@ -12,7 +13,7 @@ interface EventFilters {
     OTHER: boolean
     ERP_UPGRADE: boolean
     ERP_PATCH: boolean
-    ERP_HOLIDAY: boolean
+    ERP_ABSENCE: boolean
   }
 }
 
@@ -21,30 +22,35 @@ interface EventFilterPanelProps {
   onFiltersChange: (filters: EventFilters) => void
 }
 
-const categoryColors = {
-  MEETING: '#f97316', 
-  OTHER: '#6b7280',
-  ERP_UPGRADE: '#8b5cf6',
-  ERP_PATCH: '#a855f7',
-  ERP_HOLIDAY: '#22c55e',
-}
-
 const categoryLabels = {
   MEETING: 'Schůzky',
   OTHER: 'Ostatní',
   ERP_UPGRADE: 'ERP Upgrady',
   ERP_PATCH: 'ERP Patche',
-  ERP_HOLIDAY: 'ERP Dovolené',
+  ERP_ABSENCE: 'ERP absence',
+}
+
+const defaultCategories = {
+  MEETING: true,
+  OTHER: true,
+  ERP_UPGRADE: true,
+  ERP_PATCH: true,
+  ERP_ABSENCE: true,
 }
 
 export default function EventFilterPanel({ filters, onFiltersChange }: EventFilterPanelProps) {
-  // Load filters from localStorage on mount
+  // Load filters from localStorage on mount (migrate ERP_HOLIDAY → ERP_ABSENCE)
   useEffect(() => {
     const savedFilters = localStorage.getItem('calendarFilters')
     if (savedFilters) {
       try {
         const parsed = JSON.parse(savedFilters)
-        onFiltersChange(parsed)
+        const cats = parsed.categories || {}
+        if ('ERP_HOLIDAY' in cats && !('ERP_ABSENCE' in cats)) {
+          cats.ERP_ABSENCE = cats.ERP_HOLIDAY
+        }
+        delete cats.ERP_HOLIDAY
+        onFiltersChange({ ...parsed, categories: { ...defaultCategories, ...cats } })
       } catch (error) {
         logger.error('Failed to parse saved filters:', error)
       }
@@ -74,19 +80,12 @@ export default function EventFilterPanel({ filters, onFiltersChange }: EventFilt
   }
 
   const resetFilters = () => {
-    const defaultFilters: EventFilters = {
+    onFiltersChange({
       showLocal: true,
       showErp: true,
       showOutlook: true,
-      categories: {
-        MEETING: true,
-        OTHER: true,
-        ERP_UPGRADE: true,
-        ERP_PATCH: true,
-        ERP_HOLIDAY: true,
-      }
-    }
-    onFiltersChange(defaultFilters)
+      categories: { ...defaultCategories },
+    })
   }
 
   return (
@@ -154,12 +153,12 @@ export default function EventFilterPanel({ filters, onFiltersChange }: EventFilt
                     )
                   }
                   className="h-4 w-4 rounded bg-gray-800 border-gray-600 focus:ring-gray-500/60"
-                  style={{ accentColor: categoryColors[category as keyof typeof categoryColors] }}
+                  style={{ accentColor: CATEGORY_FILTER_COLORS[category as keyof typeof CATEGORY_FILTER_COLORS] }}
                 />
                 <div className="flex items-center gap-1">
                   <div
                     className="w-2.5 h-2.5 rounded-full"
-                    style={{ backgroundColor: categoryColors[category as keyof typeof categoryColors] }}
+                    style={{ backgroundColor: CATEGORY_FILTER_COLORS[category as keyof typeof CATEGORY_FILTER_COLORS] }}
                   />
                   <span className="text-xs text-gray-300">{label}</span>
                 </div>

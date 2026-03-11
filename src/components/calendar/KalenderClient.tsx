@@ -1,11 +1,12 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useRef } from 'react'
 import { useSession } from 'next-auth/react'
 import type { Event, CalendarEvent } from '@/types/calendar'
 import { OutlookCalendarService } from '@/lib/outlook-calendar'
 import EventFilterPanel from '@/components/EventFilterPanel'
 import FullCalendarView from '@/app/calendar/FullCalendarView'
+import { getEventCategoryForFilter, SOURCE_COLORS } from '@/lib/calendar-event-tokens'
 import { logger } from '@/lib/logger'
 import '@/app/calendar/calendar.css'
 
@@ -25,7 +26,7 @@ type EventFilters = {
     OTHER: boolean
     ERP_UPGRADE: boolean
     ERP_PATCH: boolean
-    ERP_HOLIDAY: boolean
+    ERP_ABSENCE: boolean
   }
 }
 
@@ -129,19 +130,19 @@ function HlavickaKalendare(props: {
           </p>
           <div className="flex flex-wrap gap-3 pt-1 text-sm">
             <div className="flex items-center gap-1.5 text-gray-300">
-              <span className="inline-flex h-2 w-2 rounded-full bg-green-400" />
+              <span className="inline-flex h-2 w-2 rounded-full" style={{ backgroundColor: SOURCE_COLORS.local }} />
               <span>Lokální</span>
-              <span className="font-semibold text-green-400 tabular-nums">{localCount}</span>
+              <span className="font-semibold tabular-nums" style={{ color: SOURCE_COLORS.local }}>{localCount}</span>
             </div>
             <div className="flex items-center gap-1.5 text-gray-300">
-              <span className="inline-flex h-2 w-2 rounded-full bg-purple-400" />
+              <span className="inline-flex h-2 w-2 rounded-full" style={{ backgroundColor: SOURCE_COLORS.erp }} />
               <span>ERP</span>
-              <span className="font-semibold text-purple-400 tabular-nums">{erpCount}</span>
+              <span className="font-semibold tabular-nums" style={{ color: SOURCE_COLORS.erp }}>{erpCount}</span>
             </div>
             <div className="flex items-center gap-1.5 text-gray-300">
-              <span className="inline-flex h-2 w-2 rounded-full bg-blue-400" />
+              <span className="inline-flex h-2 w-2 rounded-full" style={{ backgroundColor: SOURCE_COLORS.outlook }} />
               <span>Outlook</span>
-              <span className="font-semibold text-blue-400 tabular-nums">{outlookCount}</span>
+              <span className="font-semibold tabular-nums" style={{ color: SOURCE_COLORS.outlook }}>{outlookCount}</span>
             </div>
           </div>
         </div>
@@ -151,7 +152,7 @@ function HlavickaKalendare(props: {
               type="button"
               onClick={onSyncErp}
               disabled={syncingErp}
-              className="inline-flex items-center justify-center px-3.5 py-2 rounded-md bg-purple-600 text-white text-sm font-medium hover:bg-purple-700 disabled:bg-purple-400 disabled:cursor-not-allowed focus:outline-none focus-visible:ring-2 focus-visible:ring-purple-500/60 focus-visible:ring-offset-2 focus-visible:ring-offset-gray-900"
+              className="inline-flex items-center justify-center px-3.5 py-2 rounded-md bg-slate-600 text-white text-sm font-medium hover:bg-slate-500 disabled:bg-slate-500/60 disabled:cursor-not-allowed focus:outline-none focus-visible:ring-2 focus-visible:ring-sky-500/60 focus-visible:ring-offset-2 focus-visible:ring-offset-gray-900"
             >
               {syncingErp ? 'Synchronizuje se ERP…' : 'Synchronizovat ERP'}
             </button>
@@ -163,7 +164,7 @@ function HlavickaKalendare(props: {
                 disabled={!outlookAvailable}
                 className={`inline-flex items-center justify-center px-3 py-1.5 rounded-md text-xs font-medium transition-colors ${
                   outlookEnabled
-                    ? 'bg-green-600 text-white hover:bg-green-700 disabled:bg-green-500/60'
+                    ? 'bg-sky-700 text-white hover:bg-sky-600 disabled:bg-sky-700/40'
                     : 'bg-gray-700 text-gray-300 hover:bg-gray-600 disabled:bg-gray-700/60 disabled:text-gray-500'
                 }`}
               >
@@ -178,7 +179,7 @@ function HlavickaKalendare(props: {
                   type="button"
                   onClick={onSyncOutlook}
                   disabled={syncingOutlook}
-                  className="inline-flex items-center justify-center px-3 py-1.5 rounded-md bg-green-600 text-white text-xs font-medium hover:bg-green-700 disabled:bg-green-400 disabled:cursor-not-allowed"
+                  className="inline-flex items-center justify-center px-3 py-1.5 rounded-md bg-sky-900 border border-sky-500/40 text-sky-100 text-xs font-medium hover:bg-sky-800 disabled:bg-sky-900 disabled:border-sky-800 disabled:cursor-not-allowed"
                 >
                   {syncingOutlook ? 'Synchronizuje se…' : 'Synchronizovat Outlook'}
                 </button>
@@ -241,7 +242,7 @@ function KalenderToolbar(props: {
         <button
           type="button"
           onClick={() => onNavigate('today')}
-          className="px-3 py-1 bg-green-600 text-white rounded-md hover:bg-green-700 transition-colors text-xs font-medium"
+          className="px-3 py-1  bg-slate-600 text-white rounded-md hover:bg-slate-500 transition-colors text-xs font-medium"
         >
           Dnes
         </button>
@@ -261,7 +262,7 @@ function KalenderToolbar(props: {
             onClick={() => onViewChange(Views.MONTH)}
             className={`px-3 py-1 rounded text-xs font-medium transition-colors ${
               currentView === Views.MONTH
-                ? 'bg-green-600 text-white'
+                ? 'bg-slate-600 text-white border border-slate-400/60'
                 : 'text-gray-200 hover:bg-gray-800'
             }`}
           >
@@ -272,7 +273,7 @@ function KalenderToolbar(props: {
             onClick={() => onViewChange(Views.WEEK)}
             className={`px-3 py-1 rounded text-xs font-medium transition-colors ${
               currentView === Views.WEEK
-                ? 'bg-green-600 text-white'
+                ? 'bg-slate-600 text-white border border-slate-400/60'
                 : 'text-gray-200 hover:bg-gray-800'
             }`}
           >
@@ -283,7 +284,7 @@ function KalenderToolbar(props: {
             onClick={() => onViewChange(Views.DAY)}
             className={`px-3 py-1 rounded text-xs font-medium transition-colors ${
               currentView === Views.DAY
-                ? 'bg-green-600 text-white'
+                ? 'bg-slate-600 text-white border border-slate-400/60'
                 : 'text-gray-200 hover:bg-gray-800'
             }`}
           >
@@ -294,7 +295,7 @@ function KalenderToolbar(props: {
             onClick={() => onViewChange(Views.AGENDA)}
             className={`px-3 py-1 rounded text-xs font-medium transition-colors ${
               currentView === Views.AGENDA
-                ? 'bg-green-600 text-white'
+                ? 'bg-slate-600 text-white border border-slate-400/60'
                 : 'text-gray-200 hover:bg-gray-800'
             }`}
           >
@@ -327,10 +328,12 @@ function PanelUdalosti(props: {
   const isLocalEvent = !isErpEvent && !isOutlookEvent
 
   const sourceLabel = isErpEvent ? 'ERP' : isOutlookEvent ? 'Outlook' : 'Lokální'
-  const sourceTone =
-    isErpEvent ? 'bg-purple-500/20 text-purple-200 border border-purple-500/40' :
-    isOutlookEvent ? 'bg-blue-500/20 text-blue-200 border border-blue-500/40' :
-    'bg-green-500/20 text-green-200 border border-green-500/40'
+  const sourceColor = isErpEvent ? SOURCE_COLORS.erp : isOutlookEvent ? SOURCE_COLORS.outlook : SOURCE_COLORS.local
+  const sourceTone = {
+    backgroundColor: `${sourceColor}20`,
+    borderColor: `${sourceColor}50`,
+    color: `${sourceColor}e8`,
+  }
 
   const canEditErp = isErpEvent && session?.user?.role && ['ADMIN', 'IT'].includes(session.user.role)
   const isOwner =
@@ -346,11 +349,19 @@ function PanelUdalosti(props: {
             {formatEventDateRange(event)}
           </p>
         </div>
-        <span
-          className={`inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-semibold ${sourceTone}`}
-        >
-          {sourceLabel}
-        </span>
+        <div className="flex flex-col items-end gap-1">
+          <span
+            className="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-semibold border"
+            style={sourceTone}
+          >
+            {sourceLabel}
+          </span>
+          {isErpEvent && event.resource?.erpEventTypeLabel && (
+            <span className="text-[11px] text-gray-400">
+              {event.resource.erpEventTypeLabel}
+            </span>
+          )}
+        </div>
       </div>
       <div className="space-y-3 text-xs text-gray-300 flex-1 overflow-y-auto">
         {event.resource?.description && (
@@ -426,6 +437,7 @@ export default function KalenderClient({ userRole, outlookAvailable }: KalenderC
   const [loading, setLoading] = useState(true)
   const [selectedEvent, setSelectedEvent] = useState<CalendarEvent | null>(null)
   const [outlookEnabled, setOutlookEnabled] = useState(false)
+  const autoOutlookSyncRef = useRef(false)
   const [syncingWithOutlook, setSyncingWithOutlook] = useState(false)
   const [syncError, setSyncError] = useState<string | null>(null)
   const [outlookEventCount, setOutlookEventCount] = useState(0)
@@ -447,7 +459,7 @@ export default function KalenderClient({ userRole, outlookAvailable }: KalenderC
       OTHER: true,
       ERP_UPGRADE: true,
       ERP_PATCH: true,
-      ERP_HOLIDAY: true,
+      ERP_ABSENCE: true,
     },
   })
 
@@ -516,13 +528,13 @@ export default function KalenderClient({ userRole, outlookAvailable }: KalenderC
     return items.filter((event) => {
       const isOutlookEvent = event.id.startsWith('outlook-') || event.resource?.isOutlookEvent
       const isErpEvent = event.resource?.isErpEvent
-      const eventType = event.resource?.type
 
       if (!eventFilters.showLocal && !isOutlookEvent && !isErpEvent) return false
       if (!eventFilters.showErp && isErpEvent) return false
       if (!eventFilters.showOutlook && isOutlookEvent) return false
 
-      if (eventType && !eventFilters.categories[eventType as keyof typeof eventFilters.categories]) {
+      const category = getEventCategoryForFilter(event)
+      if (category !== null && !eventFilters.categories[category]) {
         return false
       }
 
@@ -588,10 +600,34 @@ export default function KalenderClient({ userRole, outlookAvailable }: KalenderC
     }
   }, [status])
 
+  useEffect(() => {
+    if (!outlookAvailable) return
+    if (status !== 'authenticated') return
+    if (typeof window === 'undefined') return
+
+    const raw = window.localStorage.getItem('outlook_integration_enabled')
+    if (raw === null) {
+      // Doménový login, žádná preference: výchozí zapnuto
+      setOutlookEnabled(true)
+      OutlookCalendarService.setOutlookIntegration(true)
+      return
+    }
+
+    setOutlookEnabled(raw == 'true')
+  }, [status, outlookAvailable])
+
+  useEffect(() => {
+    if (!outlookAvailable) return
+    if (!outlookEnabled) return
+    if (autoOutlookSyncRef.current) return
+    autoOutlookSyncRef.current = true
+    syncMoreOutlookEvents()
+  }, [outlookAvailable, outlookEnabled])
+
   if (status === 'loading' || loading) {
     return (
       <div className="flex items-center justify-center min-h-[40vh]">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-green-600" />
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-sky-500" />
       </div>
     )
   }
