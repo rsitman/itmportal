@@ -1,15 +1,44 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
+import DOMPurify from 'dompurify'
 import type { PolozkaAktualita } from '@/types/dashboard'
 import SekceDashboardu from './SekceDashboardu'
 
 const MAX_ITEMS = 8
 
+const NEWS_ALLOWED_TAGS = ['b', 'strong', 'em', 'ul', 'ol', 'li', 'a', 'br', 'p'] as const
+const NEWS_ALLOWED_ATTR = ['href', 'target', 'rel', 'title'] as const
+
 function sortItems(items: PolozkaAktualita[]): PolozkaAktualita[] {
   const vip = items.filter((i) => i.vip)
   const rest = items.filter((i) => !i.vip)
   return [...vip, ...rest].slice(0, MAX_ITEMS)
+}
+
+function NewsContent({ html }: { html: string }) {
+  const safeHtml = useMemo(() => {
+    if (!html) return ''
+
+    const normalized = html.replace(/\r\n/g, '\n')
+    const withBreaks = normalized.replace(/\n/g, '<br />')
+
+    return DOMPurify.sanitize(withBreaks, {
+      ALLOWED_TAGS: NEWS_ALLOWED_TAGS as unknown as string[],
+      ALLOWED_ATTR: NEWS_ALLOWED_ATTR as unknown as string[],
+    })
+  }, [html])
+
+  if (!safeHtml) {
+    return null
+  }
+
+  return (
+    <div
+      className="aktualita-content text-sm text-gray-300 leading-relaxed"
+      dangerouslySetInnerHTML={{ __html: safeHtml }}
+    />
+  )
 }
 
 export default function Aktuality() {
@@ -72,9 +101,7 @@ export default function Aktuality() {
                     </span>
                   )}
                   <p className="font-medium text-white">{p.nadpis}</p>
-                  {p.obsah && (
-                    <p className="text-sm text-gray-400">{p.obsah}</p>
-                  )}
+                  {p.obsah && <NewsContent html={p.obsah} />}
                   {hasProjekt && (
                     <span
                       className="text-xs text-gray-500 mt-1 inline-block"

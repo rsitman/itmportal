@@ -1131,3 +1131,24 @@ td, th {
   margin-left: -12px;
   margin-top: -41px;
 }
+
+.aktualita-content {
+  font-size: 0.875rem;
+  line-height: 1.5;
+  color: #d1d5db;
+}
+
+.aktualita-content ul,
+.aktualita-content ol {
+  margin: 0.5rem 0;
+  padding-left: 1.25rem;
+}
+
+.aktualita-content a {
+  color: #22c55e;
+  text-decoration: underline;
+}
+
+.aktualita-content a:hover {
+  color: #16a34a;
+}
