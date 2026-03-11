@@ -199,8 +199,8 @@ export default function Sidebar() {
   }
 
   return (
-    <div className="flex h-full w-72 flex-col bg-gray-900/90 backdrop-blur-md border-r border-gray-700/50 shadow-sidebar">
-      <div className="flex h-20 items-center justify-center px-8 border-b border-gray-700/50">
+    <div className="flex h-full w-72 flex-col bg-gray-900/80 backdrop-blur-md">
+      <div className="flex h-20 items-center justify-center px-8">
         <div className="flex flex-col justify-center py-4">
           <div className="flex items-center justify-center py-4">
             <img 
