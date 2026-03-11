@@ -644,11 +644,17 @@ function SekceExterniSluzby({ config }: { config: HwswConfig }) {
 
   return (
     <div className="space-y-3">
-      {config.ext_sluzby.map((s, idx) => (
-        <div
-          key={`${s.nazev}-${idx}`}
-          className="rounded-lg border border-gray-700/60 bg-gray-900/35 px-4 py-4 md:px-5"
-        >
+      {config.ext_sluzby.map((s, idx) => {
+        const poznamkaNormalized = (s.poznamka ?? '')
+          // ERP sometimes returns literal escape sequences ("\n") inside strings
+          .replaceAll('\\r\\n', '\n')
+          .replaceAll('\\n', '\n')
+
+        return (
+          <div
+            key={`${s.nazev}-${idx}`}
+            className="rounded-lg border border-gray-700/60 bg-gray-900/35 px-4 py-4 md:px-5"
+          >
           <div className="flex items-start justify-between gap-4">
             <div className="min-w-0">
               <div className="text-base font-semibold text-white leading-tight">
@@ -659,18 +665,19 @@ function SekceExterniSluzby({ config }: { config: HwswConfig }) {
               ) : null}
             </div>
           </div>
-          {s.poznamka ? (
+          {poznamkaNormalized.trim() ? (
             <div className="mt-3 rounded-lg border border-gray-700/50 bg-gray-900/40 px-3 py-2.5">
               <div className="text-xs text-gray-500 mb-1">Poznámka</div>
               <div className="text-sm text-gray-300 whitespace-pre-line leading-snug">
-                {s.poznamka}
+                {poznamkaNormalized}
               </div>
             </div>
           ) : (
             <div className="mt-2 text-sm text-gray-500">Bez poznámky.</div>
           )}
-        </div>
-      ))}
+          </div>
+        )
+      })}
     </div>
   )
 }
