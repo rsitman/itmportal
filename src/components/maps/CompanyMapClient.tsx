@@ -52,7 +52,6 @@ export default function CompanyMapClient() {
   const [data, setData] = useState<MapData | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
-  const [selectedIndustry, setSelectedIndustry] = useState('all')
   const [searchTerm, setSearchTerm] = useState('')
   const [selectedProjectId, setSelectedProjectId] = useState<string | null>(null)
 
@@ -87,6 +86,56 @@ export default function CompanyMapClient() {
       setSelectedProjectId(match.id)
     }
   }, [data, searchParams])
+
+  const companies = data?.companies ?? []
+
+  const filteredCompanies = useMemo(() => {
+    const term = searchTerm.trim().toLowerCase()
+    return companies.filter((company: Company) => {
+      const matchesSearch =
+        term === '' ||
+        company.name.toLowerCase().includes(term) ||
+        company.address.toLowerCase().includes(term) ||
+        company.city.toLowerCase().includes(term) ||
+        (company.customerName && company.customerName.toLowerCase().includes(term))
+      return matchesSearch
+    })
+  }, [companies, searchTerm])
+
+  const companiesWithGps = useMemo(
+    () => filteredCompanies.filter((c) => c.hasValidGps),
+    [filteredCompanies],
+  )
+
+  const companiesWithoutGps = useMemo(
+    () => filteredCompanies.filter((c) => !c.hasValidGps),
+    [filteredCompanies],
+  )
+
+  const summary = useMemo(() => {
+    const total = companies.length
+    const withGps = companies.filter((c) => c.hasValidGps).length
+    const withoutGps = total - withGps
+    const customers = Array.from(
+      new Set(
+        companies
+          .filter((c) => c.isProject && c.customerName)
+          .map((c) => c.customerName as string),
+      ),
+    )
+
+    return {
+      total,
+      withGps,
+      withoutGps,
+      customersCount: customers.length,
+    }
+  }, [companies])
+
+  const selectedCompany = useMemo(
+    () => (selectedProjectId ? companies.find((c) => c.id === selectedProjectId) ?? null : null),
+    [companies, selectedProjectId],
+  )
 
   if (loading) {
     return (
@@ -125,54 +174,6 @@ export default function CompanyMapClient() {
       </div>
     )
   }
-  const filteredCompanies = useMemo(() => {
-    const term = searchTerm.trim().toLowerCase()
-    return data.companies.filter((company: Company) => {
-      const matchesIndustry = selectedIndustry === 'all' || company.industry === selectedIndustry
-      const matchesSearch =
-        term === '' ||
-        company.name.toLowerCase().includes(term) ||
-        company.address.toLowerCase().includes(term) ||
-        company.city.toLowerCase().includes(term) ||
-        (company.customerName && company.customerName.toLowerCase().includes(term))
-      return matchesIndustry && matchesSearch
-    })
-  }, [data, selectedIndustry, searchTerm])
-
-  const companiesWithGps = useMemo(
-    () => filteredCompanies.filter((c) => c.hasValidGps),
-    [filteredCompanies],
-  )
-
-  const companiesWithoutGps = useMemo(
-    () => filteredCompanies.filter((c) => !c.hasValidGps),
-    [filteredCompanies],
-  )
-
-  const summary = useMemo(() => {
-    const total = data.companies.length
-    const withGps = data.companies.filter((c) => c.hasValidGps).length
-    const withoutGps = total - withGps
-    const customers = Array.from(
-      new Set(
-        data.companies
-          .filter((c) => c.isProject && c.customerName)
-          .map((c) => c.customerName as string),
-      ),
-    )
-
-    return {
-      total,
-      withGps,
-      withoutGps,
-      customersCount: customers.length,
-    }
-  }, [data])
-
-  const selectedCompany = useMemo(
-    () => (selectedProjectId ? data.companies.find((c) => c.id === selectedProjectId) ?? null : null),
-    [data, selectedProjectId],
-  )
 
   const handleMarkerClick = (companyId: string) => {
     setSelectedProjectId(companyId)
@@ -236,36 +237,17 @@ export default function CompanyMapClient() {
         {/* Filters */}
         <div className="card-professional rounded-lg border border-gray-700/60 p-4 md:p-5">
           <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
-            <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:gap-4 w-full min-w-0">
-              <div className="w-full min-w-0 sm:max-w-md">
-                <label className="block text-xs font-medium text-gray-400 mb-1">
-                  Hledat projekt / zákazníka
-                </label>
-                <input
-                  type="text"
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  placeholder="Název projektu, firma, město…"
-                  className="w-full pl-3.5 pr-3.5 py-2.5 rounded-lg bg-gray-800/80 border border-gray-600/60 text-sm text-white placeholder-gray-500 focus:outline-none focus-visible:ring-2 focus-visible:ring-green-500/50 focus-visible:ring-offset-2 focus-visible:ring-offset-gray-900 focus-visible:border-green-500/50"
-                />
-              </div>
-              <div className="w-full sm:w-64">
-                <label className="block text-xs font-medium text-gray-400 mb-1">
-                  Odvětví
-                </label>
-                <select
-                  value={selectedIndustry}
-                  onChange={(e) => setSelectedIndustry(e.target.value)}
-                  className="w-full pl-3 pr-3 py-2.5 rounded-lg bg-gray-800/80 border border-gray-600/60 text-sm text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-green-500/50 focus-visible:ring-offset-2 focus-visible:ring-offset-gray-900 focus-visible:border-green-500/50"
-                >
-                  <option value="all">Všechna odvětví</option>
-                  {data.metadata.industries.map((industry: string) => (
-                    <option key={industry} value={industry}>
-                      {industry}
-                    </option>
-                  ))}
-                </select>
-              </div>
+            <div className="w-full min-w-0 sm:max-w-md">
+              <label className="block text-xs font-medium text-gray-400 mb-1">
+                Hledat projekt / zákazníka
+              </label>
+              <input
+                type="text"
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                placeholder="Název projektu, firma, město…"
+                className="w-full pl-3.5 pr-3.5 py-2.5 rounded-lg bg-gray-800/80 border border-gray-600/60 text-sm text-white placeholder-gray-500 focus:outline-none focus-visible:ring-2 focus-visible:ring-green-500/50 focus-visible:ring-offset-2 focus-visible:ring-offset-gray-900 focus-visible:border-green-500/50"
+              />
             </div>
             <div className="text-xs text-gray-500 sm:text-right shrink-0">
               Zobrazeno{' '}

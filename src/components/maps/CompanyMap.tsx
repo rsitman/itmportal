@@ -106,27 +106,15 @@ export default function CompanyMap({
       }
     }
   }, [containerId])
-
-  if (!isClient || !mapComponents) {
-    return (
-      <div 
-        className={`bg-gray-100 rounded-lg flex items-center justify-center ${className}`}
-        style={{ height }}
-      >
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-green-600 mx-auto mb-2"></div>
-          <p className="text-gray-600">Načítání mapy...</p>
-        </div>
-      </div>
-    )
-  }
-
-  const { L, Icon, LatLngBounds, DivIcon } = mapComponents
+  const leafletReady = isClient && !!mapComponents
 
   // Create bounds to fit all markers
-  const bounds = companies.length > 0 
-    ? new mapComponents.LatLngBounds(companies.map(company => [company.latitude, company.longitude]))
-    : null
+  const bounds =
+    leafletReady && companies.length > 0
+      ? new mapComponents.LatLngBounds(
+          companies.map((company) => [company.latitude, company.longitude]),
+        )
+      : null
 
   // Calculate center and zoom for bounds
   const center = bounds ? bounds.getCenter() : [50.0755, 14.4378]
@@ -202,138 +190,156 @@ export default function CompanyMap({
 
   return (
     <div className={className} style={{ height }}>
-      <MapContainer
-        id={containerId}
-        center={center as [number, number]}
-        zoom={zoom}
-        style={{ height: '100%', width: '100%' }}
-        ref={(map) => {
-          if (map) {
-            mapRef.current = map
-          }
-          if (map && onMapReady) {
-            try {
-              onMapReady(map as any)
-              
-              // Fit bounds if available
-              if (bounds) {
-                setTimeout(() => {
-                  try {
-                    if (map && typeof (map as any).fitBounds === 'function') {
-                      (map as any).fitBounds(bounds, { padding: [50, 50] })
-                    }
-                  } catch (error) {
-                    // console.warn('Failed to fit bounds:', error)
-                  }
-                }, 500) // Increased delay
-              }
-            } catch (error) {
-              // console.error('Error in map ref callback:', error)
+      {!leafletReady ? (
+        <div
+          className={`bg-gray-100 rounded-lg flex items-center justify-center ${className}`}
+          style={{ height }}
+        >
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-green-600 mx-auto mb-2"></div>
+            <p className="text-gray-600">Načítání mapy...</p>
+          </div>
+        </div>
+      ) : (
+        <MapContainer
+          id={containerId}
+          center={center as [number, number]}
+          zoom={zoom}
+          style={{ height: '100%', width: '100%' }}
+          ref={(map) => {
+            if (map) {
+              mapRef.current = map
             }
-          }
-        }}
-      >
-        <TileLayer
-          attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-          url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-        />
-        
-        {companies.map((company) => (
-          <Marker
-            key={company.id}
-            position={[company.latitude, company.longitude]}
-            icon={createCustomIcon(company, DivIcon)}
-            ref={(marker) => {
-              if (marker) {
-                markersRef.current[company.id] = marker
+            if (map && onMapReady) {
+              try {
+                onMapReady(map as any)
+
+                // Fit bounds if available
+                if (bounds) {
+                  setTimeout(() => {
+                    try {
+                      if (map && typeof (map as any).fitBounds === 'function') {
+                        (map as any).fitBounds(bounds, { padding: [50, 50] })
+                      }
+                    } catch (error) {
+                      // console.warn('Failed to fit bounds:', error)
+                    }
+                  }, 500) // Increased delay
+                }
+              } catch (error) {
+                // console.error('Error in map ref callback:', error)
               }
-            }}
-            eventHandlers={{
-              click: () => {
-                if (onMarkerClick) {
-                  onMarkerClick(company.id)
+            }
+          }}
+        >
+          <TileLayer
+            attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+            url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+          />
+
+          {companies.map((company) => (
+            <Marker
+              key={company.id}
+              position={[company.latitude, company.longitude]}
+              icon={createCustomIcon(company, mapComponents.DivIcon)}
+              ref={(marker) => {
+                if (marker) {
+                  markersRef.current[company.id] = marker
                 }
-                if (onLocationClick) {
-                  onLocationClick(company.latitude, company.longitude)
-                }
-              },
-            }}
-          >
-            <Popup>
-              <div className="map-popup-content p-2">
-                <h3 className="font-semibold text-lg mb-2">{company.name}</h3>
-                <p className="text-sm text-gray-600 mb-1">
-                  📍 {company.address}, {company.city}, {company.country}
-                </p>
-                
-                {company.employees && (
-                  <p className="text-sm mb-1">
-                    👥 {company.employees} zaměstnanců
+              }}
+              eventHandlers={{
+                click: () => {
+                  if (onMarkerClick) {
+                    onMarkerClick(company.id)
+                  }
+                  if (onLocationClick) {
+                    onLocationClick(company.latitude, company.longitude)
+                  }
+                },
+              }}
+            >
+              <Popup>
+                <div className="map-popup-content p-2">
+                  <h3 className="font-semibold text-lg mb-2">{company.name}</h3>
+                  <p className="text-sm text-gray-600 mb-1">
+                    📍 {company.address}, {company.city}, {company.country}
                   </p>
-                )}
-                
-                {company.industry && (
-                  <p className="text-sm mb-1">
-                    🏭 {company.industry}
-                  </p>
-                )}
-                
-                {company.foundedYear && (
-                  <p className="text-sm mb-1">
-                    📅 Založeno {company.foundedYear}
-                  </p>
-                )}
-                
-                {company.isProject && (
-                  <div className="mt-2">
-                    <span className="inline-block bg-blue-100 text-green-800 text-xs px-2 py-1 rounded">
-                      🗂️ Projekt
-                    </span>
-                  </div>
-                )}
-                
-                {company.customerName && company.isProject && (
-                  <p className="text-sm mt-1">
-                    🏢 Zákazník: {company.customerName}
-                  </p>
-                )}
-                
-                {company.jiraKey && (
-                  <p className="text-sm mt-1">
-                    🔑 JIRA: {company.jiraKey}
-                  </p>
-                )}
-                
-                {company.phone && (
-                  <p className="text-sm mt-1">
-                    📞 {company.phone}
-                  </p>
-                )}
-                
-                {company.email && (
-                  <p className="text-sm mt-1">
-                    📧 {company.email}
-                  </p>
-                )}
-                
-                {company.website && (
-                  <p className="text-sm mt-1">
-                    🌐 <a href={company.website} target="_blank" rel="noopener noreferrer" className="map-popup-link hover:underline">
-                      {company.website}
-                    </a>
-                  </p>
-                )}
-                
-                {company.description && (
-                  <p className="text-sm mt-2 text-gray-700">
-                    {company.description}
-                  </p>
-                )}
-              </div>
-            </Popup>
-          </Marker>
-        ))}
-      </MapContainer>
+
+                  {company.employees && (
+                    <p className="text-sm mb-1">
+                      👥 {company.employees} zaměstnanců
+                    </p>
+                  )}
+
+                  {company.industry && (
+                    <p className="text-sm mb-1">
+                      🏭 {company.industry}
+                    </p>
+                  )}
+
+                  {company.foundedYear && (
+                    <p className="text-sm mb-1">
+                      📅 Založeno {company.foundedYear}
+                    </p>
+                  )}
+
+                  {company.isProject && (
+                    <div className="mt-2">
+                      <span className="inline-block bg-blue-100 text-green-800 text-xs px-2 py-1 rounded">
+                        🗂️ Projekt
+                      </span>
+                    </div>
+                  )}
+
+                  {company.customerName && company.isProject && (
+                    <p className="text-sm mt-1">
+                      🏢 Zákazník: {company.customerName}
+                    </p>
+                  )}
+
+                  {company.jiraKey && (
+                    <p className="text-sm mt-1">
+                      🔑 JIRA: {company.jiraKey}
+                    </p>
+                  )}
+
+                  {company.phone && (
+                    <p className="text-sm mt-1">
+                      📞 {company.phone}
+                    </p>
+                  )}
+
+                  {company.email && (
+                    <p className="text-sm mt-1">
+                      📧 {company.email}
+                    </p>
+                  )}
+
+                  {company.website && (
+                    <p className="text-sm mt-1">
+                      🌐{' '}
+                      <a
+                        href={company.website}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="map-popup-link hover:underline"
+                      >
+                        {company.website}
+                      </a>
+                    </p>
+                  )}
+
+                  {company.description && (
+                    <p className="text-sm mt-2 text-gray-700">
+                      {company.description}
+                    </p>
+                  )}
+                </div>
+              </Popup>
+            </Marker>
+          ))}
+        </MapContainer>
+      )}
     </div>
   )
 }
