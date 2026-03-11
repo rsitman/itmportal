@@ -595,9 +595,10 @@ function GrafVyvojeDatabaze({
         </div>
 
         {loading ? (
-          <div className="animate-pulse">
-            <div className="h-6 bg-gray-700/60 rounded w-1/3 mb-3" />
-            <div className="h-72 bg-gray-700/40 rounded-lg" />
+          <div className="space-y-3">
+            <div className="h-5 bg-gray-700/60 rounded w-1/2" />
+            <div className="h-60 bg-gray-700/40 rounded-lg" />
+            <div className="h-60 bg-gray-700/40 rounded-lg" />
           </div>
         ) : error ? (
           <div className="rounded-lg border border-amber-700/40 bg-amber-900/15 px-4 py-4">
@@ -610,18 +611,64 @@ function GrafVyvojeDatabaze({
             <p className="mt-1 text-sm text-gray-400 leading-snug">Pro zadané období nebyla nalezena žádná data historie.</p>
           </div>
         ) : (
-          <div className="card-professional rounded-lg border border-gray-700/60 p-3 md:p-4">
-            <DataChart
-              title={undefined}
-              type={chartType}
-              data={data}
-              height={420}
-              showLegend={true}
-              showGrid={true}
-              xAxisLabel="Datum"
-              yAxisLabel="Velikost"
-              className="bg-transparent shadow-none"
-            />
+          <div className="space-y-4">
+            {/* DB / MDF graf */}
+            <div className="card-professional rounded-lg border border-gray-700/60 p-3 md:p-4">
+              <div className="flex items-center justify-between mb-2">
+                <div className="text-xs font-medium text-gray-300">Vývoj databáze (MDF)</div>
+                <div className="flex flex-wrap gap-2 text-[11px]">
+                  {data.slice(0, 3).map((series) => (
+                    <div key={series.name} className="inline-flex items-center gap-1 text-gray-300">
+                      <span
+                        className="inline-block h-2 w-2 rounded-full"
+                        style={{ backgroundColor: series.color || '#3b82f6' }}
+                      />
+                      <span>{series.name}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+              <DataChart
+                title={undefined}
+                type={chartType}
+                data={data.slice(0, 3)}
+                height={320}
+                showLegend={false}
+                showGrid={true}
+                xAxisLabel="Datum"
+                yAxisLabel="Velikost"
+                className="bg-transparent shadow-none"
+              />
+            </div>
+
+            {/* Log graf */}
+            <div className="card-professional rounded-lg border border-gray-700/60 p-3 md:p-4">
+              <div className="flex items-center justify-between mb-2">
+                <div className="text-xs font-medium text-gray-300">Vývoj logu (LDF)</div>
+                <div className="flex flex-wrap gap-2 text-[11px]">
+                  {data.slice(3, 6).map((series) => (
+                    <div key={series.name} className="inline-flex items-center gap-1 text-gray-300">
+                      <span
+                        className="inline-block h-2 w-2 rounded-full"
+                        style={{ backgroundColor: series.color || '#3b82f6' }}
+                      />
+                      <span>{series.name}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+              <DataChart
+                title={undefined}
+                type={chartType}
+                data={data.slice(3, 6)}
+                height={320}
+                showLegend={false}
+                showGrid={true}
+                xAxisLabel="Datum"
+                yAxisLabel="Velikost"
+                className="bg-transparent shadow-none"
+              />
+            </div>
           </div>
         )}
       </div>
@@ -879,7 +926,7 @@ export default function AktualniStavDbClient({
         totalCount={databases.length}
       />
 
-      <div className="grid grid-cols-1 xl:grid-cols-[minmax(0,1.15fr)_minmax(0,0.85fr)] gap-4 items-start">
+      <div className="grid grid-cols-1 xl:grid-cols-[minmax(0,0.45fr)_minmax(0,0.55fr)] gap-4 items-start">
         <SeznamDatabazi
           databases={filteredDatabases}
           selectedKey={selectedKey}
