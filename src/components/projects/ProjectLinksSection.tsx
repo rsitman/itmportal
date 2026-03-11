@@ -70,7 +70,7 @@ export default function ProjectLinksSection({ dokladProjektu }: ProjectLinksSect
         <button
           type="button"
           onClick={fetchLinks}
-          className="mt-3 px-3 py-1.5 rounded-lg bg-gray-700/80 text-gray-200 hover:bg-gray-600 text-sm focus:outline-none focus-visible:ring-2 focus-visible:ring-green-500/50"
+          className="mt-3 px-3 py-1.5 rounded-lg bg-gray-700/80 text-gray-200 hover:bg-gray-600 text-sm focus:outline-none focus-visible:ring-2 focus-visible:ring-gray-400 focus-visible:ring-offset-2 focus-visible:ring-offset-gray-900"
         >
           Zkusit znovu
         </button>
@@ -101,7 +101,7 @@ export default function ProjectLinksSection({ dokladProjektu }: ProjectLinksSect
               target="_blank"
               rel="noopener noreferrer"
               title={url}
-              className="text-white font-medium hover:text-green-400 focus:outline-none focus-visible:ring-2 focus-visible:ring-green-500/50 focus-visible:ring-offset-2 focus-visible:ring-offset-gray-900 rounded"
+              className="text-gray-100 font-medium hover:text-white hover:underline focus:outline-none focus-visible:ring-2 focus-visible:ring-gray-400 focus-visible:ring-offset-2 focus-visible:ring-offset-gray-900 rounded"
             >
               {label}
             </a>

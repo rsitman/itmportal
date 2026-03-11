@@ -26,20 +26,37 @@ export default async function DetailProjektuPage({ params }: DetailProjektuPageP
   const resolvedParams = await params
   const dokladProjektu = resolvedParams.id
 
+  let nazevProjektu: string | null = null
+  try {
+    const baseUrl = process.env.NEXTAUTH_URL || 'http://localhost:3000'
+    const res = await fetch(`${baseUrl}/api/service-projects`, { cache: 'no-store' })
+    if (res.ok) {
+      const projects = await res.json()
+      const project = Array.isArray(projects)
+        ? projects.find((p: { doklad_proj?: string }) => p.doklad_proj === dokladProjektu)
+        : null
+      if (project?.nazev) nazevProjektu = project.nazev
+    }
+  } catch {
+    // fallback: zůstane jen doklad
+  }
+
+  const hlavniNazev = nazevProjektu ?? dokladProjektu
+
   return (
     <div className="w-full py-10 bg-transparent">
       <div className="px-6 space-y-6">
         <div className="flex items-start justify-between gap-6">
           <div>
-            <h1 className="text-3xl font-bold tracking-tight text-white mb-2">Detail projektu</h1>
-            <div className="text-gray-300 text-sm">
-              <span className="text-gray-400">Doklad</span>{' '}
-              <span className="font-mono text-white font-semibold">{dokladProjektu}</span>
+            <h1 className="text-3xl font-bold tracking-tight text-white mb-1">{hlavniNazev}</h1>
+            <div className="text-sm text-gray-400">
+              <span className="text-gray-500">Doklad</span>{' '}
+              <span className="font-mono text-gray-300">{dokladProjektu}</span>
             </div>
           </div>
           <Link
             href="/evidence-projektu"
-            className="px-4 py-2 bg-gray-700 text-gray-100 rounded hover:bg-gray-600 transition-colors"
+            className="px-4 py-2 rounded border border-gray-600 bg-gray-800/80 text-gray-300 hover:bg-gray-700 hover:text-gray-200 hover:border-gray-500 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-gray-500 focus-visible:ring-offset-2 focus-visible:ring-offset-gray-900"
           >
             ← Zpět na přehled
           </Link>
