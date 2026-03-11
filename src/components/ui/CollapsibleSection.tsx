@@ -1,7 +1,6 @@
 'use client'
 
-import { ReactNode, useState } from 'react'
-import { useRouter } from 'next/navigation'
+import { ReactNode, useState, useEffect } from 'react'
 import { ChevronDown, ChevronRight } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
@@ -16,6 +15,7 @@ interface CollapsibleSectionProps {
   hasVisibleChildren?: boolean
 }
 
+/** Parent groups are toggle-only (no href). Click = expand/collapse. Active route opens section. */
 export default function CollapsibleSection({
   title,
   icon: Icon,
@@ -27,60 +27,39 @@ export default function CollapsibleSection({
   hasVisibleChildren = true
 }: CollapsibleSectionProps) {
   const [isOpen, setIsOpen] = useState(defaultOpen)
-  const router = useRouter()
+
+  useEffect(() => {
+    if (defaultOpen) setIsOpen(true)
+  }, [defaultOpen])
 
   const handleClick = () => {
-    if (href) {
-      router.push(href)
-    } else {
-      setIsOpen(!isOpen)
-    }
-  }
-
-  const handleToggle = (e: React.MouseEvent) => {
-    e.stopPropagation()
-    setIsOpen(!isOpen)
+    setIsOpen(prev => !prev)
   }
 
   return (
     <div className={cn('space-y-1', className)}>
       <button
+        type="button"
         onClick={handleClick}
         className={cn(
           'flex items-center w-full rounded-lg px-3 py-2 text-sm font-medium transition-all duration-200',
-          isActive && !href
+          isActive
             ? 'bg-gray-800/80 text-gray-100 shadow-sm'
-            : isActive && href
-            ? 'bg-green-600/20 text-green-100 shadow-sm border-l-2 border-green-500'
             : 'text-gray-400 hover:bg-gray-800/80 hover:text-gray-200'
         )}
       >
         <Icon className={cn(
           'mr-3 h-4 w-4 transition-colors duration-200',
-          isActive && !href
-            ? 'text-gray-100'
-            : isActive && href
-            ? 'text-green-400'
-            : 'text-gray-400'
+          isActive ? 'text-gray-100' : 'text-gray-400'
         )} />
         <span className="flex-1 text-left font-semibold">{title}</span>
-        {href && hasVisibleChildren && (
-          <span
-            onClick={handleToggle}
-            className="p-1 hover:bg-gray-700 rounded cursor-pointer"
-          >
-            {isOpen ? (
-              <ChevronDown className="h-4 w-4 text-gray-400" />
-            ) : (
-              <ChevronRight className="h-4 w-4 text-gray-400" />
-            )}
-          </span>
+        {hasVisibleChildren && (
+          isOpen ? (
+            <ChevronDown className="h-4 w-4 text-gray-400 shrink-0" />
+          ) : (
+            <ChevronRight className="h-4 w-4 text-gray-400 shrink-0" />
+          )
         )}
-        {!href && hasVisibleChildren && (isOpen ? (
-          <ChevronDown className="h-4 w-4 text-gray-400" />
-        ) : (
-          <ChevronRight className="h-4 w-4 text-gray-400" />
-        ))}
       </button>
       
       {isOpen && (

@@ -6,14 +6,17 @@ import { cn } from '@/lib/utils'
 import React from 'react'
 import {
   LayoutDashboard,
-  FolderTree,
-  Calendar,
+  Briefcase,
+  Activity,
+  Users,
+  UserCircle,
   Settings,
+  FolderTree,
   FolderOpen,
   Rocket,
   Database,
   Map,
-  Users,
+  Calendar,
   Shield
 } from 'lucide-react'
 import PermissionGuard from './ui/PermissionGuard'
@@ -38,65 +41,41 @@ const navigation: NavigationItem[] = [
     icon: LayoutDashboard
   },
   {
-    name: 'Evidence projektů',
-    href: '/evidence-projektu',
-    icon: FolderTree,
+    name: 'Projekty',
+    icon: Briefcase,
     isCollapsible: true,
     children: [
-      {
-        name: 'Přehled patchování',
-        href: '/plan_patchovani',
-        icon: FolderOpen,
-        requiredPermissions: [Permission.PROJECTS_VIEW]
-      },
-      {
-        name: 'Upgrady',
-        href: '/upgrades',
-        icon: Rocket,
-        requiredPermissions: [Permission.PROJECTS_VIEW]
-      },
-      {
-        name: 'Aktuální stav databází',
-        href: '/databases',
-        icon: Database,
-        requiredPermissions: [Permission.PROJECTS_VIEW]
-      },
-      {
-        name: 'Mapa projektů',
-        href: '/dashboard/mapa',
-        icon: Map,
-        requiredPermissions: [Permission.MAP_VIEW]
-      }
+      { name: 'Evidence projektů', href: '/evidence-projektu', icon: FolderTree, requiredPermissions: [Permission.PROJECTS_VIEW] },
+      { name: 'Přehled patchování', href: '/plan_patchovani', icon: FolderOpen, requiredPermissions: [Permission.PROJECTS_VIEW] },
+      { name: 'Upgrady', href: '/upgrades', icon: Rocket, requiredPermissions: [Permission.PROJECTS_VIEW] }
     ]
   },
   {
-    name: 'Osoby ITMAN',
-    href: '/osoby-itman',
-    icon: Users
+    name: 'Provoz & Stav',
+    icon: Activity,
+    isCollapsible: true,
+    children: [
+      { name: 'Aktuální stav databází', href: '/databases', icon: Database, requiredPermissions: [Permission.PROJECTS_VIEW] },
+      { name: 'Mapa projektů', href: '/dashboard/mapa', icon: Map, requiredPermissions: [Permission.MAP_VIEW] }
+    ]
   },
   {
-    name: 'Kalendář',
-    href: '/calendar',
-    icon: Calendar
+    name: 'Lidé & Organizace',
+    icon: Users,
+    isCollapsible: true,
+    children: [
+      { name: 'Osoby ITMAN', href: '/osoby-itman', icon: UserCircle },
+      { name: 'Kalendář', href: '/calendar', icon: Calendar }
+    ]
   },
   {
-    name: 'Nastavení',
-    href: '/settings',
+    name: 'Správa & Nastavení',
     icon: Settings,
     isCollapsible: true,
     children: [
-      {
-        name: 'Správa rolí',
-        href: '/settings/roles',
-        icon: Shield,
-        requiredRoles: [Role.ADMIN]
-      },
-      {
-        name: 'Uživatelé',
-        href: '/users',
-        icon: Users,
-        requiredRoles: [Role.ADMIN]
-      }
+      { name: 'Nastavení', href: '/settings', icon: Settings },
+      { name: 'Správa rolí', href: '/settings/roles', icon: Shield, requiredRoles: [Role.ADMIN] },
+      { name: 'Uživatelé', href: '/users', icon: Users, requiredRoles: [Role.ADMIN] }
     ]
   }
 ]
@@ -122,7 +101,9 @@ export default function Sidebar() {
 
   const renderNavigationItem = (item: NavigationItem) => {
     const isActive = item.href ? pathname === item.href : false
-    const hasActiveChild = item.children?.some(child => child.href === pathname)
+    const hasActiveChild = item.children?.some(
+      child => child.href && (pathname === child.href || pathname.startsWith(child.href + '/'))
+    )
     const isSectionActive = isActive || hasActiveChild
     const visibleChildren = getVisibleChildren(item.children)
     const hasVisibleChildren = visibleChildren.length > 0
@@ -144,7 +125,9 @@ export default function Sidebar() {
             hasVisibleChildren={hasVisibleChildren}
           >
             {visibleChildren.map((child) => {
-              const isChildActive = child.href === pathname
+              const isChildActive = Boolean(
+                child.href && (pathname === child.href || pathname.startsWith(child.href + '/'))
+              )
               return (
                 <PermissionGuard
                   key={child.name}
@@ -199,7 +182,7 @@ export default function Sidebar() {
   }
 
   return (
-    <div className="flex h-full w-72 flex-col bg-gray-900/80 backdrop-blur-md">
+    <div className="flex h-full w-72 flex-col shell-overlay">
       <div className="flex h-20 items-center justify-center px-8">
         <div className="flex flex-col justify-center py-4">
           <div className="flex items-center justify-center py-4">
@@ -212,7 +195,7 @@ export default function Sidebar() {
         </div>
       </div>
       
-      <nav className="flex-1 space-y-1 px-4 py-6 overflow-y-auto">
+      <nav className="flex-1 space-y-2 px-4 py-6 overflow-y-auto">
         {navigation.map(renderNavigationItem)}
       </nav>
     </div>
