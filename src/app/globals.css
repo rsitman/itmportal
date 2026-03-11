@@ -132,6 +132,24 @@
     transform: translateY(-1px);
     border-color: rgba(59, 130, 246, 0.3);
   }
+
+  /* Dashboard search results dropdown – dark card, portal-consistent */
+  .dashboard-search-results {
+    max-height: 24rem; /* max-h-96 */
+    overflow-y: auto;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(75, 85, 99, 0.8) transparent;
+  }
+  .dashboard-search-results::-webkit-scrollbar {
+    width: 6px;
+  }
+  .dashboard-search-results::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  .dashboard-search-results::-webkit-scrollbar-thumb {
+    background: rgba(75, 85, 99, 0.8);
+    border-radius: 3px;
+  }
   
   /* Sidebar navigation styles (dark theme) */
   .nav-item {
