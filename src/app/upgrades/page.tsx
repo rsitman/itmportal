@@ -1,10 +1,10 @@
 import { Metadata } from 'next'
-import { headers } from 'next/headers'
 import { getServerSession } from 'next-auth'
 import { redirect } from 'next/navigation'
 import { authOptions } from '@/lib/auth'
 import { Upgrade } from '@/types/upgrade'
 import PrehledUpgradu from '@/components/upgrades/PrehledUpgradu'
+import { fetchUpgradesFromErp } from '@/lib/upgrades-server'
 
 export const metadata: Metadata = {
   title: 'Upgrady',
@@ -35,14 +35,6 @@ function mapToUpgradeArray(input: unknown): Upgrade[] {
     .filter((u) => u.projekt && u.nazev)
 }
 
-async function getBaseUrlFromHeaders(): Promise<string> {
-  const h = await headers()
-  const host = h.get('x-forwarded-host') ?? h.get('host')
-  const proto = h.get('x-forwarded-proto') ?? 'http'
-  if (!host) return 'http://localhost:3000'
-  return `${proto}://${host}`
-}
-
 export default async function UpgradesPage({
   searchParams,
 }: {
@@ -57,25 +49,11 @@ export default async function UpgradesPage({
   let upgrades: Upgrade[] = []
   let errorMessage: string | null = null
 
-  try {
-    const baseUrl = await getBaseUrlFromHeaders()
-    const response = await fetch(new URL('/api/upgrades-proxy', baseUrl), {
-      method: 'GET',
-      cache: 'no-store',
-      headers: {
-        Accept: 'application/json',
-      },
-    })
-
-    if (!response.ok) {
-      throw new Error(`Failed to fetch upgrades: ${response.status} ${response.statusText}`)
-    }
-
-    const json = (await response.json()) as unknown
-    upgrades = mapToUpgradeArray(json)
-  } catch (error) {
-    const message = error instanceof Error ? error.message : 'Unknown error'
-    errorMessage = message
+  const result = await fetchUpgradesFromErp()
+  if (result.ok) {
+    upgrades = mapToUpgradeArray(result.data)
+  } else {
+    errorMessage = result.error
   }
 
   return (
