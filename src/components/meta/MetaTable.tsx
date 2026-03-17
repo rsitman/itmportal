@@ -177,10 +177,11 @@ function renderCellContent(field: MetaField, row: any, opts: { returnTo: string;
         <div className="text-sm font-medium text-white">
           <Link
             href={`/plan_patchovani/${row.companyId}?returnTo=${encodeURIComponent(opts.returnTo)}`}
-            className="hover:text-green-300 hover:underline cursor-pointer"
-            style={{ color: '#34d399' }}
+            className="group inline-flex rounded focus:outline-none focus-visible:ring-2 focus-visible:ring-gray-400 focus-visible:ring-offset-2 focus-visible:ring-offset-gray-900"
           >
-            {row.projectName || '—'}
+            <span className="text-sm font-medium text-gray-300 group-hover:text-gray-100 group-hover:underline transition-colors">
+              {row.projectName || '—'}
+            </span>
           </Link>
         </div>
         <div className="text-sm text-gray-400">
@@ -197,10 +198,11 @@ function renderCellContent(field: MetaField, row: any, opts: { returnTo: string;
         <div className="text-sm font-medium text-white">
           <Link
             href={`/plan_patchovani/${row.companyId}?returnTo=${encodeURIComponent(opts.returnTo)}`}
-            className="hover:text-green-300 hover:underline cursor-pointer"
-            style={{ color: '#34d399' }}
+            className="group inline-flex rounded focus:outline-none focus-visible:ring-2 focus-visible:ring-gray-400 focus-visible:ring-offset-2 focus-visible:ring-offset-gray-900"
           >
-            {row.companyName || '—'}
+            <span className="text-sm font-medium text-gray-300 group-hover:text-gray-100 group-hover:underline transition-colors">
+              {row.companyName || '—'}
+            </span>
           </Link>
         </div>
         <div className="text-sm text-gray-400">

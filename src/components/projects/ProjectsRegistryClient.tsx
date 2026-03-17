@@ -118,16 +118,25 @@ export default function ProjectsRegistryClient() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const searchDebounceRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const searchInputRef = useRef<HTMLInputElement | null>(null)
 
+  const canonicalQ = searchTerm.trim()
+
+  // Return context for internal navigation should reflect the *latest* filter value,
+  // even if the debounced URL update hasn't flushed yet.
   const returnTo = useMemo(() => {
-    const qs = searchParams?.toString() ?? ''
+    const current = new URLSearchParams(searchParams?.toString() ?? '')
+    if (canonicalQ) current.set('q', canonicalQ)
+    else current.delete('q')
+    const qs = current.toString()
     return `${pathname}${qs ? `?${qs}` : ''}`
-  }, [pathname, searchParams])
+  }, [canonicalQ, pathname, searchParams])
 
   // URL (`q`) is canonical for the main text filter.
   useEffect(() => {
     const q = (searchParams?.get('q') ?? '').toString()
-    if (q !== searchTerm) {
+    const isFocused = typeof document !== 'undefined' && document.activeElement === searchInputRef.current
+    if (!isFocused && q !== searchTerm) {
       setSearchTerm(q)
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -142,9 +151,11 @@ export default function ProjectsRegistryClient() {
     }
 
     searchDebounceRef.current = window.setTimeout(() => {
+      const currentQ = (searchParams?.get('q') ?? '').toString()
+      if (currentQ === canonicalQ) return
+
       const current = new URLSearchParams(searchParams?.toString() ?? '')
-      const next = searchTerm.trim()
-      if (next) current.set('q', next)
+      if (canonicalQ) current.set('q', canonicalQ)
       else current.delete('q')
 
       const qs = current.toString()
@@ -263,6 +274,7 @@ export default function ProjectsRegistryClient() {
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             placeholder="Hledat projekt, firmu nebo doklad…"
+            ref={searchInputRef}
             className="w-full sm:w-[420px] pl-4 pr-4 py-2.5 rounded-lg bg-gray-800/80 border border-gray-600/60 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-green-500/50 focus:border-green-500/50"
           />
           {searchTerm.trim() ? (

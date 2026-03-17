@@ -69,7 +69,7 @@ export default function PrehledPatchModulu({
               className="group inline-flex items-center rounded focus:outline-none focus-visible:ring-2 focus-visible:ring-gray-400 focus-visible:ring-offset-2 focus-visible:ring-offset-gray-900"
             >
               <span className="text-gray-500 group-hover:text-gray-300 transition-colors">
-                Přehled patchování
+                Patchování
               </span>
             </Link>
             <span className="text-gray-700">/</span>
@@ -180,7 +180,7 @@ function HlavickaPatchModulu({
             className="group inline-flex items-center rounded focus:outline-none focus-visible:ring-2 focus-visible:ring-gray-400 focus-visible:ring-offset-2 focus-visible:ring-offset-gray-900"
           >
             <span className="text-gray-500 group-hover:text-gray-300 transition-colors">
-              Přehled patchování
+              Patchování
             </span>
           </Link>
           <span className="text-gray-700">/</span>
