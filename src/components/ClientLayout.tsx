@@ -79,52 +79,46 @@ export default function ClientLayout({ children }: { children: React.ReactNode }
     <AuthErrorBoundary>
       <NextAuthProvider>
         <div className="flex h-screen app-shell-bg">
-          {/* Desktop sidebar (permanent) */}
-          <div className="hidden lg:flex">
-            <Sidebar />
-          </div>
-
-          {/* Mobile sidebar (off-canvas drawer) */}
+          {/* Mobile overlay (only <lg) */}
           <div
             className={[
-              'lg:hidden fixed inset-0 z-50',
-              sidebarOpen ? 'pointer-events-auto' : 'pointer-events-none',
+              'fixed inset-0 z-40 bg-black/55 transition-opacity lg:hidden',
+              sidebarOpen ? 'opacity-100' : 'opacity-0 pointer-events-none',
             ].join(' ')}
             aria-hidden={!sidebarOpen}
           >
             <button
               type="button"
-              className={[
-                'absolute inset-0 bg-black/55 transition-opacity',
-                sidebarOpen ? 'opacity-100' : 'opacity-0',
-              ].join(' ')}
+              className="absolute inset-0"
               onClick={closeSidebar}
               aria-label="Zavřít navigaci"
               tabIndex={sidebarOpen ? 0 : -1}
             />
-            <div
-              id={sidebarControlsId}
-              role={sidebarOpen ? 'dialog' : undefined}
-              aria-modal={sidebarOpen ? 'true' : undefined}
-              aria-label="Navigace"
-              className={[
-                'absolute inset-y-0 left-0 w-72 max-w-[88vw] shadow-strong transition-transform duration-200',
-                sidebarOpen ? 'translate-x-0' : '-translate-x-full',
-              ].join(' ')}
-            >
-              <div className="relative h-full">
-                <button
-                  ref={closeButtonRef}
-                  type="button"
-                  onClick={closeSidebar}
-                  className="absolute right-3 top-3 z-10 inline-flex items-center justify-center rounded-lg border border-gray-600/50 bg-gray-800/70 hover:bg-gray-700/80 text-gray-200 shadow-sm transition-colors h-10 w-10 focus:outline-none focus-visible:ring-2 focus-visible:ring-green-500/50 focus-visible:ring-offset-2 focus-visible:ring-offset-gray-900"
-                  aria-label="Zavřít navigaci"
-                  tabIndex={sidebarOpen ? 0 : -1}
-                >
-                  <span aria-hidden>×</span>
-                </button>
-                <Sidebar onNavigate={closeSidebar} />
-              </div>
+          </div>
+
+          {/* Single sidebar DOM: desktop static, mobile off-canvas */}
+          <div
+            id={sidebarControlsId}
+            role="dialog"
+            aria-modal="true"
+            aria-label="Navigace"
+            className={[
+              'fixed inset-y-0 left-0 z-50 w-72 max-w-[88vw] shadow-strong transition-transform duration-200 lg:static lg:inset-auto lg:z-auto lg:max-w-none lg:shadow-none lg:translate-x-0',
+              sidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0',
+            ].join(' ')}
+          >
+            <div className="relative h-full">
+              <button
+                ref={closeButtonRef}
+                type="button"
+                onClick={closeSidebar}
+                className="lg:hidden absolute right-3 top-3 z-10 inline-flex items-center justify-center rounded-lg border border-gray-600/50 bg-gray-800/70 hover:bg-gray-700/80 text-gray-200 shadow-sm transition-colors h-10 w-10 focus:outline-none focus-visible:ring-2 focus-visible:ring-green-500/50 focus-visible:ring-offset-2 focus-visible:ring-offset-gray-900"
+                aria-label="Zavřít navigaci"
+                tabIndex={sidebarOpen ? 0 : -1}
+              >
+                <span aria-hidden>×</span>
+              </button>
+              <Sidebar onNavigate={closeSidebar} />
             </div>
           </div>
 
