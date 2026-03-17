@@ -51,8 +51,8 @@ function AkceProjektu({ project, returnTo }: { project: ServiceProject; returnTo
   const mapUrl = hasGps ? `https://www.google.com/maps?q=${encodeURIComponent(project.gps)}` : null
 
   return (
-    <div className="flex flex-col gap-1.5 items-end">
-      <div className="flex flex-wrap gap-1.5 justify-end">
+    <div className="flex flex-col gap-2 items-end">
+      <div className="flex gap-2 justify-end overflow-x-auto flex-nowrap w-full md:w-auto md:flex-wrap md:overflow-visible">
         <Link href={teamUrl} className={`${chipBase} chip-action chip-action-top`}>
           <span className="chip-action-label chip-action-label-top text-gray-300">Tým</span>
         </Link>
@@ -86,7 +86,7 @@ function AkceProjektu({ project, returnTo }: { project: ServiceProject; returnTo
           <span className={chipDisabled}>Mapa</span>
         )}
       </div>
-      <div className="flex flex-wrap gap-x-2.5 gap-y-1 justify-end text-xs">
+      <div className="flex gap-x-2.5 gap-y-1 justify-end text-xs overflow-x-auto flex-nowrap w-full md:w-auto md:flex-wrap md:overflow-visible">
         <Link href={patchUrl} className={`${chipSecondary} chip-action chip-action-bottom`}>
           <span className="chip-action-label chip-action-label-bottom text-gray-400">
             Patchování
@@ -116,6 +116,7 @@ export default function ProjectsRegistryClient() {
   const [serviceProjects, setServiceProjects] = useState<ServiceProject[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const [isMobileFiltersOpen, setIsMobileFiltersOpen] = useState(false)
 
   const initialProjektFromUrl = useMemo(
     () => (searchParams?.get('projekt') ?? '').toString().trim(),
@@ -224,6 +225,10 @@ export default function ProjectsRegistryClient() {
     applyUrlState({ projekt: '', q: '' })
   }, [applyUrlState])
 
+  const onClearSearch = useCallback(() => {
+    setSearchTerm('')
+  }, [])
+
   // URL (`projekt`) is canonical for the pinned project context.
   useEffect(() => {
     const p = (searchParams?.get('projekt') ?? '').toString()
@@ -330,6 +335,15 @@ export default function ProjectsRegistryClient() {
     fetchData()
   }, [fetchData])
 
+  useEffect(() => {
+    if (!isMobileFiltersOpen) return
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') setIsMobileFiltersOpen(false)
+    }
+    window.addEventListener('keydown', onKeyDown)
+    return () => window.removeEventListener('keydown', onKeyDown)
+  }, [isMobileFiltersOpen])
+
   const toggleSort = (key: SortKey) => {
     if (sortKey !== key) {
       setSortKey(key)
@@ -384,11 +398,20 @@ export default function ProjectsRegistryClient() {
       <h2 className="text-lg font-semibold text-white mb-4">Přehled projektů</h2>
 
       {canonicalProjekt ? (
-        <div className="mb-4 rounded-lg border border-blue-700/40 bg-blue-900/15 px-4 py-3">
+        <div className="mb-3 sm:mb-4 rounded-lg border border-blue-700/40 bg-blue-900/15 px-3 py-2.5 sm:px-4 sm:py-3">
           <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-            <div className="text-sm text-blue-100/90">
-              Projekt:{' '}
-              <span className="text-blue-200/90">{selectedProjektLabel ?? canonicalProjekt}</span>
+            <div className="min-w-0">
+              <div className="flex items-center gap-2 text-[11px] text-blue-200/80">
+                <span className="inline-flex items-center rounded-md border border-blue-600/35 bg-blue-950/25 px-2 py-0.5">
+                  Připnutý projekt
+                </span>
+                <span className="text-blue-200/60">·</span>
+                <span className="text-blue-200/70">projekt-mode</span>
+              </div>
+              <div className="mt-1 text-sm text-blue-100/90 truncate">
+                Projekt:{' '}
+                <span className="text-blue-200/90">{selectedProjektLabel ?? canonicalProjekt}</span>
+              </div>
             </div>
             <button
               type="button"
@@ -406,72 +429,233 @@ export default function ProjectsRegistryClient() {
           Zobrazeno <span className="font-medium text-white">{filteredProjects.length}</span> z{' '}
           <span className="font-medium text-white">{serviceProjects.length}</span> projektů
         </p>
-        <div className="flex flex-col sm:flex-row gap-3 sm:items-end">
-          <div className="w-full sm:w-[420px]">
-            <label htmlFor="evidence-projektu-search" className="block text-xs font-medium text-gray-400 mb-0.5">
-              Hledat v evidenci
-            </label>
-            <input
-              id="evidence-projektu-search"
-              type="text"
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              placeholder={isProjektMode ? 'Zrušte projekt pro hledání v seznamu…' : 'Název, firma, doklad, JIRA…'}
-              ref={searchInputRef}
-              disabled={isProjektMode}
-              aria-disabled={isProjektMode}
-              aria-describedby={isProjektMode ? 'evidence-projektu-search-hint' : undefined}
-              className={[
-                'w-full pl-4 pr-4 py-2.5 rounded-lg bg-gray-800/80 border text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-green-500/50 focus:border-green-500/50',
-                isProjektMode ? 'border-gray-700/50 text-gray-400 opacity-80 cursor-not-allowed' : 'border-gray-600/60',
-              ].join(' ')}
-            />
-            {isProjektMode ? (
-              <div id="evidence-projektu-search-hint" className="mt-1 text-[11px] text-gray-500">
-                Hledání je dostupné v režimu „Všechny projekty“.
+        <div className="flex flex-col gap-3">
+          {/* Mobile toolbar: search stays primary, secondary filters in sheet */}
+          <div className="flex flex-col gap-2 lg:hidden">
+            <div className="flex items-end gap-2">
+              <div className="flex-1 min-w-0">
+                <label htmlFor="evidence-projektu-search" className="block text-xs font-medium text-gray-400 mb-0.5">
+                  {isProjektMode ? 'Hledání (uzamčeno)' : 'Hledat v evidenci'}
+                </label>
+                <input
+                  id="evidence-projektu-search"
+                  type="text"
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  placeholder={isProjektMode ? 'Zrušte projekt pro hledání…' : 'Název, firma, doklad, JIRA…'}
+                  ref={searchInputRef}
+                  disabled={isProjektMode}
+                  aria-disabled={isProjektMode}
+                  className={[
+                    'w-full pl-4 pr-4 py-2.5 rounded-lg bg-gray-800/80 border text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-green-500/50 focus:border-green-500/50',
+                    isProjektMode ? 'border-gray-700/50 text-gray-400 opacity-80 cursor-not-allowed' : 'border-gray-600/60',
+                  ].join(' ')}
+                />
               </div>
-            ) : null}
+              <button
+                type="button"
+                onClick={() => setIsMobileFiltersOpen(true)}
+                className="shrink-0 px-3 py-2.5 rounded-lg bg-gray-700/80 border border-gray-600/60 text-gray-100 hover:bg-gray-600/80 focus:outline-none focus:ring-2 focus:ring-green-500/50 focus:border-green-500/50 transition-colors"
+                aria-haspopup="dialog"
+                aria-expanded={isMobileFiltersOpen}
+              >
+                Filtry
+              </button>
+            </div>
+            <div className="flex items-center justify-between gap-3 text-[11px]">
+              <div className="flex items-center gap-2 min-w-0">
+                <span
+                  className={[
+                    'inline-flex items-center rounded-md border px-2 py-0.5',
+                    isProjektMode
+                      ? 'border-blue-600/35 bg-blue-950/20 text-blue-200/80'
+                      : 'border-gray-600/50 bg-gray-900/20 text-gray-300/80',
+                  ].join(' ')}
+                >
+                  {isProjektMode ? 'projekt-mode' : 'q-mode'}
+                </span>
+                {!isProjektMode && canonicalQ ? (
+                  <span className="text-gray-500 truncate">Filtr: {canonicalQ}</span>
+                ) : isProjektMode ? (
+                  <span className="text-gray-500 truncate">Hledání dostupné po zrušení projektu</span>
+                ) : (
+                  <span className="text-gray-500 truncate">Bez filtru</span>
+                )}
+              </div>
+              {!isProjektMode && canonicalQ ? (
+                <button
+                  type="button"
+                  onClick={onClearSearch}
+                  className="shrink-0 text-gray-300 hover:text-white underline-offset-2 hover:underline focus:outline-none focus-visible:ring-2 focus-visible:ring-green-500/50 rounded"
+                >
+                  Vymazat
+                </button>
+              ) : isProjektMode ? (
+                <button
+                  type="button"
+                  onClick={onClearProjekt}
+                  className="shrink-0 text-blue-200/90 hover:text-blue-100 underline-offset-2 hover:underline focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500/45 rounded"
+                >
+                  Zpět na všechny
+                </button>
+              ) : null}
+            </div>
           </div>
 
-          {!isProjektMode && searchTerm.trim() ? (
+          {/* Desktop toolbar: keep existing layout */}
+          <div className="hidden lg:flex flex-col sm:flex-row gap-3 sm:items-end">
+            <div className="w-full sm:w-[420px]">
+              <label htmlFor="evidence-projektu-search-desktop" className="block text-xs font-medium text-gray-400 mb-0.5">
+                Hledat v evidenci
+              </label>
+              <input
+                id="evidence-projektu-search-desktop"
+                type="text"
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                placeholder={isProjektMode ? 'Zrušte projekt pro hledání v seznamu…' : 'Název, firma, doklad, JIRA…'}
+                ref={searchInputRef}
+                disabled={isProjektMode}
+                aria-disabled={isProjektMode}
+                aria-describedby={isProjektMode ? 'evidence-projektu-search-hint-desktop' : undefined}
+                className={[
+                  'w-full pl-4 pr-4 py-2.5 rounded-lg bg-gray-800/80 border text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-green-500/50 focus:border-green-500/50',
+                  isProjektMode ? 'border-gray-700/50 text-gray-400 opacity-80 cursor-not-allowed' : 'border-gray-600/60',
+                ].join(' ')}
+              />
+              {isProjektMode ? (
+                <div id="evidence-projektu-search-hint-desktop" className="mt-1 text-[11px] text-gray-500">
+                  Hledání je dostupné v režimu „Všechny projekty“.
+                </div>
+              ) : null}
+            </div>
+
+            {!isProjektMode && searchTerm.trim() ? (
+              <button
+                type="button"
+                onClick={onClearSearch}
+                className="px-4 py-2.5 rounded-lg bg-gray-700/80 border border-gray-600/60 text-gray-100 hover:bg-gray-600/80 focus:outline-none focus:ring-2 focus:ring-green-500/50 focus:border-green-500/50 transition-colors"
+              >
+                Vymazat
+              </button>
+            ) : null}
+
+            <div className="w-full sm:w-[360px]">
+              <label className="block text-xs font-medium text-gray-400 mb-0.5" htmlFor="evidence-projektu-projekt-desktop">
+                Projekt (exact)
+              </label>
+              <select
+                id="evidence-projektu-projekt-desktop"
+                value={canonicalProjekt}
+                onChange={(e) => onProjektChange(e.target.value)}
+                aria-label="Projektový pin (doklad projektu)"
+                className="w-full pl-3 pr-3 py-2.5 rounded-lg bg-gray-800/80 border border-gray-600/60 text-sm text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-green-500/50 focus-visible:ring-offset-2 focus-visible:ring-offset-gray-900 focus-visible:border-green-500/50"
+              >
+                <option value="">Všechny projekty</option>
+                {projectOptions.map((p) => (
+                  <option key={p.value} value={p.value}>
+                    {p.label}
+                  </option>
+                ))}
+              </select>
+            </div>
+
             <button
               type="button"
-              onClick={() => setSearchTerm('')}
-              className="px-4 py-2.5 rounded-lg bg-gray-700/80 border border-gray-600/60 text-gray-100 hover:bg-gray-600/80 focus:outline-none focus:ring-2 focus:ring-green-500/50 focus:border-green-500/50 transition-colors"
+              onClick={fetchData}
+              className="px-4 py-2.5 rounded-lg bg-green-600 text-white hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500/50 focus:border-green-500/50 transition-colors"
             >
-              Vymazat
+              Obnovit
             </button>
-          ) : null}
-
-          <div className="w-full sm:w-[360px]">
-            <label className="block text-xs font-medium text-gray-400 mb-0.5" htmlFor="evidence-projektu-projekt">
-              Projekt (exact)
-            </label>
-            <select
-              id="evidence-projektu-projekt"
-              value={canonicalProjekt}
-              onChange={(e) => onProjektChange(e.target.value)}
-              aria-label="Projektový pin (doklad projektu)"
-              className="w-full pl-3 pr-3 py-2.5 rounded-lg bg-gray-800/80 border border-gray-600/60 text-sm text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-green-500/50 focus-visible:ring-offset-2 focus-visible:ring-offset-gray-900 focus-visible:border-green-500/50"
-            >
-              <option value="">Všechny projekty</option>
-              {projectOptions.map((p) => (
-                <option key={p.value} value={p.value}>
-                  {p.label}
-                </option>
-              ))}
-            </select>
           </div>
-
-          <button
-            type="button"
-            onClick={fetchData}
-            className="px-4 py-2.5 rounded-lg bg-green-600 text-white hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500/50 focus:border-green-500/50 transition-colors"
-          >
-            Obnovit
-          </button>
         </div>
       </div>
+
+      {/* Mobile filters sheet */}
+      {isMobileFiltersOpen ? (
+        <div
+          role="dialog"
+          aria-modal="true"
+          aria-label="Filtry evidence projektů"
+          className="lg:hidden fixed inset-0 z-50"
+        >
+          <button
+            type="button"
+            className="absolute inset-0 bg-black/55"
+            onClick={() => setIsMobileFiltersOpen(false)}
+            aria-label="Zavřít filtry"
+          />
+          <div className="absolute inset-x-0 bottom-0 rounded-t-xl border border-gray-700/60 bg-gray-900/95 backdrop-blur p-4">
+            <div className="flex items-start justify-between gap-3">
+              <div className="min-w-0">
+                <div className="text-sm font-semibold text-white">Filtry</div>
+                <div className="mt-0.5 text-[11px] text-gray-400">
+                  {isProjektMode ? 'Režim: připnutý projekt (projekt-mode)' : 'Režim: hledání (q-mode)'}
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => setIsMobileFiltersOpen(false)}
+                className="shrink-0 px-3 py-1.5 rounded-lg bg-gray-700/80 border border-gray-600/60 text-gray-100 hover:bg-gray-600/80 focus:outline-none focus:ring-2 focus:ring-green-500/50 transition-colors"
+              >
+                Zavřít
+              </button>
+            </div>
+
+            <div className="mt-4 space-y-3">
+              <div>
+                <label className="block text-xs font-medium text-gray-400 mb-0.5" htmlFor="evidence-projektu-projekt-mobile">
+                  Projekt (exact)
+                </label>
+                <select
+                  id="evidence-projektu-projekt-mobile"
+                  value={canonicalProjekt}
+                  onChange={(e) => onProjektChange(e.target.value)}
+                  aria-label="Projektový pin (doklad projektu)"
+                  className="w-full pl-3 pr-3 py-2.5 rounded-lg bg-gray-800/80 border border-gray-600/60 text-sm text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-green-500/50 focus-visible:ring-offset-2 focus-visible:ring-offset-gray-900 focus-visible:border-green-500/50"
+                >
+                  <option value="">Všechny projekty</option>
+                  {projectOptions.map((p) => (
+                    <option key={p.value} value={p.value}>
+                      {p.label}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div className="flex flex-col gap-2">
+                {!isProjektMode && canonicalQ ? (
+                  <button
+                    type="button"
+                    onClick={onClearSearch}
+                    className="w-full px-4 py-2.5 rounded-lg bg-gray-700/80 border border-gray-600/60 text-gray-100 hover:bg-gray-600/80 focus:outline-none focus:ring-2 focus:ring-green-500/50 transition-colors"
+                  >
+                    Vymazat hledání
+                  </button>
+                ) : null}
+
+                {isProjektMode ? (
+                  <button
+                    type="button"
+                    onClick={onClearProjekt}
+                    className="w-full px-4 py-2.5 rounded-lg border border-blue-700/40 bg-blue-900/10 text-blue-200/90 hover:bg-blue-900/20 focus:outline-none focus:ring-2 focus:ring-blue-500/45 transition-colors"
+                  >
+                    Zrušit projekt (zpět na všechny)
+                  </button>
+                ) : null}
+
+                <button
+                  type="button"
+                  onClick={fetchData}
+                  className="w-full px-4 py-2.5 rounded-lg bg-green-600 text-white hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500/50 focus:border-green-500/50 transition-colors"
+                >
+                  Obnovit data
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      ) : null}
 
       <div className="evidence-projektu-registry mt-2">
         {/* Structured list header: logo column + project + actions */}
@@ -519,7 +703,14 @@ export default function ProjectsRegistryClient() {
                     {project.nazev || '—'}
                   </Link>
                   <span className="text-sm text-gray-400">{project.nazev_par || '—'}</span>
-                  <span className="text-xs text-gray-500 font-mono">{project.doklad_proj || '—'}</span>
+                  <div className="flex items-center gap-2 min-w-0">
+                    <span className="text-xs text-gray-500 font-mono">{project.doklad_proj || '—'}</span>
+                    {canonicalProjekt && project.doklad_proj === canonicalProjekt ? (
+                      <span className="inline-flex items-center rounded-md border border-blue-600/35 bg-blue-950/20 px-2 py-0.5 text-[11px] text-blue-200/80">
+                        Připnuto
+                      </span>
+                    ) : null}
+                  </div>
                 </div>
                 <div className="flex justify-start md:justify-end">
                   <AkceProjektu project={project} returnTo={returnTo} />
@@ -547,11 +738,9 @@ export default function ProjectsRegistryClient() {
       ) : filteredProjects.length === 0 && searchTerm.trim() ? (
         <div className="mt-4 rounded-lg border border-gray-700/60 bg-gray-800/40 p-4 md:p-5">
           <h3 className="text-sm font-semibold text-white mb-1">Žádné výsledky</h3>
-          <p className="text-sm text-gray-400 mb-3">
-            Pro zadaný dotaz nebyly nalezeny žádné projekty.
-          </p>
+          <p className="text-sm text-gray-400 mb-3">Pro zadaný dotaz nebyly nalezeny žádné projekty.</p>
           <button
-            onClick={() => setSearchTerm('')}
+            onClick={onClearSearch}
             className="px-4 py-2 rounded-lg bg-gray-700/80 border border-gray-600/60 text-gray-100 hover:bg-gray-600/80 focus:outline-none focus:ring-2 focus:ring-green-500/50 focus:border-green-500/50 transition-colors"
           >
             Vymazat hledání
