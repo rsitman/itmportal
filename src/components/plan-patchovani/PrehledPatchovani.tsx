@@ -1,7 +1,8 @@
 'use client'
 
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import Link from 'next/link'
+import { usePathname, useRouter, useSearchParams } from 'next/navigation'
 import { KaratProject } from '@/lib/karat'
 import { jiraIssueUrl } from '@/lib/jira'
 
@@ -25,6 +26,48 @@ export default function PrehledPatchovani({
   initialQuery = '',
 }: PrehledPatchovaniProps) {
   const [searchTerm, setSearchTerm] = useState(initialQuery)
+  const router = useRouter()
+  const pathname = usePathname()
+  const searchParams = useSearchParams()
+  const searchDebounceRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+
+  const returnTo = useMemo(() => {
+    const qs = searchParams?.toString() ?? ''
+    return `${pathname}${qs ? `?${qs}` : ''}`
+  }, [pathname, searchParams])
+
+  // URL (`q`) is canonical for the main text filter.
+  useEffect(() => {
+    const q = (searchParams?.get('q') ?? '').toString()
+    if (q !== searchTerm) {
+      setSearchTerm(q)
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [searchParams])
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return
+    if (!router) return
+
+    if (searchDebounceRef.current) {
+      window.clearTimeout(searchDebounceRef.current)
+    }
+
+    searchDebounceRef.current = window.setTimeout(() => {
+      const current = new URLSearchParams(searchParams?.toString() ?? '')
+      const next = searchTerm.trim()
+      if (next) current.set('q', next)
+      else current.delete('q')
+
+      const qs = current.toString()
+      const href = qs ? `${pathname}?${qs}` : pathname
+      router.replace(href)
+    }, 300)
+
+    return () => {
+      if (searchDebounceRef.current) window.clearTimeout(searchDebounceRef.current)
+    }
+  }, [pathname, router, searchParams, searchTerm])
 
   const filteredProjects = useMemo(() => {
     const q = searchTerm.trim().toLowerCase()
@@ -72,6 +115,7 @@ export default function PrehledPatchovani({
           projects={filteredProjects}
           hasAny={projects.length > 0}
           hasFilters={Boolean(searchTerm.trim())}
+          returnTo={returnTo}
         />
       </div>
     </div>
@@ -181,6 +225,7 @@ type PrehledDatProps = {
   projects: KaratProject[]
   hasAny: boolean
   hasFilters: boolean
+  returnTo: string
 }
 
 const linkBase =
@@ -194,6 +239,7 @@ function PrehledDat({
   projects,
   hasAny,
   hasFilters,
+  returnTo,
 }: PrehledDatProps) {
   if (!projects.length) {
     return (
@@ -240,7 +286,7 @@ function PrehledDat({
                 key={`${project.projectId}-${project.companyId}-${index}`}
                 className="transition-colors hover:bg-gray-800/50"
               >
-                <RadekTabulky project={project} />
+                <RadekTabulky project={project} returnTo={returnTo} />
               </tr>
             ))}
           </tbody>
@@ -254,7 +300,7 @@ function PrehledDat({
             key={`${project.projectId}-${project.companyId}-${index}`}
             className="rounded-lg border border-gray-700/70 bg-gray-900/40 px-4 py-3"
           >
-            <RadekKarty project={project} />
+            <RadekKarty project={project} returnTo={returnTo} />
           </div>
         ))}
       </div>
@@ -263,9 +309,9 @@ function PrehledDat({
 }
 
 // --- Table row (desktop) ---
-function RadekTabulky({ project }: { project: KaratProject }) {
-  const detailHref = `/plan_patchovani/${project.companyId}`
-  const patchModulesHref = `/patch-modules?projekt=${encodeURIComponent(project.projectId)}&firma=${encodeURIComponent(project.companyId)}`
+function RadekTabulky({ project, returnTo }: { project: KaratProject; returnTo: string }) {
+  const detailHref = `/plan_patchovani/${project.companyId}?returnTo=${encodeURIComponent(returnTo)}`
+  const patchModulesHref = `/patch-modules?projekt=${encodeURIComponent(project.projectId)}&firma=${encodeURIComponent(project.companyId)}&returnTo=${encodeURIComponent(returnTo)}`
   const jiraHref = project.jiraKey
     ? jiraIssueUrl(project.jiraKey)
     : null
@@ -359,9 +405,9 @@ function RadekTabulky({ project }: { project: KaratProject }) {
 }
 
 // --- Mobile card row ---
-function RadekKarty({ project }: { project: KaratProject }) {
-  const detailHref = `/plan_patchovani/${project.companyId}`
-  const patchModulesHref = `/patch-modules?projekt=${encodeURIComponent(project.projectId)}&firma=${encodeURIComponent(project.companyId)}`
+function RadekKarty({ project, returnTo }: { project: KaratProject; returnTo: string }) {
+  const detailHref = `/plan_patchovani/${project.companyId}?returnTo=${encodeURIComponent(returnTo)}`
+  const patchModulesHref = `/patch-modules?projekt=${encodeURIComponent(project.projectId)}&firma=${encodeURIComponent(project.companyId)}&returnTo=${encodeURIComponent(returnTo)}`
   const jiraHref = project.jiraKey
     ? jiraIssueUrl(project.jiraKey)
     : null

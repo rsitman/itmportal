@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useMemo, useState } from 'react'
-import { useRouter } from 'next/navigation'
+import { usePathname, useRouter, useSearchParams } from 'next/navigation'
 import type { Database } from '@/types/database'
 import { DatabaseService } from '@/lib/database-service'
 import DataChart, { type ChartSeries, type ChartType } from '@/components/charts/DataChart'
@@ -803,6 +803,8 @@ export default function AktualniStavDbClient({
   serverError,
 }: Props) {
   const router = useRouter()
+  const pathname = usePathname()
+  const searchParams = useSearchParams()
   const [searchTerm, setSearchTerm] = useState('')
   const [selectedCompany, setSelectedCompany] = useState('')
   const [selectedProject, setSelectedProject] = useState(initialProjekt)
@@ -879,7 +881,10 @@ export default function AktualniStavDbClient({
 
   const onClearProject = () => {
     setSelectedProject('')
-    router.replace('/databases')
+    const current = new URLSearchParams(searchParams?.toString() ?? '')
+    current.delete('projekt')
+    const qs = current.toString()
+    router.replace(qs ? `${pathname}?${qs}` : pathname)
   }
 
   const onRefresh = () => {

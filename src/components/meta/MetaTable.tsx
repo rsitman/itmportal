@@ -1,5 +1,7 @@
 'use client'
 
+import Link from 'next/link'
+import { usePathname, useRouter, useSearchParams } from 'next/navigation'
 import { memo, useMemo } from 'react'
 import { MetaResource, MetaField } from '@/types/meta'
 import { jiraIssueUrl } from '@/lib/jira'
@@ -7,6 +9,11 @@ import { jiraIssueUrl } from '@/lib/jira'
 interface MetaTableProps {
   meta: MetaResource
   rows: any[]
+}
+
+function makeReturnTo(pathname: string, searchParams: ReadonlyURLSearchParams | null): string {
+  const qs = searchParams?.toString() ?? ''
+  return `${pathname}${qs ? `?${qs}` : ''}`
 }
 
 function formatDate(dateInput: any): string {
@@ -48,7 +55,12 @@ function StatusBadge({ enabled, label }: { enabled: boolean; label: string }) {
   )
 }
 
-function renderCellValue(field: MetaField, value: any, row: any): React.ReactNode {
+function renderCellValue(
+  field: MetaField,
+  value: any,
+  row: any,
+  opts: { returnTo: string; onNavigate: (href: string) => void },
+): React.ReactNode {
   if (value === null || value === undefined || value === '') {
     return '—'
   }
@@ -98,8 +110,8 @@ function renderCellValue(field: MetaField, value: any, row: any): React.ReactNod
       return (
         <button
           onClick={() => {
-            const url = `/patch-modules?projekt=${encodeURIComponent(row.projectId)}&firma=${encodeURIComponent(row.companyId)}`
-            window.location.href = url
+            const url = `/patch-modules?projekt=${encodeURIComponent(row.projectId)}&firma=${encodeURIComponent(row.companyId)}&returnTo=${encodeURIComponent(opts.returnTo)}`
+            opts.onNavigate(url)
           }}
           className="px-3 py-1 text-sm bg-green-600 text-white rounded hover:bg-green-700 transition-colors"
         >
@@ -152,10 +164,10 @@ function renderCellValue(field: MetaField, value: any, row: any): React.ReactNod
   }
 }
 
-function renderCellContent(field: MetaField, row: any): React.ReactNode {
+function renderCellContent(field: MetaField, row: any, opts: { returnTo: string; onNavigate: (href: string) => void }): React.ReactNode {
   // Handle actions field - always render regardless of data
   if (field.id === 'actions') {
-    return renderCellValue(field, 'actions', row)
+    return renderCellValue(field, 'actions', row, opts)
   }
   
   // Handle compound fields like projectName + projectId
@@ -163,17 +175,13 @@ function renderCellContent(field: MetaField, row: any): React.ReactNode {
     return (
       <div>
         <div className="text-sm font-medium text-white">
-          <a 
-            href={`/plan_patchovani/${row.companyId}`}
+          <Link
+            href={`/plan_patchovani/${row.companyId}?returnTo=${encodeURIComponent(opts.returnTo)}`}
             className="hover:text-green-300 hover:underline cursor-pointer"
             style={{ color: '#34d399' }}
-            onClick={(e) => {
-              e.preventDefault()
-              window.location.href = `/plan_patchovani/${row.companyId}`
-            }}
           >
             {row.projectName || '—'}
-          </a>
+          </Link>
         </div>
         <div className="text-sm text-gray-400">
           {row.projectId || '—'}
@@ -187,17 +195,13 @@ function renderCellContent(field: MetaField, row: any): React.ReactNode {
     return (
       <div>
         <div className="text-sm font-medium text-white">
-          <a 
-            href={`/plan_patchovani/${row.companyId}`}
+          <Link
+            href={`/plan_patchovani/${row.companyId}?returnTo=${encodeURIComponent(opts.returnTo)}`}
             className="hover:text-green-300 hover:underline cursor-pointer"
             style={{ color: '#34d399' }}
-            onClick={(e) => {
-              e.preventDefault()
-              window.location.href = `/plan_patchovani/${row.companyId}`
-            }}
           >
             {row.companyName || '—'}
-          </a>
+          </Link>
         </div>
         <div className="text-sm text-gray-400">
           {row.companyId || '—'}
@@ -206,10 +210,19 @@ function renderCellContent(field: MetaField, row: any): React.ReactNode {
     )
   }
 
-  return renderCellValue(field, row[field.id], row)
+  return renderCellValue(field, row[field.id], row, opts)
 }
 
 const MetaTable = memo(function MetaTableComponent({ meta, rows }: MetaTableProps) {
+  const router = useRouter()
+  const pathname = usePathname()
+  const searchParams = useSearchParams()
+  const returnTo = useMemo(() => makeReturnTo(pathname, searchParams), [pathname, searchParams])
+
+  const onNavigate = (href: string) => {
+    router.push(href)
+  }
+
   // Filter out compound fields that are handled specially - memoized
   const visibleFields = useMemo(() => 
     meta.fields.filter(field => !['projectId', 'companyId'].includes(field.id)),
@@ -269,7 +282,7 @@ const MetaTable = memo(function MetaTableComponent({ meta, rows }: MetaTableProp
                         : ''
                     }`}
                   >
-                    {renderCellContent(field, row)}
+                    {renderCellContent(field, row, { returnTo, onNavigate })}
                   </td>
                 ))}
               </tr>

@@ -11,7 +11,7 @@ export const metadata: Metadata = {
 }
 
 type PatchModulesPageProps = {
-  searchParams: Promise<{ projekt?: string; firma?: string }>
+  searchParams: Promise<{ projekt?: string; firma?: string; returnTo?: string }>
 }
 
 export default async function PatchModulesPage({ searchParams }: PatchModulesPageProps) {
@@ -24,6 +24,7 @@ export default async function PatchModulesPage({ searchParams }: PatchModulesPag
   const params = await searchParams
   const projekt = params.projekt?.trim() ?? ''
   const firma = params.firma?.trim() ?? ''
+  const returnTo = params.returnTo?.trim() ?? null
   const missingParams = !projekt || !firma
 
   let patchModules: Awaited<ReturnType<typeof fetchPatchModulesByCompany>> = []
@@ -38,6 +39,7 @@ export default async function PatchModulesPage({ searchParams }: PatchModulesPag
           patchModules={patchModules}
           projekt={projekt}
           firma={firma}
+          returnTo={returnTo}
           missingParams={missingParams}
         />
       </div>

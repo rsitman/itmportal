@@ -1,12 +1,12 @@
 'use client'
 
 import Link from 'next/link'
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { ServiceProject } from '@/types/project'
 import { logger } from '@/lib/logger'
 import ProjectLogo from './ProjectLogo'
 import { jiraIssueUrl } from '@/lib/jira'
-import { usePathname, useSearchParams } from 'next/navigation'
+import { usePathname, useRouter, useSearchParams } from 'next/navigation'
 
 type SortKey = 'nazev'
 type SortDirection = 'asc' | 'desc'
@@ -39,12 +39,12 @@ function AkceProjektu({ project, returnTo }: { project: ServiceProject; returnTo
   const dokladProjektu = project.doklad_proj
   const nazevFirmy = project.nazev_par
 
-  const patchUrl = `/plan_patchovani?q=${encodeURIComponent(nazevFirmy)}`
+  const patchUrl = `/plan_patchovani?q=${encodeURIComponent(nazevFirmy)}&returnTo=${encodeURIComponent(returnTo)}`
   const teamUrl = `/projects/doklad-projektu/${encodeURIComponent(dokladProjektu)}/team?returnTo=${encodeURIComponent(returnTo)}`
   const extcompsUrl = `/projects/doklad-projektu/${encodeURIComponent(dokladProjektu)}/extcomps?returnTo=${encodeURIComponent(returnTo)}`
-  const dbUrl = `/databases?projekt=${encodeURIComponent(dokladProjektu)}`
-  const upgradesUrl = `/upgrades?projekt=${encodeURIComponent(dokladProjektu)}`
-  const hwswUrl = `/hwsw-config?projekt=${encodeURIComponent(dokladProjektu)}`
+  const dbUrl = `/databases?projekt=${encodeURIComponent(dokladProjektu)}&returnTo=${encodeURIComponent(returnTo)}`
+  const upgradesUrl = `/upgrades?projekt=${encodeURIComponent(dokladProjektu)}&returnTo=${encodeURIComponent(returnTo)}`
+  const hwswUrl = `/hwsw-config?projekt=${encodeURIComponent(dokladProjektu)}&returnTo=${encodeURIComponent(returnTo)}`
 
   const hasJira = Boolean(project.jira_klic && project.jira_klic.trim())
   const hasGps = Boolean(project.gps && project.gps.trim())
@@ -115,12 +115,49 @@ export default function ProjectsRegistryClient() {
   const [sortKey, setSortKey] = useState<SortKey>('nazev')
   const [sortDirection, setSortDirection] = useState<SortDirection>('asc')
   const pathname = usePathname()
+  const router = useRouter()
   const searchParams = useSearchParams()
+  const searchDebounceRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
   const returnTo = useMemo(() => {
     const qs = searchParams?.toString() ?? ''
     return `${pathname}${qs ? `?${qs}` : ''}`
   }, [pathname, searchParams])
+
+  // URL (`q`) is canonical for the main text filter.
+  useEffect(() => {
+    const q = (searchParams?.get('q') ?? '').toString()
+    if (q !== searchTerm) {
+      setSearchTerm(q)
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [searchParams])
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return
+    if (!router) return
+
+    if (searchDebounceRef.current) {
+      window.clearTimeout(searchDebounceRef.current)
+    }
+
+    searchDebounceRef.current = window.setTimeout(() => {
+      const current = new URLSearchParams(searchParams?.toString() ?? '')
+      const next = searchTerm.trim()
+      if (next) current.set('q', next)
+      else current.delete('q')
+
+      const qs = current.toString()
+      const href = qs ? `${pathname}?${qs}` : pathname
+      router.replace(href)
+    }, 300)
+
+    return () => {
+      if (searchDebounceRef.current) {
+        window.clearTimeout(searchDebounceRef.current)
+      }
+    }
+  }, [pathname, router, searchParams, searchTerm])
 
   const fetchData = useCallback(async () => {
     try {
