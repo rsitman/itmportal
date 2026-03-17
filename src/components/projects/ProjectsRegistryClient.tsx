@@ -577,7 +577,7 @@ export default function ProjectsRegistryClient() {
           role="dialog"
           aria-modal="true"
           aria-label="Filtry evidence projektů"
-          className="lg:hidden fixed inset-0 z-50"
+          className="lg:hidden fixed inset-0 z-[70]"
         >
           <button
             type="button"

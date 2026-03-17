@@ -127,10 +127,14 @@
     transition: all 0.2s ease;
   }
   
-  .card-professional:hover {
-    box-shadow: 0 4px 12px rgb(0 0 0 / 0.4);
-    transform: translateY(-1px);
-    border-color: rgba(59, 130, 246, 0.3);
+  /* Hover lift only on devices that actually support hover (avoids transform containing blocks on touch,
+     which can break fixed-position overlays inside cards). */
+  @media (hover: hover) and (pointer: fine) {
+    .card-professional:hover {
+      box-shadow: 0 4px 12px rgb(0 0 0 / 0.4);
+      transform: translateY(-1px);
+      border-color: rgba(59, 130, 246, 0.3);
+    }
   }
 
   /* Dashboard search results dropdown – dark card, portal-consistent */
