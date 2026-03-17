@@ -394,8 +394,98 @@ export default function ProjectsRegistryClient() {
   }
 
   return (
-    <div className="card-professional rounded-lg border border-gray-700/60 p-4 md:p-5">
-      <h2 className="text-lg font-semibold text-white mb-4">Přehled projektů</h2>
+    <>
+      {/* Mobile filters sheet (rendered outside card container so it stays viewport-fixed) */}
+      {isMobileFiltersOpen ? (
+        <div
+          role="dialog"
+          aria-modal="true"
+          aria-label="Filtry evidence projektů"
+          className="lg:hidden fixed inset-0 z-[70]"
+        >
+          <button
+            type="button"
+            className="absolute inset-0 bg-black/55"
+            onClick={() => setIsMobileFiltersOpen(false)}
+            aria-label="Zavřít filtry"
+          />
+          <div className="absolute inset-x-0 bottom-0 max-h-[85vh] overflow-y-auto overscroll-contain rounded-t-xl border border-gray-700/60 bg-gray-900/95 backdrop-blur p-4">
+            <div className="flex items-start justify-between gap-3">
+              <div className="min-w-0">
+                <div className="text-sm font-semibold text-white">Filtry</div>
+                <div className="mt-0.5 text-[11px] text-gray-400">
+                  {isProjektMode ? 'Režim: připnutý projekt (projekt-mode)' : 'Režim: hledání (q-mode)'}
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => setIsMobileFiltersOpen(false)}
+                className="shrink-0 px-3 py-1.5 rounded-lg bg-gray-700/80 border border-gray-600/60 text-gray-100 hover:bg-gray-600/80 focus:outline-none focus:ring-2 focus:ring-green-500/50 transition-colors"
+              >
+                Zavřít
+              </button>
+            </div>
+
+            <div className="mt-4 space-y-3">
+              <div>
+                <label
+                  className="block text-xs font-medium text-gray-400 mb-0.5"
+                  htmlFor="evidence-projektu-projekt-mobile"
+                >
+                  Projekt (exact)
+                </label>
+                <select
+                  id="evidence-projektu-projekt-mobile"
+                  value={canonicalProjekt}
+                  onChange={(e) => onProjektChange(e.target.value)}
+                  aria-label="Projektový pin (doklad projektu)"
+                  className="w-full pl-3 pr-3 py-2.5 rounded-lg bg-gray-800/80 border border-gray-600/60 text-sm text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-green-500/50 focus-visible:ring-offset-2 focus-visible:ring-offset-gray-900 focus-visible:border-green-500/50"
+                >
+                  <option value="">Všechny projekty</option>
+                  {projectOptions.map((p) => (
+                    <option key={p.value} value={p.value}>
+                      {p.label}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div className="flex flex-col gap-2">
+                {!isProjektMode && canonicalQ ? (
+                  <button
+                    type="button"
+                    onClick={onClearSearch}
+                    className="w-full px-4 py-2.5 rounded-lg bg-gray-700/80 border border-gray-600/60 text-gray-100 hover:bg-gray-600/80 focus:outline-none focus:ring-2 focus:ring-green-500/50 transition-colors"
+                  >
+                    Vymazat hledání
+                  </button>
+                ) : null}
+
+                {isProjektMode ? (
+                  <button
+                    type="button"
+                    onClick={onClearProjekt}
+                    className="w-full px-4 py-2.5 rounded-lg border border-blue-700/40 bg-blue-900/10 text-blue-200/90 hover:bg-blue-900/20 focus:outline-none focus:ring-2 focus:ring-blue-500/45 transition-colors"
+                  >
+                    Zrušit projekt (zpět na všechny)
+                  </button>
+                ) : null}
+
+                <button
+                  type="button"
+                  onClick={fetchData}
+                  className="w-full px-4 py-2.5 rounded-lg bg-green-600 text-white hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500/50 focus:border-green-500/50 transition-colors"
+                >
+                  Obnovit data
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      ) : null}
+
+      <div className="card-professional rounded-lg border border-gray-700/60 p-4 md:p-5">
+        <h2 className="text-lg font-semibold text-white mb-4">Přehled projektů</h2>
 
       {canonicalProjekt ? (
         <div className="mb-3 sm:mb-4 rounded-lg border border-blue-700/40 bg-blue-900/15 px-3 py-2.5 sm:px-4 sm:py-3">
@@ -571,92 +661,6 @@ export default function ProjectsRegistryClient() {
         </div>
       </div>
 
-      {/* Mobile filters sheet */}
-      {isMobileFiltersOpen ? (
-        <div
-          role="dialog"
-          aria-modal="true"
-          aria-label="Filtry evidence projektů"
-          className="lg:hidden fixed inset-0 z-[70]"
-        >
-          <button
-            type="button"
-            className="absolute inset-0 bg-black/55"
-            onClick={() => setIsMobileFiltersOpen(false)}
-            aria-label="Zavřít filtry"
-          />
-          <div className="absolute inset-x-0 bottom-0 rounded-t-xl border border-gray-700/60 bg-gray-900/95 backdrop-blur p-4">
-            <div className="flex items-start justify-between gap-3">
-              <div className="min-w-0">
-                <div className="text-sm font-semibold text-white">Filtry</div>
-                <div className="mt-0.5 text-[11px] text-gray-400">
-                  {isProjektMode ? 'Režim: připnutý projekt (projekt-mode)' : 'Režim: hledání (q-mode)'}
-                </div>
-              </div>
-              <button
-                type="button"
-                onClick={() => setIsMobileFiltersOpen(false)}
-                className="shrink-0 px-3 py-1.5 rounded-lg bg-gray-700/80 border border-gray-600/60 text-gray-100 hover:bg-gray-600/80 focus:outline-none focus:ring-2 focus:ring-green-500/50 transition-colors"
-              >
-                Zavřít
-              </button>
-            </div>
-
-            <div className="mt-4 space-y-3">
-              <div>
-                <label className="block text-xs font-medium text-gray-400 mb-0.5" htmlFor="evidence-projektu-projekt-mobile">
-                  Projekt (exact)
-                </label>
-                <select
-                  id="evidence-projektu-projekt-mobile"
-                  value={canonicalProjekt}
-                  onChange={(e) => onProjektChange(e.target.value)}
-                  aria-label="Projektový pin (doklad projektu)"
-                  className="w-full pl-3 pr-3 py-2.5 rounded-lg bg-gray-800/80 border border-gray-600/60 text-sm text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-green-500/50 focus-visible:ring-offset-2 focus-visible:ring-offset-gray-900 focus-visible:border-green-500/50"
-                >
-                  <option value="">Všechny projekty</option>
-                  {projectOptions.map((p) => (
-                    <option key={p.value} value={p.value}>
-                      {p.label}
-                    </option>
-                  ))}
-                </select>
-              </div>
-
-              <div className="flex flex-col gap-2">
-                {!isProjektMode && canonicalQ ? (
-                  <button
-                    type="button"
-                    onClick={onClearSearch}
-                    className="w-full px-4 py-2.5 rounded-lg bg-gray-700/80 border border-gray-600/60 text-gray-100 hover:bg-gray-600/80 focus:outline-none focus:ring-2 focus:ring-green-500/50 transition-colors"
-                  >
-                    Vymazat hledání
-                  </button>
-                ) : null}
-
-                {isProjektMode ? (
-                  <button
-                    type="button"
-                    onClick={onClearProjekt}
-                    className="w-full px-4 py-2.5 rounded-lg border border-blue-700/40 bg-blue-900/10 text-blue-200/90 hover:bg-blue-900/20 focus:outline-none focus:ring-2 focus:ring-blue-500/45 transition-colors"
-                  >
-                    Zrušit projekt (zpět na všechny)
-                  </button>
-                ) : null}
-
-                <button
-                  type="button"
-                  onClick={fetchData}
-                  className="w-full px-4 py-2.5 rounded-lg bg-green-600 text-white hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500/50 focus:border-green-500/50 transition-colors"
-                >
-                  Obnovit data
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-      ) : null}
-
       <div className="evidence-projektu-registry mt-2">
         {/* Structured list header: logo column + project + actions */}
         <div className="hidden md:grid grid-cols-[auto_minmax(0,2fr)_minmax(0,1fr)] gap-4 px-2 pb-2 text-xs font-medium text-gray-400 uppercase tracking-wide items-center">
@@ -747,6 +751,7 @@ export default function ProjectsRegistryClient() {
           </button>
         </div>
       ) : null}
-    </div>
+      </div>
+    </>
   )
 }
