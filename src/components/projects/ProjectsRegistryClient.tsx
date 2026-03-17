@@ -37,9 +37,8 @@ const chipDisabled =
 
 function AkceProjektu({ project, returnTo }: { project: ServiceProject; returnTo: string }) {
   const dokladProjektu = project.doklad_proj
-  const nazevFirmy = project.nazev_par
 
-  const patchUrl = `/plan_patchovani?projekt=${encodeURIComponent(dokladProjektu)}&q=${encodeURIComponent(nazevFirmy)}&returnTo=${encodeURIComponent(returnTo)}`
+  const patchUrl = `/plan_patchovani?projekt=${encodeURIComponent(dokladProjektu)}&returnTo=${encodeURIComponent(returnTo)}`
   const teamUrl = `/projects/doklad-projektu/${encodeURIComponent(dokladProjektu)}/team?returnTo=${encodeURIComponent(returnTo)}`
   const extcompsUrl = `/projects/doklad-projektu/${encodeURIComponent(dokladProjektu)}/extcomps?returnTo=${encodeURIComponent(returnTo)}`
   const dbUrl = `/databases?projekt=${encodeURIComponent(dokladProjektu)}&returnTo=${encodeURIComponent(returnTo)}`

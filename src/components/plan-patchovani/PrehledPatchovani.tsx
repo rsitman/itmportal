@@ -23,6 +23,10 @@ function formatDate(dateInput: Date | null): string {
   })
 }
 
+function normalizeProjektId(value: string | null | undefined): string {
+  return (value ?? '').toString().trim().toUpperCase()
+}
+
 export default function PrehledPatchovani({
   projects,
   initialQuery = '',
@@ -37,7 +41,7 @@ export default function PrehledPatchovani({
   const searchInputRef = useRef<HTMLInputElement | null>(null)
 
   const canonicalQ = searchTerm.trim()
-  const canonicalProjekt = selectedProjekt.trim()
+  const canonicalProjekt = normalizeProjektId(selectedProjekt)
 
   const { labelByDoklad, projects: serviceProjects } = useServiceProjects()
 
@@ -66,7 +70,8 @@ export default function PrehledPatchovani({
   // URL (`projekt`) is canonical for the project context pin.
   useEffect(() => {
     const p = (searchParams?.get('projekt') ?? '').toString()
-    if (p !== selectedProjekt) setSelectedProjekt(p)
+    const normalized = normalizeProjektId(p)
+    if (normalized !== normalizeProjektId(selectedProjekt)) setSelectedProjekt(normalized)
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [searchParams])
 
@@ -123,7 +128,8 @@ export default function PrehledPatchovani({
     const current = new URLSearchParams(searchParams?.toString() ?? '')
     if (canonicalQ) current.set('q', canonicalQ)
     else current.delete('q')
-    if (value) current.set('projekt', value)
+    const normalized = normalizeProjektId(value)
+    if (normalized) current.set('projekt', normalized)
     else current.delete('projekt')
     const qs = current.toString()
     const href = qs ? `${pathname}?${qs}` : pathname
@@ -134,7 +140,9 @@ export default function PrehledPatchovani({
 
   const filteredProjects = useMemo(() => {
     const q = searchTerm.trim().toLowerCase()
-    const base = canonicalProjekt ? projects.filter((p) => p.projectId === canonicalProjekt) : projects
+    const base = canonicalProjekt
+      ? projects.filter((p) => normalizeProjektId(p.projectId) === canonicalProjekt)
+      : projects
     if (!q) return base
     return base.filter(
       (p) =>
@@ -184,7 +192,9 @@ export default function PrehledPatchovani({
         <PrehledDat
           projects={filteredProjects}
           hasAny={projects.length > 0}
-          hasFilters={Boolean(searchTerm.trim())}
+          hasFilters={Boolean(searchTerm.trim() || canonicalProjekt)}
+          selectedProjekt={canonicalProjekt}
+          selectedProjektLabel={selectedProjektLabel}
           returnTo={returnTo}
         />
       </div>
@@ -362,6 +372,8 @@ type PrehledDatProps = {
   projects: KaratProject[]
   hasAny: boolean
   hasFilters: boolean
+  selectedProjekt: string
+  selectedProjektLabel: string | null
   returnTo: string
 }
 
@@ -376,16 +388,26 @@ function PrehledDat({
   projects,
   hasAny,
   hasFilters,
+  selectedProjekt,
+  selectedProjektLabel,
   returnTo,
 }: PrehledDatProps) {
   if (!projects.length) {
     return (
       <div className="mt-3 rounded-lg border border-gray-700/60 bg-gray-900/40 px-5 py-6 text-center">
-        <p className="text-base text-gray-400 leading-snug">
-          {hasAny && hasFilters
-            ? 'Nebyly nalezeny žádné projekty odpovídající vyhledávání.'
-            : 'Žádné projekty k zobrazení.'}
-        </p>
+        <div className="space-y-1.5">
+          <p className="text-base text-gray-400 leading-snug">
+            {hasAny && hasFilters
+              ? 'Žádné projekty neodpovídají aktuálním filtrům.'
+              : 'Žádné projekty k zobrazení.'}
+          </p>
+          {hasAny && selectedProjekt ? (
+            <p className="text-sm text-gray-500">
+              Projekt:{' '}
+              <span className="text-gray-300">{selectedProjektLabel ?? selectedProjekt}</span>
+            </p>
+          ) : null}
+        </div>
       </div>
     )
   }
