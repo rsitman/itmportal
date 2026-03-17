@@ -110,7 +110,7 @@ export default function ProjectsRegistryClient() {
   const pathname = usePathname()
   const router = useRouter()
   const searchParams = useSearchParams()
-  const searchDebounceRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const searchDebounceRef = useRef<number | null>(null)
   const searchInputRef = useRef<HTMLInputElement | null>(null)
 
   const [serviceProjects, setServiceProjects] = useState<ServiceProject[]>([])

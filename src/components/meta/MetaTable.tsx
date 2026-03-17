@@ -1,7 +1,7 @@
 'use client'
 
 import Link from 'next/link'
-import { usePathname, useRouter, useSearchParams } from 'next/navigation'
+import { usePathname, useRouter, useSearchParams, type ReadonlyURLSearchParams } from 'next/navigation'
 import { memo, useMemo } from 'react'
 import { MetaResource, MetaField } from '@/types/meta'
 import { jiraIssueUrl } from '@/lib/jira'

@@ -48,8 +48,8 @@ export default function PrehledPatchovani({
   const router = useRouter()
   const pathname = usePathname()
   const searchParams = useSearchParams()
-  const searchDebounceRef = useRef<ReturnType<typeof setTimeout> | null>(null)
-  const searchInputRef = useRef<HTMLInputElement | null>(null)
+  const searchDebounceRef = useRef<number | null>(null)
+  const searchInputRef = useRef<HTMLInputElement>(null)
 
   const canonicalQ = searchTerm.trim()
   const canonicalProjekt = normalizeProjektId(selectedProjekt)
@@ -360,7 +360,7 @@ type FiltryPatchovaniProps = {
   osobaFromUrlUnknown?: boolean
   filteredCount: number
   totalCount: number
-  inputRef?: React.RefObject<HTMLInputElement | null>
+  inputRef?: React.RefObject<HTMLInputElement>
 }
 
 function FiltryPatchovani({
