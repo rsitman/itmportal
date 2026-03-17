@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import Link from 'next/link'
 import { usePathname, useRouter, useSearchParams } from 'next/navigation'
 import type { Database } from '@/types/database'
@@ -307,9 +307,9 @@ function KartaDatabaze({
     <button
       type="button"
       onClick={onSelect}
-      className={`w-full text-left rounded-lg border px-3.5 py-3 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-green-500/50 focus-visible:ring-offset-2 focus-visible:ring-offset-gray-900 ${
+      className={`w-full text-left rounded-lg border px-3.5 py-3.5 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-green-500/50 focus-visible:ring-offset-2 focus-visible:ring-offset-gray-900 ${
         selected
-          ? 'border-gray-600/60 bg-gray-800/80 border-l-[3px] border-l-green-500/60'
+          ? 'border-slate-500/40 bg-slate-900/55 ring-1 ring-sky-500/15 border-l-[3px] border-l-sky-400/40'
           : 'border-gray-700/70 bg-gray-900/40 border-l-[3px] border-l-transparent hover:bg-gray-800/70 hover:border-gray-500/70'
       }`}
     >
@@ -851,6 +851,9 @@ export default function AktualniStavDbClient({
   const [searchTerm, setSearchTerm] = useState('')
   const [selectedCompany, setSelectedCompany] = useState('')
   const [selectedProject, setSelectedProject] = useState(initialProjekt)
+  const [mobileDetailOpen, setMobileDetailOpen] = useState(false)
+  const mobileDetailCloseButtonRef = useRef<HTMLButtonElement>(null)
+  const restoreFocusRef = useRef<HTMLElement | null>(null)
 
   const defaultRange = useMemo(() => getDefaultDateRange(), [])
   const [dateFrom, setDateFrom] = useState(defaultRange.start)
@@ -965,6 +968,32 @@ export default function AktualniStavDbClient({
     router.refresh()
   }
 
+  // Mobile detail overlay: scroll lock + Escape close + minimal focus management.
+  useEffect(() => {
+    if (!mobileDetailOpen) return
+
+    restoreFocusRef.current = (document.activeElement as HTMLElement) ?? null
+
+    const prevOverflow = document.body.style.overflow
+    document.body.style.overflow = 'hidden'
+
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') setMobileDetailOpen(false)
+    }
+    window.addEventListener('keydown', onKeyDown)
+
+    window.setTimeout(() => {
+      mobileDetailCloseButtonRef.current?.focus()
+    }, 0)
+
+    return () => {
+      window.removeEventListener('keydown', onKeyDown)
+      document.body.style.overflow = prevOverflow
+      restoreFocusRef.current?.focus?.()
+      restoreFocusRef.current = null
+    }
+  }, [mobileDetailOpen])
+
   if (serverError) {
     return (
       <div className="rounded-lg border border-amber-700/40 bg-amber-900/15 px-5 py-5">
@@ -1011,10 +1040,14 @@ export default function AktualniStavDbClient({
         <SeznamDatabazi
           databases={filteredDatabases}
           selectedKey={selectedKey}
-          onSelect={(db) => setSelectedKey({ projekt: db.projekt, databaze: db.databaze, firma: db.firma_nazev })}
+          onSelect={(db) => {
+            setSelectedKey({ projekt: db.projekt, databaze: db.databaze, firma: db.firma_nazev })
+            setMobileDetailOpen(true)
+          }}
         />
 
-        <div className="xl:sticky xl:top-6 space-y-4">
+        {/* Desktop/tablet: keep current inline/sticky detail (mobile uses overlay). */}
+        <div className="hidden md:block xl:sticky xl:top-6 space-y-4">
           {selectedDb ? (
             <DetailDatabaze
               selectedDb={selectedDb}
@@ -1031,6 +1064,54 @@ export default function AktualniStavDbClient({
           )}
         </div>
       </div>
+
+      {/* Mobile: full-screen overlay detail (prevents "detail under list"). */}
+      {selectedDb && mobileDetailOpen ? (
+        <div className="md:hidden fixed inset-0 z-50" role="dialog" aria-modal="true" aria-label="Detail databáze">
+          <div className="absolute inset-0 bg-black/60" aria-hidden="true" />
+
+          <div className="absolute inset-x-0 bottom-0 top-0 flex flex-col bg-gray-950 shadow-strong ring-1 ring-gray-800/60">
+            <div className="sticky top-0 z-10 border-b border-gray-800 bg-gray-950/95 backdrop-blur supports-[backdrop-filter]:bg-gray-950/80">
+              <div className="px-4 py-2.5 flex items-center gap-3">
+                <button
+                  ref={mobileDetailCloseButtonRef}
+                  type="button"
+                  onClick={() => setMobileDetailOpen(false)}
+                  className="shrink-0 inline-flex items-center justify-center h-10 w-10 rounded-lg border border-gray-700/60 bg-gray-900/40 hover:bg-gray-800/60 text-gray-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-green-500/50 focus-visible:ring-offset-2 focus-visible:ring-offset-gray-950"
+                  aria-label="Zpět"
+                >
+                  <span aria-hidden className="text-lg leading-none">
+                    ←
+                  </span>
+                </button>
+
+                <div className="min-w-0 flex-1">
+                  <div className="text-[13px] font-semibold text-white truncate" title={selectedDb.databaze}>
+                    {selectedDb.databaze}
+                  </div>
+                  <div
+                    className="mt-0.5 text-[11px] text-gray-400/90 truncate"
+                    title={`${selectedDb.firma_nazev} · ${selectedDb.projekt}`}
+                  >
+                    {selectedDb.firma_nazev} <span className="text-gray-600">·</span>{' '}
+                    <span className="font-mono text-[11px] text-gray-500">{selectedDb.projekt}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div className="flex-1 overflow-y-auto overscroll-contain px-4 pt-4 pb-8">
+              <DetailDatabaze
+                selectedDb={selectedDb}
+                dateFrom={dateFrom}
+                dateTo={dateTo}
+                onDateFromChange={setDateFrom}
+                onDateToChange={setDateTo}
+              />
+            </div>
+          </div>
+        </div>
+      ) : null}
     </div>
   )
 }
