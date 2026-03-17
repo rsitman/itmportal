@@ -107,18 +107,31 @@ function AkceProjektu({ project, returnTo }: { project: ServiceProject; returnTo
 }
 
 export default function ProjectsRegistryClient() {
-  const [serviceProjects, setServiceProjects] = useState<ServiceProject[]>([])
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState<string | null>(null)
-  const [searchTerm, setSearchTerm] = useState('')
-  const [selectedProjekt, setSelectedProjekt] = useState('')
-  const [sortKey, setSortKey] = useState<SortKey>('nazev')
-  const [sortDirection, setSortDirection] = useState<SortDirection>('asc')
   const pathname = usePathname()
   const router = useRouter()
   const searchParams = useSearchParams()
   const searchDebounceRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const searchInputRef = useRef<HTMLInputElement | null>(null)
+
+  const [serviceProjects, setServiceProjects] = useState<ServiceProject[]>([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
+
+  const initialProjektFromUrl = useMemo(
+    () => (searchParams?.get('projekt') ?? '').toString().trim(),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [],
+  )
+  const initialQFromUrl = useMemo(
+    () => (searchParams?.get('q') ?? '').toString(),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [],
+  )
+
+  const [selectedProjekt, setSelectedProjekt] = useState(initialProjektFromUrl)
+  const [searchTerm, setSearchTerm] = useState(initialProjektFromUrl ? '' : initialQFromUrl)
+  const [sortKey, setSortKey] = useState<SortKey>('nazev')
+  const [sortDirection, setSortDirection] = useState<SortDirection>('asc')
 
   const canonicalQ = searchTerm.trim()
   const canonicalProjekt = selectedProjekt.trim()
@@ -127,7 +140,7 @@ export default function ProjectsRegistryClient() {
   const selectedProjektLabel = useMemo(() => {
     if (!canonicalProjekt) return null
     const p = serviceProjects.find((sp) => (sp.doklad_proj ?? '').trim() === canonicalProjekt)
-    if (!p) return `${canonicalProjekt} (mimo aktuální data)`
+    if (!p) return `Neznámý projekt · ${canonicalProjekt} (mimo aktuální data)`
     const name = (p.nazev ?? '').trim()
     return name ? `${name} · ${canonicalProjekt}` : canonicalProjekt
   }, [canonicalProjekt, serviceProjects])
@@ -146,7 +159,10 @@ export default function ProjectsRegistryClient() {
       .sort((a, b) => a.label.localeCompare(b.label, 'cs'))
 
     if (canonicalProjekt && !options.some((o) => o.value === canonicalProjekt)) {
-      return [{ value: canonicalProjekt, label: `${canonicalProjekt} (mimo aktuální data)` }, ...options]
+      return [
+        { value: canonicalProjekt, label: `Neznámý projekt · ${canonicalProjekt} (mimo aktuální data)` },
+        ...options,
+      ]
     }
     return options
   }, [canonicalProjekt, serviceProjects])
@@ -185,10 +201,10 @@ export default function ProjectsRegistryClient() {
     (value: string) => {
       const nextProjekt = value.trim()
       setSelectedProjekt(nextProjekt)
-      setSearchTerm('')
+      if (searchTerm) setSearchTerm('')
       applyUrlState({ projekt: nextProjekt, q: '' })
     },
-    [applyUrlState],
+    [applyUrlState, searchTerm],
   )
 
   // Return context for internal navigation should reflect the *latest* filter value,
@@ -391,36 +407,51 @@ export default function ProjectsRegistryClient() {
           <span className="font-medium text-white">{serviceProjects.length}</span> projektů
         </p>
         <div className="flex flex-col sm:flex-row gap-3 sm:items-end">
-          <input
-            type="text"
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            placeholder={isProjektMode ? 'Hledání je vypnuto (zvolen projekt)…' : 'Hledat projekt, firmu nebo doklad…'}
-            ref={searchInputRef}
-            disabled={isProjektMode}
-            aria-disabled={isProjektMode}
-            className={[
-              'w-full sm:w-[420px] pl-4 pr-4 py-2.5 rounded-lg bg-gray-800/80 border text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-green-500/50 focus:border-green-500/50',
-              isProjektMode ? 'border-gray-700/50 text-gray-400 opacity-80 cursor-not-allowed' : 'border-gray-600/60',
-            ].join(' ')}
-          />
-          {searchTerm.trim() && !isProjektMode ? (
+          <div className="w-full sm:w-[420px]">
+            <label htmlFor="evidence-projektu-search" className="block text-xs font-medium text-gray-400 mb-0.5">
+              Hledat v evidenci
+            </label>
+            <input
+              id="evidence-projektu-search"
+              type="text"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              placeholder={isProjektMode ? 'Zrušte projekt pro hledání v seznamu…' : 'Název, firma, doklad, JIRA…'}
+              ref={searchInputRef}
+              disabled={isProjektMode}
+              aria-disabled={isProjektMode}
+              aria-describedby={isProjektMode ? 'evidence-projektu-search-hint' : undefined}
+              className={[
+                'w-full pl-4 pr-4 py-2.5 rounded-lg bg-gray-800/80 border text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-green-500/50 focus:border-green-500/50',
+                isProjektMode ? 'border-gray-700/50 text-gray-400 opacity-80 cursor-not-allowed' : 'border-gray-600/60',
+              ].join(' ')}
+            />
+            {isProjektMode ? (
+              <div id="evidence-projektu-search-hint" className="mt-1 text-[11px] text-gray-500">
+                Hledání je dostupné v režimu „Všechny projekty“.
+              </div>
+            ) : null}
+          </div>
+
+          {!isProjektMode && searchTerm.trim() ? (
             <button
+              type="button"
               onClick={() => setSearchTerm('')}
               className="px-4 py-2.5 rounded-lg bg-gray-700/80 border border-gray-600/60 text-gray-100 hover:bg-gray-600/80 focus:outline-none focus:ring-2 focus:ring-green-500/50 focus:border-green-500/50 transition-colors"
             >
               Vymazat
             </button>
           ) : null}
+
           <div className="w-full sm:w-[360px]">
             <label className="block text-xs font-medium text-gray-400 mb-0.5" htmlFor="evidence-projektu-projekt">
-              Projekt
+              Projekt (exact)
             </label>
             <select
               id="evidence-projektu-projekt"
               value={canonicalProjekt}
               onChange={(e) => onProjektChange(e.target.value)}
-              aria-label="Projektový kontext (doklad projektu)"
+              aria-label="Projektový pin (doklad projektu)"
               className="w-full pl-3 pr-3 py-2.5 rounded-lg bg-gray-800/80 border border-gray-600/60 text-sm text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-green-500/50 focus-visible:ring-offset-2 focus-visible:ring-offset-gray-900 focus-visible:border-green-500/50"
             >
               <option value="">Všechny projekty</option>
@@ -431,7 +462,9 @@ export default function ProjectsRegistryClient() {
               ))}
             </select>
           </div>
+
           <button
+            type="button"
             onClick={fetchData}
             className="px-4 py-2.5 rounded-lg bg-green-600 text-white hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500/50 focus:border-green-500/50 transition-colors"
           >
@@ -501,7 +534,7 @@ export default function ProjectsRegistryClient() {
         <div className="mt-4 rounded-lg border border-gray-700/60 bg-gray-800/40 p-4 md:p-5">
           <h3 className="text-sm font-semibold text-white mb-1">Projekt nenalezen</h3>
           <p className="text-sm text-gray-400 mb-3">
-            Zvolený projekt není v aktuálně načtených datech evidence.
+            Aktuálně načtená evidence neobsahuje projekt <span className="font-mono text-gray-300">{canonicalProjekt}</span>.
           </p>
           <button
             type="button"
