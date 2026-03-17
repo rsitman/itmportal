@@ -28,6 +28,10 @@ function normalizeOsobaKey(value: string | null | undefined): string {
   return (value ?? '').toString().trim().toLowerCase()
 }
 
+function normalizeOsobaLabel(value: string | null | undefined): string {
+  return (value ?? '').toString().replace(/\s+/g, ' ').trim()
+}
+
 function formatDate(dateInput: string): string {
   if (!dateInput) return '—'
   const d = new Date(dateInput)
@@ -89,6 +93,21 @@ function uniqueSorted(values: string[]): string[] {
   return [...new Set(values.filter(Boolean))].sort((a, b) => a.localeCompare(b, 'cs'))
 }
 
+function uniqueSortedByKey(values: Array<string | null | undefined>): { values: string[]; hasKey: (k: string) => boolean } {
+  const byKey = new Map<string, string>()
+  for (const v of values) {
+    const label = normalizeOsobaLabel(v)
+    if (!label) continue
+    const key = normalizeOsobaKey(label)
+    if (!key) continue
+    if (!byKey.has(key)) byKey.set(key, label)
+  }
+  return {
+    values: [...byKey.values()].sort((a, b) => a.localeCompare(b, 'cs')),
+    hasKey: (k: string) => byKey.has(k),
+  }
+}
+
 export default function PrehledUpgradu({
   initialUpgrades,
   initialProjekt = '',
@@ -130,11 +149,11 @@ export default function PrehledUpgradu({
   }, [projekty, selectedProjekt])
 
   const resiteleForSelect = useMemo(() => {
-    const base = uniqueSorted(initialUpgrades.map((u) => (u.resitel ?? '').trim()))
-    const trimmed = selectedOsoba.trim()
+    const trimmed = normalizeOsobaLabel(selectedOsoba)
     const key = normalizeOsobaKey(trimmed)
-    if (trimmed && !base.some((r) => normalizeOsobaKey(r) === key)) {
-      return uniqueSorted([trimmed, ...base])
+    const { values: base, hasKey } = uniqueSortedByKey(initialUpgrades.map((u) => u.resitel))
+    if (trimmed && !hasKey(key)) {
+      return [trimmed, ...base]
     }
     return base
   }, [initialUpgrades, selectedOsoba])
@@ -144,8 +163,13 @@ export default function PrehledUpgradu({
     [initialUpgrades],
   )
 
-  const canonicalOsoba = selectedOsoba.trim()
+  const canonicalOsoba = normalizeOsobaLabel(selectedOsoba)
   const canonicalOsobaKey = normalizeOsobaKey(canonicalOsoba)
+
+  const osobaFromUrlUnknown = useMemo(() => {
+    if (!canonicalOsobaKey) return false
+    return !initialUpgrades.some((u) => normalizeOsobaKey(normalizeOsobaLabel(u.resitel)) === canonicalOsobaKey)
+  }, [canonicalOsobaKey, initialUpgrades])
 
   const filteredUpgrades = useMemo(() => {
     const q = normalizeText(searchTerm)
@@ -187,14 +211,24 @@ export default function PrehledUpgradu({
   }
 
   const onOsobaChange = (value: string) => {
-    setSelectedOsoba(value)
+    const label = normalizeOsobaLabel(value)
+    setSelectedOsoba(label)
     const current = new URLSearchParams(searchParams.toString())
-    const trimmed = value.trim()
-    if (trimmed) current.set('osoba', trimmed)
+    if (label) current.set('osoba', label)
     else current.delete('osoba')
     const qs = current.toString()
     router.replace(qs ? `/upgrades?${qs}` : '/upgrades')
   }
+
+  const emptyDetails = useMemo(() => {
+    const parts: string[] = []
+    const projekt = selectedProjekt.trim()
+    if (projekt) parts.push(`Projekt: ${labelByDoklad.get(projekt) ?? projekt}`)
+    if (selectedStav !== 'vse') parts.push(`Stav: ${selectedStav}`)
+    if (canonicalOsoba) parts.push(`Řešitel: ${canonicalOsoba}`)
+    if (searchTerm.trim()) parts.push(`Hledat: ${searchTerm.trim()}`)
+    return parts.length ? parts.join(' · ') : null
+  }, [canonicalOsoba, labelByDoklad, searchTerm, selectedProjekt, selectedStav])
 
   return (
     <div className="card-professional rounded-lg border border-gray-700/60 p-4 md:p-5">
@@ -218,6 +252,7 @@ export default function PrehledUpgradu({
           selectedOsoba={canonicalOsoba}
           onOsobaChange={onOsobaChange}
           resitele={resiteleForSelect}
+          osobaFromUrlUnknown={osobaFromUrlUnknown}
           filteredCount={filteredUpgrades.length}
           totalCount={initialUpgrades.length}
         />
@@ -230,6 +265,7 @@ export default function PrehledUpgradu({
           <EmptyState
             title="Bez výsledků"
             message="Žádné upgrady neodpovídají filtrům. Zkuste upravit vyhledávání nebo filtry."
+            details={emptyDetails}
           />
         ) : (
           <PrehledDat upgrades={filteredUpgrades} />
@@ -318,6 +354,7 @@ function FiltryUpgradu({
   selectedOsoba,
   onOsobaChange,
   resitele,
+  osobaFromUrlUnknown,
   filteredCount,
   totalCount,
 }: {
@@ -333,91 +370,71 @@ function FiltryUpgradu({
   selectedOsoba: string
   onOsobaChange: (v: string) => void
   resitele: string[]
+  osobaFromUrlUnknown?: boolean
   filteredCount: number
   totalCount: number
 }) {
   return (
     <div className="rounded-lg border border-gray-700/50 bg-gray-900/30 px-3 py-2.5 md:px-4 md:py-3">
-      <div className="flex flex-col gap-2">
-        <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between sm:gap-3">
-          <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:gap-3 w-full min-w-0">
-            <div className="w-full min-w-0 sm:max-w-md">
-              <label
-                htmlFor="upgrady-search"
-                className="block text-xs font-medium text-gray-400 mb-0.5"
-              >
-                Hledat
-              </label>
-              <input
-                id="upgrady-search"
-                type="text"
-                value={searchTerm}
-                onChange={(e) => onSearchChange(e.target.value)}
-                placeholder="Název, projekt, řešitel, JIRA klíč…"
-                aria-label="Hledat v upgradech"
-                className="w-full pl-3.5 pr-3.5 py-2.5 rounded-lg bg-gray-800/80 border border-gray-600/60 text-sm text-white placeholder-gray-500 focus:outline-none focus-visible:ring-2 focus-visible:ring-green-500/50 focus-visible:ring-offset-2 focus-visible:ring-offset-gray-900 focus-visible:border-green-500/50"
-              />
-            </div>
-
-            <div className="w-full sm:w-64">
-              <label
-                htmlFor="upgrady-projekt"
-                className="block text-xs font-medium text-gray-400 mb-0.5"
-              >
-                Projekt
-              </label>
-              <select
-                id="upgrady-projekt"
-                value={selectedProjekt}
-                onChange={(e) => onProjektChange(e.target.value)}
-                aria-label="Filtr podle projektu"
-                className="w-full pl-3 pr-3 py-2.5 rounded-lg bg-gray-800/80 border border-gray-600/60 text-sm text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-green-500/50 focus-visible:ring-offset-2 focus-visible:ring-offset-gray-900 focus-visible:border-green-500/50"
-              >
-                <option value="">Všechny projekty</option>
-                {projekty.map((p) => (
-                  <option key={p} value={p}>
-                    {projectLabelByDoklad.get(p) ?? p}
-                  </option>
-                ))}
-              </select>
-            </div>
-
-            <div className="w-full sm:w-56">
-              <label
-                htmlFor="upgrady-stav"
-                className="block text-xs font-medium text-gray-400 mb-0.5"
-              >
-                Stav
-              </label>
-              <select
-                id="upgrady-stav"
-                value={selectedStav}
-                onChange={(e) => onStavChange(e.target.value)}
-                aria-label="Filtr podle stavu"
-                className="w-full pl-3 pr-3 py-2.5 rounded-lg bg-gray-800/80 border border-gray-600/60 text-sm text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-green-500/50 focus-visible:ring-offset-2 focus-visible:ring-offset-gray-900 focus-visible:border-green-500/50"
-              >
-                <option value="vse">Všechny stavy</option>
-                {dostupneStavy.map((s) => (
-                  <option key={s} value={s}>
-                    {s}
-                  </option>
-                ))}
-              </select>
-            </div>
+      <div className="flex flex-col gap-2 sm:flex-row sm:flex-wrap sm:items-end sm:justify-between sm:gap-3">
+        <div className="flex flex-col gap-2 sm:flex-row sm:flex-wrap sm:items-end sm:gap-3 w-full min-w-0">
+          <div className="w-full min-w-0 sm:w-[320px]">
+            <label htmlFor="upgrady-search" className="block text-xs font-medium text-gray-400 mb-0.5">
+              Hledat
+            </label>
+            <input
+              id="upgrady-search"
+              type="text"
+              value={searchTerm}
+              onChange={(e) => onSearchChange(e.target.value)}
+              placeholder="Název, projekt, řešitel, JIRA klíč…"
+              aria-label="Hledat v upgradech"
+              className="w-full pl-3.5 pr-3.5 py-2.5 rounded-lg bg-gray-800/80 border border-gray-600/60 text-sm text-white placeholder-gray-500 focus:outline-none focus-visible:ring-2 focus-visible:ring-green-500/50 focus-visible:ring-offset-2 focus-visible:ring-offset-gray-900 focus-visible:border-green-500/50"
+            />
           </div>
 
-          <div className="text-xs text-gray-500 sm:pb-0.5 sm:text-right shrink-0">
-            Zobrazeno <span className="font-medium text-gray-300">{filteredCount}</span> z{' '}
-            <span className="font-medium text-gray-300">{totalCount}</span>
-          </div>
-        </div>
-
-        <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:gap-3 w-full min-w-0">
-          <div className="w-full sm:w-72">
-            <label
-              htmlFor="upgrady-resitel"
-              className="block text-xs font-medium text-gray-400 mb-0.5"
+          <div className="w-full sm:w-56">
+            <label htmlFor="upgrady-projekt" className="block text-xs font-medium text-gray-400 mb-0.5">
+              Projekt
+            </label>
+            <select
+              id="upgrady-projekt"
+              value={selectedProjekt}
+              onChange={(e) => onProjektChange(e.target.value)}
+              aria-label="Filtr podle projektu"
+              className="w-full pl-3 pr-3 py-2.5 rounded-lg bg-gray-800/80 border border-gray-600/60 text-sm text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-green-500/50 focus-visible:ring-offset-2 focus-visible:ring-offset-gray-900 focus-visible:border-green-500/50"
             >
+              <option value="">Všechny projekty</option>
+              {projekty.map((p) => (
+                <option key={p} value={p}>
+                  {projectLabelByDoklad.get(p) ?? p}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          <div className="w-full sm:w-48">
+            <label htmlFor="upgrady-stav" className="block text-xs font-medium text-gray-400 mb-0.5">
+              Stav
+            </label>
+            <select
+              id="upgrady-stav"
+              value={selectedStav}
+              onChange={(e) => onStavChange(e.target.value)}
+              aria-label="Filtr podle stavu"
+              className="w-full pl-3 pr-3 py-2.5 rounded-lg bg-gray-800/80 border border-gray-600/60 text-sm text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-green-500/50 focus-visible:ring-offset-2 focus-visible:ring-offset-gray-900 focus-visible:border-green-500/50"
+            >
+              <option value="vse">Všechny stavy</option>
+              {dostupneStavy.map((s) => (
+                <option key={s} value={s}>
+                  {s}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          <div className="w-full sm:w-56">
+            <label htmlFor="upgrady-resitel" className="block text-xs font-medium text-gray-400 mb-0.5">
               Řešitel
             </label>
             <select
@@ -428,13 +445,23 @@ function FiltryUpgradu({
               className="w-full pl-3 pr-3 py-2.5 rounded-lg bg-gray-800/80 border border-gray-600/60 text-sm text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-green-500/50 focus-visible:ring-offset-2 focus-visible:ring-offset-gray-900 focus-visible:border-green-500/50"
             >
               <option value="">Všichni řešitelé</option>
-              {resitele.map((r) => (
-                <option key={r} value={r}>
-                  {r}
-                </option>
-              ))}
+              {resitele.map((r, idx) => {
+                const isUnknown =
+                  Boolean(osobaFromUrlUnknown) && idx === 0 && normalizeOsobaKey(r) === normalizeOsobaKey(selectedOsoba)
+                const label = isUnknown ? `${r} (mimo aktuální data)` : r
+                return (
+                  <option key={`${r}-${idx}`} value={r}>
+                    {label}
+                  </option>
+                )
+              })}
             </select>
           </div>
+        </div>
+
+        <div className="text-xs text-gray-500 sm:pb-0.5 sm:text-right shrink-0">
+          Zobrazeno <span className="font-medium text-gray-300">{filteredCount}</span> z{' '}
+          <span className="font-medium text-gray-300">{totalCount}</span>
         </div>
       </div>
     </div>
@@ -648,11 +675,12 @@ function RadekUpgraduMobile({ upgrade }: { upgrade: Upgrade }) {
   )
 }
 
-function EmptyState({ title, message }: { title: string; message: string }) {
+function EmptyState({ title, message, details = null }: { title: string; message: string; details?: string | null }) {
   return (
     <div className="mt-3 rounded-lg border border-gray-700/60 bg-gray-900/40 px-5 py-6 text-center">
       <h3 className="text-base font-semibold text-white">{title}</h3>
       <p className="mt-1 text-sm text-gray-400 leading-snug">{message}</p>
+      {details ? <p className="mt-2 text-xs text-gray-500">{details}</p> : null}
     </div>
   )
 }

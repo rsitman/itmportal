@@ -32,6 +32,10 @@ function normalizeOsobaKey(value: string | null | undefined): string {
   return (value ?? '').toString().trim().toLowerCase()
 }
 
+function normalizeOsobaLabel(value: string | null | undefined): string {
+  return (value ?? '').toString().replace(/\s+/g, ' ').trim()
+}
+
 export default function PrehledPatchovani({
   projects,
   initialQuery = '',
@@ -138,14 +142,26 @@ export default function PrehledPatchovani({
   }, [canonicalProjekt, labelByDoklad, projects, serviceProjects])
 
   const osobaOptions = useMemo(() => {
-    const base = [...new Set(projects.map((p) => (p.accountManager ?? '').trim()).filter(Boolean))].sort((a, b) =>
-      a.localeCompare(b, 'cs'),
-    )
-    if (canonicalOsoba && !base.some((o) => normalizeOsobaKey(o) === canonicalOsobaKey)) {
+    const byKey = new Map<string, string>()
+    for (const p of projects) {
+      const label = normalizeOsobaLabel(p.accountManager)
+      if (!label) continue
+      const key = normalizeOsobaKey(label)
+      if (!key) continue
+      if (!byKey.has(key)) byKey.set(key, label)
+    }
+
+    const base = [...byKey.values()].sort((a, b) => a.localeCompare(b, 'cs'))
+    if (canonicalOsoba && !byKey.has(canonicalOsobaKey)) {
       return [canonicalOsoba, ...base]
     }
     return base
   }, [canonicalOsoba, canonicalOsobaKey, projects])
+
+  const osobaFromUrlUnknown = useMemo(() => {
+    if (!canonicalOsobaKey) return false
+    return !projects.some((p) => normalizeOsobaKey(normalizeOsobaLabel(p.accountManager)) === canonicalOsobaKey)
+  }, [canonicalOsobaKey, projects])
 
   const selectedProjektLabel = useMemo(() => {
     if (!canonicalProjekt) return null
@@ -170,14 +186,14 @@ export default function PrehledPatchovani({
   const onClearProjekt = () => onProjektChange('')
 
   const onOsobaChange = (value: string) => {
-    setSelectedOsoba(value)
+    const label = normalizeOsobaLabel(value)
+    setSelectedOsoba(label)
     const current = new URLSearchParams(searchParams?.toString() ?? '')
     if (canonicalQ) current.set('q', canonicalQ)
     else current.delete('q')
     if (canonicalProjekt) current.set('projekt', canonicalProjekt)
     else current.delete('projekt')
-    const trimmed = value.trim()
-    if (trimmed) current.set('osoba', trimmed)
+    if (label) current.set('osoba', label)
     else current.delete('osoba')
     const qs = current.toString()
     const href = qs ? `${pathname}?${qs}` : pathname
@@ -239,6 +255,7 @@ export default function PrehledPatchovani({
           onOsobaChange={onOsobaChange}
           onClearOsoba={onClearOsoba}
           osobaOptions={osobaOptions}
+          osobaFromUrlUnknown={osobaFromUrlUnknown}
           filteredCount={filteredProjects.length}
           totalCount={totalCount}
           inputRef={searchInputRef}
@@ -250,6 +267,7 @@ export default function PrehledPatchovani({
           hasFilters={Boolean(searchTerm.trim() || canonicalProjekt || canonicalOsoba)}
           selectedProjekt={canonicalProjekt}
           selectedProjektLabel={selectedProjektLabel}
+          selectedOsoba={canonicalOsoba}
           returnTo={returnTo}
         />
       </div>
@@ -339,6 +357,7 @@ type FiltryPatchovaniProps = {
   onOsobaChange: (value: string) => void
   onClearOsoba: () => void
   osobaOptions: string[]
+  osobaFromUrlUnknown?: boolean
   filteredCount: number
   totalCount: number
   inputRef?: React.RefObject<HTMLInputElement | null>
@@ -356,6 +375,7 @@ function FiltryPatchovani({
   onOsobaChange,
   onClearOsoba,
   osobaOptions,
+  osobaFromUrlUnknown = false,
   filteredCount,
   totalCount,
   inputRef,
@@ -459,11 +479,15 @@ function FiltryPatchovani({
                 className="w-full pl-3 pr-3 py-2.5 rounded-lg bg-gray-800/80 border border-gray-600/60 text-sm text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-green-500/50 focus-visible:ring-offset-2 focus-visible:ring-offset-gray-900 focus-visible:border-green-500/50"
               >
                 <option value="">Všechny osoby</option>
-                {osobaOptions.map((o) => (
-                  <option key={o} value={o}>
-                    {o}
-                  </option>
-                ))}
+                {osobaOptions.map((o, idx) => {
+                  const isUnknown = osobaFromUrlUnknown && idx === 0 && normalizeOsobaKey(o) === normalizeOsobaKey(selectedOsoba)
+                  const label = isUnknown ? `${o} (mimo aktuální data)` : o
+                  return (
+                    <option key={`${o}-${idx}`} value={o}>
+                      {label}
+                    </option>
+                  )
+                })}
               </select>
             </div>
           </div>
@@ -485,6 +509,7 @@ type PrehledDatProps = {
   hasFilters: boolean
   selectedProjekt: string
   selectedProjektLabel: string | null
+  selectedOsoba: string
   returnTo: string
 }
 
@@ -501,6 +526,7 @@ function PrehledDat({
   hasFilters,
   selectedProjekt,
   selectedProjektLabel,
+  selectedOsoba,
   returnTo,
 }: PrehledDatProps) {
   if (!projects.length) {
@@ -516,6 +542,11 @@ function PrehledDat({
             <p className="text-sm text-gray-500">
               Projekt:{' '}
               <span className="text-gray-300">{selectedProjektLabel ?? selectedProjekt}</span>
+            </p>
+          ) : null}
+          {hasAny && selectedOsoba ? (
+            <p className="text-sm text-gray-500">
+              Osoba: <span className="text-gray-300">{selectedOsoba}</span>
             </p>
           ) : null}
         </div>
