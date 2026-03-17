@@ -38,13 +38,14 @@ function mapToUpgradeArray(input: unknown): Upgrade[] {
 export default async function UpgradesPage({
   searchParams,
 }: {
-  searchParams: Promise<{ projekt?: string }>
+  searchParams: Promise<{ projekt?: string; osoba?: string }>
 }) {
   const session = await getServerSession(authOptions)
   if (!session) redirect('/login')
 
   const params = await searchParams
   const initialProjekt = params.projekt?.trim() || ''
+  const initialOsoba = params.osoba?.trim() || ''
 
   let upgrades: Upgrade[] = []
   let errorMessage: string | null = null
@@ -62,6 +63,7 @@ export default async function UpgradesPage({
         <PrehledUpgradu
           initialUpgrades={upgrades}
           initialProjekt={initialProjekt}
+          initialOsoba={initialOsoba}
           serverError={errorMessage}
         />
       </div>

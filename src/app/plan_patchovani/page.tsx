@@ -13,7 +13,7 @@ export const metadata: Metadata = {
 export default async function PlanPatchovaniPage({
   searchParams,
 }: {
-  searchParams: Promise<{ q?: string; projekt?: string }>
+  searchParams: Promise<{ q?: string; projekt?: string; osoba?: string }>
 }) {
   const session = await getServerSession(authOptions)
 
@@ -25,11 +25,17 @@ export default async function PlanPatchovaniPage({
   const resolvedSearchParams = await searchParams
   const initialQuery = resolvedSearchParams.q ?? ''
   const initialProjekt = resolvedSearchParams.projekt?.trim() ?? ''
+  const initialOsoba = resolvedSearchParams.osoba?.trim() ?? ''
 
   return (
     <div className="min-h-screen bg-transparent w-full px-6 sm:px-8 pt-6 sm:pt-8">
       <div className="space-y-6">
-        <PrehledPatchovani projects={projects} initialQuery={initialQuery} initialProjekt={initialProjekt} />
+        <PrehledPatchovani
+          projects={projects}
+          initialQuery={initialQuery}
+          initialProjekt={initialProjekt}
+          initialOsoba={initialOsoba}
+        />
       </div>
     </div>
   )

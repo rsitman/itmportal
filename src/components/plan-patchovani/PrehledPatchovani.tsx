@@ -11,6 +11,7 @@ type PrehledPatchovaniProps = {
   projects: KaratProject[]
   initialQuery?: string
   initialProjekt?: string
+  initialOsoba?: string
 }
 
 function formatDate(dateInput: Date | null): string {
@@ -27,13 +28,19 @@ function normalizeProjektId(value: string | null | undefined): string {
   return (value ?? '').toString().trim().toUpperCase()
 }
 
+function normalizeOsobaKey(value: string | null | undefined): string {
+  return (value ?? '').toString().trim().toLowerCase()
+}
+
 export default function PrehledPatchovani({
   projects,
   initialQuery = '',
   initialProjekt = '',
+  initialOsoba = '',
 }: PrehledPatchovaniProps) {
   const [searchTerm, setSearchTerm] = useState(initialQuery)
   const [selectedProjekt, setSelectedProjekt] = useState(initialProjekt)
+  const [selectedOsoba, setSelectedOsoba] = useState(initialOsoba)
   const router = useRouter()
   const pathname = usePathname()
   const searchParams = useSearchParams()
@@ -42,6 +49,8 @@ export default function PrehledPatchovani({
 
   const canonicalQ = searchTerm.trim()
   const canonicalProjekt = normalizeProjektId(selectedProjekt)
+  const canonicalOsoba = selectedOsoba.trim()
+  const canonicalOsobaKey = normalizeOsobaKey(canonicalOsoba)
 
   const { labelByDoklad, projects: serviceProjects } = useServiceProjects()
 
@@ -53,9 +62,11 @@ export default function PrehledPatchovani({
     else current.delete('q')
     if (canonicalProjekt) current.set('projekt', canonicalProjekt)
     else current.delete('projekt')
+    if (canonicalOsoba) current.set('osoba', canonicalOsoba)
+    else current.delete('osoba')
     const qs = current.toString()
     return `${pathname}${qs ? `?${qs}` : ''}`
-  }, [canonicalProjekt, canonicalQ, pathname, searchParams])
+  }, [canonicalOsoba, canonicalProjekt, canonicalQ, pathname, searchParams])
 
   // URL (`q`) is canonical for the main text filter.
   useEffect(() => {
@@ -72,6 +83,14 @@ export default function PrehledPatchovani({
     const p = (searchParams?.get('projekt') ?? '').toString()
     const normalized = normalizeProjektId(p)
     if (normalized !== normalizeProjektId(selectedProjekt)) setSelectedProjekt(normalized)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [searchParams])
+
+  // URL (`osoba`) is canonical for the person filter.
+  useEffect(() => {
+    const o = (searchParams?.get('osoba') ?? '').toString()
+    const trimmed = o.trim()
+    if (trimmed !== selectedOsoba.trim()) setSelectedOsoba(trimmed)
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [searchParams])
 
@@ -118,6 +137,16 @@ export default function PrehledPatchovani({
     return options
   }, [canonicalProjekt, labelByDoklad, projects, serviceProjects])
 
+  const osobaOptions = useMemo(() => {
+    const base = [...new Set(projects.map((p) => (p.accountManager ?? '').trim()).filter(Boolean))].sort((a, b) =>
+      a.localeCompare(b, 'cs'),
+    )
+    if (canonicalOsoba && !base.some((o) => normalizeOsobaKey(o) === canonicalOsobaKey)) {
+      return [canonicalOsoba, ...base]
+    }
+    return base
+  }, [canonicalOsoba, canonicalOsobaKey, projects])
+
   const selectedProjektLabel = useMemo(() => {
     if (!canonicalProjekt) return null
     return labelByDoklad.get(canonicalProjekt) ?? null
@@ -131,6 +160,8 @@ export default function PrehledPatchovani({
     const normalized = normalizeProjektId(value)
     if (normalized) current.set('projekt', normalized)
     else current.delete('projekt')
+    if (canonicalOsoba) current.set('osoba', canonicalOsoba)
+    else current.delete('osoba')
     const qs = current.toString()
     const href = qs ? `${pathname}?${qs}` : pathname
     router.replace(href)
@@ -138,11 +169,31 @@ export default function PrehledPatchovani({
 
   const onClearProjekt = () => onProjektChange('')
 
+  const onOsobaChange = (value: string) => {
+    setSelectedOsoba(value)
+    const current = new URLSearchParams(searchParams?.toString() ?? '')
+    if (canonicalQ) current.set('q', canonicalQ)
+    else current.delete('q')
+    if (canonicalProjekt) current.set('projekt', canonicalProjekt)
+    else current.delete('projekt')
+    const trimmed = value.trim()
+    if (trimmed) current.set('osoba', trimmed)
+    else current.delete('osoba')
+    const qs = current.toString()
+    const href = qs ? `${pathname}?${qs}` : pathname
+    router.replace(href)
+  }
+
+  const onClearOsoba = () => onOsobaChange('')
+
   const filteredProjects = useMemo(() => {
     const q = searchTerm.trim().toLowerCase()
-    const base = canonicalProjekt
+    let base = canonicalProjekt
       ? projects.filter((p) => normalizeProjektId(p.projectId) === canonicalProjekt)
       : projects
+    if (canonicalOsobaKey) {
+      base = base.filter((p) => normalizeOsobaKey(p.accountManager) === canonicalOsobaKey)
+    }
     if (!q) return base
     return base.filter(
       (p) =>
@@ -154,7 +205,7 @@ export default function PrehledPatchovani({
         (p.jiraKey && p.jiraKey.toLowerCase().includes(q)) ||
         (p.country && p.country.toLowerCase().includes(q))
     )
-  }, [canonicalProjekt, projects, searchTerm])
+  }, [canonicalOsobaKey, canonicalProjekt, projects, searchTerm])
 
   const totalCount = projects.length
   const withPlannedPatch = useMemo(
@@ -184,6 +235,10 @@ export default function PrehledPatchovani({
           onProjektChange={onProjektChange}
           onClearProjekt={onClearProjekt}
           projectOptions={projectOptions}
+          selectedOsoba={canonicalOsoba}
+          onOsobaChange={onOsobaChange}
+          onClearOsoba={onClearOsoba}
+          osobaOptions={osobaOptions}
           filteredCount={filteredProjects.length}
           totalCount={totalCount}
           inputRef={searchInputRef}
@@ -192,7 +247,7 @@ export default function PrehledPatchovani({
         <PrehledDat
           projects={filteredProjects}
           hasAny={projects.length > 0}
-          hasFilters={Boolean(searchTerm.trim() || canonicalProjekt)}
+          hasFilters={Boolean(searchTerm.trim() || canonicalProjekt || canonicalOsoba)}
           selectedProjekt={canonicalProjekt}
           selectedProjektLabel={selectedProjektLabel}
           returnTo={returnTo}
@@ -280,6 +335,10 @@ type FiltryPatchovaniProps = {
   onProjektChange: (value: string) => void
   onClearProjekt: () => void
   projectOptions: { value: string; label: string }[]
+  selectedOsoba: string
+  onOsobaChange: (value: string) => void
+  onClearOsoba: () => void
+  osobaOptions: string[]
   filteredCount: number
   totalCount: number
   inputRef?: React.RefObject<HTMLInputElement | null>
@@ -293,6 +352,10 @@ function FiltryPatchovani({
   onProjektChange,
   onClearProjekt,
   projectOptions,
+  selectedOsoba,
+  onOsobaChange,
+  onClearOsoba,
+  osobaOptions,
   filteredCount,
   totalCount,
   inputRef,
@@ -307,12 +370,40 @@ function FiltryPatchovani({
                 Projekt:{' '}
                 <span className="text-blue-200/90">{selectedProjektLabel ?? selectedProjekt}</span>
               </div>
+              <div className="flex flex-wrap gap-2">
+                {selectedOsoba ? (
+                  <button
+                    type="button"
+                    onClick={onClearOsoba}
+                    className="inline-flex items-center justify-center px-3 py-1.5 rounded-md border border-blue-700/40 bg-blue-900/10 hover:bg-blue-900/20 transition-colors text-xs"
+                  >
+                    <span className="text-blue-200/90">Zrušit osobu</span>
+                  </button>
+                ) : null}
+                <button
+                  type="button"
+                  onClick={onClearProjekt}
+                  className="inline-flex items-center justify-center px-3 py-1.5 rounded-md border border-blue-700/40 bg-blue-900/10 hover:bg-blue-900/20 transition-colors text-xs"
+                >
+                  <span className="text-blue-200/90">Zrušit projekt</span>
+                </button>
+              </div>
+            </div>
+          </div>
+        ) : null}
+
+        {selectedOsoba && !selectedProjekt ? (
+          <div className="rounded-lg border border-blue-700/40 bg-blue-900/15 px-4 py-3">
+            <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+              <div className="text-sm text-blue-100/90">
+                Osoba: <span className="text-blue-200/90">{selectedOsoba}</span>
+              </div>
               <button
                 type="button"
-                onClick={onClearProjekt}
+                onClick={onClearOsoba}
                 className="inline-flex items-center justify-center px-3 py-1.5 rounded-md border border-blue-700/40 bg-blue-900/10 hover:bg-blue-900/20 transition-colors text-xs"
               >
-                <span className="text-blue-200/90">Zrušit projekt</span>
+                <span className="text-blue-200/90">Zrušit osobu</span>
               </button>
             </div>
           </div>
@@ -351,6 +442,26 @@ function FiltryPatchovani({
                 {projectOptions.map((p) => (
                   <option key={p.value} value={p.value}>
                     {p.label}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <div className="w-full sm:w-72">
+              <label htmlFor="patchovani-osoba" className="block text-xs font-medium text-gray-400 mb-0.5">
+                Osoba
+              </label>
+              <select
+                id="patchovani-osoba"
+                value={selectedOsoba}
+                onChange={(e) => onOsobaChange(e.target.value)}
+                aria-label="Filtr podle osoby"
+                className="w-full pl-3 pr-3 py-2.5 rounded-lg bg-gray-800/80 border border-gray-600/60 text-sm text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-green-500/50 focus-visible:ring-offset-2 focus-visible:ring-offset-gray-900 focus-visible:border-green-500/50"
+              >
+                <option value="">Všechny osoby</option>
+                {osobaOptions.map((o) => (
+                  <option key={o} value={o}>
+                    {o}
                   </option>
                 ))}
               </select>

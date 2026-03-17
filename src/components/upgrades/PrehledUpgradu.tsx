@@ -1,6 +1,6 @@
 'use client'
 
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import Link from 'next/link'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { Upgrade } from '@/types/upgrade'
@@ -9,6 +9,7 @@ import { useServiceProjects } from '@/lib/useServiceProjects'
 type PrehledUpgraduProps = {
   initialUpgrades: Upgrade[]
   initialProjekt?: string
+  initialOsoba?: string
   serverError?: string | null
 }
 
@@ -21,6 +22,10 @@ const spanLinkMuted =
 
 function normalizeText(value: string): string {
   return value.trim().toLowerCase()
+}
+
+function normalizeOsobaKey(value: string | null | undefined): string {
+  return (value ?? '').toString().trim().toLowerCase()
 }
 
 function formatDate(dateInput: string): string {
@@ -87,6 +92,7 @@ function uniqueSorted(values: string[]): string[] {
 export default function PrehledUpgradu({
   initialUpgrades,
   initialProjekt = '',
+  initialOsoba = '',
   serverError = null,
 }: PrehledUpgraduProps) {
   const router = useRouter()
@@ -94,9 +100,24 @@ export default function PrehledUpgradu({
 
   const [searchTerm, setSearchTerm] = useState('')
   const [selectedProjekt, setSelectedProjekt] = useState(initialProjekt)
+  const [selectedOsoba, setSelectedOsoba] = useState(initialOsoba)
   const [selectedStav, setSelectedStav] = useState('vse')
 
   const { labelByDoklad } = useServiceProjects()
+
+  useEffect(() => {
+    const p = (searchParams?.get('projekt') ?? '').toString()
+    const trimmed = p.trim()
+    if (trimmed !== selectedProjekt.trim()) setSelectedProjekt(trimmed)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [searchParams])
+
+  useEffect(() => {
+    const o = (searchParams?.get('osoba') ?? '').toString()
+    const trimmed = o.trim()
+    if (trimmed !== selectedOsoba.trim()) setSelectedOsoba(trimmed)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [searchParams])
 
   const projekty = useMemo(
     () => uniqueSorted(initialUpgrades.map((u) => u.projekt)),
@@ -108,10 +129,23 @@ export default function PrehledUpgradu({
     return projekty.includes(selectedProjekt) ? projekty : uniqueSorted([selectedProjekt, ...projekty])
   }, [projekty, selectedProjekt])
 
+  const resiteleForSelect = useMemo(() => {
+    const base = uniqueSorted(initialUpgrades.map((u) => (u.resitel ?? '').trim()))
+    const trimmed = selectedOsoba.trim()
+    const key = normalizeOsobaKey(trimmed)
+    if (trimmed && !base.some((r) => normalizeOsobaKey(r) === key)) {
+      return uniqueSorted([trimmed, ...base])
+    }
+    return base
+  }, [initialUpgrades, selectedOsoba])
+
   const dostupneStavy = useMemo(
     () => uniqueSorted(initialUpgrades.map((u) => u.stav)),
     [initialUpgrades],
   )
+
+  const canonicalOsoba = selectedOsoba.trim()
+  const canonicalOsobaKey = normalizeOsobaKey(canonicalOsoba)
 
   const filteredUpgrades = useMemo(() => {
     const q = normalizeText(searchTerm)
@@ -121,6 +155,7 @@ export default function PrehledUpgradu({
     return initialUpgrades.filter((u) => {
       const matchesProjekt = !projekt || u.projekt === projekt
       const matchesStav = stav === 'vse' || normalizeText(u.stav) === normalizeText(stav)
+      const matchesOsoba = !canonicalOsobaKey || normalizeOsobaKey(u.resitel) === canonicalOsobaKey
       const matchesSearch =
         !q ||
         normalizeText(u.nazev).includes(q) ||
@@ -129,9 +164,9 @@ export default function PrehledUpgradu({
         normalizeText(u.jira_klic).includes(q) ||
         normalizeText(u.verze).includes(q)
 
-      return matchesProjekt && matchesStav && matchesSearch
+      return matchesProjekt && matchesStav && matchesOsoba && matchesSearch
     })
-  }, [initialUpgrades, searchTerm, selectedProjekt, selectedStav])
+  }, [canonicalOsobaKey, initialUpgrades, searchTerm, selectedProjekt, selectedStav])
 
   const stats = useMemo(() => {
     const total = initialUpgrades.length
@@ -147,7 +182,18 @@ export default function PrehledUpgradu({
     const current = new URLSearchParams(searchParams.toString())
     if (value) current.set('projekt', value)
     else current.delete('projekt')
-    router.replace(`/upgrades?${current.toString()}`)
+    const qs = current.toString()
+    router.replace(qs ? `/upgrades?${qs}` : '/upgrades')
+  }
+
+  const onOsobaChange = (value: string) => {
+    setSelectedOsoba(value)
+    const current = new URLSearchParams(searchParams.toString())
+    const trimmed = value.trim()
+    if (trimmed) current.set('osoba', trimmed)
+    else current.delete('osoba')
+    const qs = current.toString()
+    router.replace(qs ? `/upgrades?${qs}` : '/upgrades')
   }
 
   return (
@@ -169,6 +215,9 @@ export default function PrehledUpgradu({
           selectedStav={selectedStav}
           onStavChange={setSelectedStav}
           dostupneStavy={dostupneStavy}
+          selectedOsoba={canonicalOsoba}
+          onOsobaChange={onOsobaChange}
+          resitele={resiteleForSelect}
           filteredCount={filteredUpgrades.length}
           totalCount={initialUpgrades.length}
         />
@@ -266,6 +315,9 @@ function FiltryUpgradu({
   selectedStav,
   onStavChange,
   dostupneStavy,
+  selectedOsoba,
+  onOsobaChange,
+  resitele,
   filteredCount,
   totalCount,
 }: {
@@ -278,81 +330,111 @@ function FiltryUpgradu({
   selectedStav: string
   onStavChange: (v: string) => void
   dostupneStavy: string[]
+  selectedOsoba: string
+  onOsobaChange: (v: string) => void
+  resitele: string[]
   filteredCount: number
   totalCount: number
 }) {
   return (
     <div className="rounded-lg border border-gray-700/50 bg-gray-900/30 px-3 py-2.5 md:px-4 md:py-3">
-      <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between sm:gap-3">
-        <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:gap-3 w-full min-w-0">
-          <div className="w-full min-w-0 sm:max-w-md">
-            <label
-              htmlFor="upgrady-search"
-              className="block text-xs font-medium text-gray-400 mb-0.5"
-            >
-              Hledat
-            </label>
-            <input
-              id="upgrady-search"
-              type="text"
-              value={searchTerm}
-              onChange={(e) => onSearchChange(e.target.value)}
-              placeholder="Název, projekt, řešitel, JIRA klíč…"
-              aria-label="Hledat v upgradech"
-              className="w-full pl-3.5 pr-3.5 py-2.5 rounded-lg bg-gray-800/80 border border-gray-600/60 text-sm text-white placeholder-gray-500 focus:outline-none focus-visible:ring-2 focus-visible:ring-green-500/50 focus-visible:ring-offset-2 focus-visible:ring-offset-gray-900 focus-visible:border-green-500/50"
-            />
+      <div className="flex flex-col gap-2">
+        <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between sm:gap-3">
+          <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:gap-3 w-full min-w-0">
+            <div className="w-full min-w-0 sm:max-w-md">
+              <label
+                htmlFor="upgrady-search"
+                className="block text-xs font-medium text-gray-400 mb-0.5"
+              >
+                Hledat
+              </label>
+              <input
+                id="upgrady-search"
+                type="text"
+                value={searchTerm}
+                onChange={(e) => onSearchChange(e.target.value)}
+                placeholder="Název, projekt, řešitel, JIRA klíč…"
+                aria-label="Hledat v upgradech"
+                className="w-full pl-3.5 pr-3.5 py-2.5 rounded-lg bg-gray-800/80 border border-gray-600/60 text-sm text-white placeholder-gray-500 focus:outline-none focus-visible:ring-2 focus-visible:ring-green-500/50 focus-visible:ring-offset-2 focus-visible:ring-offset-gray-900 focus-visible:border-green-500/50"
+              />
+            </div>
+
+            <div className="w-full sm:w-64">
+              <label
+                htmlFor="upgrady-projekt"
+                className="block text-xs font-medium text-gray-400 mb-0.5"
+              >
+                Projekt
+              </label>
+              <select
+                id="upgrady-projekt"
+                value={selectedProjekt}
+                onChange={(e) => onProjektChange(e.target.value)}
+                aria-label="Filtr podle projektu"
+                className="w-full pl-3 pr-3 py-2.5 rounded-lg bg-gray-800/80 border border-gray-600/60 text-sm text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-green-500/50 focus-visible:ring-offset-2 focus-visible:ring-offset-gray-900 focus-visible:border-green-500/50"
+              >
+                <option value="">Všechny projekty</option>
+                {projekty.map((p) => (
+                  <option key={p} value={p}>
+                    {projectLabelByDoklad.get(p) ?? p}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <div className="w-full sm:w-56">
+              <label
+                htmlFor="upgrady-stav"
+                className="block text-xs font-medium text-gray-400 mb-0.5"
+              >
+                Stav
+              </label>
+              <select
+                id="upgrady-stav"
+                value={selectedStav}
+                onChange={(e) => onStavChange(e.target.value)}
+                aria-label="Filtr podle stavu"
+                className="w-full pl-3 pr-3 py-2.5 rounded-lg bg-gray-800/80 border border-gray-600/60 text-sm text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-green-500/50 focus-visible:ring-offset-2 focus-visible:ring-offset-gray-900 focus-visible:border-green-500/50"
+              >
+                <option value="vse">Všechny stavy</option>
+                {dostupneStavy.map((s) => (
+                  <option key={s} value={s}>
+                    {s}
+                  </option>
+                ))}
+              </select>
+            </div>
           </div>
 
-          <div className="w-full sm:w-64">
-            <label
-              htmlFor="upgrady-projekt"
-              className="block text-xs font-medium text-gray-400 mb-0.5"
-            >
-              Projekt
-            </label>
-            <select
-              id="upgrady-projekt"
-              value={selectedProjekt}
-              onChange={(e) => onProjektChange(e.target.value)}
-              aria-label="Filtr podle projektu"
-              className="w-full pl-3 pr-3 py-2.5 rounded-lg bg-gray-800/80 border border-gray-600/60 text-sm text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-green-500/50 focus-visible:ring-offset-2 focus-visible:ring-offset-gray-900 focus-visible:border-green-500/50"
-            >
-              <option value="">Všechny projekty</option>
-              {projekty.map((p) => (
-                <option key={p} value={p}>
-                  {projectLabelByDoklad.get(p) ?? p}
-                </option>
-              ))}
-            </select>
-          </div>
-
-          <div className="w-full sm:w-56">
-            <label
-              htmlFor="upgrady-stav"
-              className="block text-xs font-medium text-gray-400 mb-0.5"
-            >
-              Stav
-            </label>
-            <select
-              id="upgrady-stav"
-              value={selectedStav}
-              onChange={(e) => onStavChange(e.target.value)}
-              aria-label="Filtr podle stavu"
-              className="w-full pl-3 pr-3 py-2.5 rounded-lg bg-gray-800/80 border border-gray-600/60 text-sm text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-green-500/50 focus-visible:ring-offset-2 focus-visible:ring-offset-gray-900 focus-visible:border-green-500/50"
-            >
-              <option value="vse">Všechny stavy</option>
-              {dostupneStavy.map((s) => (
-                <option key={s} value={s}>
-                  {s}
-                </option>
-              ))}
-            </select>
+          <div className="text-xs text-gray-500 sm:pb-0.5 sm:text-right shrink-0">
+            Zobrazeno <span className="font-medium text-gray-300">{filteredCount}</span> z{' '}
+            <span className="font-medium text-gray-300">{totalCount}</span>
           </div>
         </div>
 
-        <div className="text-xs text-gray-500 sm:pb-0.5 sm:text-right shrink-0">
-          Zobrazeno <span className="font-medium text-gray-300">{filteredCount}</span> z{' '}
-          <span className="font-medium text-gray-300">{totalCount}</span>
+        <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:gap-3 w-full min-w-0">
+          <div className="w-full sm:w-72">
+            <label
+              htmlFor="upgrady-resitel"
+              className="block text-xs font-medium text-gray-400 mb-0.5"
+            >
+              Řešitel
+            </label>
+            <select
+              id="upgrady-resitel"
+              value={selectedOsoba}
+              onChange={(e) => onOsobaChange(e.target.value)}
+              aria-label="Filtr podle řešitele"
+              className="w-full pl-3 pr-3 py-2.5 rounded-lg bg-gray-800/80 border border-gray-600/60 text-sm text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-green-500/50 focus-visible:ring-offset-2 focus-visible:ring-offset-gray-900 focus-visible:border-green-500/50"
+            >
+              <option value="">Všichni řešitelé</option>
+              {resitele.map((r) => (
+                <option key={r} value={r}>
+                  {r}
+                </option>
+              ))}
+            </select>
+          </div>
         </div>
       </div>
     </div>
