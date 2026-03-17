@@ -6,6 +6,7 @@ import { usePathname, useRouter, useSearchParams } from 'next/navigation'
 import type { Database } from '@/types/database'
 import { DatabaseService } from '@/lib/database-service'
 import DataChart, { type ChartSeries, type ChartType } from '@/components/charts/DataChart'
+import { useServiceProjects } from '@/lib/useServiceProjects'
 
 type Props = {
   initialDatabases: Database[]
@@ -182,7 +183,10 @@ function FiltryAktualnihoStavuDb({
   onCompanyChange,
   companies,
   selectedProject,
+  onProjectChange,
   onClearProject,
+  projectLabel,
+  projectOptions,
   filteredCount,
   totalCount,
 }: {
@@ -192,7 +196,10 @@ function FiltryAktualnihoStavuDb({
   onCompanyChange: (v: string) => void
   companies: string[]
   selectedProject: string
+  onProjectChange: (v: string) => void
   onClearProject: () => void
+  projectLabel: string | null
+  projectOptions: { value: string; label: string }[]
   filteredCount: number
   totalCount: number
 }) {
@@ -204,7 +211,7 @@ function FiltryAktualnihoStavuDb({
             <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
               <div className="text-sm text-blue-100/90">
                 Filtrováno podle projektu:{' '}
-                <span className="font-mono text-[12px] text-blue-200/90">{selectedProject}</span>
+                <span className="text-blue-200/90">{projectLabel ?? selectedProject}</span>
               </div>
               <button
                 type="button"
@@ -232,6 +239,25 @@ function FiltryAktualnihoStavuDb({
                   placeholder="Firma, projekt, DB, ID firmy…"
                   className="w-full pl-3.5 pr-3.5 py-2.5 rounded-lg bg-gray-800/80 border border-gray-600/60 text-sm text-white placeholder-gray-500 focus:outline-none focus-visible:ring-2 focus-visible:ring-green-500/50 focus-visible:ring-offset-2 focus-visible:ring-offset-gray-900 focus-visible:border-green-500/50"
                 />
+              </div>
+
+              <div className="w-full sm:w-72">
+                <label htmlFor="db-projekt" className="block text-xs font-medium text-gray-400 mb-0.5">
+                  Projekt
+                </label>
+                <select
+                  id="db-projekt"
+                  value={selectedProject}
+                  onChange={(e) => onProjectChange(e.target.value)}
+                  className="w-full pl-3 pr-3 py-2.5 rounded-lg bg-gray-800/80 border border-gray-600/60 text-sm text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-green-500/50 focus-visible:ring-offset-2 focus-visible:ring-offset-gray-900 focus-visible:border-green-500/50"
+                >
+                  <option value="">Všechny projekty</option>
+                  {projectOptions.map((p) => (
+                    <option key={p.value} value={p.value}>
+                      {p.label}
+                    </option>
+                  ))}
+                </select>
               </div>
 
               <div className="w-full sm:w-72">
@@ -821,6 +847,7 @@ export default function AktualniStavDbClient({
   const router = useRouter()
   const pathname = usePathname()
   const searchParams = useSearchParams()
+  const { labelByDoklad, projects: serviceProjects } = useServiceProjects()
   const [searchTerm, setSearchTerm] = useState('')
   const [selectedCompany, setSelectedCompany] = useState('')
   const [selectedProject, setSelectedProject] = useState(initialProjekt)
@@ -834,6 +861,28 @@ export default function AktualniStavDbClient({
   const companies = useMemo(() => {
     return [...new Set(databases.map((d) => d.firma_nazev).filter(Boolean))].sort((a, b) => a.localeCompare(b, 'cs'))
   }, [databases])
+
+  const projectOptions = useMemo(() => {
+    const available = new Set(databases.map((d) => (d.projekt ?? '').trim()).filter(Boolean))
+    const options = serviceProjects
+      .filter((p) => available.has((p.doklad_proj ?? '').trim()))
+      .map((p) => ({
+        value: (p.doklad_proj ?? '').trim(),
+        label: labelByDoklad.get((p.doklad_proj ?? '').trim()) ?? (p.doklad_proj ?? '').trim(),
+      }))
+      .filter((p) => p.value)
+      .sort((a, b) => a.label.localeCompare(b.label, 'cs'))
+
+    if (selectedProject && !options.some((o) => o.value === selectedProject)) {
+      return [{ value: selectedProject, label: labelByDoklad.get(selectedProject) ?? selectedProject }, ...options]
+    }
+    return options
+  }, [databases, labelByDoklad, selectedProject, serviceProjects])
+
+  const selectedProjectLabel = useMemo(() => {
+    if (!selectedProject) return null
+    return labelByDoklad.get(selectedProject) ?? null
+  }, [labelByDoklad, selectedProject])
 
   const filteredDatabases = useMemo(() => {
     const q = normalize(searchTerm)
@@ -895,6 +944,15 @@ export default function AktualniStavDbClient({
     }
   }, [filteredDatabases, selectedDb, selectedKey, selectedProject])
 
+  const onProjectChange = (value: string) => {
+    setSelectedProject(value)
+    const current = new URLSearchParams(searchParams?.toString() ?? '')
+    if (value) current.set('projekt', value)
+    else current.delete('projekt')
+    const qs = current.toString()
+    router.replace(qs ? `${pathname}?${qs}` : pathname)
+  }
+
   const onClearProject = () => {
     setSelectedProject('')
     const current = new URLSearchParams(searchParams?.toString() ?? '')
@@ -941,7 +999,10 @@ export default function AktualniStavDbClient({
         onCompanyChange={setSelectedCompany}
         companies={companies}
         selectedProject={selectedProject}
+        onProjectChange={onProjectChange}
         onClearProject={onClearProject}
+        projectLabel={selectedProjectLabel}
+        projectOptions={projectOptions}
         filteredCount={filteredDatabases.length}
         totalCount={databases.length}
       />

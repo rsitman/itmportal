@@ -39,7 +39,7 @@ function AkceProjektu({ project, returnTo }: { project: ServiceProject; returnTo
   const dokladProjektu = project.doklad_proj
   const nazevFirmy = project.nazev_par
 
-  const patchUrl = `/plan_patchovani?q=${encodeURIComponent(nazevFirmy)}&returnTo=${encodeURIComponent(returnTo)}`
+  const patchUrl = `/plan_patchovani?projekt=${encodeURIComponent(dokladProjektu)}&q=${encodeURIComponent(nazevFirmy)}&returnTo=${encodeURIComponent(returnTo)}`
   const teamUrl = `/projects/doklad-projektu/${encodeURIComponent(dokladProjektu)}/team?returnTo=${encodeURIComponent(returnTo)}`
   const extcompsUrl = `/projects/doklad-projektu/${encodeURIComponent(dokladProjektu)}/extcomps?returnTo=${encodeURIComponent(returnTo)}`
   const dbUrl = `/databases?projekt=${encodeURIComponent(dokladProjektu)}&returnTo=${encodeURIComponent(returnTo)}`
@@ -121,6 +121,15 @@ export default function ProjectsRegistryClient() {
   const searchInputRef = useRef<HTMLInputElement | null>(null)
 
   const canonicalQ = searchTerm.trim()
+  const selectedProjekt = (searchParams?.get('projekt') ?? '').toString().trim()
+
+  const selectedProjektLabel = useMemo(() => {
+    if (!selectedProjekt) return null
+    const p = serviceProjects.find((sp) => (sp.doklad_proj ?? '').trim() === selectedProjekt)
+    if (!p) return selectedProjekt
+    const name = (p.nazev ?? '').trim()
+    return name ? `${name} · ${selectedProjekt}` : selectedProjekt
+  }, [selectedProjekt, serviceProjects])
 
   // Return context for internal navigation should reflect the *latest* filter value,
   // even if the debounced URL update hasn't flushed yet.
@@ -131,6 +140,16 @@ export default function ProjectsRegistryClient() {
     const qs = current.toString()
     return `${pathname}${qs ? `?${qs}` : ''}`
   }, [canonicalQ, pathname, searchParams])
+
+  const onClearProjekt = useCallback(() => {
+    const current = new URLSearchParams(searchParams?.toString() ?? '')
+    if (canonicalQ) current.set('q', canonicalQ)
+    else current.delete('q')
+    current.delete('projekt')
+    const qs = current.toString()
+    const href = qs ? `${pathname}?${qs}` : pathname
+    router.replace(href)
+  }, [canonicalQ, pathname, router, searchParams])
 
   // URL (`q`) is canonical for the main text filter.
   useEffect(() => {
@@ -263,6 +282,24 @@ export default function ProjectsRegistryClient() {
     <div className="card-professional rounded-lg border border-gray-700/60 p-4 md:p-5">
       <h2 className="text-lg font-semibold text-white mb-4">Přehled projektů</h2>
 
+      {selectedProjekt ? (
+        <div className="mb-4 rounded-lg border border-blue-700/40 bg-blue-900/15 px-4 py-3">
+          <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+            <div className="text-sm text-blue-100/90">
+              Projekt:{' '}
+              <span className="text-blue-200/90">{selectedProjektLabel ?? selectedProjekt}</span>
+            </div>
+            <button
+              type="button"
+              onClick={onClearProjekt}
+              className="inline-flex items-center justify-center px-3 py-1.5 rounded-md border border-blue-700/40 bg-blue-900/10 hover:bg-blue-900/20 transition-colors text-xs"
+            >
+              <span className="text-blue-200/90">Zrušit projekt</span>
+            </button>
+          </div>
+        </div>
+      ) : null}
+
       <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4 mb-4">
         <p className="text-sm text-gray-400">
           Zobrazeno <span className="font-medium text-white">{filteredProjects.length}</span> z{' '}
@@ -314,7 +351,12 @@ export default function ProjectsRegistryClient() {
           {filteredProjects.map((project, index) => (
             <li
               key={`${project.doklad_proj || 'no-id'}-${index}`}
-              className="rounded-lg border border-gray-700/70 bg-gray-900/40 px-4 md:px-6 py-3.5 shadow-sm transition-all duration-200 hover:bg-gray-800/80 hover:border-gray-500/70 hover:shadow-md hover:-translate-y-0.5"
+              className={[
+                'rounded-lg border bg-gray-900/40 px-4 md:px-6 py-3.5 shadow-sm transition-all duration-200 hover:bg-gray-800/80 hover:border-gray-500/70 hover:shadow-md hover:-translate-y-0.5',
+                selectedProjekt && project.doklad_proj === selectedProjekt
+                  ? 'border-blue-500/60 ring-1 ring-blue-500/30'
+                  : 'border-gray-700/70',
+              ].join(' ')}
             >
               <div className="flex flex-col gap-3 md:grid md:grid-cols-[auto_minmax(0,2fr)_minmax(0,1fr)] md:items-center md:gap-6">
                 <div className="flex items-center gap-3 md:justify-center md:block">

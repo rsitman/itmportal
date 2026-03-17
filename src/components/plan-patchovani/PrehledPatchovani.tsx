@@ -5,10 +5,12 @@ import Link from 'next/link'
 import { usePathname, useRouter, useSearchParams } from 'next/navigation'
 import { KaratProject } from '@/lib/karat'
 import { jiraIssueUrl } from '@/lib/jira'
+import { useServiceProjects } from '@/lib/useServiceProjects'
 
 type PrehledPatchovaniProps = {
   projects: KaratProject[]
   initialQuery?: string
+  initialProjekt?: string
 }
 
 function formatDate(dateInput: Date | null): string {
@@ -24,8 +26,10 @@ function formatDate(dateInput: Date | null): string {
 export default function PrehledPatchovani({
   projects,
   initialQuery = '',
+  initialProjekt = '',
 }: PrehledPatchovaniProps) {
   const [searchTerm, setSearchTerm] = useState(initialQuery)
+  const [selectedProjekt, setSelectedProjekt] = useState(initialProjekt)
   const router = useRouter()
   const pathname = usePathname()
   const searchParams = useSearchParams()
@@ -33,6 +37,9 @@ export default function PrehledPatchovani({
   const searchInputRef = useRef<HTMLInputElement | null>(null)
 
   const canonicalQ = searchTerm.trim()
+  const canonicalProjekt = selectedProjekt.trim()
+
+  const { labelByDoklad, projects: serviceProjects } = useServiceProjects()
 
   // Return context for internal navigation should reflect the *latest* filter value,
   // even if the debounced URL update hasn't flushed yet.
@@ -40,9 +47,11 @@ export default function PrehledPatchovani({
     const current = new URLSearchParams(searchParams?.toString() ?? '')
     if (canonicalQ) current.set('q', canonicalQ)
     else current.delete('q')
+    if (canonicalProjekt) current.set('projekt', canonicalProjekt)
+    else current.delete('projekt')
     const qs = current.toString()
     return `${pathname}${qs ? `?${qs}` : ''}`
-  }, [canonicalQ, pathname, searchParams])
+  }, [canonicalProjekt, canonicalQ, pathname, searchParams])
 
   // URL (`q`) is canonical for the main text filter.
   useEffect(() => {
@@ -51,6 +60,13 @@ export default function PrehledPatchovani({
     if (!isFocused && q !== searchTerm) {
       setSearchTerm(q)
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [searchParams])
+
+  // URL (`projekt`) is canonical for the project context pin.
+  useEffect(() => {
+    const p = (searchParams?.get('projekt') ?? '').toString()
+    if (p !== selectedProjekt) setSelectedProjekt(p)
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [searchParams])
 
@@ -80,10 +96,47 @@ export default function PrehledPatchovani({
     }
   }, [pathname, router, searchParams, searchTerm])
 
+  const projectOptions = useMemo(() => {
+    const available = new Set(projects.map((p) => (p.projectId ?? '').trim()).filter(Boolean))
+    const options = serviceProjects
+      .filter((p) => available.has((p.doklad_proj ?? '').trim()))
+      .map((p) => ({
+        value: (p.doklad_proj ?? '').trim(),
+        label: labelByDoklad.get((p.doklad_proj ?? '').trim()) ?? (p.doklad_proj ?? '').trim(),
+      }))
+      .filter((p) => p.value)
+      .sort((a, b) => a.label.localeCompare(b.label, 'cs'))
+
+    if (canonicalProjekt && !options.some((o) => o.value === canonicalProjekt)) {
+      return [{ value: canonicalProjekt, label: labelByDoklad.get(canonicalProjekt) ?? canonicalProjekt }, ...options]
+    }
+    return options
+  }, [canonicalProjekt, labelByDoklad, projects, serviceProjects])
+
+  const selectedProjektLabel = useMemo(() => {
+    if (!canonicalProjekt) return null
+    return labelByDoklad.get(canonicalProjekt) ?? null
+  }, [canonicalProjekt, labelByDoklad])
+
+  const onProjektChange = (value: string) => {
+    setSelectedProjekt(value)
+    const current = new URLSearchParams(searchParams?.toString() ?? '')
+    if (canonicalQ) current.set('q', canonicalQ)
+    else current.delete('q')
+    if (value) current.set('projekt', value)
+    else current.delete('projekt')
+    const qs = current.toString()
+    const href = qs ? `${pathname}?${qs}` : pathname
+    router.replace(href)
+  }
+
+  const onClearProjekt = () => onProjektChange('')
+
   const filteredProjects = useMemo(() => {
     const q = searchTerm.trim().toLowerCase()
-    if (!q) return projects
-    return projects.filter(
+    const base = canonicalProjekt ? projects.filter((p) => p.projectId === canonicalProjekt) : projects
+    if (!q) return base
+    return base.filter(
       (p) =>
         (p.projectName && p.projectName.toLowerCase().includes(q)) ||
         (p.companyName && p.companyName.toLowerCase().includes(q)) ||
@@ -93,7 +146,7 @@ export default function PrehledPatchovani({
         (p.jiraKey && p.jiraKey.toLowerCase().includes(q)) ||
         (p.country && p.country.toLowerCase().includes(q))
     )
-  }, [projects, searchTerm])
+  }, [canonicalProjekt, projects, searchTerm])
 
   const totalCount = projects.length
   const withPlannedPatch = useMemo(
@@ -118,6 +171,11 @@ export default function PrehledPatchovani({
         <FiltryPatchovani
           searchTerm={searchTerm}
           onSearchChange={setSearchTerm}
+          selectedProjekt={canonicalProjekt}
+          selectedProjektLabel={selectedProjektLabel}
+          onProjektChange={onProjektChange}
+          onClearProjekt={onClearProjekt}
+          projectOptions={projectOptions}
           filteredCount={filteredProjects.length}
           totalCount={totalCount}
           inputRef={searchInputRef}
@@ -207,6 +265,11 @@ function HlavickaPlanuPatchovani({
 type FiltryPatchovaniProps = {
   searchTerm: string
   onSearchChange: (value: string) => void
+  selectedProjekt: string
+  selectedProjektLabel: string | null
+  onProjektChange: (value: string) => void
+  onClearProjekt: () => void
+  projectOptions: { value: string; label: string }[]
   filteredCount: number
   totalCount: number
   inputRef?: React.RefObject<HTMLInputElement | null>
@@ -215,35 +278,79 @@ type FiltryPatchovaniProps = {
 function FiltryPatchovani({
   searchTerm,
   onSearchChange,
+  selectedProjekt,
+  selectedProjektLabel,
+  onProjektChange,
+  onClearProjekt,
+  projectOptions,
   filteredCount,
   totalCount,
   inputRef,
 }: FiltryPatchovaniProps) {
   return (
     <div className="rounded-lg border border-gray-700/50 bg-gray-900/30 px-3 py-2.5 md:px-4 md:py-3">
-      <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between sm:gap-3">
-        <div className="w-full min-w-0 sm:max-w-md">
-          <label
-            htmlFor="patchovani-search"
-            className="block text-xs font-medium text-gray-400 mb-0.5"
-          >
-            Hledat
-          </label>
-          <input
-            id="patchovani-search"
-            type="text"
-            value={searchTerm}
-            onChange={(e) => onSearchChange(e.target.value)}
-            placeholder="Hledat projekt, firmu…"
-            aria-label="Hledat v přehledu patchování"
-            ref={inputRef}
-            className="w-full pl-3.5 pr-3.5 py-2.5 rounded-lg bg-gray-800/80 border border-gray-600/60 text-sm text-white placeholder-gray-500 focus:outline-none focus-visible:ring-2 focus-visible:ring-green-500/50 focus-visible:ring-offset-2 focus-visible:ring-offset-gray-900 focus-visible:border-green-500/50"
-          />
-        </div>
-        <div className="text-xs text-gray-500 sm:pb-0.5 sm:text-right shrink-0">
-          Zobrazeno{' '}
-          <span className="font-medium text-gray-300">{filteredCount}</span> z{' '}
-          <span className="font-medium text-gray-300">{totalCount}</span>
+      <div className="flex flex-col gap-2.5">
+        {selectedProjekt ? (
+          <div className="rounded-lg border border-blue-700/40 bg-blue-900/15 px-4 py-3">
+            <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+              <div className="text-sm text-blue-100/90">
+                Projekt:{' '}
+                <span className="text-blue-200/90">{selectedProjektLabel ?? selectedProjekt}</span>
+              </div>
+              <button
+                type="button"
+                onClick={onClearProjekt}
+                className="inline-flex items-center justify-center px-3 py-1.5 rounded-md border border-blue-700/40 bg-blue-900/10 hover:bg-blue-900/20 transition-colors text-xs"
+              >
+                <span className="text-blue-200/90">Zrušit projekt</span>
+              </button>
+            </div>
+          </div>
+        ) : null}
+
+        <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between sm:gap-3">
+          <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:gap-3 w-full min-w-0">
+            <div className="w-full min-w-0 sm:max-w-md">
+              <label htmlFor="patchovani-search" className="block text-xs font-medium text-gray-400 mb-0.5">
+                Hledat
+              </label>
+              <input
+                id="patchovani-search"
+                type="text"
+                value={searchTerm}
+                onChange={(e) => onSearchChange(e.target.value)}
+                placeholder="Hledat projekt, firmu…"
+                aria-label="Hledat v přehledu patchování"
+                ref={inputRef}
+                className="w-full pl-3.5 pr-3.5 py-2.5 rounded-lg bg-gray-800/80 border border-gray-600/60 text-sm text-white placeholder-gray-500 focus:outline-none focus-visible:ring-2 focus-visible:ring-green-500/50 focus-visible:ring-offset-2 focus-visible:ring-offset-gray-900 focus-visible:border-green-500/50"
+              />
+            </div>
+
+            <div className="w-full sm:w-80">
+              <label htmlFor="patchovani-projekt" className="block text-xs font-medium text-gray-400 mb-0.5">
+                Projekt
+              </label>
+              <select
+                id="patchovani-projekt"
+                value={selectedProjekt}
+                onChange={(e) => onProjektChange(e.target.value)}
+                aria-label="Projektový kontext"
+                className="w-full pl-3 pr-3 py-2.5 rounded-lg bg-gray-800/80 border border-gray-600/60 text-sm text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-green-500/50 focus-visible:ring-offset-2 focus-visible:ring-offset-gray-900 focus-visible:border-green-500/50"
+              >
+                <option value="">Všechny projekty</option>
+                {projectOptions.map((p) => (
+                  <option key={p.value} value={p.value}>
+                    {p.label}
+                  </option>
+                ))}
+              </select>
+            </div>
+          </div>
+
+          <div className="text-xs text-gray-500 sm:pb-0.5 sm:text-right shrink-0">
+            Zobrazeno <span className="font-medium text-gray-300">{filteredCount}</span> z{' '}
+            <span className="font-medium text-gray-300">{totalCount}</span>
+          </div>
         </div>
       </div>
     </div>

@@ -4,6 +4,7 @@ import { useMemo, useState } from 'react'
 import Link from 'next/link'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { Upgrade } from '@/types/upgrade'
+import { useServiceProjects } from '@/lib/useServiceProjects'
 
 type PrehledUpgraduProps = {
   initialUpgrades: Upgrade[]
@@ -95,10 +96,17 @@ export default function PrehledUpgradu({
   const [selectedProjekt, setSelectedProjekt] = useState(initialProjekt)
   const [selectedStav, setSelectedStav] = useState('vse')
 
+  const { labelByDoklad } = useServiceProjects()
+
   const projekty = useMemo(
     () => uniqueSorted(initialUpgrades.map((u) => u.projekt)),
     [initialUpgrades],
   )
+
+  const projektyForSelect = useMemo(() => {
+    if (!selectedProjekt) return projekty
+    return projekty.includes(selectedProjekt) ? projekty : uniqueSorted([selectedProjekt, ...projekty])
+  }, [projekty, selectedProjekt])
 
   const dostupneStavy = useMemo(
     () => uniqueSorted(initialUpgrades.map((u) => u.stav)),
@@ -156,7 +164,8 @@ export default function PrehledUpgradu({
           onSearchChange={setSearchTerm}
           selectedProjekt={selectedProjekt}
           onProjektChange={onProjektChange}
-          projekty={projekty}
+          projekty={projektyForSelect}
+          projectLabelByDoklad={labelByDoklad}
           selectedStav={selectedStav}
           onStavChange={setSelectedStav}
           dostupneStavy={dostupneStavy}
@@ -253,6 +262,7 @@ function FiltryUpgradu({
   selectedProjekt,
   onProjektChange,
   projekty,
+  projectLabelByDoklad,
   selectedStav,
   onStavChange,
   dostupneStavy,
@@ -264,6 +274,7 @@ function FiltryUpgradu({
   selectedProjekt: string
   onProjektChange: (v: string) => void
   projekty: string[]
+  projectLabelByDoklad: Map<string, string>
   selectedStav: string
   onStavChange: (v: string) => void
   dostupneStavy: string[]
@@ -309,7 +320,7 @@ function FiltryUpgradu({
               <option value="">Všechny projekty</option>
               {projekty.map((p) => (
                 <option key={p} value={p}>
-                  {p}
+                  {projectLabelByDoklad.get(p) ?? p}
                 </option>
               ))}
             </select>
