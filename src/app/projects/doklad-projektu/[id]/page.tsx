@@ -9,6 +9,9 @@ interface DetailProjektuPageProps {
   params: Promise<{
     id: string
   }>
+  searchParams?: Promise<{
+    returnTo?: string
+  }>
 }
 
 export const metadata: Metadata = {
@@ -16,7 +19,16 @@ export const metadata: Metadata = {
   description: 'Landing detail projektu a navazující oblasti',
 }
 
-export default async function DetailProjektuPage({ params }: DetailProjektuPageProps) {
+function safeInternalHref(value: string | undefined | null): string | null {
+  const v = (value ?? '').trim()
+  if (!v) return null
+  // Povolit jen interní relativní cesty, aby nešlo injektovat externí URL.
+  if (!v.startsWith('/')) return null
+  if (v.startsWith('//')) return null
+  return v
+}
+
+export default async function DetailProjektuPage({ params, searchParams }: DetailProjektuPageProps) {
   const session = await getServerSession(authOptions)
 
   if (!session) {
@@ -25,6 +37,11 @@ export default async function DetailProjektuPage({ params }: DetailProjektuPageP
 
   const resolvedParams = await params
   const dokladProjektu = resolvedParams.id
+  const resolvedSearchParams = searchParams ? await searchParams : undefined
+  const returnTo = safeInternalHref(resolvedSearchParams?.returnTo)
+
+  const detailPath = `/projects/doklad-projektu/${encodeURIComponent(dokladProjektu)}`
+  const subpageReturnTo = encodeURIComponent(detailPath + (returnTo ? `?returnTo=${encodeURIComponent(returnTo)}` : ''))
 
   let nazevProjektu: string | null = null
   try {
@@ -53,7 +70,7 @@ export default async function DetailProjektuPage({ params }: DetailProjektuPageP
             </div>
           </div>
           <Link
-            href="/evidence-projektu"
+            href={returnTo ?? '/evidence-projektu'}
             className="px-4 py-2 rounded border border-gray-600 bg-gray-800/80 !text-gray-300 hover:!text-gray-100 hover:bg-gray-700 hover:border-gray-500 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-gray-500 focus-visible:ring-offset-2 focus-visible:ring-offset-gray-900"
           >
             ← Zpět na přehled
@@ -69,7 +86,7 @@ export default async function DetailProjektuPage({ params }: DetailProjektuPageP
 
         <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
           <Link
-            href={`/projects/doklad-projektu/${encodeURIComponent(dokladProjektu)}/team`}
+            href={`${detailPath}/team?returnTo=${subpageReturnTo}`}
             className="card-professional p-6 hover:shadow-strong transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green-500 focus-visible:ring-offset-2 focus-visible:ring-offset-gray-900"
           >
             <div className="text-white font-semibold mb-1">Tým</div>
@@ -77,7 +94,7 @@ export default async function DetailProjektuPage({ params }: DetailProjektuPageP
           </Link>
 
           <Link
-            href={`/projects/doklad-projektu/${encodeURIComponent(dokladProjektu)}/extcomps`}
+            href={`${detailPath}/extcomps?returnTo=${subpageReturnTo}`}
             className="card-professional p-6 hover:shadow-strong transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green-500 focus-visible:ring-offset-2 focus-visible:ring-offset-gray-900"
           >
             <div className="text-white font-semibold mb-1">Externí komponenty</div>

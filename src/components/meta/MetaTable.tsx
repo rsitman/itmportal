@@ -2,6 +2,7 @@
 
 import { memo, useMemo } from 'react'
 import { MetaResource, MetaField } from '@/types/meta'
+import { jiraIssueUrl } from '@/lib/jira'
 
 interface MetaTableProps {
   meta: MetaResource
@@ -58,7 +59,7 @@ function renderCellValue(field: MetaField, value: any, row: any): React.ReactNod
       if (field.id === 'jiraKey' && value) {
         return (
           <a
-            href={`https://itmancz.atlassian.net/browse/${value}`}
+            href={jiraIssueUrl(String(value))}
             target="_blank"
             rel="noopener noreferrer"
             className="text-green-400 hover:text-green-300 text-sm font-medium"

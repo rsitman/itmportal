@@ -5,6 +5,8 @@ import { useCallback, useEffect, useMemo, useState } from 'react'
 import { ServiceProject } from '@/types/project'
 import { logger } from '@/lib/logger'
 import ProjectLogo from './ProjectLogo'
+import { jiraIssueUrl } from '@/lib/jira'
+import { usePathname, useSearchParams } from 'next/navigation'
 
 type SortKey = 'nazev'
 type SortDirection = 'asc' | 'desc'
@@ -33,20 +35,20 @@ const chipSecondary =
 const chipDisabled =
   'inline-flex items-center justify-center px-2.5 py-1.5 text-xs rounded-md bg-gray-800/40 border border-gray-700/40 text-gray-500 cursor-not-allowed'
 
-function AkceProjektu({ project }: { project: ServiceProject }) {
+function AkceProjektu({ project, returnTo }: { project: ServiceProject; returnTo: string }) {
   const dokladProjektu = project.doklad_proj
   const nazevFirmy = project.nazev_par
 
   const patchUrl = `/plan_patchovani?q=${encodeURIComponent(nazevFirmy)}`
-  const teamUrl = `/projects/doklad-projektu/${encodeURIComponent(dokladProjektu)}/team`
-  const extcompsUrl = `/projects/doklad-projektu/${encodeURIComponent(dokladProjektu)}/extcomps`
+  const teamUrl = `/projects/doklad-projektu/${encodeURIComponent(dokladProjektu)}/team?returnTo=${encodeURIComponent(returnTo)}`
+  const extcompsUrl = `/projects/doklad-projektu/${encodeURIComponent(dokladProjektu)}/extcomps?returnTo=${encodeURIComponent(returnTo)}`
   const dbUrl = `/databases?projekt=${encodeURIComponent(dokladProjektu)}`
   const upgradesUrl = `/upgrades?projekt=${encodeURIComponent(dokladProjektu)}`
   const hwswUrl = `/hwsw-config?projekt=${encodeURIComponent(dokladProjektu)}`
 
   const hasJira = Boolean(project.jira_klic && project.jira_klic.trim())
   const hasGps = Boolean(project.gps && project.gps.trim())
-  const jiraUrl = hasJira ? `https://itmancz.atlassian.net/browse/${project.jira_klic}` : null
+  const jiraUrl = hasJira ? jiraIssueUrl(project.jira_klic) : null
   const mapUrl = hasGps ? `https://www.google.com/maps?q=${encodeURIComponent(project.gps)}` : null
 
   return (
@@ -112,6 +114,13 @@ export default function ProjectsRegistryClient() {
   const [searchTerm, setSearchTerm] = useState('')
   const [sortKey, setSortKey] = useState<SortKey>('nazev')
   const [sortDirection, setSortDirection] = useState<SortDirection>('asc')
+  const pathname = usePathname()
+  const searchParams = useSearchParams()
+
+  const returnTo = useMemo(() => {
+    const qs = searchParams?.toString() ?? ''
+    return `${pathname}${qs ? `?${qs}` : ''}`
+  }, [pathname, searchParams])
 
   const fetchData = useCallback(async () => {
     try {
@@ -268,7 +277,10 @@ export default function ProjectsRegistryClient() {
                 </div>
                 <div className="flex flex-col gap-1 min-w-0">
                   <Link
-                    href={`/projects/doklad-projektu/${encodeURIComponent(project.doklad_proj)}`}
+                    href={{
+                      pathname: `/projects/doklad-projektu/${encodeURIComponent(project.doklad_proj)}`,
+                      query: { returnTo },
+                    }}
                     className="link-project-name text-base font-semibold text-white hover:text-gray-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500/45 focus-visible:ring-offset-2 focus-visible:ring-offset-gray-900 rounded"
                   >
                     {project.nazev || '—'}
@@ -277,7 +289,7 @@ export default function ProjectsRegistryClient() {
                   <span className="text-xs text-gray-500 font-mono">{project.doklad_proj || '—'}</span>
                 </div>
                 <div className="flex justify-start md:justify-end">
-                  <AkceProjektu project={project} />
+                  <AkceProjektu project={project} returnTo={returnTo} />
                 </div>
               </div>
             </li>

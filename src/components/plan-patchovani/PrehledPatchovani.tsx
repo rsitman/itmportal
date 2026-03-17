@@ -3,6 +3,7 @@
 import { useMemo, useState } from 'react'
 import Link from 'next/link'
 import { KaratProject } from '@/lib/karat'
+import { jiraIssueUrl } from '@/lib/jira'
 
 type PrehledPatchovaniProps = {
   projects: KaratProject[]
@@ -266,7 +267,7 @@ function RadekTabulky({ project }: { project: KaratProject }) {
   const detailHref = `/plan_patchovani/${project.companyId}`
   const patchModulesHref = `/patch-modules?projekt=${encodeURIComponent(project.projectId)}&firma=${encodeURIComponent(project.companyId)}`
   const jiraHref = project.jiraKey
-    ? `https://itmancz.atlassian.net/browse/${project.jiraKey}`
+    ? jiraIssueUrl(project.jiraKey)
     : null
 
   return (
@@ -362,7 +363,7 @@ function RadekKarty({ project }: { project: KaratProject }) {
   const detailHref = `/plan_patchovani/${project.companyId}`
   const patchModulesHref = `/patch-modules?projekt=${encodeURIComponent(project.projectId)}&firma=${encodeURIComponent(project.companyId)}`
   const jiraHref = project.jiraKey
-    ? `https://itmancz.atlassian.net/browse/${project.jiraKey}`
+    ? jiraIssueUrl(project.jiraKey)
     : null
 
   return (
