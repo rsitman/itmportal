@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useMemo, useState } from 'react'
+import Link from 'next/link'
 import { usePathname, useRouter, useSearchParams } from 'next/navigation'
 import type { Database } from '@/types/database'
 import { DatabaseService } from '@/lib/database-service'
@@ -117,42 +118,57 @@ function HlavickaAktualnihoStavuDb({
 }) {
   return (
     <header className="card-professional rounded-lg border border-gray-700/60 p-3 md:p-4">
-      <div className="flex flex-col gap-2.5 sm:flex-row sm:items-start sm:justify-between">
-        <div>
-          <h1 className="text-xl md:text-2xl font-bold tracking-tight text-white leading-tight">Aktuální stav databází</h1>
-          <p className="mt-0.5 text-sm text-gray-400 leading-snug">
-            Monitoring stavu, využití a základních metrik DB v IS KARAT.
-          </p>
-          <div className="mt-1.5 text-xs text-gray-500">
-            Aktualizováno: <span className="text-gray-300 tabular-nums">{formatLastUpdated(lastUpdated)}</span>
-          </div>
-        </div>
-        <div className="flex flex-col gap-2 sm:items-end">
-          <button
-            type="button"
-            onClick={onRefresh}
-            className="inline-flex items-center justify-center px-3.5 py-2 rounded-lg bg-green-600 text-white hover:bg-green-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-green-500/50 focus-visible:ring-offset-2 focus-visible:ring-offset-gray-900 transition-colors shrink-0"
+      <div className="flex flex-col gap-2.5">
+        <nav className="text-[11px] text-gray-500 flex flex-wrap items-center gap-x-2 gap-y-1">
+          <Link
+            href="/evidence-projektu"
+            className="group inline-flex items-center rounded focus:outline-none focus-visible:ring-2 focus-visible:ring-gray-400 focus-visible:ring-offset-2 focus-visible:ring-offset-gray-900"
           >
-            Obnovit
-          </button>
-          <dl className="grid grid-cols-4 gap-x-3 gap-y-1 sm:flex sm:gap-4 text-right">
-            <div>
-              <dt className="text-[10px] font-medium uppercase tracking-wide text-gray-500">Celkem</dt>
-              <dd className="text-sm font-semibold text-white mt-0.5 tabular-nums">{summary.total}</dd>
+            <span className="text-gray-500 group-hover:text-gray-300 transition-colors">
+              Evidence projektů
+            </span>
+          </Link>
+          <span className="text-gray-700">/</span>
+          <span className="text-gray-300">Stav databází</span>
+        </nav>
+
+        <div className="flex flex-col gap-2.5 sm:flex-row sm:items-start sm:justify-between">
+          <div>
+            <h1 className="text-xl md:text-2xl font-bold tracking-tight text-white leading-tight">Aktuální stav databází</h1>
+            <p className="mt-0.5 text-sm text-gray-400 leading-snug">
+              Monitoring stavu, využití a základních metrik DB v IS KARAT.
+            </p>
+            <div className="mt-1.5 text-xs text-gray-500">
+              Aktualizováno: <span className="text-gray-300 tabular-nums">{formatLastUpdated(lastUpdated)}</span>
             </div>
-            <div>
-              <dt className="text-[10px] font-medium uppercase tracking-wide text-gray-500">Kritické</dt>
-              <dd className="text-sm font-semibold text-red-200/90 mt-0.5 tabular-nums">{summary.crit}</dd>
-            </div>
-            <div>
-              <dt className="text-[10px] font-medium uppercase tracking-wide text-gray-500">Varování</dt>
-              <dd className="text-sm font-semibold text-amber-200/90 mt-0.5 tabular-nums">{summary.warn}</dd>
-            </div>
-            <div>
-              <dt className="text-[10px] font-medium uppercase tracking-wide text-gray-500">OK</dt>
-              <dd className="text-sm font-semibold text-emerald-200/90 mt-0.5 tabular-nums">{summary.ok}</dd>
-            </div>
-          </dl>
+          </div>
+          <div className="flex flex-col gap-2 sm:items-end">
+            <button
+              type="button"
+              onClick={onRefresh}
+              className="inline-flex items-center justify-center px-3.5 py-2 rounded-lg bg-green-600 text-white hover:bg-green-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-green-500/50 focus-visible:ring-offset-2 focus-visible:ring-offset-gray-900 transition-colors shrink-0"
+            >
+              Obnovit
+            </button>
+            <dl className="grid grid-cols-4 gap-x-3 gap-y-1 sm:flex sm:gap-4 text-right">
+              <div>
+                <dt className="text-[10px] font-medium uppercase tracking-wide text-gray-500">Celkem</dt>
+                <dd className="text-sm font-semibold text-white mt-0.5 tabular-nums">{summary.total}</dd>
+              </div>
+              <div>
+                <dt className="text-[10px] font-medium uppercase tracking-wide text-gray-500">Kritické</dt>
+                <dd className="text-sm font-semibold text-red-200/90 mt-0.5 tabular-nums">{summary.crit}</dd>
+              </div>
+              <div>
+                <dt className="text-[10px] font-medium uppercase tracking-wide text-gray-500">Varování</dt>
+                <dd className="text-sm font-semibold text-amber-200/90 mt-0.5 tabular-nums">{summary.warn}</dd>
+              </div>
+              <div>
+                <dt className="text-[10px] font-medium uppercase tracking-wide text-gray-500">OK</dt>
+                <dd className="text-sm font-semibold text-emerald-200/90 mt-0.5 tabular-nums">{summary.ok}</dd>
+              </div>
+            </dl>
+          </div>
         </div>
       </div>
     </header>

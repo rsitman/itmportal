@@ -148,7 +148,21 @@ function HlavickaPlanuPatchovani({
 }: HlavickaPlanuPatchovaniProps) {
   return (
     <header className="border-b border-gray-700/50 pb-4">
-      <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
+      <div className="flex flex-col gap-2">
+        <nav className="text-[11px] text-gray-500 flex flex-wrap items-center gap-x-2 gap-y-1">
+          <Link
+            href="/evidence-projektu"
+            className="group inline-flex items-center rounded focus:outline-none focus-visible:ring-2 focus-visible:ring-gray-400 focus-visible:ring-offset-2 focus-visible:ring-offset-gray-900"
+          >
+            <span className="text-gray-500 group-hover:text-gray-300 transition-colors">
+              Evidence projektů
+            </span>
+          </Link>
+          <span className="text-gray-700">/</span>
+          <span className="text-gray-300">Plán patchování</span>
+        </nav>
+
+        <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
         <div>
           <h1 className="text-2xl font-bold tracking-tight text-white leading-tight">
             Přehled patchování
@@ -183,6 +197,7 @@ function HlavickaPlanuPatchovani({
             </dd>
           </div>
         </dl>
+        </div>
       </div>
     </header>
   )

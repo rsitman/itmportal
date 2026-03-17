@@ -192,41 +192,56 @@ function HlavickaUpgradu({
 }) {
   return (
     <header className="border-b border-gray-700/50 pb-4">
-      <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
-        <div>
-          <h1 className="text-2xl font-bold tracking-tight text-white leading-tight">
-            Upgrady
-          </h1>
-          <p className="mt-1 text-sm text-gray-400 leading-snug">
-            Přehled plánovaných a realizovaných upgradů.
-          </p>
+      <div className="flex flex-col gap-2">
+        <nav className="text-[11px] text-gray-500 flex flex-wrap items-center gap-x-2 gap-y-1">
+          <Link
+            href="/evidence-projektu"
+            className="group inline-flex items-center rounded focus:outline-none focus-visible:ring-2 focus-visible:ring-gray-400 focus-visible:ring-offset-2 focus-visible:ring-offset-gray-900"
+          >
+            <span className="text-gray-500 group-hover:text-gray-300 transition-colors">
+              Evidence projektů
+            </span>
+          </Link>
+          <span className="text-gray-700">/</span>
+          <span className="text-gray-300">Upgrady</span>
+        </nav>
+
+        <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
+          <div>
+            <h1 className="text-2xl font-bold tracking-tight text-white leading-tight">
+              Upgrady
+            </h1>
+            <p className="mt-1 text-sm text-gray-400 leading-snug">
+              Přehled plánovaných a realizovaných upgradů.
+            </p>
+          </div>
+          <dl className="grid grid-cols-3 gap-x-4 gap-y-0.5 sm:flex sm:gap-6 sm:text-right shrink-0">
+            <div>
+              <dt className="text-[11px] font-medium uppercase tracking-wide text-gray-500">
+                Celkem
+              </dt>
+              <dd className="text-sm font-semibold text-white mt-0.5 tabular-nums">
+                {total}
+              </dd>
+            </div>
+            <div>
+              <dt className="text-[11px] font-medium uppercase tracking-wide text-gray-500">
+                Projektů
+              </dt>
+              <dd className="text-sm font-semibold text-gray-200 mt-0.5 tabular-nums">
+                {projects}
+              </dd>
+            </div>
+            <div>
+              <dt className="text-[11px] font-medium uppercase tracking-wide text-gray-500">
+                Tento měsíc
+              </dt>
+              <dd className="text-sm font-semibold text-gray-200 mt-0.5 tabular-nums">
+                {thisMonth}
+              </dd>
+            </div>
+          </dl>
         </div>
-        <dl className="grid grid-cols-3 gap-x-4 gap-y-0.5 sm:flex sm:gap-6 sm:text-right shrink-0">
-          <div>
-            <dt className="text-[11px] font-medium uppercase tracking-wide text-gray-500">
-              Celkem
-            </dt>
-            <dd className="text-sm font-semibold text-white mt-0.5 tabular-nums">
-              {total}
-            </dd>
-          </div>
-          <div>
-            <dt className="text-[11px] font-medium uppercase tracking-wide text-gray-500">
-              Projektů
-            </dt>
-            <dd className="text-sm font-semibold text-gray-200 mt-0.5 tabular-nums">
-              {projects}
-            </dd>
-          </div>
-          <div>
-            <dt className="text-[11px] font-medium uppercase tracking-wide text-gray-500">
-              Tento měsíc
-            </dt>
-            <dd className="text-sm font-semibold text-gray-200 mt-0.5 tabular-nums">
-              {thisMonth}
-            </dd>
-          </div>
-        </dl>
       </div>
     </header>
   )
