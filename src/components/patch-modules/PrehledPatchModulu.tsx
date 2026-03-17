@@ -13,17 +13,28 @@ type PrehledPatchModuluProps = {
   patchModules: PatchModule[]
   projekt: string
   firma: string
+  returnTo?: string | null
   missingParams?: boolean
+}
+
+function safeInternalHref(value: string | undefined | null): string | null {
+  const v = (value ?? '').trim()
+  if (!v) return null
+  if (!v.startsWith('/')) return null
+  if (v.startsWith('//')) return null
+  return v
 }
 
 export default function PrehledPatchModulu({
   patchModules,
   projekt,
   firma,
+  returnTo = null,
   missingParams = false,
 }: PrehledPatchModuluProps) {
   const [searchTerm, setSearchTerm] = useState('')
   const [filterStav, setFilterStav] = useState<'vse' | 'ok' | 'vyzaduje'>('vse')
+  const backHref = safeInternalHref(returnTo) ?? '/plan_patchovani'
 
   const filteredModules = useMemo(() => {
     let list = patchModules
@@ -51,27 +62,41 @@ export default function PrehledPatchModulu({
   if (missingParams) {
     return (
       <div className="card-professional rounded-lg border border-gray-700/60 p-4 md:p-5">
-        <div className="border-b border-gray-700/50 pb-3 mb-3">
-          <h1 className="text-2xl font-bold tracking-tight text-white leading-tight">
-            Patch moduly
-          </h1>
-          <p className="mt-0.5 text-sm text-gray-400 leading-snug">
-            Stránka vyžaduje parametry projekt a firma v URL.
-          </p>
-        </div>
+        <header className="border-b border-gray-700/50 pb-3 mb-3">
+          <nav className="text-[11px] text-gray-500 flex flex-wrap items-center gap-x-2 gap-y-1">
+            <Link
+              href={backHref}
+              className="group inline-flex items-center rounded focus:outline-none focus-visible:ring-2 focus-visible:ring-gray-400 focus-visible:ring-offset-2 focus-visible:ring-offset-gray-900"
+            >
+              <span className="text-gray-500 group-hover:text-gray-300 transition-colors">
+                Patchování
+              </span>
+            </Link>
+            <span className="text-gray-700">/</span>
+            <span className="text-gray-300">Patch moduly</span>
+          </nav>
+          <div className="mt-2 flex items-start justify-between gap-4">
+            <div className="min-w-0">
+              <h1 className="text-2xl font-bold tracking-tight text-white leading-tight">
+                Patch moduly
+              </h1>
+              <p className="mt-0.5 text-sm text-gray-400 leading-snug">
+                Stránka vyžaduje parametry projekt a firma v URL.
+              </p>
+            </div>
+            <Link
+              href={backHref}
+              className={`${linkBase} inline-flex items-center justify-center px-2.5 py-1.5 rounded-md border border-gray-600/50 bg-gray-800/50 hover:bg-gray-700/60 hover:border-gray-500/60 transition-colors text-xs shrink-0`}
+            >
+              <span className={spanSecondary}>← Zpět</span>
+            </Link>
+          </div>
+        </header>
         <div className="rounded-lg border border-amber-700/40 bg-amber-900/15 px-4 py-3 text-amber-100/90">
           <p className="text-sm leading-snug">
             Chybí parametry <strong>projekt</strong> a <strong>firma</strong>. Použijte odkaz z
             přehledu patchování nebo evidence projektů.
           </p>
-        </div>
-        <div className="mt-3">
-          <Link
-            href="/plan_patchovani"
-            className={`${linkBase} inline-flex items-center justify-center px-2.5 py-1.5 rounded-md border border-gray-600/50 bg-gray-800/50 hover:bg-gray-700/60 hover:border-gray-500/60 transition-colors text-xs`}
-          >
-            <span className={spanSecondary}>← Zpět na přehled patchování</span>
-          </Link>
         </div>
       </div>
     )
@@ -85,6 +110,7 @@ export default function PrehledPatchModulu({
         totalCount={totalCount}
         okCount={okCount}
         vyzadujeCount={vyzadujeCount}
+        backHref={backHref}
       />
 
       <div className="mt-3 flex flex-col gap-2.5">
@@ -104,10 +130,10 @@ export default function PrehledPatchModulu({
             </p>
             <div className="mt-3">
               <Link
-                href="/plan_patchovani"
+                href={backHref}
                 className={`${linkBase} text-xs`}
               >
-                <span className={spanSecondary}>← Zpět na přehled patchování</span>
+                <span className={spanSecondary}>← Zpět</span>
               </Link>
             </div>
           </div>
@@ -134,6 +160,7 @@ type HlavickaPatchModuluProps = {
   totalCount: number
   okCount: number
   vyzadujeCount: number
+  backHref: string
 }
 
 function HlavickaPatchModulu({
@@ -142,56 +169,72 @@ function HlavickaPatchModulu({
   totalCount,
   okCount,
   vyzadujeCount,
+  backHref,
 }: HlavickaPatchModuluProps) {
   return (
     <header className="border-b border-gray-700/50 pb-3">
-      <div className="flex flex-col gap-1.5 sm:flex-row sm:items-baseline sm:justify-between sm:gap-4">
-        <div className="min-w-0">
-          <h1 className="text-2xl font-bold tracking-tight text-white leading-tight">
-            Patch moduly
-          </h1>
-          <p className="mt-0.5 text-sm text-gray-400 leading-snug">
-            <span className="font-mono text-gray-400">{projekt}</span>
-            <span className="text-gray-600 mx-1">·</span>
-            <span className="font-mono text-gray-400">{firma}</span>
-          </p>
-          <p className="mt-0.5 text-[10px] text-gray-600 leading-snug">
-            Standard (40) · Stát (36) · ✓ aktuální · ⚠ vyžaduje aktualizaci
-          </p>
-        </div>
-        <div className="flex flex-wrap items-baseline gap-x-4 gap-y-1 sm:gap-x-6 sm:shrink-0 mt-1 sm:mt-0">
-          <dl className="flex gap-x-4 sm:gap-x-6 text-right">
-            <div>
-              <dt className="text-[10px] font-medium uppercase tracking-wide text-gray-500">
-                Celkem
-              </dt>
-              <dd className="text-xs font-semibold text-white tabular-nums leading-tight">
-                {totalCount}
-              </dd>
-            </div>
-            <div>
-              <dt className="text-[10px] font-medium uppercase tracking-wide text-gray-500">
-                OK
-              </dt>
-              <dd className="text-xs font-semibold text-gray-300 tabular-nums leading-tight">
-                {okCount}
-              </dd>
-            </div>
-            <div>
-              <dt className="text-[10px] font-medium uppercase tracking-wide text-gray-500">
-                Vyžaduje
-              </dt>
-              <dd className="text-xs font-semibold text-gray-300 tabular-nums leading-tight">
-                {vyzadujeCount}
-              </dd>
-            </div>
-          </dl>
+      <div className="flex flex-col gap-2.5">
+        <nav className="text-[11px] text-gray-500 flex flex-wrap items-center gap-x-2 gap-y-1">
           <Link
-            href="/plan_patchovani"
-            className={`${linkBase} inline-flex items-center justify-center px-2.5 py-1.5 rounded-md border border-gray-600/50 bg-gray-800/50 hover:bg-gray-700/60 hover:border-gray-500/60 transition-colors text-xs shrink-0`}
+            href={backHref}
+            className="group inline-flex items-center rounded focus:outline-none focus-visible:ring-2 focus-visible:ring-gray-400 focus-visible:ring-offset-2 focus-visible:ring-offset-gray-900"
           >
-            <span className={spanSecondary}>← Zpět</span>
+            <span className="text-gray-500 group-hover:text-gray-300 transition-colors">
+              Patchování
+            </span>
           </Link>
+          <span className="text-gray-700">/</span>
+          <span className="text-gray-300">Patch moduly</span>
+        </nav>
+
+        <div className="flex flex-col gap-1.5 sm:flex-row sm:items-baseline sm:justify-between sm:gap-4">
+          <div className="min-w-0">
+            <h1 className="text-2xl font-bold tracking-tight text-white leading-tight">
+              Patch moduly
+            </h1>
+            <p className="mt-0.5 text-sm text-gray-400 leading-snug">
+              <span className="font-mono text-gray-400">{projekt}</span>
+              <span className="text-gray-600 mx-1">·</span>
+              <span className="font-mono text-gray-400">{firma}</span>
+            </p>
+            <p className="mt-0.5 text-[10px] text-gray-600 leading-snug">
+              Standard (40) · Stát (36) · ✓ aktuální · ⚠ vyžaduje aktualizaci
+            </p>
+          </div>
+          <div className="flex flex-wrap items-baseline gap-x-4 gap-y-1 sm:gap-x-6 sm:shrink-0 mt-1 sm:mt-0">
+            <dl className="flex gap-x-4 sm:gap-x-6 text-right">
+              <div>
+                <dt className="text-[10px] font-medium uppercase tracking-wide text-gray-500">
+                  Celkem
+                </dt>
+                <dd className="text-xs font-semibold text-white tabular-nums leading-tight">
+                  {totalCount}
+                </dd>
+              </div>
+              <div>
+                <dt className="text-[10px] font-medium uppercase tracking-wide text-gray-500">
+                  OK
+                </dt>
+                <dd className="text-xs font-semibold text-gray-300 tabular-nums leading-tight">
+                  {okCount}
+                </dd>
+              </div>
+              <div>
+                <dt className="text-[10px] font-medium uppercase tracking-wide text-gray-500">
+                  Vyžaduje
+                </dt>
+                <dd className="text-xs font-semibold text-gray-300 tabular-nums leading-tight">
+                  {vyzadujeCount}
+                </dd>
+              </div>
+            </dl>
+            <Link
+              href={backHref}
+              className={`${linkBase} inline-flex items-center justify-center px-2.5 py-1.5 rounded-md border border-gray-600/50 bg-gray-800/50 hover:bg-gray-700/60 hover:border-gray-500/60 transition-colors text-xs shrink-0`}
+            >
+              <span className={spanSecondary}>← Zpět</span>
+            </Link>
+          </div>
         </div>
       </div>
     </header>

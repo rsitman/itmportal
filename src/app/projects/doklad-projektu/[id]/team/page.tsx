@@ -8,6 +8,9 @@ interface ProjectTeamPageProps {
   params: Promise<{
     id: string
   }>
+  searchParams?: Promise<{
+    returnTo?: string
+  }>
 }
 
 export const metadata: Metadata = {
@@ -15,7 +18,7 @@ export const metadata: Metadata = {
   description: 'Přehled členů týmu projektu, rolí a kontaktních informací',
 }
 
-export default async function ProjectTeamPage({ params }: ProjectTeamPageProps) {
+export default async function ProjectTeamPage({ params, searchParams }: ProjectTeamPageProps) {
   const session = await getServerSession(authOptions)
 
   if (!session) {
@@ -24,7 +27,9 @@ export default async function ProjectTeamPage({ params }: ProjectTeamPageProps) 
 
   const resolvedParams = await params
   const dokladProjektu = resolvedParams.id
+  const resolvedSearchParams = searchParams ? await searchParams : undefined
+  const returnTo = resolvedSearchParams?.returnTo ?? null
 
-  return <TymPage dokladProjektu={dokladProjektu} />
+  return <TymPage dokladProjektu={dokladProjektu} returnTo={returnTo} />
 }
 

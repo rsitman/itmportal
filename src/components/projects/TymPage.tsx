@@ -3,13 +3,16 @@
 import { useEffect, useMemo, useState } from 'react'
 import { ProjectPerson, PersonType } from '@/types/project'
 import { logger } from '@/lib/logger'
+import ProjectSubpageHeader from '@/components/projects/ProjectSubpageHeader'
 
 type TymPageProps = {
   dokladProjektu: string
+  returnTo?: string | null
 }
 
-export default function TymPage({ dokladProjektu }: TymPageProps) {
+export default function TymPage({ dokladProjektu, returnTo = null }: TymPageProps) {
   const [team, setTeam] = useState<ProjectPerson[]>([])
+  const [projectName, setProjectName] = useState<string | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [searchTerm, setSearchTerm] = useState('')
@@ -22,10 +25,13 @@ export default function TymPage({ dokladProjektu }: TymPageProps) {
         setLoading(true)
         setError(null)
 
-        const response = await fetch(`/api/projects/${encodeURIComponent(dokladProjektu)}/team`)
+        const [teamRes, serviceProjectsRes] = await Promise.all([
+          fetch(`/api/projects/${encodeURIComponent(dokladProjektu)}/team`),
+          fetch('/api/service-projects'),
+        ])
 
-        if (!response.ok) {
-          const message = `Nepodařilo se načíst tým (HTTP ${response.status})`
+        if (!teamRes.ok) {
+          const message = `Nepodařilo se načíst tým (HTTP ${teamRes.status})`
           logger.error('Error fetching project team:', message)
           if (isMounted) {
             setError(message)
@@ -33,11 +39,19 @@ export default function TymPage({ dokladProjektu }: TymPageProps) {
           return
         }
 
-        const data = await response.json()
+        const data = await teamRes.json()
         const teamData: ProjectPerson[] = Array.isArray(data.team) ? data.team : []
 
         if (isMounted) {
           setTeam(teamData)
+        }
+
+        if (serviceProjectsRes.ok && isMounted) {
+          const projects = await serviceProjectsRes.json()
+          const project = Array.isArray(projects)
+            ? projects.find((p: { doklad_proj?: string }) => p.doklad_proj === dokladProjektu)
+            : null
+          if (project?.nazev) setProjectName(String(project.nazev))
         }
       } catch (e) {
         const message =
@@ -91,12 +105,32 @@ export default function TymPage({ dokladProjektu }: TymPageProps) {
     <div className="w-full py-10 bg-transparent">
       <div className="px-6 space-y-6">
         <div className="card-professional rounded-lg border border-gray-700/60 p-4 md:p-5">
-          <HlavickaTymu
+          <ProjectSubpageHeader
+            title="Tým projektu"
+            sectionLabel="Tým"
             dokladProjektu={dokladProjektu}
-            totalCount={totalCount}
-            internalCount={internalCount}
-            externalCount={externalCount}
-            customerCount={customerCount}
+            projectName={projectName}
+            returnTo={returnTo}
+            rightSlot={
+              <dl className="grid grid-cols-4 gap-x-4 gap-y-0.5 sm:flex sm:gap-6 sm:text-right">
+                <div>
+                  <dt className="text-[11px] font-medium uppercase tracking-wide text-gray-500">Celkem</dt>
+                  <dd className="text-sm font-semibold text-white mt-0.5">{totalCount}</dd>
+                </div>
+                <div>
+                  <dt className="text-[11px] font-medium uppercase tracking-wide text-gray-500">Vlastní</dt>
+                  <dd className="text-sm font-semibold text-gray-200 mt-0.5">{internalCount}</dd>
+                </div>
+                <div>
+                  <dt className="text-[11px] font-medium uppercase tracking-wide text-gray-500">Externí</dt>
+                  <dd className="text-sm font-semibold text-gray-200 mt-0.5">{externalCount}</dd>
+                </div>
+                <div>
+                  <dt className="text-[11px] font-medium uppercase tracking-wide text-gray-500">Zákazníci</dt>
+                  <dd className="text-sm font-semibold text-gray-200 mt-0.5">{customerCount}</dd>
+                </div>
+              </dl>
+            }
           />
 
           <div className="mt-4 flex flex-col gap-3">
@@ -140,56 +174,6 @@ export default function TymPage({ dokladProjektu }: TymPageProps) {
         </div>
       </div>
     </div>
-  )
-}
-
-type HlavickaTymuProps = {
-  dokladProjektu: string
-  totalCount: number
-  internalCount: number
-  externalCount: number
-  customerCount: number
-}
-
-function HlavickaTymu({
-  dokladProjektu,
-  totalCount,
-  internalCount,
-  externalCount,
-  customerCount,
-}: HlavickaTymuProps) {
-  return (
-    <header className="border-b border-gray-700/50 pb-4">
-      <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
-        <div>
-          <h1 className="text-2xl font-bold tracking-tight text-white leading-tight">
-            Tým projektu{' '}
-            <span className="font-mono text-sm text-gray-500 align-middle">{dokladProjektu}</span>
-          </h1>
-          <p className="mt-1 text-sm text-gray-400 leading-snug">
-            Přehled členů týmu, jejich rolí a kontaktních informací pro daný projekt.
-          </p>
-        </div>
-        <dl className="grid grid-cols-4 gap-x-4 gap-y-0.5 sm:flex sm:gap-6 sm:text-right">
-          <div>
-            <dt className="text-[11px] font-medium uppercase tracking-wide text-gray-500">Celkem</dt>
-            <dd className="text-sm font-semibold text-white mt-0.5">{totalCount}</dd>
-          </div>
-          <div>
-            <dt className="text-[11px] font-medium uppercase tracking-wide text-gray-500">Vlastní</dt>
-            <dd className="text-sm font-semibold text-gray-200 mt-0.5">{internalCount}</dd>
-          </div>
-          <div>
-            <dt className="text-[11px] font-medium uppercase tracking-wide text-gray-500">Externí</dt>
-            <dd className="text-sm font-semibold text-gray-200 mt-0.5">{externalCount}</dd>
-          </div>
-          <div>
-            <dt className="text-[11px] font-medium uppercase tracking-wide text-gray-500">Zákazníci</dt>
-            <dd className="text-sm font-semibold text-gray-200 mt-0.5">{customerCount}</dd>
-          </div>
-        </dl>
-      </div>
-    </header>
   )
 }
 

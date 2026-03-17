@@ -1,6 +1,7 @@
 'use client'
 
 import { MetaResource, MetaField } from '@/types/meta'
+import { jiraIssueUrl } from '@/lib/jira'
 
 interface MetaDetailProps {
   meta: MetaResource
@@ -84,13 +85,15 @@ function renderFieldValue(field: MetaField, value: any): React.ReactNode {
     case 'string':
       if (field.id === 'jiraKey' && value) {
         return (
-          <a 
-            href={`https://itmancz.atlassian.net/browse/${value}`}
+          <a
+            href={jiraIssueUrl(String(value))}
             target="_blank"
             rel="noopener noreferrer"
-            className="text-green-400 hover:text-green-300 hover:underline"
+            className="group inline-flex rounded focus:outline-none focus-visible:ring-2 focus-visible:ring-gray-400 focus-visible:ring-offset-2 focus-visible:ring-offset-gray-900"
           >
-            {value}
+            <span className="text-gray-300 group-hover:text-gray-100 group-hover:underline transition-colors">
+              {value}
+            </span>
           </a>
         )
       }

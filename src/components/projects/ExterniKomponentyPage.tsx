@@ -3,12 +3,14 @@
 import { useEffect, useMemo, useState } from 'react'
 import { ExternalComponent } from '@/types/project'
 import { logger } from '@/lib/logger'
+import ProjectSubpageHeader from '@/components/projects/ProjectSubpageHeader'
 
 type ExterniKomponentyPageProps = {
   dokladProjektu: string
+  returnTo?: string | null
 }
 
-export default function ExterniKomponentyPage({ dokladProjektu }: ExterniKomponentyPageProps) {
+export default function ExterniKomponentyPage({ dokladProjektu, returnTo = null }: ExterniKomponentyPageProps) {
   const [components, setComponents] = useState<ExternalComponent[]>([])
   const [projectName, setProjectName] = useState<string | null>(null)
   const [loading, setLoading] = useState(true)
@@ -133,12 +135,38 @@ export default function ExterniKomponentyPage({ dokladProjektu }: ExterniKompone
     <div className="w-full py-10 bg-transparent">
       <div className="px-6 space-y-6">
         <div className="card-professional rounded-lg border border-gray-700/60 p-4 md:p-5">
-          <HlavickaExternichKomponent
+          <ProjectSubpageHeader
+            title="Externí komponenty projektu"
+            sectionLabel="Externí komponenty"
             dokladProjektu={dokladProjektu}
             projectName={projectName}
-            totalCount={totalCount}
-            supplierCount={supplierCount}
-            formCount={formCount}
+            returnTo={returnTo}
+            rightSlot={
+              <dl className="grid grid-cols-3 gap-x-6 gap-y-0.5 sm:flex sm:gap-8 sm:text-right">
+                <div className="sm:min-w-[4.5rem]">
+                  <dt className="text-[10px] font-medium uppercase tracking-wider text-gray-500">
+                    Celkem
+                  </dt>
+                  <dd className="text-base font-semibold text-white mt-0.5 tabular-nums">{totalCount}</dd>
+                </div>
+                <div className="sm:min-w-[4.5rem]">
+                  <dt className="text-[10px] font-medium uppercase tracking-wider text-gray-500">
+                    Dodavatelé
+                  </dt>
+                  <dd className="text-base font-semibold text-gray-200 mt-0.5 tabular-nums">
+                    {supplierCount}
+                  </dd>
+                </div>
+                <div className="sm:min-w-[4.5rem]">
+                  <dt className="text-[10px] font-medium uppercase tracking-wider text-gray-500">
+                    Formy
+                  </dt>
+                  <dd className="text-base font-semibold text-gray-200 mt-0.5 tabular-nums">
+                    {formCount}
+                  </dd>
+                </div>
+              </dl>
+            }
           />
 
           <div className="mt-4 flex flex-col gap-3">
@@ -173,74 +201,6 @@ export default function ExterniKomponentyPage({ dokladProjektu }: ExterniKompone
         </div>
       </div>
     </div>
-  )
-}
-
-// --- Header ---
-type HlavickaExternichKomponentProps = {
-  dokladProjektu: string
-  projectName: string | null
-  totalCount: number
-  supplierCount: number
-  formCount: number
-}
-
-function HlavickaExternichKomponent({
-  dokladProjektu,
-  projectName,
-  totalCount,
-  supplierCount,
-  formCount,
-}: HlavickaExternichKomponentProps) {
-  return (
-    <header className="border-b border-gray-700/50 pb-4 mb-0">
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between sm:gap-6">
-        <div className="min-w-0">
-          <h1 className="text-2xl font-bold tracking-tight text-white leading-tight">
-            Externí komponenty projektu
-          </h1>
-          {projectName ? (
-            <p className="mt-1 text-sm font-medium text-gray-200 leading-snug">
-              {projectName}
-              <span className="ml-1.5 text-[11px] font-normal text-gray-500 font-mono">
-                · {dokladProjektu}
-              </span>
-            </p>
-          ) : (
-            <p className="mt-1 text-sm text-gray-200 leading-snug">
-              <span className="text-[11px] text-gray-500 font-mono">{dokladProjektu}</span>
-            </p>
-          )}
-          <p className="mt-1 text-sm text-gray-400 leading-snug">
-            Seznam externích softwarových komponent třetích stran a kontaktů.
-          </p>
-        </div>
-        <dl className="grid grid-cols-3 gap-x-6 gap-y-0.5 sm:flex sm:gap-8 sm:text-right shrink-0">
-          <div className="sm:min-w-[4.5rem]">
-            <dt className="text-[10px] font-medium uppercase tracking-wider text-gray-500">
-              Celkem
-            </dt>
-            <dd className="text-base font-semibold text-white mt-0.5 tabular-nums">{totalCount}</dd>
-          </div>
-          <div className="sm:min-w-[4.5rem]">
-            <dt className="text-[10px] font-medium uppercase tracking-wider text-gray-500">
-              Dodavatelé
-            </dt>
-            <dd className="text-base font-semibold text-gray-200 mt-0.5 tabular-nums">
-              {supplierCount}
-            </dd>
-          </div>
-          <div className="sm:min-w-[4.5rem]">
-            <dt className="text-[10px] font-medium uppercase tracking-wider text-gray-500">
-              Formy
-            </dt>
-            <dd className="text-base font-semibold text-gray-200 mt-0.5 tabular-nums">
-              {formCount}
-            </dd>
-          </div>
-        </dl>
-      </div>
-    </header>
   )
 }
 

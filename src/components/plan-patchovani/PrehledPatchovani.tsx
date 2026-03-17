@@ -1,12 +1,17 @@
 'use client'
 
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import Link from 'next/link'
+import { usePathname, useRouter, useSearchParams } from 'next/navigation'
 import { KaratProject } from '@/lib/karat'
+import { jiraIssueUrl } from '@/lib/jira'
+import { useServiceProjects } from '@/lib/useServiceProjects'
 
 type PrehledPatchovaniProps = {
   projects: KaratProject[]
   initialQuery?: string
+  initialProjekt?: string
+  initialOsoba?: string
 }
 
 function formatDate(dateInput: Date | null): string {
@@ -19,16 +24,194 @@ function formatDate(dateInput: Date | null): string {
   })
 }
 
+function normalizeProjektId(value: string | null | undefined): string {
+  return (value ?? '').toString().trim().toUpperCase()
+}
+
+function normalizeOsobaKey(value: string | null | undefined): string {
+  return (value ?? '').toString().trim().toLowerCase()
+}
+
+function normalizeOsobaLabel(value: string | null | undefined): string {
+  return (value ?? '').toString().replace(/\s+/g, ' ').trim()
+}
+
 export default function PrehledPatchovani({
   projects,
   initialQuery = '',
+  initialProjekt = '',
+  initialOsoba = '',
 }: PrehledPatchovaniProps) {
   const [searchTerm, setSearchTerm] = useState(initialQuery)
+  const [selectedProjekt, setSelectedProjekt] = useState(initialProjekt)
+  const [selectedOsoba, setSelectedOsoba] = useState(initialOsoba)
+  const router = useRouter()
+  const pathname = usePathname()
+  const searchParams = useSearchParams()
+  const searchDebounceRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const searchInputRef = useRef<HTMLInputElement | null>(null)
+
+  const canonicalQ = searchTerm.trim()
+  const canonicalProjekt = normalizeProjektId(selectedProjekt)
+  const canonicalOsoba = selectedOsoba.trim()
+  const canonicalOsobaKey = normalizeOsobaKey(canonicalOsoba)
+
+  const { labelByDoklad, projects: serviceProjects } = useServiceProjects()
+
+  // Return context for internal navigation should reflect the *latest* filter value,
+  // even if the debounced URL update hasn't flushed yet.
+  const returnTo = useMemo(() => {
+    const current = new URLSearchParams(searchParams?.toString() ?? '')
+    if (canonicalQ) current.set('q', canonicalQ)
+    else current.delete('q')
+    if (canonicalProjekt) current.set('projekt', canonicalProjekt)
+    else current.delete('projekt')
+    if (canonicalOsoba) current.set('osoba', canonicalOsoba)
+    else current.delete('osoba')
+    const qs = current.toString()
+    return `${pathname}${qs ? `?${qs}` : ''}`
+  }, [canonicalOsoba, canonicalProjekt, canonicalQ, pathname, searchParams])
+
+  // URL (`q`) is canonical for the main text filter.
+  useEffect(() => {
+    const q = (searchParams?.get('q') ?? '').toString()
+    const isFocused = typeof document !== 'undefined' && document.activeElement === searchInputRef.current
+    if (!isFocused && q !== searchTerm) {
+      setSearchTerm(q)
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [searchParams])
+
+  // URL (`projekt`) is canonical for the project context pin.
+  useEffect(() => {
+    const p = (searchParams?.get('projekt') ?? '').toString()
+    const normalized = normalizeProjektId(p)
+    if (normalized !== normalizeProjektId(selectedProjekt)) setSelectedProjekt(normalized)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [searchParams])
+
+  // URL (`osoba`) is canonical for the person filter.
+  useEffect(() => {
+    const o = (searchParams?.get('osoba') ?? '').toString()
+    const trimmed = o.trim()
+    if (trimmed !== selectedOsoba.trim()) setSelectedOsoba(trimmed)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [searchParams])
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return
+    if (!router) return
+
+    if (searchDebounceRef.current) {
+      window.clearTimeout(searchDebounceRef.current)
+    }
+
+    searchDebounceRef.current = window.setTimeout(() => {
+      const currentQ = (searchParams?.get('q') ?? '').toString()
+      if (currentQ === canonicalQ) return
+
+      const current = new URLSearchParams(searchParams?.toString() ?? '')
+      if (canonicalQ) current.set('q', canonicalQ)
+      else current.delete('q')
+
+      const qs = current.toString()
+      const href = qs ? `${pathname}?${qs}` : pathname
+      router.replace(href)
+    }, 300)
+
+    return () => {
+      if (searchDebounceRef.current) window.clearTimeout(searchDebounceRef.current)
+    }
+  }, [pathname, router, searchParams, searchTerm])
+
+  const projectOptions = useMemo(() => {
+    const available = new Set(projects.map((p) => (p.projectId ?? '').trim()).filter(Boolean))
+    const options = serviceProjects
+      .filter((p) => available.has((p.doklad_proj ?? '').trim()))
+      .map((p) => ({
+        value: (p.doklad_proj ?? '').trim(),
+        label: labelByDoklad.get((p.doklad_proj ?? '').trim()) ?? (p.doklad_proj ?? '').trim(),
+      }))
+      .filter((p) => p.value)
+      .sort((a, b) => a.label.localeCompare(b.label, 'cs'))
+
+    if (canonicalProjekt && !options.some((o) => o.value === canonicalProjekt)) {
+      return [{ value: canonicalProjekt, label: labelByDoklad.get(canonicalProjekt) ?? canonicalProjekt }, ...options]
+    }
+    return options
+  }, [canonicalProjekt, labelByDoklad, projects, serviceProjects])
+
+  const osobaOptions = useMemo(() => {
+    const byKey = new Map<string, string>()
+    for (const p of projects) {
+      const label = normalizeOsobaLabel(p.accountManager)
+      if (!label) continue
+      const key = normalizeOsobaKey(label)
+      if (!key) continue
+      if (!byKey.has(key)) byKey.set(key, label)
+    }
+
+    const base = [...byKey.values()].sort((a, b) => a.localeCompare(b, 'cs'))
+    if (canonicalOsoba && !byKey.has(canonicalOsobaKey)) {
+      return [canonicalOsoba, ...base]
+    }
+    return base
+  }, [canonicalOsoba, canonicalOsobaKey, projects])
+
+  const osobaFromUrlUnknown = useMemo(() => {
+    if (!canonicalOsobaKey) return false
+    return !projects.some((p) => normalizeOsobaKey(normalizeOsobaLabel(p.accountManager)) === canonicalOsobaKey)
+  }, [canonicalOsobaKey, projects])
+
+  const selectedProjektLabel = useMemo(() => {
+    if (!canonicalProjekt) return null
+    return labelByDoklad.get(canonicalProjekt) ?? null
+  }, [canonicalProjekt, labelByDoklad])
+
+  const onProjektChange = (value: string) => {
+    setSelectedProjekt(value)
+    const current = new URLSearchParams(searchParams?.toString() ?? '')
+    if (canonicalQ) current.set('q', canonicalQ)
+    else current.delete('q')
+    const normalized = normalizeProjektId(value)
+    if (normalized) current.set('projekt', normalized)
+    else current.delete('projekt')
+    if (canonicalOsoba) current.set('osoba', canonicalOsoba)
+    else current.delete('osoba')
+    const qs = current.toString()
+    const href = qs ? `${pathname}?${qs}` : pathname
+    router.replace(href)
+  }
+
+  const onClearProjekt = () => onProjektChange('')
+
+  const onOsobaChange = (value: string) => {
+    const label = normalizeOsobaLabel(value)
+    setSelectedOsoba(label)
+    const current = new URLSearchParams(searchParams?.toString() ?? '')
+    if (canonicalQ) current.set('q', canonicalQ)
+    else current.delete('q')
+    if (canonicalProjekt) current.set('projekt', canonicalProjekt)
+    else current.delete('projekt')
+    if (label) current.set('osoba', label)
+    else current.delete('osoba')
+    const qs = current.toString()
+    const href = qs ? `${pathname}?${qs}` : pathname
+    router.replace(href)
+  }
+
+  const onClearOsoba = () => onOsobaChange('')
 
   const filteredProjects = useMemo(() => {
     const q = searchTerm.trim().toLowerCase()
-    if (!q) return projects
-    return projects.filter(
+    let base = canonicalProjekt
+      ? projects.filter((p) => normalizeProjektId(p.projectId) === canonicalProjekt)
+      : projects
+    if (canonicalOsobaKey) {
+      base = base.filter((p) => normalizeOsobaKey(p.accountManager) === canonicalOsobaKey)
+    }
+    if (!q) return base
+    return base.filter(
       (p) =>
         (p.projectName && p.projectName.toLowerCase().includes(q)) ||
         (p.companyName && p.companyName.toLowerCase().includes(q)) ||
@@ -38,7 +221,7 @@ export default function PrehledPatchovani({
         (p.jiraKey && p.jiraKey.toLowerCase().includes(q)) ||
         (p.country && p.country.toLowerCase().includes(q))
     )
-  }, [projects, searchTerm])
+  }, [canonicalOsobaKey, canonicalProjekt, projects, searchTerm])
 
   const totalCount = projects.length
   const withPlannedPatch = useMemo(
@@ -63,14 +246,29 @@ export default function PrehledPatchovani({
         <FiltryPatchovani
           searchTerm={searchTerm}
           onSearchChange={setSearchTerm}
+          selectedProjekt={canonicalProjekt}
+          selectedProjektLabel={selectedProjektLabel}
+          onProjektChange={onProjektChange}
+          onClearProjekt={onClearProjekt}
+          projectOptions={projectOptions}
+          selectedOsoba={canonicalOsoba}
+          onOsobaChange={onOsobaChange}
+          onClearOsoba={onClearOsoba}
+          osobaOptions={osobaOptions}
+          osobaFromUrlUnknown={osobaFromUrlUnknown}
           filteredCount={filteredProjects.length}
           totalCount={totalCount}
+          inputRef={searchInputRef}
         />
 
         <PrehledDat
           projects={filteredProjects}
           hasAny={projects.length > 0}
-          hasFilters={Boolean(searchTerm.trim())}
+          hasFilters={Boolean(searchTerm.trim() || canonicalProjekt || canonicalOsoba)}
+          selectedProjekt={canonicalProjekt}
+          selectedProjektLabel={selectedProjektLabel}
+          selectedOsoba={canonicalOsoba}
+          returnTo={returnTo}
         />
       </div>
     </div>
@@ -91,7 +289,21 @@ function HlavickaPlanuPatchovani({
 }: HlavickaPlanuPatchovaniProps) {
   return (
     <header className="border-b border-gray-700/50 pb-4">
-      <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
+      <div className="flex flex-col gap-2">
+        <nav className="text-[11px] text-gray-500 flex flex-wrap items-center gap-x-2 gap-y-1">
+          <Link
+            href="/evidence-projektu"
+            className="group inline-flex items-center rounded focus:outline-none focus-visible:ring-2 focus-visible:ring-gray-400 focus-visible:ring-offset-2 focus-visible:ring-offset-gray-900"
+          >
+            <span className="text-gray-500 group-hover:text-gray-300 transition-colors">
+              Evidence projektů
+            </span>
+          </Link>
+          <span className="text-gray-700">/</span>
+          <span className="text-gray-300">Plán patchování</span>
+        </nav>
+
+        <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
         <div>
           <h1 className="text-2xl font-bold tracking-tight text-white leading-tight">
             Přehled patchování
@@ -126,6 +338,7 @@ function HlavickaPlanuPatchovani({
             </dd>
           </div>
         </dl>
+        </div>
       </div>
     </header>
   )
@@ -135,40 +348,154 @@ function HlavickaPlanuPatchovani({
 type FiltryPatchovaniProps = {
   searchTerm: string
   onSearchChange: (value: string) => void
+  selectedProjekt: string
+  selectedProjektLabel: string | null
+  onProjektChange: (value: string) => void
+  onClearProjekt: () => void
+  projectOptions: { value: string; label: string }[]
+  selectedOsoba: string
+  onOsobaChange: (value: string) => void
+  onClearOsoba: () => void
+  osobaOptions: string[]
+  osobaFromUrlUnknown?: boolean
   filteredCount: number
   totalCount: number
+  inputRef?: React.RefObject<HTMLInputElement | null>
 }
 
 function FiltryPatchovani({
   searchTerm,
   onSearchChange,
+  selectedProjekt,
+  selectedProjektLabel,
+  onProjektChange,
+  onClearProjekt,
+  projectOptions,
+  selectedOsoba,
+  onOsobaChange,
+  onClearOsoba,
+  osobaOptions,
+  osobaFromUrlUnknown = false,
   filteredCount,
   totalCount,
+  inputRef,
 }: FiltryPatchovaniProps) {
   return (
     <div className="rounded-lg border border-gray-700/50 bg-gray-900/30 px-3 py-2.5 md:px-4 md:py-3">
-      <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between sm:gap-3">
-        <div className="w-full min-w-0 sm:max-w-md">
-          <label
-            htmlFor="patchovani-search"
-            className="block text-xs font-medium text-gray-400 mb-0.5"
-          >
-            Hledat
-          </label>
-          <input
-            id="patchovani-search"
-            type="text"
-            value={searchTerm}
-            onChange={(e) => onSearchChange(e.target.value)}
-            placeholder="Hledat projekt, firmu…"
-            aria-label="Hledat v přehledu patchování"
-            className="w-full pl-3.5 pr-3.5 py-2.5 rounded-lg bg-gray-800/80 border border-gray-600/60 text-sm text-white placeholder-gray-500 focus:outline-none focus-visible:ring-2 focus-visible:ring-green-500/50 focus-visible:ring-offset-2 focus-visible:ring-offset-gray-900 focus-visible:border-green-500/50"
-          />
-        </div>
-        <div className="text-xs text-gray-500 sm:pb-0.5 sm:text-right shrink-0">
-          Zobrazeno{' '}
-          <span className="font-medium text-gray-300">{filteredCount}</span> z{' '}
-          <span className="font-medium text-gray-300">{totalCount}</span>
+      <div className="flex flex-col gap-2.5">
+        {selectedProjekt ? (
+          <div className="rounded-lg border border-blue-700/40 bg-blue-900/15 px-4 py-3">
+            <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+              <div className="text-sm text-blue-100/90">
+                Projekt:{' '}
+                <span className="text-blue-200/90">{selectedProjektLabel ?? selectedProjekt}</span>
+              </div>
+              <div className="flex flex-wrap gap-2">
+                {selectedOsoba ? (
+                  <button
+                    type="button"
+                    onClick={onClearOsoba}
+                    className="inline-flex items-center justify-center px-3 py-1.5 rounded-md border border-blue-700/40 bg-blue-900/10 hover:bg-blue-900/20 transition-colors text-xs"
+                  >
+                    <span className="text-blue-200/90">Zrušit osobu</span>
+                  </button>
+                ) : null}
+                <button
+                  type="button"
+                  onClick={onClearProjekt}
+                  className="inline-flex items-center justify-center px-3 py-1.5 rounded-md border border-blue-700/40 bg-blue-900/10 hover:bg-blue-900/20 transition-colors text-xs"
+                >
+                  <span className="text-blue-200/90">Zrušit projekt</span>
+                </button>
+              </div>
+            </div>
+          </div>
+        ) : null}
+
+        {selectedOsoba && !selectedProjekt ? (
+          <div className="rounded-lg border border-blue-700/40 bg-blue-900/15 px-4 py-3">
+            <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+              <div className="text-sm text-blue-100/90">
+                Osoba: <span className="text-blue-200/90">{selectedOsoba}</span>
+              </div>
+              <button
+                type="button"
+                onClick={onClearOsoba}
+                className="inline-flex items-center justify-center px-3 py-1.5 rounded-md border border-blue-700/40 bg-blue-900/10 hover:bg-blue-900/20 transition-colors text-xs"
+              >
+                <span className="text-blue-200/90">Zrušit osobu</span>
+              </button>
+            </div>
+          </div>
+        ) : null}
+
+        <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between sm:gap-3">
+          <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:gap-3 w-full min-w-0">
+            <div className="w-full min-w-0 sm:max-w-md">
+              <label htmlFor="patchovani-search" className="block text-xs font-medium text-gray-400 mb-0.5">
+                Hledat
+              </label>
+              <input
+                id="patchovani-search"
+                type="text"
+                value={searchTerm}
+                onChange={(e) => onSearchChange(e.target.value)}
+                placeholder="Hledat projekt, firmu…"
+                aria-label="Hledat v přehledu patchování"
+                ref={inputRef}
+                className="w-full pl-3.5 pr-3.5 py-2.5 rounded-lg bg-gray-800/80 border border-gray-600/60 text-sm text-white placeholder-gray-500 focus:outline-none focus-visible:ring-2 focus-visible:ring-green-500/50 focus-visible:ring-offset-2 focus-visible:ring-offset-gray-900 focus-visible:border-green-500/50"
+              />
+            </div>
+
+            <div className="w-full sm:w-80">
+              <label htmlFor="patchovani-projekt" className="block text-xs font-medium text-gray-400 mb-0.5">
+                Projekt
+              </label>
+              <select
+                id="patchovani-projekt"
+                value={selectedProjekt}
+                onChange={(e) => onProjektChange(e.target.value)}
+                aria-label="Projektový kontext"
+                className="w-full pl-3 pr-3 py-2.5 rounded-lg bg-gray-800/80 border border-gray-600/60 text-sm text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-green-500/50 focus-visible:ring-offset-2 focus-visible:ring-offset-gray-900 focus-visible:border-green-500/50"
+              >
+                <option value="">Všechny projekty</option>
+                {projectOptions.map((p) => (
+                  <option key={p.value} value={p.value}>
+                    {p.label}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <div className="w-full sm:w-72">
+              <label htmlFor="patchovani-osoba" className="block text-xs font-medium text-gray-400 mb-0.5">
+                Osoba
+              </label>
+              <select
+                id="patchovani-osoba"
+                value={selectedOsoba}
+                onChange={(e) => onOsobaChange(e.target.value)}
+                aria-label="Filtr podle osoby"
+                className="w-full pl-3 pr-3 py-2.5 rounded-lg bg-gray-800/80 border border-gray-600/60 text-sm text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-green-500/50 focus-visible:ring-offset-2 focus-visible:ring-offset-gray-900 focus-visible:border-green-500/50"
+              >
+                <option value="">Všechny osoby</option>
+                {osobaOptions.map((o, idx) => {
+                  const isUnknown = osobaFromUrlUnknown && idx === 0 && normalizeOsobaKey(o) === normalizeOsobaKey(selectedOsoba)
+                  const label = isUnknown ? `${o} (mimo aktuální data)` : o
+                  return (
+                    <option key={`${o}-${idx}`} value={o}>
+                      {label}
+                    </option>
+                  )
+                })}
+              </select>
+            </div>
+          </div>
+
+          <div className="text-xs text-gray-500 sm:pb-0.5 sm:text-right shrink-0">
+            Zobrazeno <span className="font-medium text-gray-300">{filteredCount}</span> z{' '}
+            <span className="font-medium text-gray-300">{totalCount}</span>
+          </div>
         </div>
       </div>
     </div>
@@ -180,6 +507,10 @@ type PrehledDatProps = {
   projects: KaratProject[]
   hasAny: boolean
   hasFilters: boolean
+  selectedProjekt: string
+  selectedProjektLabel: string | null
+  selectedOsoba: string
+  returnTo: string
 }
 
 const linkBase =
@@ -193,15 +524,32 @@ function PrehledDat({
   projects,
   hasAny,
   hasFilters,
+  selectedProjekt,
+  selectedProjektLabel,
+  selectedOsoba,
+  returnTo,
 }: PrehledDatProps) {
   if (!projects.length) {
     return (
       <div className="mt-3 rounded-lg border border-gray-700/60 bg-gray-900/40 px-5 py-6 text-center">
-        <p className="text-base text-gray-400 leading-snug">
-          {hasAny && hasFilters
-            ? 'Nebyly nalezeny žádné projekty odpovídající vyhledávání.'
-            : 'Žádné projekty k zobrazení.'}
-        </p>
+        <div className="space-y-1.5">
+          <p className="text-base text-gray-400 leading-snug">
+            {hasAny && hasFilters
+              ? 'Žádné projekty neodpovídají aktuálním filtrům.'
+              : 'Žádné projekty k zobrazení.'}
+          </p>
+          {hasAny && selectedProjekt ? (
+            <p className="text-sm text-gray-500">
+              Projekt:{' '}
+              <span className="text-gray-300">{selectedProjektLabel ?? selectedProjekt}</span>
+            </p>
+          ) : null}
+          {hasAny && selectedOsoba ? (
+            <p className="text-sm text-gray-500">
+              Osoba: <span className="text-gray-300">{selectedOsoba}</span>
+            </p>
+          ) : null}
+        </div>
       </div>
     )
   }
@@ -239,7 +587,7 @@ function PrehledDat({
                 key={`${project.projectId}-${project.companyId}-${index}`}
                 className="transition-colors hover:bg-gray-800/50"
               >
-                <RadekTabulky project={project} />
+                <RadekTabulky project={project} returnTo={returnTo} />
               </tr>
             ))}
           </tbody>
@@ -253,7 +601,7 @@ function PrehledDat({
             key={`${project.projectId}-${project.companyId}-${index}`}
             className="rounded-lg border border-gray-700/70 bg-gray-900/40 px-4 py-3"
           >
-            <RadekKarty project={project} />
+            <RadekKarty project={project} returnTo={returnTo} />
           </div>
         ))}
       </div>
@@ -262,11 +610,11 @@ function PrehledDat({
 }
 
 // --- Table row (desktop) ---
-function RadekTabulky({ project }: { project: KaratProject }) {
-  const detailHref = `/plan_patchovani/${project.companyId}`
-  const patchModulesHref = `/patch-modules?projekt=${encodeURIComponent(project.projectId)}&firma=${encodeURIComponent(project.companyId)}`
+function RadekTabulky({ project, returnTo }: { project: KaratProject; returnTo: string }) {
+  const detailHref = `/plan_patchovani/${project.companyId}?returnTo=${encodeURIComponent(returnTo)}`
+  const patchModulesHref = `/patch-modules?projekt=${encodeURIComponent(project.projectId)}&firma=${encodeURIComponent(project.companyId)}&returnTo=${encodeURIComponent(returnTo)}`
   const jiraHref = project.jiraKey
-    ? `https://itmancz.atlassian.net/browse/${project.jiraKey}`
+    ? jiraIssueUrl(project.jiraKey)
     : null
 
   return (
@@ -358,11 +706,11 @@ function RadekTabulky({ project }: { project: KaratProject }) {
 }
 
 // --- Mobile card row ---
-function RadekKarty({ project }: { project: KaratProject }) {
-  const detailHref = `/plan_patchovani/${project.companyId}`
-  const patchModulesHref = `/patch-modules?projekt=${encodeURIComponent(project.projectId)}&firma=${encodeURIComponent(project.companyId)}`
+function RadekKarty({ project, returnTo }: { project: KaratProject; returnTo: string }) {
+  const detailHref = `/plan_patchovani/${project.companyId}?returnTo=${encodeURIComponent(returnTo)}`
+  const patchModulesHref = `/patch-modules?projekt=${encodeURIComponent(project.projectId)}&firma=${encodeURIComponent(project.companyId)}&returnTo=${encodeURIComponent(returnTo)}`
   const jiraHref = project.jiraKey
-    ? `https://itmancz.atlassian.net/browse/${project.jiraKey}`
+    ? jiraIssueUrl(project.jiraKey)
     : null
 
   return (

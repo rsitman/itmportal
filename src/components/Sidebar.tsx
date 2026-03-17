@@ -34,6 +34,10 @@ interface NavigationItem {
   isCollapsible?: boolean
 }
 
+type SidebarProps = {
+  onNavigate?: () => void
+}
+
 const navigation: NavigationItem[] = [
   {
     name: 'Dashboard',
@@ -80,7 +84,7 @@ const navigation: NavigationItem[] = [
   }
 ]
 
-export default function Sidebar() {
+export default function Sidebar({ onNavigate }: SidebarProps) {
   const pathname = usePathname()
   const { hasAnyPermission, userRole } = usePermissions()
 
@@ -142,6 +146,7 @@ export default function Sidebar() {
                         ? 'active'
                         : ''
                     )}
+                    onClick={() => onNavigate?.()}
                   >
                     <child.icon className="mr-3 h-5 w-5 text-gray-400 group-hover:text-gray-300 transition-colors duration-200" />
                     <span className={cn(
@@ -171,6 +176,7 @@ export default function Sidebar() {
               ? 'active'
               : ''
           )}
+          onClick={() => onNavigate?.()}
         >
           <item.icon className="mr-3 h-5 w-5 text-gray-400 group-hover:text-gray-300 transition-colors duration-200" />
           <span className={cn(

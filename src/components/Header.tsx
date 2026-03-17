@@ -4,9 +4,23 @@ import { signOut, useSession } from 'next-auth/react'
 import { Button } from '@/components/ui/button'
 import { useRouter } from 'next/navigation'
 import { useState } from 'react'
+import type { RefObject } from 'react'
 import { logger } from '@/lib/logger'
+import { Menu } from 'lucide-react'
 
-export default function Header() {
+type HeaderProps = {
+  onOpenSidebar?: () => void
+  sidebarOpen?: boolean
+  sidebarControlsId?: string
+  menuButtonRef?: RefObject<HTMLButtonElement>
+}
+
+export default function Header({
+  onOpenSidebar,
+  sidebarOpen,
+  sidebarControlsId,
+  menuButtonRef,
+}: HeaderProps) {
   const { data: session } = useSession()
   const router = useRouter()
   const [isSigningOut, setIsSigningOut] = useState(false)
@@ -52,18 +66,34 @@ export default function Header() {
   }
 
   return (
-    <header className="flex h-20 items-center justify-end shell-overlay px-8">
-      <div className="flex items-center space-x-6">
+    <header className="flex h-14 lg:h-20 items-center justify-between shell-overlay px-4 lg:px-8">
+      <div className="flex items-center gap-3">
+        <button
+          ref={menuButtonRef}
+          type="button"
+          onClick={onOpenSidebar}
+          className="lg:hidden inline-flex items-center justify-center rounded-lg border border-gray-600/50 bg-gray-800/70 hover:bg-gray-700/80 text-gray-200 shadow-sm transition-colors h-10 w-10 focus:outline-none focus-visible:ring-2 focus-visible:ring-green-500/50 focus-visible:ring-offset-2 focus-visible:ring-offset-gray-900"
+          aria-label="Otevřít navigaci"
+          aria-expanded={Boolean(sidebarOpen)}
+          aria-controls={sidebarControlsId}
+        >
+          <Menu className="h-5 w-5" />
+        </button>
+      </div>
+
+      <div className="flex items-center space-x-4 lg:space-x-6">
         <div className="flex items-center space-x-4">
-          <div className="h-12 w-12 rounded-full bg-gray-700/80 flex items-center justify-center text-gray-300 text-lg font-semibold border border-gray-600/50">
-            {session?.user?.name?.charAt(0).toUpperCase() || 'U'}
+          <div className="h-10 w-10 lg:h-12 lg:w-12 rounded-full bg-gray-700/80 flex items-center justify-center text-gray-300 text-base lg:text-lg font-semibold border border-gray-600/50">
+            <span suppressHydrationWarning>
+              {session?.user?.name?.charAt(0).toUpperCase() || 'U'}
+            </span>
           </div>
           <div className="flex flex-col">
-            <span className="text-base font-semibold text-white">
-              {session?.user?.name}
+            <span className="text-sm lg:text-base font-semibold text-white leading-tight" suppressHydrationWarning>
+              {session?.user?.name ?? ''}
             </span>
-            <span className="text-sm text-gray-400">
-              {session?.user?.role === 'ADMIN' ? 'Administrator' : 'Uživatel'}
+            <span className="text-xs lg:text-sm text-gray-400" suppressHydrationWarning>
+              {session?.user?.role ? (session?.user?.role === 'ADMIN' ? 'Administrator' : 'Uživatel') : ''}
             </span>
           </div>
         </div>
@@ -73,7 +103,7 @@ export default function Header() {
           variant="outline"
           size="sm"
           disabled={isSigningOut}
-          className="border-gray-600/50 bg-gray-800/80 hover:bg-gray-700/80 text-gray-300 hover:text-white shadow-sm hover:shadow-md transition-all duration-200 px-4 py-2 backdrop-blur-sm"
+          className="border-gray-600/50 bg-gray-800/80 hover:bg-gray-700/80 text-gray-300 hover:text-white shadow-sm hover:shadow-md transition-all duration-200 px-3 lg:px-4 py-2 backdrop-blur-sm"
         >
           {isSigningOut ? 'Odhlášení...' : 'Odhlásit se'}
         </Button>

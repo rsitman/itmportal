@@ -8,6 +8,9 @@ interface ExtcompsPageProps {
   params: Promise<{
     id: string
   }>
+  searchParams?: Promise<{
+    returnTo?: string
+  }>
 }
 
 export const metadata: Metadata = {
@@ -15,7 +18,7 @@ export const metadata: Metadata = {
   description: 'Přehled externích softwarových komponent třetích stran a kontaktů',
 }
 
-export default async function ExtcompsPage({ params }: ExtcompsPageProps) {
+export default async function ExtcompsPage({ params, searchParams }: ExtcompsPageProps) {
   const session = await getServerSession(authOptions)
 
   if (!session) {
@@ -24,6 +27,8 @@ export default async function ExtcompsPage({ params }: ExtcompsPageProps) {
 
   const resolvedParams = await params
   const dokladProjektu = resolvedParams.id
+  const resolvedSearchParams = searchParams ? await searchParams : undefined
+  const returnTo = resolvedSearchParams?.returnTo ?? null
 
-  return <ExterniKomponentyPage dokladProjektu={dokladProjektu} />
+  return <ExterniKomponentyPage dokladProjektu={dokladProjektu} returnTo={returnTo} />
 }
