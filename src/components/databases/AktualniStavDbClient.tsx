@@ -307,9 +307,9 @@ function KartaDatabaze({
     <button
       type="button"
       onClick={onSelect}
-      className={`w-full text-left rounded-lg border px-3.5 py-3 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-green-500/50 focus-visible:ring-offset-2 focus-visible:ring-offset-gray-900 ${
+      className={`w-full text-left rounded-lg border px-3.5 py-3.5 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-green-500/50 focus-visible:ring-offset-2 focus-visible:ring-offset-gray-900 ${
         selected
-          ? 'border-gray-600/60 bg-gray-800/80 border-l-[3px] border-l-green-500/60'
+          ? 'border-slate-500/40 bg-slate-900/55 ring-1 ring-sky-500/15 border-l-[3px] border-l-sky-400/40'
           : 'border-gray-700/70 bg-gray-900/40 border-l-[3px] border-l-transparent hover:bg-gray-800/70 hover:border-gray-500/70'
       }`}
     >
@@ -1069,31 +1069,30 @@ export default function AktualniStavDbClient({
       {selectedDb && mobileDetailOpen ? (
         <div className="md:hidden fixed inset-0 z-50" role="dialog" aria-modal="true" aria-label="Detail databáze">
           <div className="absolute inset-0 bg-black/60" aria-hidden="true" />
-          <button
-            type="button"
-            className="absolute inset-0"
-            onClick={() => setMobileDetailOpen(false)}
-            aria-label="Zavřít detail"
-          />
 
-          <div className="absolute inset-x-0 bottom-0 top-0 flex flex-col bg-gray-950">
+          <div className="absolute inset-x-0 bottom-0 top-0 flex flex-col bg-gray-950 shadow-strong ring-1 ring-gray-800/60">
             <div className="sticky top-0 z-10 border-b border-gray-800 bg-gray-950/95 backdrop-blur supports-[backdrop-filter]:bg-gray-950/80">
-              <div className="px-4 py-3 flex items-start gap-3">
+              <div className="px-4 py-2.5 flex items-center gap-3">
                 <button
                   ref={mobileDetailCloseButtonRef}
                   type="button"
                   onClick={() => setMobileDetailOpen(false)}
                   className="shrink-0 inline-flex items-center justify-center h-10 w-10 rounded-lg border border-gray-700/60 bg-gray-900/40 hover:bg-gray-800/60 text-gray-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-green-500/50 focus-visible:ring-offset-2 focus-visible:ring-offset-gray-950"
-                  aria-label="Zavřít"
+                  aria-label="Zpět"
                 >
-                  <span aria-hidden>×</span>
+                  <span aria-hidden className="text-lg leading-none">
+                    ←
+                  </span>
                 </button>
 
                 <div className="min-w-0 flex-1">
-                  <div className="text-sm font-semibold text-white truncate" title={selectedDb.databaze}>
+                  <div className="text-[13px] font-semibold text-white truncate" title={selectedDb.databaze}>
                     {selectedDb.databaze}
                   </div>
-                  <div className="mt-0.5 text-[11px] text-gray-400 truncate" title={`${selectedDb.firma_nazev} · ${selectedDb.projekt}`}>
+                  <div
+                    className="mt-0.5 text-[11px] text-gray-400/90 truncate"
+                    title={`${selectedDb.firma_nazev} · ${selectedDb.projekt}`}
+                  >
                     {selectedDb.firma_nazev} <span className="text-gray-600">·</span>{' '}
                     <span className="font-mono text-[11px] text-gray-500">{selectedDb.projekt}</span>
                   </div>
@@ -1101,7 +1100,7 @@ export default function AktualniStavDbClient({
               </div>
             </div>
 
-            <div className="flex-1 overflow-y-auto overscroll-contain px-4 py-4">
+            <div className="flex-1 overflow-y-auto overscroll-contain px-4 pt-4 pb-8">
               <DetailDatabaze
                 selectedDb={selectedDb}
                 dateFrom={dateFrom}
