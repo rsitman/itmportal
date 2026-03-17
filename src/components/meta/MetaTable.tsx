@@ -62,10 +62,11 @@ function renderCellValue(field: MetaField, value: any, row: any): React.ReactNod
             href={jiraIssueUrl(String(value))}
             target="_blank"
             rel="noopener noreferrer"
-            className="text-green-400 hover:text-green-300 text-sm font-medium"
-            style={{ color: '#34d399' }}
+            className="group inline-flex rounded focus:outline-none focus-visible:ring-2 focus-visible:ring-gray-400 focus-visible:ring-offset-2 focus-visible:ring-offset-gray-900"
           >
-            {value}
+            <span className="text-sm font-medium text-gray-300 group-hover:text-gray-100 group-hover:underline transition-colors">
+              {value}
+            </span>
           </a>
         )
       }

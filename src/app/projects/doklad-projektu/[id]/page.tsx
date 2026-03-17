@@ -61,6 +61,20 @@ export default async function DetailProjektuPage({ params, searchParams }: Detai
   return (
     <div className="w-full py-10 bg-transparent">
       <div className="px-6 space-y-6">
+        <nav className="text-[11px] text-gray-500 flex flex-wrap items-center gap-x-2 gap-y-1">
+          <Link
+            href={returnTo ?? '/evidence-projektu'}
+            className="group inline-flex items-center rounded focus:outline-none focus-visible:ring-2 focus-visible:ring-gray-400 focus-visible:ring-offset-2 focus-visible:ring-offset-gray-900"
+          >
+            <span className="text-gray-500 group-hover:text-gray-300 transition-colors">
+              Evidence projektů
+            </span>
+          </Link>
+          <span className="text-gray-700">/</span>
+          <span className="text-gray-300" title={dokladProjektu}>
+            Projekt: {nazevProjektu ? nazevProjektu : dokladProjektu}
+          </span>
+        </nav>
         <div className="flex items-start justify-between gap-6">
           <div>
             <h1 className="text-3xl font-bold tracking-tight text-white mb-1">{hlavniNazev}</h1>
