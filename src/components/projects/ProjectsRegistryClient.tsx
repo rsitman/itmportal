@@ -111,6 +111,7 @@ export default function ProjectsRegistryClient() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [searchTerm, setSearchTerm] = useState('')
+  const [selectedProjekt, setSelectedProjekt] = useState('')
   const [sortKey, setSortKey] = useState<SortKey>('nazev')
   const [sortDirection, setSortDirection] = useState<SortDirection>('asc')
   const pathname = usePathname()
@@ -120,38 +121,118 @@ export default function ProjectsRegistryClient() {
   const searchInputRef = useRef<HTMLInputElement | null>(null)
 
   const canonicalQ = searchTerm.trim()
-  const selectedProjekt = (searchParams?.get('projekt') ?? '').toString().trim()
+  const canonicalProjekt = selectedProjekt.trim()
+  const isProjektMode = Boolean(canonicalProjekt)
 
   const selectedProjektLabel = useMemo(() => {
-    if (!selectedProjekt) return null
-    const p = serviceProjects.find((sp) => (sp.doklad_proj ?? '').trim() === selectedProjekt)
-    if (!p) return selectedProjekt
+    if (!canonicalProjekt) return null
+    const p = serviceProjects.find((sp) => (sp.doklad_proj ?? '').trim() === canonicalProjekt)
+    if (!p) return `${canonicalProjekt} (mimo aktuální data)`
     const name = (p.nazev ?? '').trim()
-    return name ? `${name} · ${selectedProjekt}` : selectedProjekt
-  }, [selectedProjekt, serviceProjects])
+    return name ? `${name} · ${canonicalProjekt}` : canonicalProjekt
+  }, [canonicalProjekt, serviceProjects])
+
+  const projectOptions = useMemo(() => {
+    const options = serviceProjects
+      .map((p) => {
+        const doklad = (p.doklad_proj ?? '').trim()
+        const name = (p.nazev ?? '').trim()
+        return {
+          value: doklad,
+          label: name && doklad ? `${name} · ${doklad}` : name || doklad,
+        }
+      })
+      .filter((o) => o.value)
+      .sort((a, b) => a.label.localeCompare(b.label, 'cs'))
+
+    if (canonicalProjekt && !options.some((o) => o.value === canonicalProjekt)) {
+      return [{ value: canonicalProjekt, label: `${canonicalProjekt} (mimo aktuální data)` }, ...options]
+    }
+    return options
+  }, [canonicalProjekt, serviceProjects])
+
+  const replaceWithParams = useCallback(
+    (next: URLSearchParams) => {
+      const qs = next.toString()
+      const href = qs ? `${pathname}?${qs}` : pathname
+      router.replace(href)
+    },
+    [pathname, router],
+  )
+
+  const applyUrlState = useCallback(
+    (next: { projekt?: string; q?: string }, opts?: { preserveUnknownParams?: boolean }) => {
+      const preserveUnknown = opts?.preserveUnknownParams ?? true
+      const base = preserveUnknown
+        ? new URLSearchParams(searchParams?.toString() ?? '')
+        : new URLSearchParams()
+
+      const projekt = (next.projekt ?? '').toString().trim()
+      const q = (next.q ?? '').toString()
+
+      if (projekt) base.set('projekt', projekt)
+      else base.delete('projekt')
+
+      if (q) base.set('q', q)
+      else base.delete('q')
+
+      replaceWithParams(base)
+    },
+    [replaceWithParams, searchParams],
+  )
+
+  const onProjektChange = useCallback(
+    (value: string) => {
+      const nextProjekt = value.trim()
+      setSelectedProjekt(nextProjekt)
+      setSearchTerm('')
+      applyUrlState({ projekt: nextProjekt, q: '' })
+    },
+    [applyUrlState],
+  )
 
   // Return context for internal navigation should reflect the *latest* filter value,
   // even if the debounced URL update hasn't flushed yet.
   const returnTo = useMemo(() => {
     const current = new URLSearchParams(searchParams?.toString() ?? '')
-    if (canonicalQ) current.set('q', canonicalQ)
+    if (canonicalProjekt) current.set('projekt', canonicalProjekt)
+    else current.delete('projekt')
+    if (!canonicalProjekt && canonicalQ) current.set('q', canonicalQ)
     else current.delete('q')
     const qs = current.toString()
     return `${pathname}${qs ? `?${qs}` : ''}`
-  }, [canonicalQ, pathname, searchParams])
+  }, [canonicalProjekt, canonicalQ, pathname, searchParams])
 
   const onClearProjekt = useCallback(() => {
-    const current = new URLSearchParams(searchParams?.toString() ?? '')
-    if (canonicalQ) current.set('q', canonicalQ)
-    else current.delete('q')
-    current.delete('projekt')
-    const qs = current.toString()
-    const href = qs ? `${pathname}?${qs}` : pathname
-    router.replace(href)
-  }, [canonicalQ, pathname, router, searchParams])
+    setSelectedProjekt('')
+    applyUrlState({ projekt: '', q: '' })
+  }, [applyUrlState])
+
+  // URL (`projekt`) is canonical for the pinned project context.
+  useEffect(() => {
+    const p = (searchParams?.get('projekt') ?? '').toString()
+    const trimmed = p.trim()
+    if (trimmed !== selectedProjekt.trim()) setSelectedProjekt(trimmed)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [searchParams])
+
+  // Regime canonicalization: pinned project mode dominates, `q` is removed.
+  useEffect(() => {
+    if (!searchParams) return
+    const p = (searchParams.get('projekt') ?? '').toString().trim()
+    const q = (searchParams.get('q') ?? '').toString()
+    if (p && q) {
+      const next = new URLSearchParams(searchParams.toString())
+      next.delete('q')
+      replaceWithParams(next)
+      if (searchTerm) setSearchTerm('')
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [replaceWithParams, searchParams])
 
   // URL (`q`) is canonical for the main text filter.
   useEffect(() => {
+    if (isProjektMode) return
     const q = (searchParams?.get('q') ?? '').toString()
     const isFocused = typeof document !== 'undefined' && document.activeElement === searchInputRef.current
     if (!isFocused && q !== searchTerm) {
@@ -163,6 +244,7 @@ export default function ProjectsRegistryClient() {
   useEffect(() => {
     if (typeof window === 'undefined') return
     if (!router) return
+    if (isProjektMode) return
 
     if (searchDebounceRef.current) {
       window.clearTimeout(searchDebounceRef.current)
@@ -186,7 +268,7 @@ export default function ProjectsRegistryClient() {
         window.clearTimeout(searchDebounceRef.current)
       }
     }
-  }, [pathname, router, searchParams, searchTerm])
+  }, [isProjektMode, pathname, router, searchParams, searchTerm])
 
   const fetchData = useCallback(async () => {
     try {
@@ -209,9 +291,13 @@ export default function ProjectsRegistryClient() {
   }, [])
 
   const filteredProjects = useMemo(() => {
-    const q = searchTerm.trim().toLowerCase()
-    const base = q
-      ? serviceProjects.filter(
+    const base = canonicalProjekt
+      ? serviceProjects.filter((p) => (p.doklad_proj ?? '').trim() === canonicalProjekt)
+      : serviceProjects
+
+    const q = canonicalProjekt ? '' : searchTerm.trim().toLowerCase()
+    const filtered = q
+      ? base.filter(
           (p) =>
             normalize(p.nazev).includes(q) ||
             normalize(p.doklad_proj).includes(q) ||
@@ -219,10 +305,10 @@ export default function ProjectsRegistryClient() {
             normalize(p.nazev_par).includes(q) ||
             normalize(p.gps).includes(q),
         )
-      : serviceProjects
+      : base
 
-    return sortProjects(base, sortKey, sortDirection)
-  }, [serviceProjects, searchTerm, sortKey, sortDirection])
+    return sortProjects(filtered, sortKey, sortDirection)
+  }, [canonicalProjekt, serviceProjects, searchTerm, sortKey, sortDirection])
 
   useEffect(() => {
     fetchData()
@@ -281,12 +367,12 @@ export default function ProjectsRegistryClient() {
     <div className="card-professional rounded-lg border border-gray-700/60 p-4 md:p-5">
       <h2 className="text-lg font-semibold text-white mb-4">Přehled projektů</h2>
 
-      {selectedProjekt ? (
+      {canonicalProjekt ? (
         <div className="mb-4 rounded-lg border border-blue-700/40 bg-blue-900/15 px-4 py-3">
           <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
             <div className="text-sm text-blue-100/90">
               Projekt:{' '}
-              <span className="text-blue-200/90">{selectedProjektLabel ?? selectedProjekt}</span>
+              <span className="text-blue-200/90">{selectedProjektLabel ?? canonicalProjekt}</span>
             </div>
             <button
               type="button"
@@ -304,16 +390,21 @@ export default function ProjectsRegistryClient() {
           Zobrazeno <span className="font-medium text-white">{filteredProjects.length}</span> z{' '}
           <span className="font-medium text-white">{serviceProjects.length}</span> projektů
         </p>
-        <div className="flex flex-col sm:flex-row gap-3 sm:items-center">
+        <div className="flex flex-col sm:flex-row gap-3 sm:items-end">
           <input
             type="text"
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            placeholder="Hledat projekt, firmu nebo doklad…"
+            placeholder={isProjektMode ? 'Hledání je vypnuto (zvolen projekt)…' : 'Hledat projekt, firmu nebo doklad…'}
             ref={searchInputRef}
-            className="w-full sm:w-[420px] pl-4 pr-4 py-2.5 rounded-lg bg-gray-800/80 border border-gray-600/60 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-green-500/50 focus:border-green-500/50"
+            disabled={isProjektMode}
+            aria-disabled={isProjektMode}
+            className={[
+              'w-full sm:w-[420px] pl-4 pr-4 py-2.5 rounded-lg bg-gray-800/80 border text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-green-500/50 focus:border-green-500/50',
+              isProjektMode ? 'border-gray-700/50 text-gray-400 opacity-80 cursor-not-allowed' : 'border-gray-600/60',
+            ].join(' ')}
           />
-          {searchTerm.trim() ? (
+          {searchTerm.trim() && !isProjektMode ? (
             <button
               onClick={() => setSearchTerm('')}
               className="px-4 py-2.5 rounded-lg bg-gray-700/80 border border-gray-600/60 text-gray-100 hover:bg-gray-600/80 focus:outline-none focus:ring-2 focus:ring-green-500/50 focus:border-green-500/50 transition-colors"
@@ -321,6 +412,25 @@ export default function ProjectsRegistryClient() {
               Vymazat
             </button>
           ) : null}
+          <div className="w-full sm:w-[360px]">
+            <label className="block text-xs font-medium text-gray-400 mb-0.5" htmlFor="evidence-projektu-projekt">
+              Projekt
+            </label>
+            <select
+              id="evidence-projektu-projekt"
+              value={canonicalProjekt}
+              onChange={(e) => onProjektChange(e.target.value)}
+              aria-label="Projektový kontext (doklad projektu)"
+              className="w-full pl-3 pr-3 py-2.5 rounded-lg bg-gray-800/80 border border-gray-600/60 text-sm text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-green-500/50 focus-visible:ring-offset-2 focus-visible:ring-offset-gray-900 focus-visible:border-green-500/50"
+            >
+              <option value="">Všechny projekty</option>
+              {projectOptions.map((p) => (
+                <option key={p.value} value={p.value}>
+                  {p.label}
+                </option>
+              ))}
+            </select>
+          </div>
           <button
             onClick={fetchData}
             className="px-4 py-2.5 rounded-lg bg-green-600 text-white hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500/50 focus:border-green-500/50 transition-colors"
@@ -352,7 +462,7 @@ export default function ProjectsRegistryClient() {
               key={`${project.doklad_proj || 'no-id'}-${index}`}
               className={[
                 'rounded-lg border bg-gray-900/40 px-4 md:px-6 py-3.5 shadow-sm transition-all duration-200 hover:bg-gray-800/80 hover:border-gray-500/70 hover:shadow-md hover:-translate-y-0.5',
-                selectedProjekt && project.doklad_proj === selectedProjekt
+                canonicalProjekt && project.doklad_proj === canonicalProjekt
                   ? 'border-blue-500/60 ring-1 ring-blue-500/30'
                   : 'border-gray-700/70',
               ].join(' ')}
@@ -387,7 +497,21 @@ export default function ProjectsRegistryClient() {
         </ul>
       </div>
 
-      {filteredProjects.length === 0 && searchTerm.trim() ? (
+      {filteredProjects.length === 0 && canonicalProjekt ? (
+        <div className="mt-4 rounded-lg border border-gray-700/60 bg-gray-800/40 p-4 md:p-5">
+          <h3 className="text-sm font-semibold text-white mb-1">Projekt nenalezen</h3>
+          <p className="text-sm text-gray-400 mb-3">
+            Zvolený projekt není v aktuálně načtených datech evidence.
+          </p>
+          <button
+            type="button"
+            onClick={onClearProjekt}
+            className="px-4 py-2 rounded-lg bg-gray-700/80 border border-gray-600/60 text-gray-100 hover:bg-gray-600/80 focus:outline-none focus:ring-2 focus:ring-green-500/50 focus:border-green-500/50 transition-colors"
+          >
+            Zrušit projekt
+          </button>
+        </div>
+      ) : filteredProjects.length === 0 && searchTerm.trim() ? (
         <div className="mt-4 rounded-lg border border-gray-700/60 bg-gray-800/40 p-4 md:p-5">
           <h3 className="text-sm font-semibold text-white mb-1">Žádné výsledky</h3>
           <p className="text-sm text-gray-400 mb-3">
