@@ -184,6 +184,9 @@ export const authOptions: NextAuthOptions = {
 
         if (action === 'stop') {
           delete (token as any).impersonation
+          if (process.env.NODE_ENV === 'development') {
+            console.info('[impersonation] jwt update stop', { tokenHasImpersonation: Boolean((token as any).impersonation) })
+          }
         }
 
         if (action === 'start') {
@@ -207,6 +210,14 @@ export const authOptions: NextAuthOptions = {
                 targetUser,
               } satisfies ImpersonationState
             }
+          }
+
+          if (process.env.NODE_ENV === 'development') {
+            console.info('[impersonation] jwt update start', {
+              ok: Boolean((token as any).impersonation?.active),
+              adminId: currentIdentity?.id,
+              targetId: targetUser?.id,
+            })
           }
         }
       }

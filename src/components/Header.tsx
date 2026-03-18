@@ -38,7 +38,15 @@ export default function Header({
       // Best-effort audit log on server.
       await fetch('/api/impersonation/stop', { method: 'POST' }).catch(() => null)
 
-      await update({ impersonation: { action: 'stop' } } as any)
+      const updatedSession = await update({ impersonation: { action: 'stop' } } as any)
+      const stillImpersonating = Boolean((updatedSession as any)?.impersonation?.active)
+
+      if (stillImpersonating) {
+        // Pragmatic fallback when session propagation is flaky.
+        window.location.reload()
+        return
+      }
+
       router.refresh()
     } catch (error) {
       logger.error('Error stopping impersonation:', error)

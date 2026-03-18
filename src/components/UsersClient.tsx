@@ -681,15 +681,21 @@ export default function UsersClient({ users: initialUsers }: { users: User[] }) 
         return
       }
 
-      await update({
+      const updatedSession = await update({
         impersonation: {
           action: 'start',
           targetUser,
         },
       } as any)
 
-      router.push('/dashboard')
-      router.refresh()
+      const impActive = Boolean((updatedSession as any)?.impersonation?.active)
+      if (!impActive) {
+        // Fallback: ensure the client sees the freshest JWT/cookie state.
+        router.refresh()
+      }
+
+      // Pragmatic + reliable: force a navigation that picks up the updated session cookie/token.
+      window.location.assign('/dashboard')
     } catch (error) {
       alert('Impersonizace se nepodařila')
     } finally {
