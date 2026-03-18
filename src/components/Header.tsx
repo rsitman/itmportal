@@ -72,33 +72,11 @@ export default function Header({
 
     setIsSigningOut(true)
 
-    const isAzureUser = (session as any)?.authProvider === 'AZURE_AD'
-    const userEmail = session?.user?.email
-
     try {
-      if (isAzureUser) {
-        // Azure AD uživatel — nejprve smazat NextAuth session, pak odhlásit u Microsoftu
-        const logoutResponse = await fetch('/api/auth/logout', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ email: userEmail }),
-        })
-        const logoutData = await logoutResponse.json()
-
-        await signOut({ redirect: false })
-
-        if (logoutData.logoutUrl) {
-          logger.log('Redirecting to Azure AD logout:', logoutData.logoutUrl)
-          window.location.href = logoutData.logoutUrl
-        } else {
-          router.push('/login')
-        }
-      } else {
-        // Lokální uživatel — pouze NextAuth signOut, žádný Microsoft redirect
-        await signOut({ redirect: false })
-        router.push('/login')
-        router.refresh()
-      }
+      // Portal-only logout: clear local NextAuth session, do not trigger Microsoft global logout.
+      await signOut({ redirect: false })
+      router.push('/login')
+      router.refresh()
     } catch (error) {
       logger.error('Error during sign out:', error)
       router.push('/login')
