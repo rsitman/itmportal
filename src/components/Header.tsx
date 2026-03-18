@@ -47,6 +47,18 @@ export default function Header({
         return
       }
 
+      // Ensure session endpoint reflects the new state (avoid redirect/guard race after stop).
+      for (let i = 0; i < 5; i++) {
+        try {
+          const res = await fetch('/api/auth/session', { cache: 'no-store' })
+          const s = await res.json().catch(() => null)
+          if (!s?.impersonation?.active) break
+        } catch {
+          // ignore
+        }
+        await new Promise((r) => setTimeout(r, 80))
+      }
+
       router.refresh()
     } catch (error) {
       logger.error('Error stopping impersonation:', error)

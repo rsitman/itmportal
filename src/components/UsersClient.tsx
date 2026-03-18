@@ -657,6 +657,22 @@ export default function UsersClient({ users: initialUsers }: { users: User[] }) 
     return true
   }
 
+  const waitForImpersonationSession = async (expectActive: boolean) => {
+    // Small, conservative polling to avoid race between session.update and hard navigation.
+    for (let i = 0; i < 5; i++) {
+      try {
+        const res = await fetch('/api/auth/session', { cache: 'no-store' })
+        const s = await res.json().catch(() => null)
+        const active = Boolean(s?.impersonation?.active)
+        if (active === expectActive) return true
+      } catch {
+        // ignore
+      }
+      await new Promise((r) => setTimeout(r, 80))
+    }
+    return false
+  }
+
   const handleImpersonate = async (user: User) => {
     if (!canImpersonateUser(user)) return
     if (isImpersonatingUserId) return
@@ -693,6 +709,9 @@ export default function UsersClient({ users: initialUsers }: { users: User[] }) 
         // Fallback: ensure the client sees the freshest JWT/cookie state.
         router.refresh()
       }
+
+      // Ensure the server-side session endpoint reflects the new state before leaving the page.
+      await waitForImpersonationSession(true)
 
       // Pragmatic + reliable: force a navigation that picks up the updated session cookie/token.
       window.location.assign('/dashboard')

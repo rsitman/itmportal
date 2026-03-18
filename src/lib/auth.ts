@@ -237,7 +237,7 @@ export const authOptions: NextAuthOptions = {
         session.user.email = (effectiveUser?.email ?? (token.email as string)) as string
         session.user.name = (effectiveUser?.name ?? (token.name as string)) as string
 
-        ;(session as any).authProvider = token.authProvider as AuthProvider
+        ;(session as any).authProvider = (effectiveUser?.authProvider ?? (token.authProvider as AuthProvider)) as AuthProvider
         // Conservative: do not expose Graph access token while impersonating.
         if (!isImpersonating && token.accessToken) {
           ;(session as any).accessToken = token.accessToken
