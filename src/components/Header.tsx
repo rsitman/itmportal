@@ -21,9 +21,51 @@ export default function Header({
   sidebarControlsId,
   menuButtonRef,
 }: HeaderProps) {
-  const { data: session } = useSession()
+  const { data: session, update } = useSession()
   const router = useRouter()
   const [isSigningOut, setIsSigningOut] = useState(false)
+  const [isStoppingImpersonation, setIsStoppingImpersonation] = useState(false)
+
+  const impersonation = (session as any)?.impersonation
+  const isImpersonating = Boolean(impersonation?.active)
+  const originalUser = impersonation?.originalUser
+  const targetUser = impersonation?.targetUser
+
+  const handleStopImpersonation = async () => {
+    if (isStoppingImpersonation) return
+    setIsStoppingImpersonation(true)
+    try {
+      // Best-effort audit log on server.
+      await fetch('/api/impersonation/stop', { method: 'POST' }).catch(() => null)
+
+      const updatedSession = await update({ impersonation: { action: 'stop' } } as any)
+      const stillImpersonating = Boolean((updatedSession as any)?.impersonation?.active)
+
+      if (stillImpersonating) {
+        // Pragmatic fallback when session propagation is flaky.
+        window.location.reload()
+        return
+      }
+
+      // Ensure session endpoint reflects the new state (avoid redirect/guard race after stop).
+      for (let i = 0; i < 5; i++) {
+        try {
+          const res = await fetch('/api/auth/session', { cache: 'no-store' })
+          const s = await res.json().catch(() => null)
+          if (!s?.impersonation?.active) break
+        } catch {
+          // ignore
+        }
+        await new Promise((r) => setTimeout(r, 80))
+      }
+
+      router.refresh()
+    } catch (error) {
+      logger.error('Error stopping impersonation:', error)
+    } finally {
+      setIsStoppingImpersonation(false)
+    }
+  }
 
   const handleSignOut = async () => {
     if (isSigningOut) return
@@ -97,6 +139,29 @@ export default function Header({
             </span>
           </div>
         </div>
+
+        {isImpersonating ? (
+          <div className="hidden sm:flex items-center gap-3">
+            <div className="rounded-md border border-amber-700/40 bg-amber-900/20 px-3 py-1.5 text-xs text-amber-100/90">
+              <span className="font-medium">Impersonizace:</span>{' '}
+              <span className="font-mono">
+                {targetUser?.email || targetUser?.name || '—'}
+              </span>
+              {originalUser?.email ? (
+                <span className="text-amber-200/60"> (admin: {originalUser.email})</span>
+              ) : null}
+            </div>
+            <Button
+              onClick={handleStopImpersonation}
+              variant="outline"
+              size="sm"
+              disabled={isStoppingImpersonation}
+              className="border-amber-700/40 bg-amber-900/20 hover:bg-amber-900/30 text-amber-100/90 hover:text-amber-50 shadow-sm transition-colors px-3 py-2"
+            >
+              {isStoppingImpersonation ? 'Vracím…' : 'Zpět na admin účet'}
+            </Button>
+          </div>
+        ) : null}
         
         <Button
           onClick={handleSignOut}

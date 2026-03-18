@@ -1,6 +1,8 @@
 'use client'
 
 import React, { useState } from 'react'
+import { useSession } from 'next-auth/react'
+import { useRouter } from 'next/navigation'
 
 interface User {
   id: string
@@ -443,11 +445,30 @@ function DeleteConfirmModal({
   )
 }
 
-function UsersTable({ users, onUserUpdate, onUserDelete, onUserClick }: { 
+type ImpersonationTargetUser = {
+  id: string
+  email: string
+  name?: string | null
+  role: 'ADMIN' | 'USER' | 'IT'
+  authProvider: 'LOCAL' | 'AZURE_AD'
+}
+
+function UsersTable({
+  users,
+  onUserUpdate,
+  onUserDelete,
+  onUserClick,
+  onImpersonate,
+  canImpersonateUser,
+  isImpersonatingUserId,
+}: {
   users: User[]
   onUserUpdate: (userId: string, updates: Partial<User>) => void 
   onUserDelete: (userId: string) => void 
   onUserClick: (user: User) => void 
+  onImpersonate: (user: User) => void
+  canImpersonateUser: (user: User) => boolean
+  isImpersonatingUserId: string | null
 }) {
   return (
     <div className="overflow-x-auto w-full">
@@ -524,12 +545,38 @@ function UsersTable({ users, onUserUpdate, onUserDelete, onUserClick }: {
                 </div>
               </td>
               <td className="w-32 px-6 py-4 text-center">
-                <button
-                  onClick={() => onUserDelete(user.id)}
-                  className="text-red-600 hover:text-red-900 text-sm font-medium"
-                >
-                  Smazat
-                </button>
+                <div className="flex items-center justify-center gap-3">
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation()
+                      onImpersonate(user)
+                    }}
+                    disabled={!canImpersonateUser(user) || isImpersonatingUserId === user.id}
+                    className={`text-sm font-medium ${
+                      canImpersonateUser(user) && isImpersonatingUserId !== user.id
+                        ? 'text-green-300 hover:text-green-200'
+                        : 'text-gray-500 cursor-not-allowed'
+                    }`}
+                    title={
+                      user.role === 'ADMIN'
+                        ? 'Nelze impersonizovat admin účet'
+                        : !user.isActive
+                          ? 'Nelze impersonizovat neaktivní účet'
+                          : 'Impersonizovat'
+                    }
+                  >
+                    {isImpersonatingUserId === user.id ? 'Spouštím…' : 'Impersonizovat'}
+                  </button>
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation()
+                      onUserDelete(user.id)
+                    }}
+                    className="text-red-600 hover:text-red-900 text-sm font-medium"
+                  >
+                    Smazat
+                  </button>
+                </div>
               </td>
             </tr>
           ))}
@@ -540,8 +587,11 @@ function UsersTable({ users, onUserUpdate, onUserDelete, onUserClick }: {
 }
 
 export default function UsersClient({ users: initialUsers }: { users: User[] }) {
+  const router = useRouter()
+  const { data: session, update } = useSession()
   const [users, setUsers] = useState<User[]>(initialUsers)
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false)
+  const [isImpersonatingUserId, setIsImpersonatingUserId] = useState<string | null>(null)
   const [deleteModalState, setDeleteModalState] = useState<{
     isOpen: boolean
     userId: string | null
@@ -598,6 +648,80 @@ export default function UsersClient({ users: initialUsers }: { users: User[] }) 
     }
   }
 
+  const currentUserId = ((session?.user as any)?.id as string | undefined) ?? null
+  const canImpersonateUser = (user: User) => {
+    if (!currentUserId) return false
+    if (!user.isActive) return false
+    if (user.role === 'ADMIN') return false
+    if (user.id === currentUserId) return false
+    return true
+  }
+
+  const waitForImpersonationSession = async (expectActive: boolean) => {
+    // Small, conservative polling to avoid race between session.update and hard navigation.
+    for (let i = 0; i < 5; i++) {
+      try {
+        const res = await fetch('/api/auth/session', { cache: 'no-store' })
+        const s = await res.json().catch(() => null)
+        const active = Boolean(s?.impersonation?.active)
+        if (active === expectActive) return true
+      } catch {
+        // ignore
+      }
+      await new Promise((r) => setTimeout(r, 80))
+    }
+    return false
+  }
+
+  const handleImpersonate = async (user: User) => {
+    if (!canImpersonateUser(user)) return
+    if (isImpersonatingUserId) return
+
+    setIsImpersonatingUserId(user.id)
+    try {
+      const response = await fetch('/api/impersonation/start', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ targetUserId: user.id }),
+      })
+
+      const data = await response.json().catch(() => ({}))
+      if (!response.ok) {
+        alert(data?.error || 'Impersonizace se nepodařila')
+        return
+      }
+
+      const targetUser = data?.targetUser as ImpersonationTargetUser | undefined
+      if (!targetUser?.id || !targetUser?.email || !targetUser?.role || !targetUser?.authProvider) {
+        alert('Impersonizace se nepodařila (neplatná odpověď serveru)')
+        return
+      }
+
+      const updatedSession = await update({
+        impersonation: {
+          action: 'start',
+          targetUser,
+        },
+      } as any)
+
+      const impActive = Boolean((updatedSession as any)?.impersonation?.active)
+      if (!impActive) {
+        // Fallback: ensure the client sees the freshest JWT/cookie state.
+        router.refresh()
+      }
+
+      // Ensure the server-side session endpoint reflects the new state before leaving the page.
+      await waitForImpersonationSession(true)
+
+      // Pragmatic + reliable: force a navigation that picks up the updated session cookie/token.
+      window.location.assign('/dashboard')
+    } catch (error) {
+      alert('Impersonizace se nepodařila')
+    } finally {
+      setIsImpersonatingUserId(null)
+    }
+  }
+
   return (
     <div className="py-4 px-6">
       <div className="flex justify-between items-center mb-6">
@@ -632,6 +756,9 @@ export default function UsersClient({ users: initialUsers }: { users: User[] }) 
           onUserUpdate={handleUserUpdate}
           onUserDelete={handleUserDelete}
           onUserClick={handleUserClick}
+          onImpersonate={handleImpersonate}
+          canImpersonateUser={canImpersonateUser}
+          isImpersonatingUserId={isImpersonatingUserId}
         />
       )}
 

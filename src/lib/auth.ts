@@ -8,6 +8,65 @@ import { customLogger } from './nextauth-logger'
 import { logger } from './logger'
 import { getServerSession } from 'next-auth'
 
+type SafeUserSummary = {
+  id: string
+  email: string
+  name?: string | null
+  role: UserRole
+  authProvider: AuthProvider
+}
+
+type ImpersonationState = {
+  active: boolean
+  originalUser: SafeUserSummary
+  targetUser: SafeUserSummary
+}
+
+function isSafeUserRole(value: unknown): value is UserRole {
+  return value === 'ADMIN' || value === 'USER' || value === 'IT'
+}
+
+function isSafeAuthProvider(value: unknown): value is AuthProvider {
+  return value === 'LOCAL' || value === 'AZURE_AD'
+}
+
+function toSafeUserSummary(value: unknown): SafeUserSummary | null {
+  if (!value || typeof value !== 'object') return null
+  const v = value as any
+  if (typeof v.id !== 'string' || !v.id.trim()) return null
+  if (typeof v.email !== 'string' || !v.email.trim()) return null
+  if (!isSafeUserRole(v.role)) return null
+  if (!isSafeAuthProvider(v.authProvider)) return null
+  const name =
+    v.name === null || v.name === undefined
+      ? null
+      : typeof v.name === 'string'
+        ? v.name
+        : null
+  return {
+    id: v.id.trim(),
+    email: v.email.trim(),
+    name,
+    role: v.role,
+    authProvider: v.authProvider,
+  }
+}
+
+function getTokenIdentity(token: any): SafeUserSummary | null {
+  if (!token) return null
+  const id = typeof token.id === 'string' ? token.id : ''
+  const email = typeof token.email === 'string' ? token.email : ''
+  const role = token.role
+  const authProvider = token.authProvider
+  const name = typeof token.name === 'string' ? token.name : null
+
+  if (!id.trim() || !email.trim()) return null
+  if (!isSafeUserRole(role)) return null
+  if (!isSafeAuthProvider(authProvider)) return null
+
+  return { id: id.trim(), email: email.trim(), name, role, authProvider }
+}
+
 // Jednoduchý check env proměnných pro Azure AD
 const AZURE_ENV_OK = Boolean(
   process.env.AZURE_AD_CLIENT_ID &&
@@ -104,7 +163,7 @@ export const authOptions: NextAuthOptions = {
   },
 
   callbacks: {
-    async jwt({ token, user, account }) {
+    async jwt({ token, user, account, trigger, session }) {
       if (user) {
         token.role = (user as any).role
         token.id = (user as any).id
@@ -118,18 +177,80 @@ export const authOptions: NextAuthOptions = {
         token.expiresAt = account.expires_at
       }
 
+      // Impersonation state is updated only through an explicit session.update() call on the client.
+      if (trigger === 'update') {
+        const payload = (session as any)?.impersonation
+        const action = payload?.action
+
+        if (action === 'stop') {
+          delete (token as any).impersonation
+          if (process.env.NODE_ENV === 'development') {
+            console.info('[impersonation] jwt update stop', { tokenHasImpersonation: Boolean((token as any).impersonation) })
+          }
+        }
+
+        if (action === 'start') {
+          const currentIdentity = getTokenIdentity(token)
+          const targetUser = toSafeUserSummary(payload?.targetUser)
+
+          // Conservative validation: require a stable current identity + safe target payload.
+          if (
+            currentIdentity &&
+            currentIdentity.role === 'ADMIN' &&
+            targetUser &&
+            targetUser.role !== 'ADMIN' &&
+            targetUser.id !== currentIdentity.id
+          ) {
+            // No chaining: if already impersonating, ignore start.
+            const existing = (token as any).impersonation as ImpersonationState | undefined
+            if (!existing?.active) {
+              ;(token as any).impersonation = {
+                active: true,
+                originalUser: currentIdentity,
+                targetUser,
+              } satisfies ImpersonationState
+            }
+          }
+
+          if (process.env.NODE_ENV === 'development') {
+            console.info('[impersonation] jwt update start', {
+              ok: Boolean((token as any).impersonation?.active),
+              adminId: currentIdentity?.id,
+              targetId: targetUser?.id,
+            })
+          }
+        }
+      }
+
       return token
     },
 
     async session({ session, token }) {
       if (token) {
-        ;(session.user as any).id = token.id as string
-        ;(session.user as any).role = token.role as UserRole
-        session.user.email = token.email as string
-        session.user.name = token.name as string
-        ;(session as any).authProvider = token.authProvider as AuthProvider
-        if (token.accessToken) {
+        const impersonation = (token as any).impersonation as ImpersonationState | undefined
+        const isImpersonating = Boolean(impersonation?.active && impersonation?.targetUser?.id)
+
+        const effectiveUser = isImpersonating ? impersonation!.targetUser : null
+
+        ;(session.user as any).id = (effectiveUser?.id ?? (token.id as string)) as string
+        ;(session.user as any).role = (effectiveUser?.role ?? (token.role as UserRole)) as UserRole
+        session.user.email = (effectiveUser?.email ?? (token.email as string)) as string
+        session.user.name = (effectiveUser?.name ?? (token.name as string)) as string
+
+        ;(session as any).authProvider = (effectiveUser?.authProvider ?? (token.authProvider as AuthProvider)) as AuthProvider
+        // Conservative: do not expose Graph access token while impersonating.
+        if (!isImpersonating && token.accessToken) {
           ;(session as any).accessToken = token.accessToken
+        }
+
+        if (isImpersonating) {
+          ;(session as any).impersonation = {
+            active: true,
+            originalUser: impersonation!.originalUser,
+            targetUser: impersonation!.targetUser,
+          }
+        } else {
+          ;(session as any).impersonation = { active: false }
         }
 
         const expiresAt = token.expiresAt

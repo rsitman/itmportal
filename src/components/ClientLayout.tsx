@@ -8,22 +8,12 @@ import { usePathname } from "next/navigation"
 import { useCallback, useEffect, useMemo, useRef, useState } from "react"
 
 export default function ClientLayout({ children }: { children: React.ReactNode }) {
-  const pathname = usePathname();
-  const isLoginPage = pathname === '/login';
+  const pathname = usePathname()
+  const isLoginPage = pathname === '/login'
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const menuButtonRef = useRef<HTMLButtonElement>(null)
   const closeButtonRef = useRef<HTMLButtonElement>(null)
   const sidebarControlsId = useMemo(() => 'app-mobile-sidebar-drawer', [])
-
-  if (isLoginPage) {
-    return (
-      <AuthErrorBoundary>
-        <NextAuthProvider>
-          {children}
-        </NextAuthProvider>
-      </AuthErrorBoundary>
-    );
-  }
 
   const isProjectsPage =
     pathname === '/plan_patchovani' ||
@@ -39,18 +29,20 @@ export default function ClientLayout({ children }: { children: React.ReactNode }
     pathname.startsWith('/users') ||
     pathname.startsWith('/plan_patchovani/') ||
     pathname.startsWith('/patch-modules') ||
-    pathname.startsWith('/projects/doklad-projektu');
+    pathname.startsWith('/projects/doklad-projektu')
 
   const closeSidebar = useCallback(() => setSidebarOpen(false), [])
   const openSidebar = useCallback(() => setSidebarOpen(true), [])
 
   // Close the mobile drawer on navigation.
   useEffect(() => {
+    if (isLoginPage) return
     setSidebarOpen(false)
-  }, [pathname])
+  }, [isLoginPage, pathname])
 
   // Mobile drawer: scroll lock + Escape close + minimal focus management.
   useEffect(() => {
+    if (isLoginPage) return
     if (!sidebarOpen) return
 
     const prevOverflow = document.body.style.overflow
@@ -73,11 +65,14 @@ export default function ClientLayout({ children }: { children: React.ReactNode }
       // Return focus to the menu button after closing.
       menuButtonRef.current?.focus()
     }
-  }, [closeSidebar, sidebarOpen])
+  }, [closeSidebar, isLoginPage, sidebarOpen])
 
   return (
     <AuthErrorBoundary>
       <NextAuthProvider>
+        {isLoginPage ? (
+          <>{children}</>
+        ) : (
         <div className="flex h-screen app-shell-bg">
           {/* Mobile overlay (only <lg) */}
           <div
@@ -136,7 +131,8 @@ export default function ClientLayout({ children }: { children: React.ReactNode }
             </main>
           </div>
         </div>
+        )}
       </NextAuthProvider>
     </AuthErrorBoundary>
-  );
+  )
 }
