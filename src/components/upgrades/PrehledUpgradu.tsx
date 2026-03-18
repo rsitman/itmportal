@@ -5,6 +5,7 @@ import Link from 'next/link'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { Upgrade } from '@/types/upgrade'
 import { useServiceProjects } from '@/lib/useServiceProjects'
+import { jiraIssueUrl } from '@/lib/jira'
 
 type PrehledUpgraduProps = {
   initialUpgrades: Upgrade[]
@@ -106,6 +107,12 @@ function uniqueSortedByKey(values: Array<string | null | undefined>): { values: 
     values: [...byKey.values()].sort((a, b) => a.localeCompare(b, 'cs')),
     hasKey: (k: string) => byKey.has(k),
   }
+}
+
+function getJiraHref(issueKey: string | null | undefined): string | null {
+  const key = (issueKey ?? '').toString().trim()
+  if (!key) return null
+  return jiraIssueUrl(key)
 }
 
 export default function PrehledUpgradu({
@@ -528,9 +535,7 @@ function PrehledDat({ upgrades }: { upgrades: Upgrade[] }) {
 function RadekUpgradu({ upgrade }: { upgrade: Upgrade }) {
   const badge = getStavBadgeClasses(upgrade.stav)
   const projektHref = upgrade.projekt ? `/projects/doklad-projektu/${encodeURIComponent(upgrade.projekt)}` : null
-  const jiraHref = upgrade.jira_klic
-    ? `https://your-jira-instance.com/browse/${encodeURIComponent(upgrade.jira_klic)}`
-    : null
+  const jiraHref = getJiraHref(upgrade.jira_klic)
 
   return (
     <>
@@ -608,9 +613,7 @@ function RadekUpgradu({ upgrade }: { upgrade: Upgrade }) {
 function RadekUpgraduMobile({ upgrade }: { upgrade: Upgrade }) {
   const badge = getStavBadgeClasses(upgrade.stav)
   const projektHref = upgrade.projekt ? `/projects/doklad-projektu/${encodeURIComponent(upgrade.projekt)}` : null
-  const jiraHref = upgrade.jira_klic
-    ? `https://your-jira-instance.com/browse/${encodeURIComponent(upgrade.jira_klic)}`
-    : null
+  const jiraHref = getJiraHref(upgrade.jira_klic)
 
   return (
     <div className="flex flex-col gap-2">
