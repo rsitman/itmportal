@@ -1,46 +1,27 @@
 'use client'
 
+import Link from 'next/link'
 import { useEffect, useMemo, useState } from 'react'
-import DOMPurify from 'dompurify'
 import type { PolozkaAktualita } from '@/types/dashboard'
 import SekceDashboardu from './SekceDashboardu'
 
-const MAX_ITEMS = 8
-
-const NEWS_ALLOWED_TAGS = ['b', 'strong', 'em', 'ul', 'ol', 'li', 'a', 'br', 'p', 'span'] as const
-const NEWS_ALLOWED_ATTR = ['href', 'target', 'rel', 'title'] as const
+const MAX_ITEMS = 4
 
 function sortItems(items: PolozkaAktualita[]): PolozkaAktualita[] {
-  const vip = items.filter((i) => i.vip)
-  const rest = items.filter((i) => !i.vip)
-  return [...vip, ...rest].slice(0, MAX_ITEMS)
+  return [...items]
+    .sort((a, b) => {
+      const ad = a.datum ? new Date(a.datum).getTime() : 0
+      const bd = b.datum ? new Date(b.datum).getTime() : 0
+      return bd - ad
+    })
+    .slice(0, MAX_ITEMS)
 }
 
-function NewsContent({ html }: { html: string }) {
-  const safeHtml = useMemo(() => {
-    if (!html) return ''
-
-    let processed = html
-      .replace(/\\n/g, '<br />')      // literal "\n" -> <br>
-      .replace(/\r\n/g, '<br />')     // Windows newlines
-      .replace(/\n/g, '<br />')       // Unix newlines
-
-    return DOMPurify.sanitize(processed, {
-      ALLOWED_TAGS: [...NEWS_ALLOWED_TAGS],
-      ALLOWED_ATTR: [...NEWS_ALLOWED_ATTR],
-    })
-  }, [html])
-
-  if (!safeHtml) {
-    return null
-  }
-
-  return (
-    <div
-      className="aktualita-content text-sm text-gray-300 leading-relaxed"
-      dangerouslySetInnerHTML={{ __html: safeHtml }}
-    />
-  )
+function formatDateShort(iso?: string): string {
+  if (!iso) return '—'
+  const d = new Date(iso)
+  if (Number.isNaN(d.getTime())) return '—'
+  return d.toLocaleDateString('cs-CZ', { day: '2-digit', month: '2-digit', year: 'numeric' })
 }
 
 export default function Aktuality() {
@@ -72,7 +53,18 @@ export default function Aktuality() {
   }, [])
 
   return (
-    <SekceDashboardu id="aktuality" title="Aktuality">
+    <SekceDashboardu
+      id="aktuality"
+      title="Aktuality"
+      action={
+        <Link
+          href="/aktuality"
+          className="text-sm !text-gray-200 hover:!text-white underline underline-offset-4"
+        >
+          Všechny aktuality
+        </Link>
+      }
+    >
       {loading && (
         <p className="text-sm text-gray-400 py-4">Načítání…</p>
       )}
@@ -86,33 +78,29 @@ export default function Aktuality() {
       )}
       {!loading && !error && items !== null && items.length > 0 && (
         <ul className="divide-y divide-gray-700/50">
-          {sortItems(items).map((p, idx) => {
+          {sortItems(items).map((p) => {
             const hasProjekt = p.projekt_nazev && p.projekt_nazev.trim() !== ''
-            const isVip = p.vip === true
             return (
               <li
-                key={`${idx}-${p.nadpis ?? ''}`}
-                className={`py-3 first:pt-0 last:pb-0 ${
-                  isVip ? 'border-l-2 border-l-amber-500/50 pl-3 -ml-px' : ''
-                }`}
+                key={p.id}
+                className="py-3 first:pt-0 last:pb-0"
               >
-                <div className="flex flex-col gap-1">
-                  {isVip && (
-                    <span className="text-[10px] uppercase tracking-wide text-amber-400/70 font-medium">
-                      Důležité
-                    </span>
-                  )}
-                  <p className="font-medium text-white">{p.nadpis}</p>
-                  {p.obsah && <NewsContent html={p.obsah} />}
-                  {hasProjekt && (
-                    <span
-                      className="text-xs text-gray-500 mt-1 inline-block"
-                      aria-label={`Projekt: ${p.projekt_nazev}`}
-                    >
-                      {p.projekt_nazev}
-                    </span>
-                  )}
-                </div>
+                <Link
+                  href={`/aktuality/${encodeURIComponent(p.id)}`}
+                  className="block rounded-md px-2 py-2 -mx-2 hover:bg-white/5 transition-colors"
+                >
+                  <div className="flex flex-col gap-1">
+                    <p className="font-medium text-white leading-snug line-clamp-2">{p.nadpis}</p>
+                    <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
+                      <span className="text-xs text-gray-400">{formatDateShort(p.datum)}</span>
+                      {hasProjekt ? (
+                        <span className="text-xs text-gray-400">
+                          <span className="text-gray-600">•</span> {p.projekt_nazev}
+                        </span>
+                      ) : null}
+                    </div>
+                  </div>
+                </Link>
               </li>
             )
           })}

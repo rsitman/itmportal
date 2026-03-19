@@ -19,6 +19,7 @@ export default function ClientLayout({ children }: { children: React.ReactNode }
     pathname === '/plan_patchovani' ||
     pathname === '/upgrades' ||
     pathname === '/databases' ||
+    pathname.startsWith('/aktuality') ||
     pathname === '/dashboard/mapa' ||
     pathname === '/osoby-itman' ||
     pathname === '/calendar' ||

@@ -49,9 +49,11 @@ export interface PolozkaDokumentyANavody {
 
 /** Položka aktuality z ERP /web/news */
 export interface PolozkaAktualita {
+  id: string
   vip?: boolean
   nadpis: string
-  obsah: string
+  obsah?: string
+  datum?: string
   projekt?: string
   projekt_nazev?: string
 }

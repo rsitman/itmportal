@@ -6,6 +6,7 @@ import { cn } from '@/lib/utils'
 import React from 'react'
 import {
   LayoutDashboard,
+  Newspaper,
   Briefcase,
   Activity,
   Users,
@@ -43,6 +44,11 @@ const navigation: NavigationItem[] = [
     name: 'Dashboard',
     href: '/dashboard',
     icon: LayoutDashboard
+  },
+  {
+    name: 'Aktuality',
+    href: '/aktuality',
+    icon: Newspaper,
   },
   {
     name: 'Projekty',
@@ -104,7 +110,7 @@ export default function Sidebar({ onNavigate }: SidebarProps) {
   }
 
   const renderNavigationItem = (item: NavigationItem) => {
-    const isActive = item.href ? pathname === item.href : false
+    const isActive = item.href ? (pathname === item.href || pathname.startsWith(item.href + '/')) : false
     const hasActiveChild = item.children?.some(
       child => child.href && (pathname === child.href || pathname.startsWith(child.href + '/'))
     )
