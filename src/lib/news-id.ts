@@ -41,7 +41,17 @@ function firstString(raw: Record<string, unknown>, keys: string[]): string | und
 
 function stableIdFromParts(parts: Array<string | undefined>): string {
   const base = parts.filter(Boolean).join('|').trim()
-  return crypto.createHash('sha1').update(base || crypto.randomUUID()).digest('hex').slice(0, 16)
+  if (base) {
+    return crypto.createHash('sha1').update(base).digest('hex').slice(0, 16)
+  }
+
+  // Deterministic fallback: if ERP nevrátí žádnou identifikaci ani relevantní text,
+  // nemá smysl generovat náhodné ID, které by měnilo deep-linky mezi requesty.
+  const missingSignature = parts
+    .map((p) => (typeof p === 'string' ? p.trim() : ''))
+    .map((s) => (s ? s : '<empty>'))
+    .join('|')
+  return crypto.createHash('sha1').update(missingSignature).digest('hex').slice(0, 16)
 }
 
 function extractDatumIso(raw: Record<string, unknown>): string | undefined {
