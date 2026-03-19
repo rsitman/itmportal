@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from 'next/server'
 import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth'
 import { logger } from '@/lib/logger'
+import { htmlToPlainText, htmlToPlainTextExcerpt } from '@/lib/text-excerpt'
+import { computeErpNewsId } from '@/lib/news-id'
 
 const MAX_PROJECTS = 5
 const MAX_NEWS = 3
@@ -9,13 +11,6 @@ const MAX_NEWS = 3
 function normalizeErpBaseUrl(raw: string): string {
   const trimmed = raw.replace(/\/+$/, '')
   return trimmed.endsWith('/web') ? trimmed.slice(0, -4) : trimmed
-}
-
-function stripHtml(html: string): string {
-  return html
-    .replace(/<[^>]*>/g, ' ')
-    .replace(/\s+/g, ' ')
-    .trim()
 }
 
 export async function GET(request: NextRequest) {
@@ -92,7 +87,7 @@ export async function GET(request: NextRequest) {
     const newsMatches = qLower
       ? newsRaw.filter((n) => {
           const nadpis = (n.nadpis ?? '').toLowerCase()
-          const obsah = stripHtml(n.obsah ?? '').toLowerCase()
+          const obsah = htmlToPlainText(n.obsah ?? '').toLowerCase()
           const projektNazev = (n.projekt_nazev ?? '').toLowerCase()
           return (
             nadpis.includes(qLower) ||
@@ -103,15 +98,14 @@ export async function GET(request: NextRequest) {
       : []
 
     const newsResults = newsMatches.slice(0, MAX_NEWS).map((n, idx) => {
-      const snippet = stripHtml(n.obsah ?? '').slice(0, 100)
+      const newsId = computeErpNewsId(n)
+      const snippet = htmlToPlainTextExcerpt(n.obsah ?? '', 100)
       return {
-        id: `news-${idx}-${(n.nadpis ?? '').slice(0, 20)}`,
+        id: newsId,
         title: n.nadpis ?? '',
-        snippet: snippet + (stripHtml(n.obsah ?? '').length > 100 ? '…' : ''),
+        snippet,
         projectName: n.projekt_nazev ?? undefined,
-        url: n.projekt_nazev
-          ? `/plan_patchovani?q=${encodeURIComponent(n.projekt_nazev)}`
-          : '/dashboard#aktuality',
+        url: `/aktuality/${encodeURIComponent(newsId)}`,
       }
     })
 
