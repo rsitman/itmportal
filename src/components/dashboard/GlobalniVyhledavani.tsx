@@ -1,21 +1,26 @@
 'use client'
 
-import { useState, useRef, useEffect, useCallback } from 'react'
+import { useId, useState, useRef, useEffect, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
 import { Search } from 'lucide-react'
 import DashboardSearchResultsPanel, {
-  type SearchProject,
-  type SearchNewsItem,
+  type SearchResultItem,
 } from './DashboardSearchResultsPanel'
 
 const DEBOUNCE_MS = 300
 
-export default function GlobalniVyhledavani() {
+type Props = {
+  className?: string
+}
+
+export default function GlobalniVyhledavani({ className }: Props) {
   const router = useRouter()
+  const reactId = useId()
+  const panelId = `global-search-results-${reactId.replace(/:/g, '')}`
+  const descId = `global-search-hint-${reactId.replace(/:/g, '')}`
   const [searchTerm, setSearchTerm] = useState('')
   const [debouncedTerm, setDebouncedTerm] = useState('')
-  const [projects, setProjects] = useState<SearchProject[]>([])
-  const [news, setNews] = useState<SearchNewsItem[]>([])
+  const [results, setResults] = useState<SearchResultItem[]>([])
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [showPanel, setShowPanel] = useState(false)
@@ -40,8 +45,7 @@ export default function GlobalniVyhledavani() {
   // Fetch when debouncedTerm changes
   const fetchResults = useCallback(async (q: string) => {
     if (!q) {
-      setProjects([])
-      setNews([])
+      setResults([])
       setError(null)
       return
     }
@@ -52,16 +56,13 @@ export default function GlobalniVyhledavani() {
       const data = await res.json()
       if (!res.ok) {
         setError(data?.error ?? 'Chyba vyhledávání')
-        setProjects([])
-        setNews([])
+        setResults([])
         return
       }
-      setProjects(data.projects ?? [])
-      setNews(data.news ?? [])
+      setResults(data.results ?? [])
     } catch (e) {
       setError('Nepodařilo se načíst výsledky')
-      setProjects([])
-      setNews([])
+      setResults([])
     } finally {
       setIsLoading(false)
     }
@@ -72,8 +73,7 @@ export default function GlobalniVyhledavani() {
       fetchResults(debouncedTerm)
       setShowPanel(true)
     } else {
-      setProjects([])
-      setNews([])
+      setResults([])
       setError(null)
       setShowPanel(false)
     }
@@ -95,7 +95,7 @@ export default function GlobalniVyhledavani() {
     const term = searchTerm.trim()
     if (term) {
       setShowPanel(false)
-      router.push(`/plan_patchovani?q=${encodeURIComponent(term)}`)
+      router.push(`/search?q=${encodeURIComponent(term)}`)
     }
   }
 
@@ -106,7 +106,10 @@ export default function GlobalniVyhledavani() {
   }
 
   return (
-    <div ref={containerRef} className="relative flex-1 max-w-xl">
+    <div
+      ref={containerRef}
+      className={['relative', className ?? 'flex-1 max-w-xl'].filter(Boolean).join(' ')}
+    >
       <form onSubmit={handleSubmit} className="relative" aria-label="Vyhledávání na portálu">
         <div className="relative">
           <Search
@@ -121,26 +124,27 @@ export default function GlobalniVyhledavani() {
             placeholder="Hledat projekt, firmu, JIRA…"
             className="w-full pl-10 pr-4 py-2.5 rounded-lg bg-gray-800/80 border border-gray-600/60 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-green-500/50 focus:border-green-500/50"
             aria-label="Globální vyhledávání"
-            aria-describedby="vyhledavani-popis"
+            aria-describedby={descId}
             aria-expanded={showPanel}
-            aria-controls="dashboard-search-results-panel"
+            aria-controls={panelId}
             aria-autocomplete="list"
           />
         </div>
-        <p id="vyhledavani-popis" className="text-xs text-gray-500 mt-1">
-          Enter → přehled patchování · klik na výsledek → detail
+        <p id={descId} className="text-xs text-gray-500 mt-1">
+          Hledat projekty a aktuality
         </p>
       </form>
 
       {showPanel && (
-        <div id="dashboard-search-results-panel" className="mt-0">
+        <div className="mt-0">
           <DashboardSearchResultsPanel
             query={debouncedTerm}
-            projects={projects}
-            news={news}
+            results={results}
             isLoading={isLoading}
             error={error}
             onResultClick={handleResultClick}
+            variant="dropdown"
+            panelId={panelId}
           />
         </div>
       )}
