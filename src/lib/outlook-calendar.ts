@@ -283,7 +283,12 @@ export class OutlookCalendarService {
       for (const outlookEvent of outlookEvents) {
         try {
           const startDate = new Date(outlookEvent.start.dateTime)
-          const endDate = new Date(outlookEvent.end.dateTime)
+          let endDate = new Date(outlookEvent.end.dateTime)
+          if (outlookEvent.isAllDay) {
+            // Outlook all-day "end" is typically the next day (exclusive).
+            // Our calendar representation expects inclusive "end" for allDay events.
+            endDate.setDate(endDate.getDate() - 1)
+          }
           
           const response = await fetch('/api/events', {
             method: 'POST',
