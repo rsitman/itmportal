@@ -1,14 +1,14 @@
 'use client'
 
 import type { FormEvent } from 'react'
-import { useEffect, useMemo, useState } from 'react'
+import { Suspense, useEffect, useMemo, useState } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import DashboardSearchResultsPanel, {
   type SearchResultItem,
 } from '@/components/dashboard/DashboardSearchResultsPanel'
 import { Search } from 'lucide-react'
 
-export default function SearchPage() {
+function SearchPageContent() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const q = useMemo(() => (searchParams?.get('q') ?? '').toString().trim(), [searchParams])
@@ -130,6 +130,25 @@ export default function SearchPage() {
         />
       </div>
     </div>
+  )
+}
+
+export default function SearchPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="bg-transparent w-full">
+          <div className="max-w-6xl w-full mx-auto space-y-6">
+            <div>
+              <h1 className="text-2xl md:text-3xl font-bold text-white">Vyhledávání</h1>
+              <p className="mt-1 text-sm text-gray-400">Načítám vyhledávání…</p>
+            </div>
+          </div>
+        </div>
+      }
+    >
+      <SearchPageContent />
+    </Suspense>
   )
 }
 
