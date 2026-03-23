@@ -45,11 +45,15 @@ export async function GET(
 
     // Original project detail logic only
     const baseUrl = new URL(request.url).origin
+    // Self-fetch na interní Next route musí předat i cookies, aby `getServerSession`
+    // ve volaném handleru dostalo stejný autentizační kontext.
+    const cookieHeader = request.headers.get('cookie') ?? ''
     
     const response = await fetch(`${baseUrl}/api/karat/projects`, {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
+        Cookie: cookieHeader,
       },
       cache: 'no-store'
     })
