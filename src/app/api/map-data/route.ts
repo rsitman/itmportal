@@ -55,7 +55,7 @@ interface MapCompany {
   email: string
   website: string
   employees: number
-  foundedYear: number
+  foundedYear?: number
   industry: string
   description: string
   isProject: boolean
@@ -202,7 +202,9 @@ export async function GET() {
         email: '',
         website: '',
         employees: 1,
-        foundedYear: new Date().getFullYear(),
+        // ERP doesn't provide a reliable "founded year" for this dataset.
+        // Keep it unset to avoid misleading values like "2026".
+        foundedYear: undefined,
         industry: 'IT',
         description: `Projekt ${project.nazev} pro společnost ${project.nazev_par}`,
         isProject: true,

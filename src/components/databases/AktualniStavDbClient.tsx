@@ -862,8 +862,21 @@ export default function AktualniStavDbClient({
   const databases = initialDatabases
 
   const companies = useMemo(() => {
-    return [...new Set(databases.map((d) => d.firma_nazev).filter(Boolean))].sort((a, b) => a.localeCompare(b, 'cs'))
-  }, [databases])
+    // Keep company filter consistent with project pin:
+    // when a project is selected, only show companies that exist for that project.
+    const base = selectedProject
+      ? databases.filter((d) => String(d.projekt ?? '').trim() === selectedProject)
+      : databases
+
+    return [...new Set(base.map((d) => d.firma_nazev).filter(Boolean))].sort((a, b) => a.localeCompare(b, 'cs'))
+  }, [databases, selectedProject])
+
+  // If project changes and the selected company is no longer valid, clear the company pin.
+  useEffect(() => {
+    if (!selectedProject) return
+    if (!selectedCompany) return
+    if (!companies.includes(selectedCompany)) setSelectedCompany('')
+  }, [companies, selectedCompany, selectedProject])
 
   const projectOptions = useMemo(() => {
     const available = new Set(databases.map((d) => (d.projekt ?? '').trim()).filter(Boolean))
