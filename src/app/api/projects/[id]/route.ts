@@ -44,7 +44,7 @@ export async function GET(
     const projectCode = resolvedParams.id
 
     // Original project detail logic only
-    const baseUrl = process.env.NEXTAUTH_URL || 'http://localhost:3000'
+    const baseUrl = new URL(request.url).origin
     
     const response = await fetch(`${baseUrl}/api/karat/projects`, {
       method: 'GET',
