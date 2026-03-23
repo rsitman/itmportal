@@ -4,12 +4,15 @@ set -e
 BRANCH="test"
 SERVER="spravce@portal.itman.cz"
 SERVER_PATH="~/firma-portal"
+KNOWN_HOSTS_FILE="/home/oak/.ssh/known_hosts"
+GITHUB_SSH_IDENTITY_FILE="/home/oak/.ssh/itmportal2"
+PORTAL_SSH_IDENTITY_FILE="/home/oak/.ssh/portal_itman"
 
 echo "==> Pushing branch '$BRANCH' to GitHub..."
-git push origin "$BRANCH"
+GIT_SSH_COMMAND="ssh -o UserKnownHostsFile=${KNOWN_HOSTS_FILE} -i ${GITHUB_SSH_IDENTITY_FILE} -o IdentitiesOnly=yes" git push origin "$BRANCH"
 
 echo "==> Deploying to $SERVER..."
-ssh "$SERVER" "
+ssh -o UserKnownHostsFile=${KNOWN_HOSTS_FILE} -i ${PORTAL_SSH_IDENTITY_FILE} -o IdentitiesOnly=yes "$SERVER" "
   set -e
   cd $SERVER_PATH
 
