@@ -103,16 +103,16 @@ export default function Header({
 
       <div className="flex items-center space-x-4 lg:space-x-6">
         <div className="flex items-center space-x-4">
-          <div className="h-10 w-10 lg:h-12 lg:w-12 rounded-full bg-gray-700/80 flex items-center justify-center text-gray-300 text-base lg:text-lg font-semibold border border-gray-600/50">
+          <div className="h-10 w-10 lg:h-12 lg:w-12 rounded-full bg-gray-700/80 flex items-center justify-center text-gray-300 text-base lg:text-lg font-semibold border border-gray-600/50 flex-shrink-0 overflow-hidden">
             <span suppressHydrationWarning>
               {session?.user?.name?.charAt(0).toUpperCase() || 'U'}
             </span>
           </div>
-          <div className="flex flex-col">
-            <span className="text-sm lg:text-base font-semibold text-white leading-tight" suppressHydrationWarning>
+          <div className="flex flex-col min-w-0">
+            <span className="text-sm lg:text-base font-semibold text-white leading-tight truncate whitespace-nowrap max-w-[55vw] lg:max-w-none" suppressHydrationWarning>
               {session?.user?.name ?? ''}
             </span>
-            <span className="text-xs lg:text-sm text-gray-400" suppressHydrationWarning>
+            <span className="text-xs lg:text-sm text-gray-400 truncate whitespace-nowrap max-w-[55vw] lg:max-w-none" suppressHydrationWarning>
               {session?.user?.role ? (session?.user?.role === 'ADMIN' ? 'Administrator' : 'Uživatel') : ''}
             </span>
           </div>

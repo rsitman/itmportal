@@ -419,7 +419,7 @@ function SekceServery({ servery }: { servery: Server[] }) {
                         </td>
                         <td className="px-4 py-3 align-top text-sm text-gray-300">
                           {s.poznamka ? (
-                            <div className="text-xs text-gray-300 whitespace-pre-line leading-snug">
+                            <div className="text-xs text-gray-300 whitespace-pre-line break-words leading-snug max-h-[120px] overflow-auto">
                               {s.poznamka}
                             </div>
                           ) : (
@@ -575,7 +575,7 @@ function SekceDomenoviUzivatele({ config }: { config: HwswConfig }) {
               </td>
               <td className="px-4 py-3 align-top text-sm text-gray-300">{u.domena || '—'}</td>
               <td className="px-4 py-3 align-top text-sm text-gray-300">{u.username || '—'}</td>
-              <td className="px-4 py-3 align-top text-sm text-gray-300">{u.poznamka || '—'}</td>
+              <td className="px-4 py-3 align-top text-sm text-gray-300 break-words whitespace-pre-line">{u.poznamka || '—'}</td>
             </tr>
           ))}
         </tbody>
@@ -624,7 +624,7 @@ function SekceEmail({ config }: { config: HwswConfig }) {
               </td>
               <td className="px-4 py-3 align-top text-sm text-gray-300 tabular-nums">{m.port ?? '—'}</td>
               <td className="px-4 py-3 align-top text-sm text-gray-300">{m.login || '—'}</td>
-              <td className="px-4 py-3 align-top text-sm text-gray-300">{m.poznamka || '—'}</td>
+              <td className="px-4 py-3 align-top text-sm text-gray-300 break-words whitespace-pre-line">{m.poznamka || '—'}</td>
             </tr>
           ))}
         </tbody>
@@ -668,7 +668,7 @@ function SekceExterniSluzby({ config }: { config: HwswConfig }) {
           {poznamkaNormalized.trim() ? (
             <div className="mt-3 rounded-lg border border-gray-700/50 bg-gray-900/40 px-3 py-2.5">
               <div className="text-xs text-gray-500 mb-1">Poznámka</div>
-              <div className="text-sm text-gray-300 whitespace-pre-line leading-snug">
+              <div className="text-sm text-gray-300 whitespace-pre-line break-words leading-snug max-h-[160px] overflow-auto">
                 {poznamkaNormalized}
               </div>
             </div>

@@ -266,7 +266,7 @@ export default function CompanyMapClient() {
             <div className="px-4 py-3 border-b border-gray-700 bg-gray-800/40 flex items-center justify-between">
               <h2 className="text-sm font-semibold text-white">Mapa projektů</h2>
             </div>
-            <div className="h-[520px] md:h-[600px]">
+            <div className="h-[380px] sm:h-[480px] md:h-[600px]">
               <CompanyMap
                 companies={companiesWithGps}
                 height="100%"
@@ -345,7 +345,7 @@ export default function CompanyMapClient() {
             </div>
 
             {/* Detail selected project */}
-            <div className="card-professional rounded-lg border border-gray-700/60 p-4 md:p-5">
+            <div className="card-professional rounded-lg border border-gray-700/60 p-4 md:p-5 max-h-[420px] overflow-y-auto md:max-h-none">
               {selectedCompany ? (
                 <div className="space-y-3">
                   <div className="flex gap-3">

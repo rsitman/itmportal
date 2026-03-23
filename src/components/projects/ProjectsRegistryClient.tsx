@@ -52,7 +52,7 @@ function AkceProjektu({ project, returnTo }: { project: ServiceProject; returnTo
 
   return (
     <div className="flex flex-col gap-2 items-end">
-      <div className="flex gap-2 justify-end overflow-x-auto flex-nowrap w-full md:w-auto md:flex-wrap md:overflow-visible">
+      <div className="flex gap-2 justify-end flex-wrap w-full max-w-full min-w-0 md:w-auto md:overflow-visible">
         <Link href={teamUrl} className={`${chipBase} chip-action chip-action-top`}>
           <span className="chip-action-label chip-action-label-top text-gray-300">Tým</span>
         </Link>
@@ -86,7 +86,7 @@ function AkceProjektu({ project, returnTo }: { project: ServiceProject; returnTo
           <span className={chipDisabled}>Mapa</span>
         )}
       </div>
-      <div className="flex gap-x-2.5 gap-y-1 justify-end text-xs overflow-x-auto flex-nowrap w-full md:w-auto md:flex-wrap md:overflow-visible">
+      <div className="flex gap-x-2.5 gap-y-1 justify-end text-xs flex-wrap w-full max-w-full min-w-0 md:w-auto md:overflow-visible">
         <Link href={patchUrl} className={`${chipSecondary} chip-action chip-action-bottom`}>
           <span className="chip-action-label chip-action-label-bottom text-gray-400">
             Patchování
