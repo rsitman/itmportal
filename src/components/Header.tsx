@@ -2,11 +2,12 @@
 
 import { signOut, useSession } from 'next-auth/react'
 import { Button } from '@/components/ui/button'
-import { useRouter } from 'next/navigation'
+import { usePathname, useRouter } from 'next/navigation'
 import { useState } from 'react'
 import type { RefObject } from 'react'
 import { logger } from '@/lib/logger'
-import { Menu } from 'lucide-react'
+import { Menu, Search } from 'lucide-react'
+import GlobalniVyhledavani from '@/components/dashboard/GlobalniVyhledavani'
 
 type HeaderProps = {
   onOpenSidebar?: () => void
@@ -23,8 +24,12 @@ export default function Header({
 }: HeaderProps) {
   const { data: session, update } = useSession()
   const router = useRouter()
+  const pathname = usePathname()
   const [isSigningOut, setIsSigningOut] = useState(false)
   const [isStoppingImpersonation, setIsStoppingImpersonation] = useState(false)
+
+  // Header search je dostupný i na `/dashboard`.
+  const hideHeaderSearch = pathname === '/search'
 
   const impersonation = (session as any)?.impersonation
   const isImpersonating = Boolean(impersonation?.active)
@@ -86,7 +91,7 @@ export default function Header({
   }
 
   return (
-    <header className="flex h-14 lg:h-20 items-center justify-between shell-overlay px-4 lg:px-8">
+    <header className="flex h-14 lg:h-20 items-center justify-between shell-overlay px-4 lg:px-8 relative z-[200]">
       <div className="flex items-center gap-3">
         <button
           ref={menuButtonRef}
@@ -99,7 +104,24 @@ export default function Header({
         >
           <Menu className="h-5 w-5" />
         </button>
+
+        {!hideHeaderSearch ? (
+          <button
+            type="button"
+            onClick={() => router.push('/search')}
+            className="lg:hidden inline-flex items-center justify-center rounded-lg border border-gray-600/50 bg-gray-800/70 hover:bg-gray-700/80 text-gray-200 shadow-sm transition-colors h-10 w-10 focus:outline-none focus-visible:ring-2 focus-visible:ring-green-500/50 focus-visible:ring-offset-2 focus-visible:ring-offset-gray-900"
+            aria-label="Vyhledávání"
+          >
+            <Search className="h-5 w-5" />
+          </button>
+        ) : null}
       </div>
+
+      {!hideHeaderSearch ? (
+        <div className="hidden lg:block w-[420px]">
+          <GlobalniVyhledavani className="w-full max-w-none" />
+        </div>
+      ) : null}
 
       <div className="flex items-center space-x-4 lg:space-x-6">
         <div className="flex items-center space-x-4">

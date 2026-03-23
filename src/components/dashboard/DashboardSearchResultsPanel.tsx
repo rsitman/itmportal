@@ -1,45 +1,74 @@
 'use client'
 
-export type SearchProject = {
-  id: string
-  name: string
-  companyName: string
-  dokladProj: string
-  jiraKey: string
-  url: string
-}
+export type SearchResultType = 'project' | 'news' | 'patch' | 'upgrade' | 'database'
 
-export type SearchNewsItem = {
+export type SearchResultItem = {
+  type: SearchResultType
   id: string
   title: string
-  snippet: string
-  projectName?: string
+  subtitle?: string
+  snippet?: string
   url: string
+  metadata?: Record<string, unknown>
 }
 
 type Props = {
   query: string
-  projects: SearchProject[]
-  news: SearchNewsItem[]
+  results: SearchResultItem[]
   isLoading: boolean
   error?: string | null
   onResultClick: (url: string) => void
+  variant?: 'dropdown' | 'page'
+  panelId?: string
 }
 
 export default function DashboardSearchResultsPanel({
   query,
-  projects,
-  news,
+  results,
   isLoading,
   error,
   onResultClick,
+  variant = 'dropdown',
+  panelId,
 }: Props) {
-  const hasResults = projects.length > 0 || news.length > 0
+  const groupedByType = (() => {
+    const order: SearchResultType[] = ['project', 'news', 'patch', 'upgrade', 'database']
+    const map = new Map<SearchResultType, SearchResultItem[]>()
+    for (const r of results) {
+      const list = map.get(r.type) ?? []
+      list.push(r)
+      map.set(r.type, list)
+    }
+    return order
+      .filter((t) => (map.get(t)?.length ?? 0) > 0)
+      .map((t) => ({ type: t, items: map.get(t) ?? [] }))
+  })()
+
+  const hasResults = groupedByType.length > 0
   const isEmpty = !isLoading && !error && query.length > 0 && !hasResults
+
+  const containerClassName =
+    variant === 'dropdown'
+      ? 'dashboard-search-results absolute left-0 right-0 top-full z-[999] mt-1 rounded-lg border border-gray-600/60 bg-gray-800/95 shadow-xl backdrop-blur-sm'
+      : 'dashboard-search-results relative w-full z-0 mt-0 rounded-lg border border-gray-600/60 bg-gray-800/95 shadow-xl backdrop-blur-sm'
+
+  // `.dashboard-search-results` má v CSS max-height kvůli dropdownu; pro stránku
+  // to nechceme omezovat (jinak to vypadá jako malý panel).
+  const containerStyle = variant === 'page' ? { maxHeight: 'none', overflowY: 'visible' as const } : undefined
+
+  const labelByType: Record<SearchResultType, string> = {
+    project: 'Projekty',
+    news: 'Aktuality',
+    patch: 'Patchování',
+    upgrade: 'Upgrady',
+    database: 'Stav DB',
+  }
 
   return (
     <div
-      className="dashboard-search-results absolute left-0 right-0 top-full z-50 mt-1 rounded-lg border border-gray-600/60 bg-gray-800/95 shadow-xl backdrop-blur-sm"
+      id={panelId}
+      className={containerClassName}
+      style={containerStyle}
       role="listbox"
       aria-label="Výsledky vyhledávání"
     >
@@ -72,60 +101,36 @@ export default function DashboardSearchResultsPanel({
 
       {hasResults && !isLoading && (
         <div className="divide-y divide-gray-700/60">
-          {projects.length > 0 && (
-            <section className="p-2" aria-label="Projekty">
+          {groupedByType.map(({ type, items }) => (
+            <section key={type} className="p-2" aria-label={labelByType[type]}>
               <h3 className="px-2 py-1.5 text-[11px] font-medium uppercase tracking-wide text-gray-500">
-                Projekty
+                {labelByType[type]}
               </h3>
               <ul className="space-y-0.5">
-                {projects.map((p) => (
-                  <li key={p.id}>
+                {items.map((r) => (
+                  <li key={r.id}>
                     <button
                       type="button"
-                      onClick={() => onResultClick(p.url)}
+                      onClick={() => onResultClick(r.url)}
                       className="flex w-full flex-col items-start gap-0.5 rounded-md px-3 py-2 text-left text-sm transition-colors hover:bg-gray-700/70 focus:outline-none focus:ring-2 focus:ring-green-500/50 focus:ring-offset-2 focus:ring-offset-gray-800"
                       role="option"
+                      aria-selected={false}
                     >
                       <span className="font-medium text-white truncate max-w-full">
-                        {p.name || p.dokladProj || '—'}
+                        {r.title || '—'}
                       </span>
-                      <span className="text-xs text-gray-400 truncate max-w-full">
-                        {p.companyName}
-                        {p.jiraKey ? ` · ${p.jiraKey}` : ''}
-                      </span>
+                      {r.subtitle ? (
+                        <span className="text-xs text-gray-400 truncate max-w-full">{r.subtitle}</span>
+                      ) : null}
+                      {r.snippet ? (
+                        <span className="text-xs text-gray-400 line-clamp-2 max-w-full">{r.snippet}</span>
+                      ) : null}
                     </button>
                   </li>
                 ))}
               </ul>
             </section>
-          )}
-          {news.length > 0 && (
-            <section className="p-2" aria-label="Aktuality">
-              <h3 className="px-2 py-1.5 text-[11px] font-medium uppercase tracking-wide text-gray-500">
-                Aktuality
-              </h3>
-              <ul className="space-y-0.5">
-                {news.map((n) => (
-                  <li key={n.id}>
-                    <button
-                      type="button"
-                      onClick={() => onResultClick(n.url)}
-                      className="flex w-full flex-col items-start gap-0.5 rounded-md px-3 py-2 text-left text-sm transition-colors hover:bg-gray-700/70 focus:outline-none focus:ring-2 focus:ring-green-500/50 focus:ring-offset-2 focus:ring-offset-gray-800"
-                      role="option"
-                    >
-                      <span className="font-medium text-white truncate max-w-full">
-                        {n.title || '—'}
-                      </span>
-                      <span className="text-xs text-gray-400 line-clamp-2 max-w-full">
-                        {n.snippet}
-                        {n.projectName ? ` · ${n.projectName}` : ''}
-                      </span>
-                    </button>
-                  </li>
-                ))}
-              </ul>
-            </section>
-          )}
+          ))}
         </div>
       )}
     </div>
