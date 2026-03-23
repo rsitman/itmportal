@@ -24,6 +24,11 @@ function formatDate(dateInput: Date | null): string {
   })
 }
 
+function formatAnoNeUnknown(value: boolean | null | undefined): string {
+  if (value == null) return '—'
+  return value ? 'Ano' : 'Ne'
+}
+
 function normalizeProjektId(value: string | null | undefined): string {
   return (value ?? '').toString().trim().toUpperCase()
 }
@@ -570,6 +575,9 @@ function PrehledDat({
               <th className="px-4 py-3 text-left text-[11px] font-medium uppercase tracking-wide text-gray-500 whitespace-nowrap">
                 Poslední instalace
               </th>
+              <th className="px-4 py-3 text-left text-[11px] font-medium uppercase tracking-wide text-gray-500 whitespace-nowrap">
+                MZDY
+              </th>
               <th className="px-4 py-3 text-left text-[11px] font-medium uppercase tracking-wide text-gray-500">
                 Stav
               </th>
@@ -644,6 +652,9 @@ function RadekTabulky({ project, returnTo }: { project: KaratProject; returnTo: 
       </td>
       <td className="px-4 py-3 align-top text-sm text-gray-200 tabular-nums whitespace-nowrap">
         {formatDate(project.lastInstalledPatchDate)}
+      </td>
+      <td className="px-4 py-3 align-top text-sm text-gray-200 whitespace-nowrap">
+        {formatAnoNeUnknown(project.hasPayrollModule)}
       </td>
       <td className="px-4 py-3 align-top">
         <div className="flex flex-wrap gap-1.5">
@@ -728,6 +739,8 @@ function RadekKarty({ project, returnTo }: { project: KaratProject; returnTo: st
         <span className="text-gray-200 tabular-nums">{formatDate(project.nextPlannedPatchDate)}</span>
         <span className="text-gray-500">Posl.:</span>
         <span className="text-gray-200 tabular-nums">{formatDate(project.lastInstalledPatchDate)}</span>
+        <span className="text-gray-500">MZDY:</span>
+        <span className="text-gray-200">{formatAnoNeUnknown(project.hasPayrollModule)}</span>
       </div>
       <div className="flex flex-wrap gap-1.5">
         <StavovyBadgePatch label="Patchservice" active={project.hasServicePatch} attention={false} />
