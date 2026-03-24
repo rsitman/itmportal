@@ -28,4 +28,5 @@ export type PersonSearchResult = SearchResultItem & {
   teamOrDepartment?: string
   primaryUrl: string
   contextSnippet?: string
+  personType?: number
 }

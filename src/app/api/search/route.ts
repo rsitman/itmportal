@@ -6,6 +6,7 @@ import { htmlToPlainText, htmlToPlainTextExcerpt } from '@/lib/text-excerpt'
 import { computeErpNewsId } from '@/lib/news-id'
 import { mapKaratProjects } from '@/lib/karat'
 import { buildPersonResults } from '@/lib/search/person-search'
+import { isProjectTeamSourceEnabled, loadProjectTeamSnapshotRecords } from '@/lib/search/person-project-team-snapshot'
 
 const MAX_PROJECTS = 5
 const MAX_NEWS = 3
@@ -374,6 +375,12 @@ export async function GET(request: NextRequest) {
       contacts: contactsRaw,
       patchProjects: patchProjectsMapped,
       upgradesRaw,
+      projectTeamSnapshotPersons: isProjectTeamSourceEnabled()
+        ? await loadProjectTeamSnapshotRecords().catch((e) => {
+            logger.warn('Search: failed to load project team snapshot, falling back to V1', e)
+            return []
+          })
+        : [],
       query: q,
       maxResults: MAX_PERSONS,
     })

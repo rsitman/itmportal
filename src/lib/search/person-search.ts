@@ -1,5 +1,6 @@
 import type { PersonOrigin, PersonSearchResult, PersonSource } from '@/types/search'
 import type { KaratProject } from '@/lib/karat'
+import type { ProjectTeamSnapshotRecord } from '@/lib/search/person-project-team-snapshot'
 
 type UpgradeRow = {
   projekt: string
@@ -19,6 +20,12 @@ type ContactRow = {
   role?: string
 }
 
+type ProjectContext = {
+  projectId: string
+  projectName?: string
+  role?: string
+}
+
 type PersonCandidate = {
   source: PersonSource
   fullName: string
@@ -29,6 +36,8 @@ type PersonCandidate = {
   teamOrDepartment?: string
   patchProjectsCount?: number
   upgradesCount?: number
+  projectContexts?: ProjectContext[]
+  personType?: number
 }
 
 type PersonAggregate = {
@@ -41,6 +50,9 @@ type PersonAggregate = {
   sources: Set<PersonSource>
   patchProjectsCount: number
   upgradesCount: number
+  projectContexts: ProjectContext[]
+  personType?: number
+  trustedNameSignal: boolean
 }
 
 type PersonScoreResult = {
@@ -109,6 +121,21 @@ function dedupeRoles(roles: string[]): string[] {
   return out
 }
 
+function dedupeProjectContexts(contexts: ProjectContext[]): ProjectContext[] {
+  const out: ProjectContext[] = []
+  const seen = new Set<string>()
+  for (const ctx of contexts) {
+    const projectId = collapseSpaces(ctx.projectId)
+    if (!projectId) continue
+    const role = collapseSpaces(ctx.role ?? '')
+    const key = `${projectId}::${normalizeForSearch(role)}`
+    if (seen.has(key)) continue
+    seen.add(key)
+    out.push({ projectId, projectName: ctx.projectName, role: role || undefined })
+  }
+  return out
+}
+
 function toUpgradeArray(input: unknown): UpgradeRow[] {
   if (!Array.isArray(input)) return []
   const toStringSafe = (v: unknown): string => (typeof v === 'string' ? v : '')
@@ -131,10 +158,12 @@ function buildPersonCandidates({
   contacts,
   patchProjects,
   upgradesRaw,
+  projectTeamSnapshotPersons,
 }: {
   contacts: ContactRow[]
   patchProjects: KaratProject[]
   upgradesRaw: unknown
+  projectTeamSnapshotPersons?: ProjectTeamSnapshotRecord[]
 }): PersonCandidate[] {
   const candidates: PersonCandidate[] = []
 
@@ -180,26 +209,39 @@ function buildPersonCandidates({
     })
   }
 
+  for (const row of projectTeamSnapshotPersons ?? []) {
+    const fullName = cleanName(row.fullName)
+    if (!fullName) continue
+    candidates.push({
+      source: 'erp_project_team',
+      fullName,
+      firstName: cleanName(row.firstName) || undefined,
+      lastName: cleanName(row.lastName) || undefined,
+      email: normalizeEmail(row.email) ?? undefined,
+      roles: row.role ? [row.role] : [],
+      projectContexts: [{ projectId: row.projectId, projectName: row.projectName, role: row.role }],
+      personType: row.personType,
+    })
+  }
+
   return candidates
 }
 
 function mergePersonCandidates(candidates: PersonCandidate[]): PersonAggregate[] {
   const byEmail = new Map<string, PersonAggregate>()
-  const byName = new Map<string, PersonAggregate>()
+  const byNameTrusted = new Map<string, PersonAggregate>()
   const aggregates: PersonAggregate[] = []
 
-  const isNameMergeTrusted = (candidate: PersonCandidate): boolean =>
+  const isTrustedForNameMerge = (candidate: PersonCandidate): boolean =>
     candidate.source === 'itman' || candidate.source === 'erp_project_team'
 
   const ensureAggregate = (candidate: PersonCandidate): PersonAggregate => {
     const emailNorm = normalizeEmail(candidate.email)
     const nameNorm = normalizeForSearch(candidate.fullName)
-    if (emailNorm && byEmail.has(emailNorm)) {
-      return byEmail.get(emailNorm)!
-    }
-    if (!emailNorm && byName.has(nameNorm)) {
-      return byName.get(nameNorm)!
-    }
+    if (emailNorm && byEmail.has(emailNorm)) return byEmail.get(emailNorm)!
+
+    const trustedCandidate = isTrustedForNameMerge(candidate)
+    if (trustedCandidate && byNameTrusted.has(nameNorm)) return byNameTrusted.get(nameNorm)!
 
     const aggregate: PersonAggregate = {
       fullName: candidate.fullName,
@@ -211,13 +253,13 @@ function mergePersonCandidates(candidates: PersonCandidate[]): PersonAggregate[]
       sources: new Set<PersonSource>([candidate.source]),
       patchProjectsCount: candidate.patchProjectsCount ?? 0,
       upgradesCount: candidate.upgradesCount ?? 0,
+      projectContexts: dedupeProjectContexts(candidate.projectContexts ?? []),
+      personType: candidate.personType,
+      trustedNameSignal: trustedCandidate,
     }
-
     aggregates.push(aggregate)
     if (emailNorm) byEmail.set(emailNorm, aggregate)
-    if (!emailNorm || isNameMergeTrusted(candidate)) {
-      byName.set(nameNorm, aggregate)
-    }
+    if (trustedCandidate) byNameTrusted.set(nameNorm, aggregate)
     return aggregate
   }
 
@@ -227,11 +269,13 @@ function mergePersonCandidates(candidates: PersonCandidate[]): PersonAggregate[]
     aggregate.roles = dedupeRoles([...aggregate.roles, ...candidate.roles])
     aggregate.patchProjectsCount += candidate.patchProjectsCount ?? 0
     aggregate.upgradesCount += candidate.upgradesCount ?? 0
-    if (!aggregate.primaryEmail) {
-      aggregate.primaryEmail = normalizeEmail(candidate.email) ?? undefined
-    }
-    if (!aggregate.teamOrDepartment && candidate.teamOrDepartment) {
-      aggregate.teamOrDepartment = candidate.teamOrDepartment
+    aggregate.projectContexts = dedupeProjectContexts([...aggregate.projectContexts, ...(candidate.projectContexts ?? [])])
+    if (!aggregate.primaryEmail) aggregate.primaryEmail = normalizeEmail(candidate.email) ?? undefined
+    if (!aggregate.teamOrDepartment && candidate.teamOrDepartment) aggregate.teamOrDepartment = candidate.teamOrDepartment
+    if (aggregate.personType === undefined && candidate.personType !== undefined) aggregate.personType = candidate.personType
+    if (isTrustedForNameMerge(candidate)) {
+      aggregate.trustedNameSignal = true
+      byNameTrusted.set(normalizeForSearch(aggregate.fullName), aggregate)
     }
   }
 
@@ -246,10 +290,20 @@ function getOrigin(sources: Set<PersonSource>): PersonOrigin {
   return 'erp'
 }
 
+function buildProjectContextSnippet(person: PersonAggregate): string | undefined {
+  if (person.projectContexts.length === 0) return undefined
+  const top = person.projectContexts.slice(0, 2)
+  const names = top.map((ctx) => ctx.projectName || ctx.projectId)
+  const suffix = person.projectContexts.length > 2 ? ` +${person.projectContexts.length - 2}` : ''
+  return `Projektový tým: ${names.join(', ')}${suffix}`
+}
+
 function buildPersonContextSnippet(person: PersonAggregate): string {
   const parts: string[] = []
   if (person.upgradesCount > 0) parts.push(`Řešitel v ${person.upgradesCount} upgradech`)
   if (person.patchProjectsCount > 0) parts.push(`Account manager v ${person.patchProjectsCount} projektech patchování`)
+  const projectContext = buildProjectContextSnippet(person)
+  if (projectContext) parts.push(projectContext)
   if (parts.length === 0 && person.sources.has('itman')) parts.push('Osoba nalezena v interních kontaktech')
   if (parts.length === 0 && person.roles.length > 0) parts.push(`Role: ${person.roles.slice(0, 2).join(', ')}`)
   return parts.join(' · ')
@@ -272,54 +326,34 @@ function scorePersonMatch(person: PersonAggregate, qNorm: string): PersonScoreRe
   const emailNorm = normalizeEmail(person.primaryEmail) ?? ''
   const rolesNorm = person.roles.map((r) => normalizeForSearch(r))
   const teamNorm = normalizeForSearch(person.teamOrDepartment ?? '')
+  const projectTokens = person.projectContexts
+    .flatMap((ctx) => [ctx.projectName ?? '', ctx.projectId, ctx.role ?? ''])
+    .map((v) => normalizeForSearch(v))
+    .filter(Boolean)
   const singleWord = isSingleWordQuery(qNorm)
   const shortSurnameLike = isShortSurnameLikeQuery(qNorm)
 
   let score = 0
   let hasNameOrEmailMatch = false
 
-  if (nameNorm === qNorm) {
-    score += 120
-    hasNameOrEmailMatch = true
-  }
-  if (emailNorm && emailNorm === qNorm) {
-    score += 110
-    hasNameOrEmailMatch = true
-  }
-  if (singleWord && lastNorm && lastNorm === qNorm) {
-    score += 140
-    hasNameOrEmailMatch = true
-  }
-  if (singleWord && nameTokens.some((t) => t === qNorm)) {
-    score += 130
-    hasNameOrEmailMatch = true
-  }
-  if (nameNorm.startsWith(qNorm)) {
-    score += 90
-    hasNameOrEmailMatch = true
-  }
-  if ((firstNorm && firstNorm.startsWith(qNorm)) || (lastNorm && lastNorm.startsWith(qNorm))) {
-    score += 80
-    hasNameOrEmailMatch = true
-  }
-  if (singleWord && nameTokens.some((t) => t.startsWith(qNorm))) {
-    score += 100
-    hasNameOrEmailMatch = true
-  }
-  if (nameNorm.includes(qNorm)) {
-    score += 60
-    hasNameOrEmailMatch = true
-  }
-  if (emailNorm && emailNorm.includes(qNorm)) {
-    score += 55
-    hasNameOrEmailMatch = true
-  }
+  if (nameNorm === qNorm) { score += 120; hasNameOrEmailMatch = true }
+  if (emailNorm && emailNorm === qNorm) { score += 110; hasNameOrEmailMatch = true }
+  if (singleWord && lastNorm && lastNorm === qNorm) { score += 140; hasNameOrEmailMatch = true }
+  if (singleWord && nameTokens.some((t) => t === qNorm)) { score += 130; hasNameOrEmailMatch = true }
+  if (nameNorm.startsWith(qNorm)) { score += 90; hasNameOrEmailMatch = true }
+  if ((firstNorm && firstNorm.startsWith(qNorm)) || (lastNorm && lastNorm.startsWith(qNorm))) { score += 80; hasNameOrEmailMatch = true }
+  if (singleWord && nameTokens.some((t) => t.startsWith(qNorm))) { score += 100; hasNameOrEmailMatch = true }
+  if (nameNorm.includes(qNorm)) { score += 60; hasNameOrEmailMatch = true }
+  if (emailNorm && emailNorm.includes(qNorm)) { score += 55; hasNameOrEmailMatch = true }
 
   const roleMatch = rolesNorm.some((r) => r.includes(qNorm))
   const teamMatch = Boolean(teamNorm && teamNorm.includes(qNorm))
+  const projectContextMatch = projectTokens.some((t) => t.includes(qNorm))
   const allowWeakContextBoost = !shortSurnameLike || hasNameOrEmailMatch
   if (allowWeakContextBoost && roleMatch) score += 35
   if (allowWeakContextBoost && teamMatch) score += 25
+  if (allowWeakContextBoost && projectContextMatch) score += 18
+  if (hasNameOrEmailMatch && person.sources.has('erp_project_team')) score += 12
   if (person.sources.size > 1) score += 20
   if (emailNorm) score += 15
   if (!emailNorm && person.roles.length === 0) score -= 20
@@ -331,32 +365,49 @@ function resolvePrimaryPersonUrl(person: PersonAggregate): string {
   const encodedQueryValue = encodeURIComponent(queryValue)
   const encodedName = encodeURIComponent(person.fullName)
   const origin = getOrigin(person.sources)
-  if (origin === 'itman' || origin === 'mixed') {
+  const hasProjectTeam = person.sources.has('erp_project_team')
+  const isExternal = person.personType === 10 || person.personType === 20
+  if ((origin === 'itman' || origin === 'mixed') && !isExternal) {
     return `/osoby-itman?search=${encodedQueryValue}`
   }
-  if (person.sources.has('erp_patch')) {
-    return `/plan_patchovani?osoba=${encodedName}`
+  if (hasProjectTeam) {
+    const dominantProject = person.projectContexts[0]
+    if (dominantProject?.projectId) {
+      return `/projects/doklad-projektu/${encodeURIComponent(dominantProject.projectId)}`
+    }
+    return `/search?q=${encodedName}`
   }
-  if (person.sources.has('erp_upgrade')) {
-    return `/upgrades?osoba=${encodedName}`
-  }
+  if (person.sources.has('erp_patch')) return `/plan_patchovani?osoba=${encodedName}`
+  if (person.sources.has('erp_upgrade')) return `/upgrades?osoba=${encodedName}`
   return `/search?q=${encodedName}`
+}
+
+function sourcePriority(source: PersonSource): number {
+  if (source === 'itman') return 4
+  if (source === 'erp_project_team') return 3
+  if (source === 'erp_patch') return 2
+  if (source === 'erp_upgrade') return 1
+  return 0
 }
 
 function toPersonSearchResult(person: PersonAggregate): PersonSearchResult {
   const origin = getOrigin(person.sources)
   const normalizedEmail = normalizeEmail(person.primaryEmail)
   const nameNorm = normalizeForSearch(person.fullName)
-  const topSource = [...person.sources][0] ?? 'itman'
-  const personKey = normalizedEmail
-    ? `person:email:${normalizedEmail}`
-    : `person:name:${nameNorm}:${topSource}`
+  const topSource = [...person.sources].sort((a, b) => sourcePriority(b) - sourcePriority(a))[0] ?? 'itman'
+  const personKey = normalizedEmail ? `person:email:${normalizedEmail}` : `person:name:${nameNorm}:${topSource}`
   const primaryUrl = resolvePrimaryPersonUrl(person)
-  const roleSummary =
-    person.roles.length > 2
-      ? `${person.roles.slice(0, 2).join(', ')} +${person.roles.length - 2}`
-      : person.roles.join(', ')
-  const subtitleParts = [roleSummary, person.teamOrDepartment, normalizedEmail].filter(Boolean) as string[]
+  const roleSummary = person.roles.length > 2 ? `${person.roles.slice(0, 2).join(', ')} +${person.roles.length - 2}` : person.roles.join(', ')
+  const projectSummary = person.projectContexts.length > 0
+    ? (() => {
+        const top = person.projectContexts.slice(0, 2)
+        const names = top.map((ctx) => ctx.projectName || ctx.projectId).filter(Boolean)
+        const suffix = person.projectContexts.length > 2 ? ` +${person.projectContexts.length - 2}` : ''
+        return names.length > 0 ? `Tým: ${names.join(', ')}${suffix}` : undefined
+      })()
+    : undefined
+  const subtitleParts = [roleSummary, projectSummary, person.teamOrDepartment, normalizedEmail].filter(Boolean) as string[]
+  const isExternal = person.personType === 10 || person.personType === 20
 
   return {
     type: 'person',
@@ -372,6 +423,7 @@ function toPersonSearchResult(person: PersonAggregate): PersonSearchResult {
     teamOrDepartment: person.teamOrDepartment,
     primaryUrl,
     contextSnippet: buildPersonContextSnippet(person),
+    personType: person.personType,
     title: person.fullName,
     subtitle: subtitleParts.length > 0 ? subtitleParts.join(' · ') : undefined,
     snippet: buildPersonContextSnippet(person),
@@ -380,13 +432,19 @@ function toPersonSearchResult(person: PersonAggregate): PersonSearchResult {
       origin,
       sources: [...person.sources],
       rawSource: person.sources.has('itman') ? 'web/contacts' : undefined,
-      secondaryUrls:
-        origin === 'mixed'
-          ? [
-              { label: 'Upgrady', url: `/upgrades?osoba=${encodeURIComponent(person.fullName)}` },
-              { label: 'Patchování', url: `/plan_patchovani?osoba=${encodeURIComponent(person.fullName)}` },
-            ]
-          : undefined,
+      externalMarker: isExternal || undefined,
+      projectContexts: person.projectContexts.slice(0, 3),
+      secondaryUrls: [
+        ...(origin === 'mixed'
+          ? [{ label: 'Osoby ITMAN', url: `/osoby-itman?search=${encodeURIComponent(person.primaryEmail || person.fullName)}` }]
+          : []),
+        ...person.projectContexts.slice(0, 3).map((ctx) => ({
+          label: ctx.projectName ? `Projekt: ${ctx.projectName}` : `Projekt: ${ctx.projectId}`,
+          url: `/projects/doklad-projektu/${encodeURIComponent(ctx.projectId)}`,
+        })),
+        ...(person.sources.has('erp_upgrade') ? [{ label: 'Upgrady', url: `/upgrades?osoba=${encodeURIComponent(person.fullName)}` }] : []),
+        ...(person.sources.has('erp_patch') ? [{ label: 'Patchování', url: `/plan_patchovani?osoba=${encodeURIComponent(person.fullName)}` }] : []),
+      ],
     },
   }
 }
@@ -395,24 +453,23 @@ export function buildPersonResults({
   contacts,
   patchProjects,
   upgradesRaw,
+  projectTeamSnapshotPersons = [],
   query,
   maxResults,
 }: {
   contacts: ContactRow[]
   patchProjects: KaratProject[]
   upgradesRaw: unknown
+  projectTeamSnapshotPersons?: ProjectTeamSnapshotRecord[]
   query: string
   maxResults: number
 }): PersonSearchResult[] {
   const qNorm = normalizeForSearch(query)
   if (!qNorm) return []
-  const candidates = buildPersonCandidates({ contacts, patchProjects, upgradesRaw })
+  const candidates = buildPersonCandidates({ contacts, patchProjects, upgradesRaw, projectTeamSnapshotPersons })
   const merged = mergePersonCandidates(candidates)
   const scored = merged
-    .map((person) => {
-      const scoring = scorePersonMatch(person, qNorm)
-      return { person, ...scoring }
-    })
+    .map((person) => ({ person, ...scorePersonMatch(person, qNorm) }))
     .filter((entry) => {
       if (entry.score <= 0) return false
       const shortSurnameLike = isShortSurnameLikeQuery(qNorm)
@@ -423,10 +480,14 @@ export function buildPersonResults({
     })
     .sort((a, b) => {
       if (b.score !== a.score) return b.score - a.score
-      if (b.person.sources.size !== a.person.sources.size) return b.person.sources.size - a.person.sources.size
-      const originRank = (origin: PersonOrigin) => (origin === 'mixed' ? 2 : origin === 'itman' ? 1 : 0)
+      const originRank = (origin: PersonOrigin) => (origin === 'mixed' ? 3 : origin === 'itman' ? 2 : 1)
       const originCmp = originRank(getOrigin(b.person.sources)) - originRank(getOrigin(a.person.sources))
       if (originCmp !== 0) return originCmp
+      const topSourceA = [...a.person.sources].sort((x, y) => sourcePriority(y) - sourcePriority(x))[0] ?? 'erp_upgrade'
+      const topSourceB = [...b.person.sources].sort((x, y) => sourcePriority(y) - sourcePriority(x))[0] ?? 'erp_upgrade'
+      const sourceCmp = sourcePriority(topSourceB) - sourcePriority(topSourceA)
+      if (sourceCmp !== 0) return sourceCmp
+      if (b.person.sources.size !== a.person.sources.size) return b.person.sources.size - a.person.sources.size
       return a.person.fullName.localeCompare(b.person.fullName, 'cs')
     })
 
