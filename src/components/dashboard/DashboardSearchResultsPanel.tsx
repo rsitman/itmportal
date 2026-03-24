@@ -1,16 +1,6 @@
 'use client'
 
-export type SearchResultType = 'project' | 'news' | 'patch' | 'upgrade' | 'database'
-
-export type SearchResultItem = {
-  type: SearchResultType
-  id: string
-  title: string
-  subtitle?: string
-  snippet?: string
-  url: string
-  metadata?: Record<string, unknown>
-}
+import type { SearchResultItem, SearchResultType } from '@/types/search'
 
 type Props = {
   query: string
@@ -32,7 +22,7 @@ export default function DashboardSearchResultsPanel({
   panelId,
 }: Props) {
   const groupedByType = (() => {
-    const order: SearchResultType[] = ['project', 'news', 'patch', 'upgrade', 'database']
+    const order: SearchResultType[] = ['project', 'person', 'news', 'patch', 'upgrade', 'database']
     const map = new Map<SearchResultType, SearchResultItem[]>()
     for (const r of results) {
       const list = map.get(r.type) ?? []
@@ -58,6 +48,7 @@ export default function DashboardSearchResultsPanel({
 
   const labelByType: Record<SearchResultType, string> = {
     project: 'Projekty',
+    person: 'Osoby',
     news: 'Aktuality',
     patch: 'Patchování',
     upgrade: 'Upgrady',

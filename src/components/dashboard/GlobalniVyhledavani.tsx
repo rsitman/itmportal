@@ -3,9 +3,8 @@
 import { useId, useState, useRef, useEffect, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
 import { Search } from 'lucide-react'
-import DashboardSearchResultsPanel, {
-  type SearchResultItem,
-} from './DashboardSearchResultsPanel'
+import DashboardSearchResultsPanel from './DashboardSearchResultsPanel'
+import type { SearchResultItem } from '@/types/search'
 
 const DEBOUNCE_MS = 300
 
@@ -121,7 +120,7 @@ export default function GlobalniVyhledavani({ className }: Props) {
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             onFocus={() => searchTerm.trim() && setShowPanel(true)}
-            placeholder="Hledat projekt, firmu, JIRA…"
+            placeholder="Hledat projekt, osobu, firmu, JIRA…"
             className="w-full pl-10 pr-4 py-2.5 rounded-lg bg-gray-800/80 border border-gray-600/60 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-green-500/50 focus:border-green-500/50"
             aria-label="Globální vyhledávání"
             aria-describedby={descId}
@@ -131,7 +130,7 @@ export default function GlobalniVyhledavani({ className }: Props) {
           />
         </div>
         <p id={descId} className="text-xs text-gray-500 mt-1">
-          Hledat projekty a aktuality
+          Hledat projekty, osoby a aktuality
         </p>
       </form>
 

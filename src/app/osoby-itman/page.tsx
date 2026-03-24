@@ -2,18 +2,24 @@
 
 import React, { useState, useEffect } from 'react'
 import { useSession } from 'next-auth/react'
-import { useRouter } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation'
 import { Contact } from '@/types/contact'
 import { logger } from '@/lib/logger'
 
 export default function OsobyItmanPage() {
   const { data: session, status } = useSession()
   const router = useRouter()
+  const searchParams = useSearchParams()
   const [contacts, setContacts] = useState<Contact[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [searchTerm, setSearchTerm] = useState('')
   const [filterRole, setFilterRole] = useState('')
+
+  useEffect(() => {
+    const fromQuery = (searchParams?.get('search') ?? '').toString().trim()
+    if (fromQuery) setSearchTerm(fromQuery)
+  }, [searchParams])
 
   useEffect(() => {
     if (status === 'unauthenticated') {

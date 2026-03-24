@@ -3,9 +3,8 @@
 import type { FormEvent } from 'react'
 import { Suspense, useEffect, useMemo, useState } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
-import DashboardSearchResultsPanel, {
-  type SearchResultItem,
-} from '@/components/dashboard/DashboardSearchResultsPanel'
+import DashboardSearchResultsPanel from '@/components/dashboard/DashboardSearchResultsPanel'
+import type { SearchResultItem } from '@/types/search'
 import { Search } from 'lucide-react'
 
 function SearchPageContent() {
@@ -93,7 +92,7 @@ function SearchPageContent() {
         <div>
           <h1 className="text-2xl md:text-3xl font-bold text-white">Vyhledávání</h1>
           <p className="mt-1 text-sm text-gray-400">
-            Projekty, Aktuality, Patchování, Upgrady a Stav DB v jednom seznamu.
+            Projekty, Osoby, Aktuality, Patchování, Upgrady a Stav DB v jednom seznamu.
           </p>
         </div>
 
@@ -107,7 +106,7 @@ function SearchPageContent() {
               type="search"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              placeholder="Hledat projekt, firmu, JIRA nebo aktualitu…"
+              placeholder="Hledat projekt, osobu, firmu, JIRA nebo aktualitu…"
               className="w-full pl-10 pr-4 py-2.5 rounded-lg bg-gray-800/80 border border-gray-600/60 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-green-500/50 focus:border-green-500/50"
               aria-label="Vyhledávání"
             />

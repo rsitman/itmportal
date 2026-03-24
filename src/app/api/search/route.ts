@@ -5,12 +5,14 @@ import { logger } from '@/lib/logger'
 import { htmlToPlainText, htmlToPlainTextExcerpt } from '@/lib/text-excerpt'
 import { computeErpNewsId } from '@/lib/news-id'
 import { mapKaratProjects } from '@/lib/karat'
+import { buildPersonResults } from '@/lib/search/person-search'
 
 const MAX_PROJECTS = 5
 const MAX_NEWS = 3
 const MAX_PATCH = 5
 const MAX_UPGRADES = 5
 const MAX_DATABASES = 5
+const MAX_PERSONS = 8
 
 function normalizeErpBaseUrl(raw: string): string {
   const trimmed = raw.replace(/\/+$/, '')
@@ -122,12 +124,29 @@ export async function GET(request: NextRequest) {
       }
     })()
 
-    const [projects, newsRaw, patchProjects, upgradesRaw, databasesRaw] = await Promise.all([
+    const contactsPromise: Promise<Array<{ jmeno?: string; prijmeni?: string; email?: string; role?: string }>> = (async () => {
+      try {
+        const contactsRes = await fetch(`${erpBase}/web/contacts`, {
+          method: 'GET',
+          headers: { 'Content-Type': 'application/json' },
+          signal: AbortSignal.timeout(8000),
+        })
+        if (!contactsRes.ok) return []
+        const data = await contactsRes.json()
+        return Array.isArray(data) ? data : []
+      } catch (e) {
+        logger.error('Search: failed to fetch contacts', e)
+        return []
+      }
+    })()
+
+    const [projects, newsRaw, patchProjects, upgradesRaw, databasesRaw, contactsRaw] = await Promise.all([
       projectsPromise,
       newsPromise,
       patchProjectsPromise,
       upgradesPromise,
       databasesPromise,
+      contactsPromise,
     ])
 
     // Filter projects: contains match (case-insensitive) on name, company, doklad, jira
@@ -351,9 +370,18 @@ export async function GET(request: NextRequest) {
       }
     })
 
+    const personResults = buildPersonResults({
+      contacts: contactsRaw,
+      patchProjects: patchProjectsMapped,
+      upgradesRaw,
+      query: q,
+      maxResults: MAX_PERSONS,
+    })
+
     return NextResponse.json({
       results: [
         ...projectResults,
+        ...personResults,
         ...newsResults,
         ...patchResults,
         ...upgradeResults,
