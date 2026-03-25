@@ -22,12 +22,26 @@ ssh -o UserKnownHostsFile=${KNOWN_HOSTS_FILE} -i ${PORTAL_SSH_IDENTITY_FILE} -o 
   echo '-- git pull'
   git pull origin $BRANCH
 
-  echo '-- npm install'
-  npm install --legacy-peer-deps
+  echo '-- npm install (prefer npm ci when lockfile exists)'
+  if [ -f package-lock.json ]; then
+    npm ci --legacy-peer-deps || npm install --legacy-peer-deps
+  else
+    npm install --legacy-peer-deps
+  fi
 
   echo '-- load env and build'
   set -a && source .env && set +a
+
+  # Search V2: project-team snapshot source needs explicit enablement on test server.
+  # We don't want to rely on NODE_ENV defaults in deployed environments.
+  export SEARCH_PERSON_PROJECT_TEAM_ENABLED=true
+  export NODE_ENV=production
+
   npm run build
+
+  echo '-- refresh V2 person-team snapshot (best-effort)'
+  # Generates data/search/person-project-team-snapshot.json so V2 team matching works immediately.
+  npm run search:refresh-project-team-snapshot || echo \"WARN: snapshot refresh failed (deploy continues)\"
 
   echo '-- pm2 restart'
   pm2 restart firma-portal --update-env

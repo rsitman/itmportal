@@ -270,6 +270,9 @@ export async function loadProjectTeamSnapshotRecords(): Promise<ProjectTeamSnaps
 
 export function isProjectTeamSourceEnabled(): boolean {
   const raw = (process.env.SEARCH_PERSON_PROJECT_TEAM_ENABLED ?? '').toLowerCase().trim()
-  return raw === '1' || raw === 'true' || raw === 'yes' || raw === 'on'
+  if (raw === '1' || raw === 'true' || raw === 'yes' || raw === 'on') return true
+  if (raw === '0' || raw === 'false' || raw === 'no' || raw === 'off') return false
+  // Default: enabled in non-production when not explicitly set.
+  return process.env.NODE_ENV !== 'production'
 }
 

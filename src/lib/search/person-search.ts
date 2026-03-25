@@ -373,7 +373,7 @@ function resolvePrimaryPersonUrl(person: PersonAggregate): string {
   if (hasProjectTeam) {
     const dominantProject = person.projectContexts[0]
     if (dominantProject?.projectId) {
-      return `/projects/doklad-projektu/${encodeURIComponent(dominantProject.projectId)}`
+      return `/projects/doklad-projektu/${encodeURIComponent(dominantProject.projectId)}/team`
     }
     return `/search?q=${encodedName}`
   }
@@ -440,7 +440,7 @@ function toPersonSearchResult(person: PersonAggregate): PersonSearchResult {
           : []),
         ...person.projectContexts.slice(0, 3).map((ctx) => ({
           label: ctx.projectName ? `Projekt: ${ctx.projectName}` : `Projekt: ${ctx.projectId}`,
-          url: `/projects/doklad-projektu/${encodeURIComponent(ctx.projectId)}`,
+          url: `/projects/doklad-projektu/${encodeURIComponent(ctx.projectId)}/team`,
         })),
         ...(person.sources.has('erp_upgrade') ? [{ label: 'Upgrady', url: `/upgrades?osoba=${encodeURIComponent(person.fullName)}` }] : []),
         ...(person.sources.has('erp_patch') ? [{ label: 'Patchování', url: `/plan_patchovani?osoba=${encodeURIComponent(person.fullName)}` }] : []),
@@ -491,5 +491,17 @@ export function buildPersonResults({
       return a.person.fullName.localeCompare(b.person.fullName, 'cs')
     })
 
-  return scored.slice(0, maxResults).map((entry) => toPersonSearchResult(entry.person))
+  // React key in UI is based on `SearchResultItem.id` -> must be unique.
+  // With conservative merging, multiple candidates can produce the same `personKey` (id),
+  // e.g. repeated `erp_patch` names without email. Deduplicate by `id` while keeping score order.
+  const out: PersonSearchResult[] = []
+  const seen = new Set<string>()
+  for (const entry of scored) {
+    const res = toPersonSearchResult(entry.person)
+    if (seen.has(res.id)) continue
+    seen.add(res.id)
+    out.push(res)
+    if (out.length >= maxResults) break
+  }
+  return out
 }

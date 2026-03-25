@@ -5,8 +5,9 @@ import { logger } from '@/lib/logger'
 import { htmlToPlainText, htmlToPlainTextExcerpt } from '@/lib/text-excerpt'
 import { computeErpNewsId } from '@/lib/news-id'
 import { mapKaratProjects } from '@/lib/karat'
-import { buildPersonResults } from '@/lib/search/person-search'
+import { buildPersonResults, normalizeForSearch } from '@/lib/search/person-search'
 import { isProjectTeamSourceEnabled, loadProjectTeamSnapshotRecords } from '@/lib/search/person-project-team-snapshot'
+import type { ProjectTeamSnapshotRecord } from '@/lib/search/person-project-team-snapshot'
 
 const MAX_PROJECTS = 5
 const MAX_NEWS = 3
@@ -150,6 +151,68 @@ export async function GET(request: NextRequest) {
       contactsPromise,
     ])
 
+    // V2 project-team snapshot pro matchování patch/upgrade výsledků dle jména/příjmení z týmu.
+    // Dělá se jen z precomputed snapshotu (žádné realtime fetch).
+    const projectTeamSnapshotPersons: ProjectTeamSnapshotRecord[] = isProjectTeamSourceEnabled()
+      ? await loadProjectTeamSnapshotRecords().catch((e) => {
+          logger.warn('Search: failed to load project team snapshot, falling back to V1', e)
+          return []
+        })
+      : []
+
+    const teamByProjectId = new Map<string, ProjectTeamSnapshotRecord[]>()
+    for (const rec of projectTeamSnapshotPersons) {
+      const key = String(rec.projectId ?? '').trim()
+      if (!key) continue
+      const list = teamByProjectId.get(key) ?? []
+      list.push(rec)
+      teamByProjectId.set(key, list)
+    }
+
+    const qNorm = normalizeForSearch(q)
+
+    function teamPersonMatches(rec: ProjectTeamSnapshotRecord): boolean {
+      const full = normalizeForSearch(rec.fullName ?? '')
+      const last = normalizeForSearch(rec.lastName ?? '')
+      if (last && last === qNorm) return true
+      if (full && full === qNorm) return true
+      if (last) return last.includes(qNorm)
+      if (full) return full.includes(qNorm)
+      return false
+    }
+
+    function pickBestTeamPersonForProject(records: ProjectTeamSnapshotRecord[]): ProjectTeamSnapshotRecord | null {
+      if (!records.length) return null
+      let best: ProjectTeamSnapshotRecord | null = null
+      let bestRank = -1
+
+      for (const rec of records) {
+        const full = normalizeForSearch(rec.fullName ?? '')
+        const last = normalizeForSearch(rec.lastName ?? '')
+        if (last && last === qNorm) {
+          if (bestRank < 3) {
+            best = rec
+            bestRank = 3
+          }
+          continue
+        }
+        if (full && full === qNorm) {
+          if (bestRank < 2) {
+            best = rec
+            bestRank = 2
+          }
+          continue
+        }
+        if (last && last.includes(qNorm)) {
+          if (bestRank < 1) {
+            best = rec
+            bestRank = 1
+          }
+        }
+      }
+      return best
+    }
+
     // Filter projects: contains match (case-insensitive) on name, company, doklad, jira
     const projectMatches = qLower
       ? projects.filter(
@@ -223,7 +286,17 @@ export async function GET(request: NextRequest) {
             p.jiraKey,
             p.country,
           ]
-          return fields.some((v) => (v ?? '').toLowerCase().includes(qLower))
+          const directMatch =
+            fields.some((v) => (v ?? '').toLowerCase().includes(qLower)) ||
+            fields.some((v) => (v ?? '').toString().trim() && normalizeForSearch((v ?? '').toString()).includes(qNorm))
+
+          if (directMatch) return true
+
+          // Team-only match (V2) - pokrývá osoby, které existují v project team, ale nejsou accountManager.
+          if (!projectTeamSnapshotPersons.length) return false
+          const teamRecords = teamByProjectId.get(String(p.projectId ?? '').trim()) ?? []
+          const teamMatch = teamRecords.some(teamPersonMatches)
+          return teamMatch
         })
       : []
 
@@ -237,11 +310,27 @@ export async function GET(request: NextRequest) {
       if (p.accountManager) qs.set('osoba', p.accountManager)
       qs.set('returnTo', returnTo)
 
+      const matchedAccountManager = Boolean(
+        qLower && p.accountManager && p.accountManager.toLowerCase().includes(qLower),
+      )
+      const accountManagerLabel = p.accountManager ? `Account manager: ${p.accountManager}` : ''
+      const bestTeamPerson =
+        !matchedAccountManager && projectTeamSnapshotPersons.length
+          ? pickBestTeamPersonForProject(teamByProjectId.get(String(p.projectId ?? '').trim()) ?? [])
+          : null
+      const bestTeamLabel = bestTeamPerson
+        ? bestTeamPerson.role
+          ? `${bestTeamPerson.role}: ${bestTeamPerson.fullName}`
+          : `Tým: ${bestTeamPerson.fullName}`
+        : ''
+
       return {
         type: 'patch' as const,
         id: `${p.projectId}:${p.companyId}`,
         title: p.projectName || '—',
-        subtitle: `${p.companyName || '—'}${p.jiraKey ? ` · ${p.jiraKey}` : ''}`,
+        subtitle: `${p.companyName || '—'}${p.jiraKey ? ` · ${p.jiraKey}` : ''}${
+          matchedAccountManager && accountManagerLabel ? ` · ${accountManagerLabel}` : ''
+        }${bestTeamLabel ? ` · ${bestTeamLabel}` : ''}`,
         snippet:
           [next ? `Plán: ${next}` : null, last ? `Posl. instalace: ${last}` : null].filter(Boolean).join(' · ') ||
           undefined,
@@ -294,7 +383,15 @@ export async function GET(request: NextRequest) {
     const upgradeMatches = qLower
       ? upgradesMapped.filter((u) => {
           const fields = [u.nazev, u.projekt, u.resitel, u.jira_klic, u.verze, u.stav]
-          return fields.some((v) => (v ?? '').toLowerCase().includes(qLower))
+          const directMatch =
+            fields.some((v) => (v ?? '').toLowerCase().includes(qLower)) ||
+            fields.some((v) => (v ?? '').toString().trim() && normalizeForSearch((v ?? '').toString()).includes(qNorm))
+
+          if (directMatch) return true
+          if (!projectTeamSnapshotPersons.length) return false
+          const teamRecords = teamByProjectId.get(String(u.projekt ?? '').trim()) ?? []
+          const teamMatch = teamRecords.some(teamPersonMatches)
+          return teamMatch
         })
       : []
 
@@ -303,11 +400,26 @@ export async function GET(request: NextRequest) {
       if (u.projekt) qs.set('projekt', u.projekt)
       if (u.resitel) qs.set('osoba', u.resitel)
       qs.set('returnTo', returnTo)
+
+      const matchedResitel = Boolean(qLower && u.resitel && u.resitel.toLowerCase().includes(qLower))
+      const resitelLabel = u.resitel ? `Řešitel: ${u.resitel}` : ''
+      const bestTeamPerson =
+        !matchedResitel && projectTeamSnapshotPersons.length
+          ? pickBestTeamPersonForProject(teamByProjectId.get(String(u.projekt ?? '').trim()) ?? [])
+          : null
+      const bestTeamLabel = bestTeamPerson
+        ? bestTeamPerson.role
+          ? `${bestTeamPerson.role}: ${bestTeamPerson.fullName}`
+          : `Tým: ${bestTeamPerson.fullName}`
+        : ''
+
       return {
         type: 'upgrade' as const,
         id: `${u.projekt}:${u.jira_klic}:${u.datum_od}`,
         title: u.nazev || '—',
-        subtitle: `${u.projekt || '—'}${u.verze ? ` · ${u.verze}` : ''}${u.stav ? ` · ${u.stav}` : ''}`,
+        subtitle: `${u.projekt || '—'}${u.verze ? ` · ${u.verze}` : ''}${u.stav ? ` · ${u.stav}` : ''}${
+          matchedResitel && resitelLabel ? ` · ${resitelLabel}` : ''
+        }${bestTeamLabel ? ` · ${bestTeamLabel}` : ''}`,
         snippet: [`Řešitel: ${u.resitel || '—'}`, `JIRA: ${u.jira_klic || '—'}`].join(' · '),
         url: `/upgrades?${qs.toString()}`,
         metadata: {
@@ -375,12 +487,7 @@ export async function GET(request: NextRequest) {
       contacts: contactsRaw,
       patchProjects: patchProjectsMapped,
       upgradesRaw,
-      projectTeamSnapshotPersons: isProjectTeamSourceEnabled()
-        ? await loadProjectTeamSnapshotRecords().catch((e) => {
-            logger.warn('Search: failed to load project team snapshot, falling back to V1', e)
-            return []
-          })
-        : [],
+      projectTeamSnapshotPersons,
       query: q,
       maxResults: MAX_PERSONS,
     })
