@@ -198,11 +198,18 @@ export default function Sidebar({ onNavigate }: SidebarProps) {
       <div className="flex h-20 items-center justify-center px-8">
         <div className="flex flex-col justify-center py-4">
           <div className="flex items-center justify-center py-4">
-            <img 
-              src="https://www.itman.cz/wp-content/uploads/2023/11/ITMAN-Logo.png" 
-              alt="ITMAN Logo" 
-              className="h-6 w-auto"
-            />
+            <Link
+              href="/dashboard"
+              aria-label="Přejít na dashboard"
+              className="rounded focus:outline-none focus-visible:ring-2 focus-visible:ring-green-500/50 focus-visible:ring-offset-2 focus-visible:ring-offset-gray-900"
+              onClick={() => onNavigate?.()}
+            >
+              <img
+                src="https://www.itman.cz/wp-content/uploads/2023/11/ITMAN-Logo.png"
+                alt="ITMAN Logo"
+                className="h-6 w-auto"
+              />
+            </Link>
           </div>
         </div>
       </div>

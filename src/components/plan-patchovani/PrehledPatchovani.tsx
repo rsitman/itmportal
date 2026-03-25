@@ -41,6 +41,15 @@ function normalizeOsobaLabel(value: string | null | undefined): string {
   return (value ?? '').toString().replace(/\s+/g, ' ').trim()
 }
 
+type TriStateFilter = '' | 'ano' | 'ne'
+
+function normalizeTriState(value: string | null | undefined): TriStateFilter {
+  const v = (value ?? '').toString().trim().toLowerCase()
+  if (v === 'ano' || v === '1' || v === 'true') return 'ano'
+  if (v === 'ne' || v === '0' || v === 'false') return 'ne'
+  return ''
+}
+
 export default function PrehledPatchovani({
   projects,
   initialQuery = '',
@@ -50,6 +59,8 @@ export default function PrehledPatchovani({
   const [searchTerm, setSearchTerm] = useState(initialQuery)
   const [selectedProjekt, setSelectedProjekt] = useState(initialProjekt)
   const [selectedOsoba, setSelectedOsoba] = useState(initialOsoba)
+  const [selectedMzdy, setSelectedMzdy] = useState<TriStateFilter>('')
+  const [selectedPatchservis, setSelectedPatchservis] = useState<TriStateFilter>('')
   const router = useRouter()
   const pathname = usePathname()
   const searchParams = useSearchParams()
@@ -60,6 +71,8 @@ export default function PrehledPatchovani({
   const canonicalProjekt = normalizeProjektId(selectedProjekt)
   const canonicalOsoba = selectedOsoba.trim()
   const canonicalOsobaKey = normalizeOsobaKey(canonicalOsoba)
+  const canonicalMzdy = selectedMzdy
+  const canonicalPatchservis = selectedPatchservis
 
   const { labelByDoklad, projects: serviceProjects } = useServiceProjects()
 
@@ -73,9 +86,13 @@ export default function PrehledPatchovani({
     else current.delete('projekt')
     if (canonicalOsoba) current.set('osoba', canonicalOsoba)
     else current.delete('osoba')
+    if (canonicalMzdy) current.set('mzdy', canonicalMzdy)
+    else current.delete('mzdy')
+    if (canonicalPatchservis) current.set('patchservis', canonicalPatchservis)
+    else current.delete('patchservis')
     const qs = current.toString()
     return `${pathname}${qs ? `?${qs}` : ''}`
-  }, [canonicalOsoba, canonicalProjekt, canonicalQ, pathname, searchParams])
+  }, [canonicalMzdy, canonicalOsoba, canonicalPatchservis, canonicalProjekt, canonicalQ, pathname, searchParams])
 
   // URL (`q`) is canonical for the main text filter.
   useEffect(() => {
@@ -100,6 +117,20 @@ export default function PrehledPatchovani({
     const o = (searchParams?.get('osoba') ?? '').toString()
     const trimmed = o.trim()
     if (trimmed !== selectedOsoba.trim()) setSelectedOsoba(trimmed)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [searchParams])
+
+  // URL (`mzdy`) is canonical for payroll module filter.
+  useEffect(() => {
+    const v = normalizeTriState(searchParams?.get('mzdy'))
+    if (v !== selectedMzdy) setSelectedMzdy(v)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [searchParams])
+
+  // URL (`patchservis`) is canonical for patch service filter.
+  useEffect(() => {
+    const v = normalizeTriState(searchParams?.get('patchservis'))
+    if (v !== selectedPatchservis) setSelectedPatchservis(v)
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [searchParams])
 
@@ -200,12 +231,54 @@ export default function PrehledPatchovani({
     else current.delete('projekt')
     if (label) current.set('osoba', label)
     else current.delete('osoba')
+    if (canonicalMzdy) current.set('mzdy', canonicalMzdy)
+    else current.delete('mzdy')
+    if (canonicalPatchservis) current.set('patchservis', canonicalPatchservis)
+    else current.delete('patchservis')
     const qs = current.toString()
     const href = qs ? `${pathname}?${qs}` : pathname
     router.replace(href)
   }
 
   const onClearOsoba = () => onOsobaChange('')
+
+  const onMzdyChange = (value: string) => {
+    const normalized = normalizeTriState(value)
+    setSelectedMzdy(normalized)
+    const current = new URLSearchParams(searchParams?.toString() ?? '')
+    if (canonicalQ) current.set('q', canonicalQ)
+    else current.delete('q')
+    if (canonicalProjekt) current.set('projekt', canonicalProjekt)
+    else current.delete('projekt')
+    if (canonicalOsoba) current.set('osoba', canonicalOsoba)
+    else current.delete('osoba')
+    if (normalized) current.set('mzdy', normalized)
+    else current.delete('mzdy')
+    if (canonicalPatchservis) current.set('patchservis', canonicalPatchservis)
+    else current.delete('patchservis')
+    const qs = current.toString()
+    const href = qs ? `${pathname}?${qs}` : pathname
+    router.replace(href)
+  }
+
+  const onPatchservisChange = (value: string) => {
+    const normalized = normalizeTriState(value)
+    setSelectedPatchservis(normalized)
+    const current = new URLSearchParams(searchParams?.toString() ?? '')
+    if (canonicalQ) current.set('q', canonicalQ)
+    else current.delete('q')
+    if (canonicalProjekt) current.set('projekt', canonicalProjekt)
+    else current.delete('projekt')
+    if (canonicalOsoba) current.set('osoba', canonicalOsoba)
+    else current.delete('osoba')
+    if (canonicalMzdy) current.set('mzdy', canonicalMzdy)
+    else current.delete('mzdy')
+    if (normalized) current.set('patchservis', normalized)
+    else current.delete('patchservis')
+    const qs = current.toString()
+    const href = qs ? `${pathname}?${qs}` : pathname
+    router.replace(href)
+  }
 
   const filteredProjects = useMemo(() => {
     const q = searchTerm.trim().toLowerCase()
@@ -214,6 +287,14 @@ export default function PrehledPatchovani({
       : projects
     if (canonicalOsobaKey) {
       base = base.filter((p) => normalizeOsobaKey(p.accountManager) === canonicalOsobaKey)
+    }
+    if (canonicalMzdy) {
+      const want = canonicalMzdy === 'ano'
+      base = base.filter((p) => Boolean(p.hasPayrollModule) === want)
+    }
+    if (canonicalPatchservis) {
+      const want = canonicalPatchservis === 'ano'
+      base = base.filter((p) => Boolean(p.hasServicePatch) === want)
     }
     if (!q) return base
     return base.filter(
@@ -261,6 +342,10 @@ export default function PrehledPatchovani({
           onClearOsoba={onClearOsoba}
           osobaOptions={osobaOptions}
           osobaFromUrlUnknown={osobaFromUrlUnknown}
+          selectedMzdy={canonicalMzdy}
+          onMzdyChange={onMzdyChange}
+          selectedPatchservis={canonicalPatchservis}
+          onPatchservisChange={onPatchservisChange}
           filteredCount={filteredProjects.length}
           totalCount={totalCount}
           inputRef={searchInputRef}
@@ -269,7 +354,7 @@ export default function PrehledPatchovani({
         <PrehledDat
           projects={filteredProjects}
           hasAny={projects.length > 0}
-          hasFilters={Boolean(searchTerm.trim() || canonicalProjekt || canonicalOsoba)}
+          hasFilters={Boolean(searchTerm.trim() || canonicalProjekt || canonicalOsoba || canonicalMzdy || canonicalPatchservis)}
           selectedProjekt={canonicalProjekt}
           selectedProjektLabel={selectedProjektLabel}
           selectedOsoba={canonicalOsoba}
@@ -363,6 +448,10 @@ type FiltryPatchovaniProps = {
   onClearOsoba: () => void
   osobaOptions: string[]
   osobaFromUrlUnknown?: boolean
+  selectedMzdy: TriStateFilter
+  onMzdyChange: (value: string) => void
+  selectedPatchservis: TriStateFilter
+  onPatchservisChange: (value: string) => void
   filteredCount: number
   totalCount: number
   inputRef?: React.RefObject<HTMLInputElement>
@@ -381,6 +470,10 @@ function FiltryPatchovani({
   onClearOsoba,
   osobaOptions,
   osobaFromUrlUnknown = false,
+  selectedMzdy,
+  onMzdyChange,
+  selectedPatchservis,
+  onPatchservisChange,
   filteredCount,
   totalCount,
   inputRef,
@@ -493,6 +586,40 @@ function FiltryPatchovani({
                     </option>
                   )
                 })}
+              </select>
+            </div>
+
+            <div className="w-full sm:w-44">
+              <label htmlFor="patchovani-mzdy" className="block text-xs font-medium text-gray-400 mb-0.5">
+                Mzdy
+              </label>
+              <select
+                id="patchovani-mzdy"
+                value={selectedMzdy}
+                onChange={(e) => onMzdyChange(e.target.value)}
+                aria-label="Filtr MZDY"
+                className="w-full pl-3 pr-3 py-2.5 rounded-lg bg-gray-800/80 border border-gray-600/60 text-sm text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-green-500/50 focus-visible:ring-offset-2 focus-visible:ring-offset-gray-900 focus-visible:border-green-500/50"
+              >
+                <option value="">Vše</option>
+                <option value="ano">Ano</option>
+                <option value="ne">Ne</option>
+              </select>
+            </div>
+
+            <div className="w-full sm:w-44">
+              <label htmlFor="patchovani-patchservis" className="block text-xs font-medium text-gray-400 mb-0.5">
+                Patchservis
+              </label>
+              <select
+                id="patchovani-patchservis"
+                value={selectedPatchservis}
+                onChange={(e) => onPatchservisChange(e.target.value)}
+                aria-label="Filtr Patchservice"
+                className="w-full pl-3 pr-3 py-2.5 rounded-lg bg-gray-800/80 border border-gray-600/60 text-sm text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-green-500/50 focus-visible:ring-offset-2 focus-visible:ring-offset-gray-900 focus-visible:border-green-500/50"
+              >
+                <option value="">Vše</option>
+                <option value="ano">Ano</option>
+                <option value="ne">Ne</option>
               </select>
             </div>
           </div>
