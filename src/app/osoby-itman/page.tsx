@@ -1,25 +1,30 @@
 'use client'
 
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, Suspense } from 'react'
 import { useSession } from 'next-auth/react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { Contact } from '@/types/contact'
 import { logger } from '@/lib/logger'
 
+function SearchParamSync({ onSearch }: { onSearch: (value: string) => void }) {
+  const searchParams = useSearchParams()
+
+  useEffect(() => {
+    const fromQuery = (searchParams?.get('search') ?? '').toString().trim()
+    if (fromQuery) onSearch(fromQuery)
+  }, [searchParams, onSearch])
+
+  return null
+}
+
 export default function OsobyItmanPage() {
   const { data: session, status } = useSession()
   const router = useRouter()
-  const searchParams = useSearchParams()
   const [contacts, setContacts] = useState<Contact[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [searchTerm, setSearchTerm] = useState('')
   const [filterRole, setFilterRole] = useState('')
-
-  useEffect(() => {
-    const fromQuery = (searchParams?.get('search') ?? '').toString().trim()
-    if (fromQuery) setSearchTerm(fromQuery)
-  }, [searchParams])
 
   useEffect(() => {
     if (status === 'unauthenticated') {
@@ -100,6 +105,9 @@ export default function OsobyItmanPage() {
 
   return (
     <div className="min-h-screen bg-transparent w-full px-6 sm:px-8 pt-6 sm:pt-8">
+      <Suspense fallback={null}>
+        <SearchParamSync onSearch={setSearchTerm} />
+      </Suspense>
       <div className="space-y-6">
         <div className="card-professional rounded-lg border border-gray-700/60 p-3 md:p-4">
           <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
