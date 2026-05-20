@@ -8,9 +8,12 @@ import { DatabaseService } from '@/lib/database-service'
 import DataChart, { type ChartSeries, type ChartType } from '@/components/charts/DataChart'
 import { useServiceProjects } from '@/lib/useServiceProjects'
 
+type DbStatusFilter = '' | 'kriticke' | 'varovani' | 'ok'
+
 type Props = {
   initialDatabases: Database[]
   initialProjekt: string
+  initialStatus: DbStatusFilter
   lastUpdated: string | null
   serverError: string | null
 }
@@ -23,6 +26,10 @@ type SelectedDbKey = {
 
 function normalize(value: string): string {
   return value.trim().toLowerCase()
+}
+
+function normalizeStatusFilter(value: string | null | undefined): DbStatusFilter {
+  return value === 'kriticke' || value === 'varovani' || value === 'ok' ? value : ''
 }
 
 function clampInt(n: number, min: number, max: number): number {
@@ -185,6 +192,8 @@ function FiltryAktualnihoStavuDb({
   selectedProject,
   onProjectChange,
   onClearProject,
+  selectedStatus,
+  onStatusChange,
   projectLabel,
   projectOptions,
   filteredCount,
@@ -198,6 +207,8 @@ function FiltryAktualnihoStavuDb({
   selectedProject: string
   onProjectChange: (v: string) => void
   onClearProject: () => void
+  selectedStatus: DbStatusFilter
+  onStatusChange: (v: string) => void
   projectLabel: string | null
   projectOptions: { value: string; label: string }[]
   filteredCount: number
@@ -257,6 +268,23 @@ function FiltryAktualnihoStavuDb({
                       {p.label}
                     </option>
                   ))}
+                </select>
+              </div>
+
+              <div className="w-full sm:w-48">
+                <label htmlFor="db-status" className="block text-xs font-medium text-gray-400 mb-0.5">
+                  Stav
+                </label>
+                <select
+                  id="db-status"
+                  value={selectedStatus}
+                  onChange={(e) => onStatusChange(e.target.value)}
+                  className="w-full pl-3 pr-3 py-2.5 rounded-lg bg-gray-800/80 border border-gray-600/60 text-sm text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-green-500/50 focus-visible:ring-offset-2 focus-visible:ring-offset-gray-900 focus-visible:border-green-500/50"
+                >
+                  <option value="">Všechny stavy</option>
+                  <option value="kriticke">Kritické</option>
+                  <option value="varovani">Varování</option>
+                  <option value="ok">OK</option>
                 </select>
               </div>
 
@@ -328,7 +356,7 @@ function KartaDatabaze({
       </div>
       <div className="mt-3 grid grid-cols-3 gap-2 text-xs">
         <div>
-          <div className="text-gray-500">DB</div>
+          <div className="text-gray-500">Data</div>
           <div className="text-gray-200 tabular-nums">{u}%</div>
         </div>
         <div>
@@ -374,7 +402,7 @@ function SeznamDatabazi({
         <div className="min-w-[760px]">
           <div className="flex border-b border-gray-700 bg-gray-800/50 text-[11px] font-medium uppercase tracking-wide text-gray-500">
             <div className="px-3 py-2.5 flex-1 min-w-[220px]">Databáze / Firma</div>
-            <div className="px-2 py-2 w-[72px] flex-shrink-0 text-center">DB %</div>
+            <div className="px-2 py-2 w-[72px] flex-shrink-0 text-center">Data %</div>
             <div className="px-2 py-2 w-[72px] flex-shrink-0 text-center">Log %</div>
             <div className="px-2 py-2 w-[76px] flex-shrink-0 text-center">Dny</div>
             <div className="px-2 py-2 w-[70px] flex-shrink-0 text-center">Rec.</div>
@@ -760,7 +788,7 @@ function DetailDatabaze({
       <div className="p-4 md:p-5 space-y-4">
         <div className="grid grid-cols-2 gap-3">
           <div className="rounded-lg border border-gray-700/50 bg-gray-900/30 px-3 py-2.5">
-            <div className="text-[11px] font-medium uppercase tracking-wide text-gray-500">DB využití</div>
+            <div className="text-[11px] font-medium uppercase tracking-wide text-gray-500">Obsazeno z limitu</div>
             <div className="mt-1 flex items-center gap-2">
               <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${DatabaseService.getUsageColor(u)}`}>
                 {u}%
@@ -841,6 +869,7 @@ function DetailDatabaze({
 export default function AktualniStavDbClient({
   initialDatabases,
   initialProjekt,
+  initialStatus,
   lastUpdated,
   serverError,
 }: Props) {
@@ -851,6 +880,7 @@ export default function AktualniStavDbClient({
   const [searchTerm, setSearchTerm] = useState('')
   const [selectedCompany, setSelectedCompany] = useState('')
   const [selectedProject, setSelectedProject] = useState(initialProjekt)
+  const [selectedStatus, setSelectedStatus] = useState(initialStatus)
   const [mobileDetailOpen, setMobileDetailOpen] = useState(false)
   const mobileDetailCloseButtonRef = useRef<HTMLButtonElement>(null)
   const restoreFocusRef = useRef<HTMLElement | null>(null)
@@ -875,7 +905,7 @@ export default function AktualniStavDbClient({
   useEffect(() => {
     if (!selectedProject) return
     if (!selectedCompany) return
-    if (!companies.includes(selectedCompany)) setSelectedCompany('')
+    if (!companies.includes(selectedCompany)) queueMicrotask(() => setSelectedCompany(''))
   }, [companies, selectedCompany, selectedProject])
 
   const projectOptions = useMemo(() => {
@@ -912,9 +942,15 @@ export default function AktualniStavDbClient({
 
       const matchesCompany = !selectedCompany || d.firma_nazev === selectedCompany
       const matchesProject = !selectedProject || d.projekt === selectedProject
-      return matchesSearch && matchesCompany && matchesProject
+      const matchesStatus =
+        !selectedStatus ||
+        (selectedStatus === 'kriticke' && isCritical(d)) ||
+        (selectedStatus === 'varovani' && isWarning(d)) ||
+        (selectedStatus === 'ok' && !isCritical(d) && !isWarning(d))
+
+      return matchesSearch && matchesCompany && matchesProject && matchesStatus
     })
-  }, [databases, searchTerm, selectedCompany, selectedProject])
+  }, [databases, searchTerm, selectedCompany, selectedProject, selectedStatus])
 
   const overview = useMemo(() => {
     const total = filteredDatabases.length
@@ -938,7 +974,7 @@ export default function AktualniStavDbClient({
   // Default selection rules
   useEffect(() => {
     if (!filteredDatabases.length) {
-      if (selectedKey) setSelectedKey(null)
+      if (selectedKey) queueMicrotask(() => setSelectedKey(null))
       return
     }
 
@@ -956,7 +992,7 @@ export default function AktualniStavDbClient({
       next = filteredDatabases[0]
     }
     if (next) {
-      setSelectedKey({ projekt: next.projekt, databaze: next.databaze, firma: next.firma_nazev })
+      queueMicrotask(() => setSelectedKey({ projekt: next.projekt, databaze: next.databaze, firma: next.firma_nazev }))
     }
   }, [filteredDatabases, selectedDb, selectedKey, selectedProject])
 
@@ -973,6 +1009,16 @@ export default function AktualniStavDbClient({
     setSelectedProject('')
     const current = new URLSearchParams(searchParams?.toString() ?? '')
     current.delete('projekt')
+    const qs = current.toString()
+    router.replace(qs ? `${pathname}?${qs}` : pathname)
+  }
+
+  const onStatusChange = (value: string) => {
+    const normalized = normalizeStatusFilter(value)
+    setSelectedStatus(normalized)
+    const current = new URLSearchParams(searchParams?.toString() ?? '')
+    if (normalized) current.set('stav', normalized)
+    else current.delete('stav')
     const qs = current.toString()
     router.replace(qs ? `${pathname}?${qs}` : pathname)
   }
@@ -1043,6 +1089,8 @@ export default function AktualniStavDbClient({
         selectedProject={selectedProject}
         onProjectChange={onProjectChange}
         onClearProject={onClearProject}
+        selectedStatus={selectedStatus}
+        onStatusChange={onStatusChange}
         projectLabel={selectedProjectLabel}
         projectOptions={projectOptions}
         filteredCount={filteredDatabases.length}
