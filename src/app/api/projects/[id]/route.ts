@@ -1,36 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth'
-import { KaratProject } from '@/lib/karat'
-import { ProjectPerson } from '@/types/project'
+import { fetchKaratProjectsDirect } from '@/lib/karat-service'
+import type { KaratProject } from '@/lib/karat'
 import { logger } from '@/lib/logger'
 
-async function getKaratProjects(): Promise<KaratProject[]> {
-  try {
-    const baseUrl = process.env.NEXTAUTH_URL || 'http://localhost:3000'
-    
-    const response = await fetch(`${baseUrl}/api/karat/projects`, {
-      method: 'GET',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      cache: 'no-store'
-    })
-
-    if (!response.ok) {
-      throw new Error(`Failed to fetch KARAT projects: ${response.status}`)
-    }
-
-    const data = await response.json()
-    return data
-  } catch (error) {
-    logger.error('Error fetching KARAT projects:', error)
-    return []
-  }
-}
-
 export async function GET(
-  request: NextRequest,
+  _request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
@@ -43,28 +19,8 @@ export async function GET(
     const resolvedParams = await params
     const projectCode = resolvedParams.id
 
-    // Original project detail logic only
-    const baseUrl = new URL(request.url).origin
-    // Self-fetch na interní Next route musí předat i cookies, aby `getServerSession`
-    // ve volaném handleru dostalo stejný autentizační kontext.
-    const cookieHeader = request.headers.get('cookie') ?? ''
-    
-    const response = await fetch(`${baseUrl}/api/karat/projects`, {
-      method: 'GET',
-      headers: {
-        'Content-Type': 'application/json',
-        Cookie: cookieHeader,
-      },
-      cache: 'no-store'
-    })
-    
-    if (!response.ok) {
-      throw new Error(`Failed to fetch KARAT projects: ${response.status}`)
-    }
-    
-    const data = await response.json()
-    const karatProjects = data
-    const karatProject = karatProjects.find((project: any) => project.companyId === projectCode)
+    const karatProjects = await fetchKaratProjectsDirect()
+    const karatProject = karatProjects.find((project: KaratProject) => project.companyId === projectCode)
     
     if (!karatProject) {
       return NextResponse.json({ error: 'Project not found' }, { status: 404 })
@@ -112,10 +68,7 @@ export async function GET(
   }
 }
 
-export async function PATCH(
-  request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
-) {
+export async function PATCH() {
   try {
     const session = await getServerSession(authOptions)
     
@@ -123,10 +76,6 @@ export async function PATCH(
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    const resolvedParams = await params
-    const companyId = resolvedParams.id
-    const body = await request.json()
-    
     // TODO: Implement project update
     return NextResponse.json(
       { error: 'Project update not yet implemented' },
@@ -142,10 +91,7 @@ export async function PATCH(
   }
 }
 
-export async function DELETE(
-  request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
-) {
+export async function DELETE() {
   try {
     const session = await getServerSession(authOptions)
     
@@ -153,9 +99,6 @@ export async function DELETE(
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    const resolvedParams = await params
-    const companyId = resolvedParams.id
-    
     // TODO: Implement project deletion
     return NextResponse.json(
       { error: 'Project deletion not yet implemented' },
