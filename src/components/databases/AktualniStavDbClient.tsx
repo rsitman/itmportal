@@ -80,17 +80,25 @@ function remainingLogToMax(db: Database): number {
   return Math.max(0, db.velikost_log_max - (db.velikost_log - db.velikost_log_volne))
 }
 
+function hasDaysEstimate(db: Database): boolean {
+  return db.volne_zbyva_dni >= 0
+}
+
+function formatDaysEstimate(days: number): string {
+  return days >= 0 ? `${clampInt(days, 0, 9999)} d` : 'N/A'
+}
+
 function isCritical(db: Database): boolean {
   const u = usagePercentDb(db)
   const l = usagePercentLog(db)
-  return u >= 90 || l >= 95 || db.volne_zbyva_dni <= 30
+  return u >= 90 || l >= 95 || (hasDaysEstimate(db) && db.volne_zbyva_dni <= 30)
 }
 
 function isWarning(db: Database): boolean {
   if (isCritical(db)) return false
   const u = usagePercentDb(db)
   const l = usagePercentLog(db)
-  return u >= 75 || l >= 80 || db.volne_zbyva_dni <= 90
+  return u >= 75 || l >= 80 || (hasDaysEstimate(db) && db.volne_zbyva_dni <= 90)
 }
 
 function formatLastUpdated(value: string | null): string {
@@ -338,6 +346,7 @@ function KartaDatabaze({
   const u = usagePercentDb(db)
   const l = usagePercentLog(db)
   const tone: 'crit' | 'warn' | 'ok' = isCritical(db) ? 'crit' : isWarning(db) ? 'warn' : 'ok'
+  const daysLabel = formatDaysEstimate(db.volne_zbyva_dni)
 
   return (
     <button
@@ -373,7 +382,7 @@ function KartaDatabaze({
         </div>
         <div>
           <div className="text-gray-500">Volné dny</div>
-          <div className="text-gray-200 tabular-nums">{db.volne_zbyva_dni}</div>
+          <div className="text-gray-200 tabular-nums">{daysLabel}</div>
         </div>
       </div>
     </button>
@@ -428,6 +437,10 @@ function SeznamDatabazi({
             const l = usagePercentLog(db)
             const tone: 'crit' | 'warn' | 'ok' = isCritical(db) ? 'crit' : isWarning(db) ? 'warn' : 'ok'
             const { date, time } = splitDateTime(db.backup_full)
+            const daysLabel = formatDaysEstimate(db.volne_zbyva_dni)
+            const daysClass = hasDaysEstimate(db)
+              ? DatabaseService.getDaysRemainingColor(db.volne_zbyva_dni)
+              : 'bg-gray-500/20 text-gray-400 border border-gray-500/30'
 
             return (
               <button
@@ -471,8 +484,8 @@ function SeznamDatabazi({
                   </span>
                 </div>
                 <div className="px-2 py-2 w-[76px] flex-shrink-0 flex items-center justify-center">
-                  <span className={`inline-flex px-1.5 py-0.5 text-[11px] font-semibold rounded-full ${DatabaseService.getDaysRemainingColor(db.volne_zbyva_dni)}`}>
-                    {clampInt(db.volne_zbyva_dni, 0, 9999)} d
+                  <span className={`inline-flex px-1.5 py-0.5 text-[11px] font-semibold rounded-full ${daysClass}`}>
+                    {daysLabel}
                   </span>
                 </div>
                 <div className="px-2 py-2 w-[70px] flex-shrink-0 flex items-center justify-center">
@@ -777,6 +790,7 @@ function DetailDatabaze({
   const l = usagePercentLog(selectedDb)
   const dbRemainingToMax = DatabaseService.formatSize(remainingDbToMax(selectedDb))
   const logRemainingToMax = DatabaseService.formatSize(remainingLogToMax(selectedDb))
+  const daysLabel = formatDaysEstimate(selectedDb.volne_zbyva_dni)
 
   return (
     <div className="card-professional rounded-lg border border-gray-700/60 overflow-hidden">
@@ -842,7 +856,7 @@ function DetailDatabaze({
             <div className="text-gray-200 tabular-nums">{DatabaseService.formatDate(selectedDb.backup_inc)}</div>
 
             <div className="text-gray-500">Volné dny</div>
-            <div className="text-gray-200 tabular-nums">{clampInt(selectedDb.volne_zbyva_dni, 0, 9999)}</div>
+            <div className="text-gray-200 tabular-nums">{daysLabel}</div>
 
             <div className="text-gray-500">Denní nárůst</div>
             <div className="text-gray-200 tabular-nums">{selectedDb.denni_narust_mb ? `${selectedDb.denni_narust_mb} MB` : '—'}</div>
