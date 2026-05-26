@@ -72,6 +72,14 @@ function usagePercentLog(db: Database): number {
   return DatabaseService.calculateUsagePercentage(db.velikost_log - db.velikost_log_volne, db.velikost_log_max)
 }
 
+function remainingDbToMax(db: Database): number {
+  return Math.max(0, db.velikost_max - (db.velikost - db.velikost_volne))
+}
+
+function remainingLogToMax(db: Database): number {
+  return Math.max(0, db.velikost_log_max - (db.velikost_log - db.velikost_log_volne))
+}
+
 function isCritical(db: Database): boolean {
   const u = usagePercentDb(db)
   const l = usagePercentLog(db)
@@ -767,6 +775,8 @@ function DetailDatabaze({
 
   const u = usagePercentDb(selectedDb)
   const l = usagePercentLog(selectedDb)
+  const dbRemainingToMax = DatabaseService.formatSize(remainingDbToMax(selectedDb))
+  const logRemainingToMax = DatabaseService.formatSize(remainingLogToMax(selectedDb))
 
   return (
     <div className="card-professional rounded-lg border border-gray-700/60 overflow-hidden">
@@ -793,9 +803,7 @@ function DetailDatabaze({
               <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${DatabaseService.getUsageColor(u)}`}>
                 {u}%
               </span>
-              <span className="text-xs text-gray-400">
-                {DatabaseService.formatSize(selectedDb.velikost_volne)} volné
-              </span>
+              <span className="text-xs text-gray-400">{dbRemainingToMax} zbývá do max</span>
             </div>
           </div>
           <div className="rounded-lg border border-gray-700/50 bg-gray-900/30 px-3 py-2.5">
@@ -804,9 +812,7 @@ function DetailDatabaze({
               <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${DatabaseService.getLogUsageColor(l)}`}>
                 {l}%
               </span>
-              <span className="text-xs text-gray-400">
-                {DatabaseService.formatSize(selectedDb.velikost_log_volne)} volné
-              </span>
+              <span className="text-xs text-gray-400">{logRemainingToMax} zbývá do max</span>
             </div>
           </div>
         </div>
