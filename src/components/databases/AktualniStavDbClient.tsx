@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import Link from 'next/link'
 import { usePathname, useRouter, useSearchParams } from 'next/navigation'
-import type { Database } from '@/types/database'
+import type { Database, DatabaseTable } from '@/types/database'
 import { DatabaseService } from '@/lib/database-service'
 import DataChart, { type ChartSeries, type ChartType } from '@/components/charts/DataChart'
 import { useServiceProjects } from '@/lib/useServiceProjects'
@@ -767,6 +767,109 @@ function GrafVyvojeDatabaze({
   )
 }
 
+function TopTabulkyDatabaze({ selected }: { selected: SelectedDbKey }) {
+  const [tables, setTables] = useState<DatabaseTable[] | null>(null)
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+
+  useEffect(() => {
+    let cancelled = false
+    const fetchTables = async () => {
+      try {
+        setLoading(true)
+        setError(null)
+        setTables(null)
+
+        const params = new URLSearchParams()
+        params.set('projekt', selected.projekt)
+        params.set('database', selected.databaze)
+
+        const response = await fetch(`/api/database-tables?${params.toString()}`)
+        const json = await response.json()
+        if (!response.ok || !json?.success) {
+          throw new Error(json?.error || 'Nepodařilo se načíst seznam tabulek')
+        }
+
+        if (!cancelled) {
+          setTables((json.data || []) as DatabaseTable[])
+        }
+      } catch (e) {
+        if (!cancelled) {
+          setError(e instanceof Error ? e.message : 'Došlo k chybě při načítání tabulek')
+        }
+      } finally {
+        if (!cancelled) setLoading(false)
+      }
+    }
+
+    fetchTables()
+    return () => {
+      cancelled = true
+    }
+  }, [selected.projekt, selected.databaze])
+
+  return (
+    <div className="rounded-lg border border-gray-700/50 bg-gray-900/30 px-3 py-3 md:px-4 md:py-4">
+      <div className="mb-3">
+        <div className="text-sm font-semibold text-white">TOP 10 největších tabulek</div>
+        <div className="text-xs text-gray-500">
+          {selected.projekt} <span className="text-gray-600">·</span> {selected.databaze}
+        </div>
+      </div>
+
+      {loading ? (
+        <div className="space-y-2">
+          <div className="h-8 bg-gray-700/60 rounded" />
+          <div className="h-8 bg-gray-700/40 rounded" />
+          <div className="h-8 bg-gray-700/40 rounded" />
+        </div>
+      ) : error ? (
+        <div className="rounded-lg border border-amber-700/40 bg-amber-900/15 px-4 py-4">
+          <div className="text-sm font-semibold text-amber-100/90">Chyba načtení tabulek</div>
+          <p className="mt-1 text-sm text-amber-100/80 leading-snug">{error}</p>
+        </div>
+      ) : !tables || tables.length === 0 ? (
+        <div className="rounded-lg border border-gray-700/60 bg-gray-900/40 px-4 py-4">
+          <div className="text-sm font-semibold text-white">Žádná data</div>
+          <p className="mt-1 text-sm text-gray-400 leading-snug">Pro tuto databázi nebyly nalezeny žádné tabulky.</p>
+        </div>
+      ) : (
+        <div className="overflow-x-auto rounded-lg border border-gray-700/60">
+          <table className="min-w-full text-xs">
+            <thead>
+              <tr className="border-b border-gray-700 bg-gray-800/50 text-[11px] font-medium uppercase tracking-wide text-gray-500">
+                <th className="px-3 py-2.5 text-left w-10">#</th>
+                <th className="px-3 py-2.5 text-left">Tabulka</th>
+                <th className="px-3 py-2.5 text-right w-28">Velikost</th>
+                <th className="px-3 py-2.5 text-right w-32">Nárůst / den</th>
+              </tr>
+            </thead>
+            <tbody>
+              {tables.map((row, idx) => (
+                <tr
+                  key={`${row.tabulka}-${idx}`}
+                  className="border-b border-gray-700/80 last:border-b-0 hover:bg-gray-800/40"
+                >
+                  <td className="px-3 py-2 text-gray-500 tabular-nums">{idx + 1}</td>
+                  <td className="px-3 py-2 font-mono text-[11px] text-gray-200 truncate max-w-[240px]" title={row.tabulka}>
+                    {row.tabulka}
+                  </td>
+                  <td className="px-3 py-2 text-right text-gray-200 tabular-nums">
+                    {DatabaseService.formatSize(row.velikost)}
+                  </td>
+                  <td className="px-3 py-2 text-right text-gray-200 tabular-nums">
+                    {row.narust_den > 0 ? `${DatabaseService.formatSize(row.narust_den)}/den` : '—'}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
+    </div>
+  )
+}
+
 function DetailDatabaze({
   selectedDb,
   dateFrom,
@@ -881,6 +984,8 @@ function DetailDatabaze({
           onDateFromChange={onDateFromChange}
           onDateToChange={onDateToChange}
         />
+
+        <TopTabulkyDatabaze selected={selectedKey} />
       </div>
     </div>
   )

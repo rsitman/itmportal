@@ -22,3 +22,9 @@ export interface Database {
   backup_inc: string
   denni_narust_mb: number
 }
+
+export interface DatabaseTable {
+  tabulka: string
+  velikost: number
+  narust_den: number
+}

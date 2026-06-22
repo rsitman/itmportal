@@ -15,6 +15,15 @@ export interface ServiceProject {
   logo?: string // Base64 encoded logo data from ERP
 }
 
+// Regular request from IS KARAT /web/jpp and /web/projects/{projekt}/jpp endpoints
+export interface RegularRequest {
+  projekt: string
+  projekt_nazev: string
+  typ_poz: 'SERVIS' | 'UNIVYKAZ'
+  jira_klic: string
+  nazev: string
+}
+
 // Patch module from IS KARAT /web/patchovani/{projekt}/firma/{id_firmy}/moduly endpoint
 export interface PatchModule {
   id_modulu: string

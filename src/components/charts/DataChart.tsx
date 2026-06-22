@@ -159,12 +159,6 @@ export default function DataChart({
 
   const formatYAxisTick = (value: number | string) => {
     const numValue = typeof value === 'string' ? parseFloat(value) : value
-    if (numValue >= 1000000) {
-      return `${(numValue / 1000000).toFixed(1)} GB`
-    }
-    if (numValue >= 1000) {
-      return `${(numValue / 1000).toFixed(1)} GB`
-    }
     return `${(numValue / 1000).toFixed(1)} GB`
   }
 

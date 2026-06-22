@@ -377,7 +377,11 @@ export const authOptions: NextAuthOptions = {
             })
           }
 
-          if (user && user.password && (await bcrypt.compare(credentials.password, user.password))) {
+          const passwordMatch =
+            !!user?.password &&
+            (await bcrypt.compare(credentials.password, user.password))
+
+          if (user && passwordMatch) {
             console.log('Auth successful for:', credentials?.email)
             logger.log('Auth successful for:', credentials?.email)
             const result = {

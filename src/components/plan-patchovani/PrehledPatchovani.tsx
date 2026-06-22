@@ -307,7 +307,7 @@ export default function PrehledPatchovani({
         (p.jiraKey && p.jiraKey.toLowerCase().includes(q)) ||
         (p.country && p.country.toLowerCase().includes(q))
     )
-  }, [canonicalOsobaKey, canonicalProjekt, projects, searchTerm])
+  }, [canonicalOsobaKey, canonicalProjekt, canonicalMzdy, canonicalPatchservis, projects, searchTerm])
 
   const totalCount = projects.length
   const withPlannedPatch = useMemo(

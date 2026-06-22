@@ -18,7 +18,8 @@ import {
   Database,
   Map,
   Calendar,
-  Shield
+  Shield,
+  ClipboardList
 } from 'lucide-react'
 import PermissionGuard from './ui/PermissionGuard'
 import CollapsibleSection from './ui/CollapsibleSection'
@@ -57,7 +58,13 @@ const navigation: NavigationItem[] = [
     children: [
       { name: 'Evidence projektů', href: '/evidence-projektu', icon: FolderTree, requiredPermissions: [Permission.PROJECTS_VIEW] },
       { name: 'Přehled patchování', href: '/plan_patchovani', icon: FolderOpen, requiredPermissions: [Permission.PROJECTS_VIEW] },
-      { name: 'Upgrady', href: '/upgrades', icon: Rocket, requiredPermissions: [Permission.PROJECTS_VIEW] }
+      { name: 'Upgrady', href: '/upgrades', icon: Rocket, requiredPermissions: [Permission.PROJECTS_VIEW] },
+      {
+        name: 'Přehled aktuálních pravidelných požadavků',
+        href: '/pravidelne-pozadavky',
+        icon: ClipboardList,
+        requiredPermissions: [Permission.PROJECTS_VIEW],
+      },
     ]
   },
   {

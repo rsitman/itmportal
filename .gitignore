@@ -38,6 +38,9 @@ yarn-error.log*
 .env.test.local
 .env.production.local
 
+# local development
+scripts/setup-db-docker.sh
+
 # vercel
 .vercel
 

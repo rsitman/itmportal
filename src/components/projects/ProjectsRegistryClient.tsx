@@ -43,6 +43,7 @@ function AkceProjektu({ project, returnTo }: { project: ServiceProject; returnTo
   const extcompsUrl = `/projects/doklad-projektu/${encodeURIComponent(dokladProjektu)}/extcomps?returnTo=${encodeURIComponent(returnTo)}`
   const dbUrl = `/databases?projekt=${encodeURIComponent(dokladProjektu)}&returnTo=${encodeURIComponent(returnTo)}`
   const upgradesUrl = `/upgrades?projekt=${encodeURIComponent(dokladProjektu)}&returnTo=${encodeURIComponent(returnTo)}`
+  const jppUrl = `/projects/doklad-projektu/${encodeURIComponent(dokladProjektu)}/jpp?returnTo=${encodeURIComponent(returnTo)}`
   const hwswUrl = `/hwsw-config?projekt=${encodeURIComponent(dokladProjektu)}&returnTo=${encodeURIComponent(returnTo)}`
 
   const hasJira = Boolean(project.jira_klic && project.jira_klic.trim())
@@ -94,6 +95,11 @@ function AkceProjektu({ project, returnTo }: { project: ServiceProject; returnTo
         </Link>
         <Link href={upgradesUrl} className={`${chipSecondary} chip-action chip-action-bottom`}>
           <span className="chip-action-label chip-action-label-bottom text-gray-400">Upgrady</span>
+        </Link>
+        <Link href={jppUrl} className={`${chipSecondary} chip-action chip-action-bottom`}>
+          <span className="chip-action-label chip-action-label-bottom text-gray-400">
+            Pravidelné požadavky
+          </span>
         </Link>
         <Link href={dbUrl} className={`${chipSecondary} chip-action chip-action-bottom`}>
           <span className="chip-action-label chip-action-label-bottom text-gray-400">Stav DB</span>
