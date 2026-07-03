@@ -5,8 +5,8 @@ import type { NextRequest } from 'next/server'
 export default async function middleware(req: NextRequest) {
   const { pathname } = req.nextUrl
 
-  // Propustit NextAuth routes a login stránku
-  if (pathname.startsWith('/api/auth') || pathname === '/login') {
+  // Propustit NextAuth routes, login stránku a standalone experimenty (/lab/*)
+  if (pathname.startsWith('/api/auth') || pathname === '/login' || pathname.startsWith('/lab')) {
     return NextResponse.next()
   }
 

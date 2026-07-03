@@ -10,6 +10,9 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react"
 export default function ClientLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname()
   const isLoginPage = pathname === '/login'
+  // Standalone full-screen experiments (e.g. lusion-style robot dashboard)
+  // bypass the portal shell entirely, like /login.
+  const isLabPage = pathname.startsWith('/lab')
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const menuButtonRef = useRef<HTMLButtonElement>(null)
   const closeButtonRef = useRef<HTMLButtonElement>(null)
@@ -73,7 +76,7 @@ export default function ClientLayout({ children }: { children: React.ReactNode }
   return (
     <AuthErrorBoundary>
       <NextAuthProvider>
-        {isLoginPage ? (
+        {(isLoginPage || isLabPage) ? (
           <>{children}</>
         ) : (
         <div className="flex h-screen app-shell-bg">
