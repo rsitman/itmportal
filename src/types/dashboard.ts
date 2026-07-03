@@ -56,4 +56,5 @@ export interface PolozkaAktualita {
   datum?: string
   projekt?: string
   projekt_nazev?: string
+  oblast?: string
 }

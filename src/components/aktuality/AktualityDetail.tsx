@@ -1,6 +1,7 @@
 import type { PolozkaAktualita } from '@/types/dashboard'
 import NewsHtml from '@/components/news/NewsHtml'
 import { sanitizeNewsHtml } from '@/lib/news-html'
+import { normalizeNewsOblast } from '@/lib/news-oblast'
 
 function formatDateShort(iso?: string): string {
   if (!iso) return '—'
@@ -11,6 +12,7 @@ function formatDateShort(iso?: string): string {
 
 export default function AktualityDetail({ item }: { item: PolozkaAktualita }) {
   const hasProjekt = (item.projekt_nazev ?? '').trim() !== ''
+  const oblast = normalizeNewsOblast(item.oblast)
   const safeHtml = item.obsah ? sanitizeNewsHtml(item.obsah) : ''
 
   return (
@@ -18,6 +20,8 @@ export default function AktualityDetail({ item }: { item: PolozkaAktualita }) {
       <header className="mb-4">
         <h1 className="text-xl md:text-2xl font-semibold text-white leading-snug">{item.nadpis}</h1>
         <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 text-sm text-gray-400">
+          <span className="sm:hidden">{oblast}</span>
+          <span className="sm:hidden text-gray-600">•</span>
           <span>{formatDateShort(item.datum)}</span>
           {hasProjekt ? <span className="text-gray-600">•</span> : null}
           {hasProjekt ? <span>{item.projekt_nazev}</span> : null}

@@ -1,9 +1,14 @@
+import { Suspense } from 'react'
 import { getNewsList, type NewsListItem } from '@/lib/news-server'
-import AktualityList from '@/components/aktuality/AktualityList'
+import AktualityClient from '@/components/aktuality/AktualityClient'
 import { logger } from '@/lib/logger'
 
 export const metadata = {
   title: 'Aktuality',
+}
+
+function AktualityListFallback() {
+  return <div className="card-professional rounded-lg p-4 text-sm text-gray-400">Načítání…</div>
 }
 
 export default async function AktualityPage() {
@@ -32,7 +37,9 @@ export default async function AktualityPage() {
                 {errorMessage}
               </div>
             ) : items.length > 0 ? (
-              <AktualityList items={items} />
+              <Suspense fallback={<AktualityListFallback />}>
+                <AktualityClient items={items} />
+              </Suspense>
             ) : (
               <div className="card-professional rounded-lg p-4 text-sm text-gray-400">Žádné aktuality.</div>
             )}
@@ -50,4 +57,3 @@ export default async function AktualityPage() {
     </div>
   )
 }
-

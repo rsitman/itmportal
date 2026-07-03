@@ -1,13 +1,45 @@
 import Link from 'next/link'
+import { Suspense } from 'react'
 import { notFound } from 'next/navigation'
 import { getNewsDetail, getNewsList, type NewsListItem } from '@/lib/news-server'
-import AktualityList from '@/components/aktuality/AktualityList'
+import AktualityClient from '@/components/aktuality/AktualityClient'
 import AktualityDetail from '@/components/aktuality/AktualityDetail'
 import { logger } from '@/lib/logger'
 import type { PolozkaAktualita } from '@/types/dashboard'
 
-export default async function AktualitaDetailPage({ params }: { params: Promise<{ id: string }> }) {
+function AktualityListFallback() {
+  return <div className="card-professional rounded-lg p-4 text-sm text-gray-400">Načítání…</div>
+}
+
+type PageProps = {
+  params: Promise<{ id: string }>
+  searchParams: Promise<Record<string, string | string[] | undefined>>
+}
+
+function buildBackHref(searchParams: Record<string, string | string[] | undefined>): string {
+  const params = new URLSearchParams()
+  const oblast = searchParams.oblast
+  if (Array.isArray(oblast)) {
+    for (const value of oblast) {
+      for (const part of value.split(',')) {
+        const trimmed = part.trim()
+        if (trimmed) params.append('oblast', trimmed)
+      }
+    }
+  } else if (typeof oblast === 'string') {
+    for (const part of oblast.split(',')) {
+      const trimmed = part.trim()
+      if (trimmed) params.append('oblast', trimmed)
+    }
+  }
+  const qs = params.toString()
+  return qs ? `/aktuality?${qs}` : '/aktuality'
+}
+
+export default async function AktualitaDetailPage({ params, searchParams }: PageProps) {
   const { id } = await params
+  const resolvedSearchParams = await searchParams
+  const backHref = buildBackHref(resolvedSearchParams)
 
   const [itemsResult, detailResult] = await Promise.allSettled([getNewsList(), getNewsDetail({ id })])
 
@@ -41,7 +73,7 @@ export default async function AktualitaDetailPage({ params }: { params: Promise<
       <div className="min-h-screen bg-transparent w-full px-6 sm:px-8 pt-6 sm:pt-8">
         <div className="space-y-6">
           <div className="lg:hidden">
-            <Link href="/aktuality" className="text-sm !text-gray-200 hover:!text-white underline underline-offset-4">
+            <Link href={backHref} className="text-sm !text-gray-200 hover:!text-white underline underline-offset-4">
               ← Zpět na seznam
             </Link>
           </div>
@@ -61,7 +93,7 @@ export default async function AktualitaDetailPage({ params }: { params: Promise<
               <div className="card-professional rounded-lg p-6 text-sm text-gray-400">
                 <div className="font-medium text-white mb-2">Nelze načíst aktualitu</div>
                 <div className="mb-4">{detailErrorMessage}</div>
-                <Link href="/aktuality" className="text-sm !text-gray-200 hover:!text-white underline underline-offset-4">
+                <Link href={backHref} className="text-sm !text-gray-200 hover:!text-white underline underline-offset-4">
                   Zpět na seznam aktualit
                 </Link>
               </div>
@@ -76,7 +108,7 @@ export default async function AktualitaDetailPage({ params }: { params: Promise<
     <div className="min-h-screen bg-transparent w-full px-6 sm:px-8 pt-6 sm:pt-8">
       <div className="space-y-6">
         <div className="lg:hidden">
-          <Link href="/aktuality" className="text-sm !text-gray-200 hover:!text-white underline underline-offset-4">
+          <Link href={backHref} className="text-sm !text-gray-200 hover:!text-white underline underline-offset-4">
             ← Zpět na seznam
           </Link>
         </div>
@@ -86,7 +118,9 @@ export default async function AktualitaDetailPage({ params }: { params: Promise<
             {listErrorMessage ? (
               <div className="card-professional rounded-lg p-6 text-sm text-gray-400">{listErrorMessage}</div>
             ) : (
-              <AktualityList items={items} selectedId={id} />
+              <Suspense fallback={<AktualityListFallback />}>
+                <AktualityClient items={items} selectedId={id} />
+              </Suspense>
             )}
           </div>
 
@@ -98,4 +132,3 @@ export default async function AktualitaDetailPage({ params }: { params: Promise<
     </div>
   )
 }
-

@@ -64,6 +64,7 @@ function normalizeNewsItem(raw: ErpNewsRaw, idx: number): PolozkaAktualita {
     ]) ?? ''
   const projekt = firstString(raw, ['projekt', 'project']) ?? undefined
   const projekt_nazev = firstString(raw, ['projekt_nazev', 'projektNazev', 'projectName']) ?? undefined
+  const oblast = firstString(raw, ['oblast', 'area', 'region']) ?? undefined
   const datum = extractDatumIso(raw)
   const vip = firstBoolean(raw, ['vip', 'important', 'dulezite']) ?? undefined
   const id = computeErpNewsId({
@@ -84,6 +85,7 @@ function normalizeNewsItem(raw: ErpNewsRaw, idx: number): PolozkaAktualita {
     datum,
     projekt,
     projekt_nazev,
+    oblast,
     vip,
   }
 }
@@ -121,16 +123,17 @@ function sortByNewest(items: PolozkaAktualita[]): PolozkaAktualita[] {
   })
 }
 
-export type NewsListItem = Pick<PolozkaAktualita, 'id' | 'nadpis' | 'datum' | 'projekt' | 'projekt_nazev' | 'vip'>
+export type NewsListItem = Pick<PolozkaAktualita, 'id' | 'nadpis' | 'datum' | 'projekt' | 'projekt_nazev' | 'oblast' | 'vip'>
 
 export async function getNewsList(): Promise<NewsListItem[]> {
   const all = await fetchErpNews()
-  return sortByNewest(all).map(({ id, nadpis, datum, projekt, projekt_nazev, vip }) => ({
+  return sortByNewest(all).map(({ id, nadpis, datum, projekt, projekt_nazev, oblast, vip }) => ({
     id,
     nadpis,
     datum,
     projekt,
     projekt_nazev,
+    oblast,
     vip,
   }))
 }

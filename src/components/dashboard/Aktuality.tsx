@@ -80,6 +80,7 @@ export default function Aktuality() {
         <ul className="divide-y divide-gray-700/50">
           {sortItems(items).map((p) => {
             const hasProjekt = p.projekt_nazev && p.projekt_nazev.trim() !== ''
+            const hasOblast = (p.oblast ?? '').trim() !== ''
             return (
               <li
                 key={p.id}
@@ -93,6 +94,11 @@ export default function Aktuality() {
                     <p className="font-medium text-white leading-snug line-clamp-2">{p.nadpis}</p>
                     <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
                       <span className="text-xs text-gray-400">{formatDateShort(p.datum)}</span>
+                      {hasOblast ? (
+                        <span className="text-xs text-gray-400">
+                          <span className="text-gray-600">•</span> {p.oblast}
+                        </span>
+                      ) : null}
                       {hasProjekt ? (
                         <span className="text-xs text-gray-400">
                           <span className="text-gray-600">•</span> {p.projekt_nazev}
