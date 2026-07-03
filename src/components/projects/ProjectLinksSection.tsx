@@ -23,6 +23,7 @@ type ProjectLinksSectionProps = {
 
 export default function ProjectLinksSection({ dokladProjektu }: ProjectLinksSectionProps) {
   const [links, setLinks] = useState<ProjectLink[]>([])
+  const [jiraEmail, setJiraEmail] = useState<string | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
@@ -36,15 +37,19 @@ export default function ProjectLinksSection({ dokladProjektu }: ProjectLinksSect
         const message = (body?.error as string) || `Odkazy nelze načíst (${res.status})`
         setError(message)
         setLinks([])
+        setJiraEmail(null)
         return
       }
       const data = await res.json()
       const list = Array.isArray(data) ? data : (Array.isArray(data?.links) ? data.links : [])
+      const email = typeof data?.jira_email === 'string' ? data.jira_email.trim() : ''
       setLinks(list)
+      setJiraEmail(email || null)
     } catch (e) {
       logger.error('Error fetching project links:', e)
       setError('Odkazy momentálně nelze načíst')
       setLinks([])
+      setJiraEmail(null)
     } finally {
       setLoading(false)
     }
@@ -78,7 +83,7 @@ export default function ProjectLinksSection({ dokladProjektu }: ProjectLinksSect
     )
   }
 
-  if (links.length === 0) {
+  if (links.length === 0 && !jiraEmail) {
     return (
       <p className="py-3 text-sm text-gray-400">
         Žádné odkazy
@@ -88,6 +93,19 @@ export default function ProjectLinksSection({ dokladProjektu }: ProjectLinksSect
 
   return (
     <ul className="space-y-3" role="list">
+      {jiraEmail ? (
+        <li className="border-b border-gray-700/50 pb-3">
+          <p className="!text-gray-100 font-medium">JIRA e-mail projektu</p>
+          <a
+            href={`mailto:${jiraEmail}`}
+            title={jiraEmail}
+            className="mt-0.5 inline-block break-all focus:outline-none focus-visible:ring-2 focus-visible:ring-gray-400 focus-visible:ring-offset-2 focus-visible:ring-offset-gray-900 rounded"
+          >
+            <span className="text-sm text-gray-400 hover:!text-white hover:underline">{jiraEmail}</span>
+          </a>
+          <p className="mt-1 text-xs text-gray-500">Adresa pro zakládání tasků v JIRA</p>
+        </li>
+      ) : null}
       {links.map((link, index) => {
         const label = linkLabel(link)
         const url = (link.url ?? '').trim() || '#'

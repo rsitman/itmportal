@@ -200,6 +200,14 @@ export interface User {
   updatedAt: Date
 }
 
+// Project detail from ERP /web/projects/{doklad_projektu} endpoint
+export interface ProjectDetail {
+  nazev?: string
+  oznaceni?: string
+  jira_email?: string
+  links?: ProjectLink[]
+}
+
 // Project link from ERP /web/projects/{doklad_projektu}/links endpoint
 export interface ProjectLink {
   id_firmy?: string
