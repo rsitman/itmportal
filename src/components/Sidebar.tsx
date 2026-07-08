@@ -19,7 +19,8 @@ import {
   Map,
   Calendar,
   Shield,
-  ClipboardList
+  ClipboardList,
+  Layers
 } from 'lucide-react'
 import PermissionGuard from './ui/PermissionGuard'
 import CollapsibleSection from './ui/CollapsibleSection'
@@ -63,6 +64,12 @@ const navigation: NavigationItem[] = [
         name: 'Přehled aktuálních pravidelných požadavků',
         href: '/pravidelne-pozadavky',
         icon: ClipboardList,
+        requiredPermissions: [Permission.PROJECTS_VIEW],
+      },
+      {
+        name: 'Evidence malých projektů',
+        href: '/evidence-malych-projektu',
+        icon: Layers,
         requiredPermissions: [Permission.PROJECTS_VIEW],
       },
     ]

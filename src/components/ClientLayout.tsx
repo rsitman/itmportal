@@ -24,6 +24,8 @@ export default function ClientLayout({ children }: { children: React.ReactNode }
     pathname === '/osoby-itman' ||
     pathname === '/calendar' ||
     pathname === '/evidence-projektu' ||
+    pathname === '/evidence-malych-projektu' ||
+    pathname === '/pravidelne-pozadavky' ||
     pathname === '/hwsw-config' ||
     pathname.startsWith('/settings') ||
     pathname.startsWith('/dashboard') ||

@@ -24,6 +24,31 @@ export interface RegularRequest {
   nazev: string
 }
 
+// Small project sub-task from IS KARAT /web/small_projects endpoint
+export interface SmallProjectSubTask {
+  jira_klic_sub: string
+  nazev_sub: string
+  vyr_rozp: number
+  hodin_odv: number
+  resitel: string
+  zadavatel: string
+  stav: string
+}
+
+// Small project from IS KARAT /web/small_projects endpoint
+export interface SmallProject {
+  projekt: string
+  nazev_proj: string
+  jira_klic: string
+  nazev_poz: string
+  rozp: number
+  hodin_odv: number
+  resitel: string
+  zadavatel: string
+  stav: string
+  sub_tasks: SmallProjectSubTask[]
+}
+
 // Patch module from IS KARAT /web/patchovani/{projekt}/firma/{id_firmy}/moduly endpoint
 export interface PatchModule {
   id_modulu: string
