@@ -2,6 +2,16 @@ import Link from 'next/link'
 import type { NewsListItem } from '@/lib/news-server'
 import { normalizeNewsOblast } from '@/lib/news-oblast'
 
+function formatDateShort(iso?: string): string {
+  if (!iso) return '—'
+  const d = new Date(iso)
+  if (Number.isNaN(d.getTime())) return '—'
+  return d.toLocaleDateString('cs-CZ', { day: '2-digit', month: '2-digit', year: 'numeric' })
+}
+
+const LIST_GRID =
+  'sm:grid-cols-[minmax(5rem,6.5rem)_minmax(5.5rem,6.5rem)_1fr_auto]'
+
 export default function AktualityList({
   items,
   selectedId,
@@ -16,10 +26,11 @@ export default function AktualityList({
   return (
     <div className="card-professional rounded-lg p-3 md:p-4">
       <div
-        className="hidden sm:grid sm:grid-cols-[minmax(6.5rem,8.5rem)_1fr_auto] gap-x-3 px-2 pb-2 text-xs font-medium uppercase tracking-wide text-gray-500 border-b border-gray-700/50"
+        className={`hidden sm:grid ${LIST_GRID} gap-x-3 px-2 pb-2 text-xs font-medium uppercase tracking-wide text-gray-500 border-b border-gray-700/50`}
         aria-hidden="true"
       >
         <span>Oblast</span>
+        <span>Datum publikace</span>
         <span>Název</span>
         <span className="w-3" />
       </div>
@@ -37,8 +48,13 @@ export default function AktualityList({
                   isSelected ? 'bg-white/5 ring-1 ring-white/10' : 'hover:bg-white/5'
                 }`}
               >
-                <div className="grid grid-cols-1 sm:grid-cols-[minmax(6.5rem,8.5rem)_1fr_auto] gap-x-3 gap-y-1 sm:gap-y-0 sm:items-start">
-                  <span className="text-xs text-gray-400 sm:pt-0.5">{oblast}</span>
+                <div className={`grid grid-cols-1 ${LIST_GRID} gap-x-3 gap-y-1 sm:gap-y-0 sm:items-start`}>
+                  <span className="text-xs text-gray-400 sm:pt-0.5 truncate" title={oblast}>
+                    {oblast}
+                  </span>
+                  <span className="text-xs text-gray-400 sm:pt-0.5 tabular-nums">
+                    {formatDateShort(p.datum)}
+                  </span>
                   <p className="font-medium text-white leading-snug line-clamp-3 sm:line-clamp-2 min-w-0">
                     {p.nadpis}
                   </p>

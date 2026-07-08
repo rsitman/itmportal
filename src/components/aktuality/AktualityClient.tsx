@@ -1,6 +1,7 @@
 'use client'
 
-import { useCallback, useMemo } from 'react'
+import { useCallback, useEffect, useMemo, useRef } from 'react'
+import { useSession } from 'next-auth/react'
 import { usePathname, useRouter, useSearchParams } from 'next/navigation'
 import type { NewsListItem } from '@/lib/news-server'
 import {
@@ -9,6 +10,10 @@ import {
   filterNewsByOblast,
   parseOblastSearchParams,
 } from '@/lib/news-oblast'
+import {
+  loadNewsOblastFilter,
+  saveNewsOblastFilter,
+} from '@/lib/news-oblast-filter-storage'
 import AktualityList from '@/components/aktuality/AktualityList'
 import AktualityOblastFilter from '@/components/aktuality/AktualityOblastFilter'
 
@@ -17,11 +22,24 @@ type Props = {
   selectedId?: string
 }
 
+function resolveUserStorageKey(session: ReturnType<typeof useSession>['data']): string | null {
+  const id = session?.user?.id?.trim()
+  if (id) return id
+
+  const email = session?.user?.email?.trim()
+  if (email) return email
+
+  return null
+}
+
 export default function AktualityClient({ items, selectedId }: Props) {
   const router = useRouter()
   const pathname = usePathname()
   const searchParams = useSearchParams()
+  const { data: session, status } = useSession()
+  const restoredForUserRef = useRef<string | null>(null)
 
+  const userStorageKey = useMemo(() => resolveUserStorageKey(session), [session])
   const selectedOblasti = useMemo(() => parseOblastSearchParams(searchParams), [searchParams])
   const oblastOptions = useMemo(() => collectNewsOblastOptions(items), [items])
   const oblastCounts = useMemo(() => countNewsByOblast(items), [items])
@@ -34,14 +52,36 @@ export default function AktualityClient({ items, selectedId }: Props) {
 
   const applyOblastFilter = useCallback(
     (nextSelected: string[]) => {
+      if (userStorageKey) {
+        saveNewsOblastFilter(userStorageKey, nextSelected)
+      }
+
       const base = new URLSearchParams(searchParams?.toString() ?? '')
       base.delete('oblast')
       for (const oblast of nextSelected) base.append('oblast', oblast)
       const qs = base.toString()
       router.replace(qs ? `${pathname}?${qs}` : pathname)
     },
-    [pathname, router, searchParams],
+    [pathname, router, searchParams, userStorageKey],
   )
+
+  useEffect(() => {
+    if (status === 'loading' || !userStorageKey) return
+    if (parseOblastSearchParams(searchParams).length > 0) {
+      restoredForUserRef.current = userStorageKey
+      return
+    }
+    if (restoredForUserRef.current === userStorageKey) return
+
+    const saved = loadNewsOblastFilter(userStorageKey)
+    restoredForUserRef.current = userStorageKey
+    if (saved.length === 0) return
+
+    const base = new URLSearchParams(searchParams?.toString() ?? '')
+    for (const oblast of saved) base.append('oblast', oblast)
+    const qs = base.toString()
+    router.replace(qs ? `${pathname}?${qs}` : pathname)
+  }, [pathname, router, searchParams, status, userStorageKey])
 
   const onToggleOblast = useCallback(
     (oblast: string) => {
