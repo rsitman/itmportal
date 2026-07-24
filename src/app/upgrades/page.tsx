@@ -31,6 +31,7 @@ function mapToUpgradeArray(input: unknown): Upgrade[] {
       resitel: toStringSafe(row.resitel),
       jira_klic: toStringSafe(row.jira_klic),
       stav: toStringSafe(row.stav),
+      akt_verze: toStringSafe(row.akt_verze),
     }))
     .filter((u) => u.projekt && u.nazev)
 }

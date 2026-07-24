@@ -46,6 +46,43 @@ function monthKey(dateInput: string): string | null {
   return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`
 }
 
+function getVerzeSkupina(verze: string): string | null {
+  const trimmed = verze.trim()
+  if (!trimmed) return null
+  const match = trimmed.match(/^(\d+)/)
+  return match ? match[1] : trimmed
+}
+
+function uniqueSortedVerzeSkupiny(values: string[]): string[] {
+  const groups = [...new Set(values.map(getVerzeSkupina).filter((v): v is string => Boolean(v)))]
+  return groups.sort((a, b) => {
+    const aNum = Number(a)
+    const bNum = Number(b)
+    if (!Number.isNaN(aNum) && !Number.isNaN(bNum)) return bNum - aNum
+    return b.localeCompare(a, 'cs')
+  })
+}
+
+const STAV_V_REALIZACI = new Set(
+  [
+    'odeslána cenová nabídka',
+    'schválena cenová nabídka',
+    'zajištěna licence',
+    'zahájena příprava',
+    'zahájen upgrade',
+  ].map(normalizeText),
+)
+
+function isStavVRealizaci(stav: string): boolean {
+  return STAV_V_REALIZACI.has(normalizeText(stav))
+}
+
+function matchesStavFilter(stavRaw: string, selectedStav: string): boolean {
+  if (selectedStav === 'vse') return true
+  if (selectedStav === 'v_realizaci') return isStavVRealizaci(stavRaw)
+  return normalizeText(stavRaw) === normalizeText(selectedStav)
+}
+
 function getStavBadgeClasses(stavRaw: string): { wrap: string; text: string } {
   const stav = normalizeText(stavRaw)
 
@@ -128,6 +165,7 @@ export default function PrehledUpgradu({
   const [selectedProjekt, setSelectedProjekt] = useState(initialProjekt)
   const [selectedOsoba, setSelectedOsoba] = useState(initialOsoba)
   const [selectedStav, setSelectedStav] = useState('vse')
+  const [selectedVerze, setSelectedVerze] = useState('')
 
   const { labelByDoklad } = useServiceProjects()
 
@@ -170,6 +208,11 @@ export default function PrehledUpgradu({
     [initialUpgrades],
   )
 
+  const dostupneVerze = useMemo(
+    () => uniqueSortedVerzeSkupiny(initialUpgrades.map((u) => u.verze)),
+    [initialUpgrades],
+  )
+
   const canonicalOsoba = normalizeOsobaLabel(selectedOsoba)
   const canonicalOsobaKey = normalizeOsobaKey(canonicalOsoba)
 
@@ -182,10 +225,12 @@ export default function PrehledUpgradu({
     const q = normalizeText(searchTerm)
     const projekt = selectedProjekt.trim()
     const stav = selectedStav
+    const verze = selectedVerze.trim()
 
     return initialUpgrades.filter((u) => {
       const matchesProjekt = !projekt || u.projekt === projekt
-      const matchesStav = stav === 'vse' || normalizeText(u.stav) === normalizeText(stav)
+      const matchesStav = matchesStavFilter(u.stav, stav)
+      const matchesVerze = !verze || getVerzeSkupina(u.verze) === verze
       const matchesOsoba = !canonicalOsobaKey || normalizeOsobaKey(u.resitel) === canonicalOsobaKey
       const matchesSearch =
         !q ||
@@ -195,9 +240,9 @@ export default function PrehledUpgradu({
         normalizeText(u.jira_klic).includes(q) ||
         normalizeText(u.verze).includes(q)
 
-      return matchesProjekt && matchesStav && matchesOsoba && matchesSearch
+      return matchesProjekt && matchesStav && matchesVerze && matchesOsoba && matchesSearch
     })
-  }, [canonicalOsobaKey, initialUpgrades, searchTerm, selectedProjekt, selectedStav])
+  }, [canonicalOsobaKey, initialUpgrades, searchTerm, selectedProjekt, selectedStav, selectedVerze])
 
   const stats = useMemo(() => {
     const total = initialUpgrades.length
@@ -217,6 +262,8 @@ export default function PrehledUpgradu({
     router.replace(qs ? `/upgrades?${qs}` : '/upgrades')
   }
 
+  const onClearProjekt = () => onProjektChange('')
+
   const onOsobaChange = (value: string) => {
     const label = normalizeOsobaLabel(value)
     setSelectedOsoba(label)
@@ -227,15 +274,25 @@ export default function PrehledUpgradu({
     router.replace(qs ? `/upgrades?${qs}` : '/upgrades')
   }
 
+  const onClearOsoba = () => onOsobaChange('')
+
+  const selectedProjektLabel = useMemo(() => {
+    const projekt = selectedProjekt.trim()
+    if (!projekt) return null
+    return labelByDoklad.get(projekt) ?? null
+  }, [labelByDoklad, selectedProjekt])
+
   const emptyDetails = useMemo(() => {
     const parts: string[] = []
     const projekt = selectedProjekt.trim()
     if (projekt) parts.push(`Projekt: ${labelByDoklad.get(projekt) ?? projekt}`)
-    if (selectedStav !== 'vse') parts.push(`Stav: ${selectedStav}`)
+    if (selectedStav === 'v_realizaci') parts.push('Stav: V realizaci')
+    else if (selectedStav !== 'vse') parts.push(`Stav: ${selectedStav}`)
+    if (selectedVerze.trim()) parts.push(`Verze: ${selectedVerze.trim()}`)
     if (canonicalOsoba) parts.push(`Řešitel: ${canonicalOsoba}`)
     if (searchTerm.trim()) parts.push(`Hledat: ${searchTerm.trim()}`)
     return parts.length ? parts.join(' · ') : null
-  }, [canonicalOsoba, labelByDoklad, searchTerm, selectedProjekt, selectedStav])
+  }, [canonicalOsoba, labelByDoklad, searchTerm, selectedProjekt, selectedStav, selectedVerze])
 
   return (
     <div className="card-professional rounded-lg border border-gray-700/60 p-4 md:p-5">
@@ -249,15 +306,21 @@ export default function PrehledUpgradu({
         <FiltryUpgradu
           searchTerm={searchTerm}
           onSearchChange={setSearchTerm}
-          selectedProjekt={selectedProjekt}
+          selectedProjekt={selectedProjekt.trim()}
+          selectedProjektLabel={selectedProjektLabel}
           onProjektChange={onProjektChange}
+          onClearProjekt={onClearProjekt}
           projekty={projektyForSelect}
           projectLabelByDoklad={labelByDoklad}
           selectedStav={selectedStav}
           onStavChange={setSelectedStav}
           dostupneStavy={dostupneStavy}
+          selectedVerze={selectedVerze}
+          onVerzeChange={setSelectedVerze}
+          dostupneVerze={dostupneVerze}
           selectedOsoba={canonicalOsoba}
           onOsobaChange={onOsobaChange}
+          onClearOsoba={onClearOsoba}
           resitele={resiteleForSelect}
           osobaFromUrlUnknown={osobaFromUrlUnknown}
           filteredCount={filteredUpgrades.length}
@@ -352,14 +415,20 @@ function FiltryUpgradu({
   searchTerm,
   onSearchChange,
   selectedProjekt,
+  selectedProjektLabel,
   onProjektChange,
+  onClearProjekt,
   projekty,
   projectLabelByDoklad,
   selectedStav,
   onStavChange,
   dostupneStavy,
+  selectedVerze,
+  onVerzeChange,
+  dostupneVerze,
   selectedOsoba,
   onOsobaChange,
+  onClearOsoba,
   resitele,
   osobaFromUrlUnknown,
   filteredCount,
@@ -368,14 +437,20 @@ function FiltryUpgradu({
   searchTerm: string
   onSearchChange: (v: string) => void
   selectedProjekt: string
+  selectedProjektLabel: string | null
   onProjektChange: (v: string) => void
+  onClearProjekt: () => void
   projekty: string[]
   projectLabelByDoklad: Map<string, string>
   selectedStav: string
   onStavChange: (v: string) => void
   dostupneStavy: string[]
+  selectedVerze: string
+  onVerzeChange: (v: string) => void
+  dostupneVerze: string[]
   selectedOsoba: string
   onOsobaChange: (v: string) => void
+  onClearOsoba: () => void
   resitele: string[]
   osobaFromUrlUnknown?: boolean
   filteredCount: number
@@ -383,92 +458,161 @@ function FiltryUpgradu({
 }) {
   return (
     <div className="rounded-lg border border-gray-700/50 bg-gray-900/30 px-3 py-2.5 md:px-4 md:py-3">
-      <div className="flex flex-col gap-2 sm:flex-row sm:flex-wrap sm:items-end sm:justify-between sm:gap-3">
-        <div className="flex flex-col gap-2 sm:flex-row sm:flex-wrap sm:items-end sm:gap-3 w-full min-w-0">
-          <div className="w-full min-w-0 sm:w-[320px]">
-            <label htmlFor="upgrady-search" className="block text-xs font-medium text-gray-400 mb-0.5">
-              Hledat
-            </label>
-            <input
-              id="upgrady-search"
-              type="text"
-              value={searchTerm}
-              onChange={(e) => onSearchChange(e.target.value)}
-              placeholder="Název, projekt, řešitel, JIRA klíč…"
-              aria-label="Hledat v upgradech"
-              className="w-full pl-3.5 pr-3.5 py-2.5 rounded-lg bg-gray-800/80 border border-gray-600/60 text-sm text-white placeholder-gray-500 focus:outline-none focus-visible:ring-2 focus-visible:ring-green-500/50 focus-visible:ring-offset-2 focus-visible:ring-offset-gray-900 focus-visible:border-green-500/50"
-            />
+      <div className="flex flex-col gap-2.5">
+        {selectedProjekt ? (
+          <div className="rounded-lg border border-blue-700/40 bg-blue-900/15 px-4 py-3">
+            <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+              <div className="text-sm text-blue-100/90">
+                Projekt:{' '}
+                <span className="text-blue-200/90">{selectedProjektLabel ?? selectedProjekt}</span>
+              </div>
+              <div className="flex flex-wrap gap-2">
+                {selectedOsoba ? (
+                  <button
+                    type="button"
+                    onClick={onClearOsoba}
+                    className="inline-flex items-center justify-center px-3 py-1.5 rounded-md border border-blue-700/40 bg-blue-900/10 hover:bg-blue-900/20 transition-colors text-xs"
+                  >
+                    <span className="text-blue-200/90">Zrušit řešitele</span>
+                  </button>
+                ) : null}
+                <button
+                  type="button"
+                  onClick={onClearProjekt}
+                  className="inline-flex items-center justify-center px-3 py-1.5 rounded-md border border-blue-700/40 bg-blue-900/10 hover:bg-blue-900/20 transition-colors text-xs"
+                >
+                  <span className="text-blue-200/90">Zrušit projekt</span>
+                </button>
+              </div>
+            </div>
           </div>
+        ) : null}
 
-          <div className="w-full sm:w-56">
-            <label htmlFor="upgrady-projekt" className="block text-xs font-medium text-gray-400 mb-0.5">
-              Projekt
-            </label>
-            <select
-              id="upgrady-projekt"
-              value={selectedProjekt}
-              onChange={(e) => onProjektChange(e.target.value)}
-              aria-label="Filtr podle projektu"
-              className="w-full pl-3 pr-3 py-2.5 rounded-lg bg-gray-800/80 border border-gray-600/60 text-sm text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-green-500/50 focus-visible:ring-offset-2 focus-visible:ring-offset-gray-900 focus-visible:border-green-500/50"
-            >
-              <option value="">Všechny projekty</option>
-              {projekty.map((p) => (
-                <option key={p} value={p}>
-                  {projectLabelByDoklad.get(p) ?? p}
-                </option>
-              ))}
-            </select>
+        {selectedOsoba && !selectedProjekt ? (
+          <div className="rounded-lg border border-blue-700/40 bg-blue-900/15 px-4 py-3">
+            <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+              <div className="text-sm text-blue-100/90">
+                Řešitel: <span className="text-blue-200/90">{selectedOsoba}</span>
+              </div>
+              <button
+                type="button"
+                onClick={onClearOsoba}
+                className="inline-flex items-center justify-center px-3 py-1.5 rounded-md border border-blue-700/40 bg-blue-900/10 hover:bg-blue-900/20 transition-colors text-xs"
+              >
+                <span className="text-blue-200/90">Zrušit řešitele</span>
+              </button>
+            </div>
           </div>
+        ) : null}
 
-          <div className="w-full sm:w-48">
-            <label htmlFor="upgrady-stav" className="block text-xs font-medium text-gray-400 mb-0.5">
-              Stav
-            </label>
-            <select
-              id="upgrady-stav"
-              value={selectedStav}
-              onChange={(e) => onStavChange(e.target.value)}
-              aria-label="Filtr podle stavu"
-              className="w-full pl-3 pr-3 py-2.5 rounded-lg bg-gray-800/80 border border-gray-600/60 text-sm text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-green-500/50 focus-visible:ring-offset-2 focus-visible:ring-offset-gray-900 focus-visible:border-green-500/50"
-            >
-              <option value="vse">Všechny stavy</option>
-              {dostupneStavy.map((s) => (
-                <option key={s} value={s}>
-                  {s}
-                </option>
-              ))}
-            </select>
-          </div>
+        <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between sm:gap-3">
+          <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:gap-3 w-full min-w-0">
+            <div className="w-full min-w-0 sm:max-w-md">
+              <label htmlFor="upgrady-search" className="block text-xs font-medium text-gray-400 mb-0.5">
+                Hledat
+              </label>
+              <input
+                id="upgrady-search"
+                type="text"
+                value={searchTerm}
+                onChange={(e) => onSearchChange(e.target.value)}
+                placeholder="Název, projekt, řešitel, JIRA klíč…"
+                aria-label="Hledat v upgradech"
+                className="w-full pl-3.5 pr-3.5 py-2.5 rounded-lg bg-gray-800/80 border border-gray-600/60 text-sm text-white placeholder-gray-500 focus:outline-none focus-visible:ring-2 focus-visible:ring-green-500/50 focus-visible:ring-offset-2 focus-visible:ring-offset-gray-900 focus-visible:border-green-500/50"
+              />
+            </div>
 
-          <div className="w-full sm:w-56">
-            <label htmlFor="upgrady-resitel" className="block text-xs font-medium text-gray-400 mb-0.5">
-              Řešitel
-            </label>
-            <select
-              id="upgrady-resitel"
-              value={selectedOsoba}
-              onChange={(e) => onOsobaChange(e.target.value)}
-              aria-label="Filtr podle řešitele"
-              className="w-full pl-3 pr-3 py-2.5 rounded-lg bg-gray-800/80 border border-gray-600/60 text-sm text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-green-500/50 focus-visible:ring-offset-2 focus-visible:ring-offset-gray-900 focus-visible:border-green-500/50"
-            >
-              <option value="">Všichni řešitelé</option>
-              {resitele.map((r, idx) => {
-                const isUnknown =
-                  Boolean(osobaFromUrlUnknown) && idx === 0 && normalizeOsobaKey(r) === normalizeOsobaKey(selectedOsoba)
-                const label = isUnknown ? `${r} (mimo aktuální data)` : r
-                return (
-                  <option key={`${r}-${idx}`} value={r}>
-                    {label}
+            <div className="w-full sm:w-80">
+              <label htmlFor="upgrady-projekt" className="block text-xs font-medium text-gray-400 mb-0.5">
+                Projekt
+              </label>
+              <select
+                id="upgrady-projekt"
+                value={selectedProjekt}
+                onChange={(e) => onProjektChange(e.target.value)}
+                aria-label="Filtr podle projektu"
+                className="w-full pl-3 pr-3 py-2.5 rounded-lg bg-gray-800/80 border border-gray-600/60 text-sm text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-green-500/50 focus-visible:ring-offset-2 focus-visible:ring-offset-gray-900 focus-visible:border-green-500/50"
+              >
+                <option value="">Všechny projekty</option>
+                {projekty.map((p) => (
+                  <option key={p} value={p}>
+                    {projectLabelByDoklad.get(p) ?? p}
                   </option>
-                )
-              })}
-            </select>
-          </div>
-        </div>
+                ))}
+              </select>
+            </div>
 
-        <div className="text-xs text-gray-500 sm:pb-0.5 sm:text-right shrink-0">
-          Zobrazeno <span className="font-medium text-gray-300">{filteredCount}</span> z{' '}
-          <span className="font-medium text-gray-300">{totalCount}</span>
+            <div className="w-full sm:w-72">
+              <label htmlFor="upgrady-resitel" className="block text-xs font-medium text-gray-400 mb-0.5">
+                Řešitel
+              </label>
+              <select
+                id="upgrady-resitel"
+                value={selectedOsoba}
+                onChange={(e) => onOsobaChange(e.target.value)}
+                aria-label="Filtr podle řešitele"
+                className="w-full pl-3 pr-3 py-2.5 rounded-lg bg-gray-800/80 border border-gray-600/60 text-sm text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-green-500/50 focus-visible:ring-offset-2 focus-visible:ring-offset-gray-900 focus-visible:border-green-500/50"
+              >
+                <option value="">Všichni řešitelé</option>
+                {resitele.map((r, idx) => {
+                  const isUnknown =
+                    Boolean(osobaFromUrlUnknown) && idx === 0 && normalizeOsobaKey(r) === normalizeOsobaKey(selectedOsoba)
+                  const label = isUnknown ? `${r} (mimo aktuální data)` : r
+                  return (
+                    <option key={`${r}-${idx}`} value={r}>
+                      {label}
+                    </option>
+                  )
+                })}
+              </select>
+            </div>
+
+            <div className="w-full sm:w-56">
+              <label htmlFor="upgrady-stav" className="block text-xs font-medium text-gray-400 mb-0.5">
+                Stav
+              </label>
+              <select
+                id="upgrady-stav"
+                value={selectedStav}
+                onChange={(e) => onStavChange(e.target.value)}
+                aria-label="Filtr podle stavu"
+                className="w-full pl-3 pr-3 py-2.5 rounded-lg bg-gray-800/80 border border-gray-600/60 text-sm text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-green-500/50 focus-visible:ring-offset-2 focus-visible:ring-offset-gray-900 focus-visible:border-green-500/50"
+              >
+                <option value="vse">Všechny stavy</option>
+                <option value="v_realizaci">V realizaci</option>
+                {dostupneStavy.map((s) => (
+                  <option key={s} value={s}>
+                    {s}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <div className="w-full sm:w-44">
+              <label htmlFor="upgrady-verze" className="block text-xs font-medium text-gray-400 mb-0.5">
+                Verze
+              </label>
+              <select
+                id="upgrady-verze"
+                value={selectedVerze}
+                onChange={(e) => onVerzeChange(e.target.value)}
+                aria-label="Filtr podle verze"
+                className="w-full pl-3 pr-3 py-2.5 rounded-lg bg-gray-800/80 border border-gray-600/60 text-sm text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-green-500/50 focus-visible:ring-offset-2 focus-visible:ring-offset-gray-900 focus-visible:border-green-500/50"
+              >
+                <option value="">Všechny verze</option>
+                {dostupneVerze.map((v) => (
+                  <option key={v} value={v}>
+                    {v}
+                  </option>
+                ))}
+              </select>
+            </div>
+          </div>
+
+          <div className="text-xs text-gray-500 sm:pb-0.5 sm:text-right shrink-0">
+            Zobrazeno <span className="font-medium text-gray-300">{filteredCount}</span> z{' '}
+            <span className="font-medium text-gray-300">{totalCount}</span>
+          </div>
         </div>
       </div>
     </div>

@@ -31,7 +31,8 @@ export default function UpgradesTable({ upgrades }: UpgradesTableProps) {
       datum_do: '2025-01-02',
       resitel: 'Test User',
       jira_klic: 'TEST-123',
-      stav: 'realizováno'
+      stav: 'realizováno',
+      akt_verze: 'Ano',
     },
     {
       projekt: 'TEST002', 
@@ -41,7 +42,8 @@ export default function UpgradesTable({ upgrades }: UpgradesTableProps) {
       datum_do: '2025-02-02',
       resitel: 'Test User 2',
       jira_klic: 'TEST-456',
-      stav: 'v přípravě'
+      stav: 'v přípravě',
+      akt_verze: 'Ne',
     }
   ];
 

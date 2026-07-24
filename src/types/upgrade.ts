@@ -7,6 +7,7 @@ export interface Upgrade {
   resitel: string
   jira_klic: string
   stav: string
+  akt_verze: string
 }
 
 export interface UpgradeProject {
