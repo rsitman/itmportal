@@ -1,9 +1,16 @@
 'use client'
 
-import Link from 'next/link'
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { usePathname, useRouter, useSearchParams } from 'next/navigation'
+import { useCallback, useEffect, useMemo, useState, type KeyboardEvent, type MouseEvent } from 'react'
 import { Skoleni } from '@/types/project'
 import { logger } from '@/lib/logger'
+import {
+  displayText,
+  formatSkoleniDate,
+  formatSkoleniStav,
+  getStavBadgeClass,
+  skoleniDetailPath,
+} from '@/lib/skoleni-format'
 
 interface SkoleniClientProps {
   endpoint: string
@@ -12,6 +19,17 @@ interface SkoleniClientProps {
   emptyMessage: string
   showDokladColumn?: boolean
   initialDoklad?: string
+}
+
+function getDatumSortKey(value: string | null): number {
+  if (!value) return Number.MAX_SAFE_INTEGER
+
+  const parsed = new Date(value)
+  if (Number.isNaN(parsed.getTime()) || parsed.getFullYear() < 1902) {
+    return Number.MAX_SAFE_INTEGER
+  }
+
+  return parsed.getTime()
 }
 
 export default function SkoleniClient({
@@ -25,8 +43,16 @@ export default function SkoleniClient({
   const [items, setItems] = useState<Skoleni[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const pathname = usePathname()
+  const router = useRouter()
+  const searchParams = useSearchParams()
   const [searchTerm, setSearchTerm] = useState('')
   const [dokladFilter, setDokladFilter] = useState(initialDoklad)
+
+  const returnTo = useMemo(() => {
+    const qs = searchParams.toString()
+    return `${pathname}${qs ? `?${qs}` : ''}`
+  }, [pathname, searchParams])
 
   const fetchSkoleni = useCallback(async () => {
     try {
@@ -61,9 +87,14 @@ export default function SkoleniClient({
   }, [fetchSkoleni])
 
   const dokladOptions = useMemo(() => {
-    return [...new Set(items.map((item) => item.doklad).filter(Boolean))].sort((a, b) =>
-      a.localeCompare(b, 'cs'),
-    )
+    const byDoklad = new Map<string, string>()
+    for (const item of items) {
+      if (!item.doklad) continue
+      if (!byDoklad.has(item.doklad)) {
+        byDoklad.set(item.doklad, item.nazev_projektu.trim() || item.doklad)
+      }
+    }
+    return [...byDoklad.entries()].sort((a, b) => a[1].localeCompare(b[1], 'cs'))
   }, [items])
 
   const filteredItems = items
@@ -72,17 +103,32 @@ export default function SkoleniClient({
       const matchesSearch =
         !normalizedSearch ||
         item.doklad.toLowerCase().includes(normalizedSearch) ||
-        String(item.poradi_skol).includes(normalizedSearch)
+        item.nazev_projektu.toLowerCase().includes(normalizedSearch) ||
+        String(item.poradi_skol).includes(normalizedSearch) ||
+        item.tema.toLowerCase().includes(normalizedSearch) ||
+        item.skolitel.toLowerCase().includes(normalizedSearch) ||
+        item.misto.toLowerCase().includes(normalizedSearch) ||
+        item.stav.toLowerCase().includes(normalizedSearch) ||
+        formatSkoleniDate(item.datum).toLowerCase().includes(normalizedSearch)
 
       const matchesDoklad = !dokladFilter || item.doklad === dokladFilter
 
       return matchesSearch && matchesDoklad
     })
     .sort((first, second) => {
-      const dokladCompare = first.doklad.localeCompare(second.doklad, 'cs')
-      if (dokladCompare !== 0) {
-        return dokladCompare
+      const projectCompare = (first.nazev_projektu || first.doklad).localeCompare(
+        second.nazev_projektu || second.doklad,
+        'cs',
+      )
+      if (projectCompare !== 0) {
+        return projectCompare
       }
+
+      const dateCompare = getDatumSortKey(first.datum) - getDatumSortKey(second.datum)
+      if (dateCompare !== 0) {
+        return dateCompare
+      }
+
       return first.poradi_skol - second.poradi_skol
     })
 
@@ -135,7 +181,11 @@ export default function SkoleniClient({
             <input
               id="skoleni-search"
               type="text"
-              placeholder={showDokladColumn ? 'Doklad, pořadí školení...' : 'Pořadí školení...'}
+              placeholder={
+                showDokladColumn
+                  ? 'Projekt, téma, školitel, místo, stav...'
+                  : 'Téma, školitel, místo, stav...'
+              }
               value={searchTerm}
               onChange={(event) => setSearchTerm(event.target.value)}
               className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded-md text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-green-500"
@@ -144,7 +194,7 @@ export default function SkoleniClient({
           {showDokladColumn && (
             <div>
               <label className="block text-sm font-medium text-gray-300 mb-1" htmlFor="skoleni-doklad">
-                Doklad
+                Projekt
               </label>
               <select
                 id="skoleni-doklad"
@@ -152,13 +202,13 @@ export default function SkoleniClient({
                 onChange={(event) => setDokladFilter(event.target.value)}
                 className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded-md text-white focus:outline-none focus:ring-2 focus:ring-green-500"
               >
-                <option value="">Všechny doklady</option>
-                {dokladFilter && !dokladOptions.includes(dokladFilter) ? (
+                <option value="">Všechny projekty</option>
+                {dokladFilter && !dokladOptions.some(([doklad]) => doklad === dokladFilter) ? (
                   <option value={dokladFilter}>{dokladFilter}</option>
                 ) : null}
-                {dokladOptions.map((doklad) => (
+                {dokladOptions.map(([doklad, nazev]) => (
                   <option key={doklad} value={doklad}>
-                    {doklad}
+                    {nazev}
                   </option>
                 ))}
               </select>
@@ -174,38 +224,80 @@ export default function SkoleniClient({
               <tr>
                 {showDokladColumn && (
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
-                    Doklad
+                    Projekt
                   </th>
                 )}
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
-                  Pořadí školení
+                  Téma
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
+                  Školitel
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
+                  Místo
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
+                  Datum
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
+                  Stav
                 </th>
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-700">
-              {filteredItems.map((item, index) => (
-                <tr key={`${item.doklad}-${item.poradi_skol}-${index}`} className="hover:bg-gray-800/60">
+              {filteredItems.map((item, index) => {
+                const detailHref = `${skoleniDetailPath(item.doklad, item.poradi_skol)}?returnTo=${encodeURIComponent(returnTo)}`
+
+                const openDetail = (event: MouseEvent | KeyboardEvent) => {
+                  if ('metaKey' in event && (event.metaKey || event.ctrlKey)) {
+                    window.open(detailHref, '_blank', 'noopener,noreferrer')
+                    return
+                  }
+                  router.push(detailHref)
+                }
+
+                return (
+                <tr
+                  key={`${item.doklad}-${item.poradi_skol}-${index}`}
+                  className="hover:bg-gray-800/60 cursor-pointer"
+                  tabIndex={0}
+                  role="link"
+                  aria-label={`Otevřít detail školení ${item.tema.trim() || item.poradi_skol}`}
+                  onClick={openDetail}
+                  onKeyDown={(event) => {
+                    if (event.key === 'Enter' || event.key === ' ') {
+                      event.preventDefault()
+                      openDetail(event)
+                    }
+                  }}
+                >
                   {showDokladColumn && (
-                    <td className="px-6 py-4 whitespace-nowrap text-sm font-mono text-gray-200">
-                      {item.doklad ? (
-                        <Link
-                          href={`/projects/doklad-projektu/${encodeURIComponent(item.doklad)}`}
-                          className="group inline-flex rounded focus:outline-none focus-visible:ring-2 focus-visible:ring-green-500/50 focus-visible:ring-offset-2 focus-visible:ring-offset-gray-900"
-                        >
-                          <span className="text-gray-300 group-hover:text-gray-100 group-hover:underline transition-colors">
-                            {item.doklad}
-                          </span>
-                        </Link>
-                      ) : (
-                        '—'
-                      )}
+                    <td className="px-6 py-4 text-sm text-gray-200">
+                      {item.nazev_projektu.trim() || item.doklad || '—'}
                     </td>
                   )}
+                  <td className="px-6 py-4 text-sm text-gray-200">
+                    {item.tema.trim() || 'Bez tématu'}
+                  </td>
+                  <td className="px-6 py-4 text-sm text-gray-200">{displayText(item.skolitel)}</td>
+                  <td className="px-6 py-4 text-sm text-gray-200">{displayText(item.misto)}</td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-200">
-                    {item.poradi_skol}
+                    {formatSkoleniDate(item.datum)}
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm">
+                    {item.stav ? (
+                      <span
+                        className={`inline-flex items-center px-2.5 py-0.5 rounded-full border text-xs font-medium ${getStavBadgeClass(item.stav)}`}
+                      >
+                        {formatSkoleniStav(item.stav)}
+                      </span>
+                    ) : (
+                      <span className="text-gray-500">—</span>
+                    )}
                   </td>
                 </tr>
-              ))}
+                )
+              })}
             </tbody>
           </table>
         </div>

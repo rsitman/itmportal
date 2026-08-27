@@ -28,6 +28,7 @@ export default function ClientLayout({ children }: { children: React.ReactNode }
     pathname === '/calendar' ||
     pathname === '/evidence-projektu' ||
     pathname === '/evidence-malych-projektu' ||
+    pathname.startsWith('/evidence-skoleni') ||
     pathname === '/pravidelne-pozadavky' ||
     pathname === '/hwsw-config' ||
     pathname.startsWith('/settings') ||

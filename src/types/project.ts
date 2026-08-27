@@ -53,6 +53,38 @@ export interface SmallProject {
 export interface Skoleni {
   doklad: string
   poradi_skol: number
+  nazev_projektu: string
+  tema: string
+  skolitel: string
+  misto: string
+  datum: string | null
+  stav: string
+}
+
+export interface SkoleniExtraField {
+  key: string
+  label: string
+  value: string
+  href?: string
+}
+
+// Training detail from /rest/api/v1/skoleni/detail
+export interface SkoleniDetail extends Skoleni {
+  odkaz_anonymni_dotaznik: string | null
+  extraFields: SkoleniExtraField[]
+}
+
+// Training participant from /rest/api/v1/skoleni/ucastnici
+export interface SkoleniUcastnik {
+  doklad: string
+  poradi_skol: number
+  poradi_osoba: number
+  ucastnik: string
+  e_mail: string
+  poznamka: string
+  ucast: string
+  dotaznik: string
+  odkaz_dotaznik: string | null
 }
 
 // Patch module from IS KARAT /web/patchovani/{projekt}/firma/{id_firmy}/moduly endpoint
