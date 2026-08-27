@@ -148,6 +148,14 @@ export default async function DetailProjektuPage({ params, searchParams }: Detai
           </Link>
 
           <Link
+            href={`${detailPath}/skoleni?returnTo=${subpageReturnTo}`}
+            className="card-professional p-6 hover:shadow-strong transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green-500 focus-visible:ring-offset-2 focus-visible:ring-offset-gray-900"
+          >
+            <div className="text-white font-semibold mb-1">Školení</div>
+            <div className="text-sm text-gray-300">Evidence školení přiřazených k projektu</div>
+          </Link>
+
+          <Link
             href={`/databases?projekt=${encodeURIComponent(dokladProjektu)}`}
             className="card-professional p-6 hover:shadow-strong transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green-500 focus-visible:ring-offset-2 focus-visible:ring-offset-gray-900"
           >

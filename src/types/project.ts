@@ -49,6 +49,12 @@ export interface SmallProject {
   sub_tasks: SmallProjectSubTask[]
 }
 
+// Training record from /rest/api/v1/skoleni
+export interface Skoleni {
+  doklad: string
+  poradi_skol: number
+}
+
 // Patch module from IS KARAT /web/patchovani/{projekt}/firma/{id_firmy}/moduly endpoint
 export interface PatchModule {
   id_modulu: string

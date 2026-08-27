@@ -45,6 +45,7 @@ function AkceProjektu({ project, returnTo }: { project: ServiceProject; returnTo
   const upgradesUrl = `/upgrades?projekt=${encodeURIComponent(dokladProjektu)}&returnTo=${encodeURIComponent(returnTo)}`
   const jppUrl = `/projects/doklad-projektu/${encodeURIComponent(dokladProjektu)}/jpp?returnTo=${encodeURIComponent(returnTo)}`
   const maleProjektyUrl = `/evidence-malych-projektu?projekt=${encodeURIComponent(dokladProjektu)}&returnTo=${encodeURIComponent(returnTo)}`
+  const skoleniUrl = `/evidence-skoleni?doklad=${encodeURIComponent(dokladProjektu)}&returnTo=${encodeURIComponent(returnTo)}`
   const hwswUrl = `/hwsw-config?projekt=${encodeURIComponent(dokladProjektu)}&returnTo=${encodeURIComponent(returnTo)}`
 
   const hasJira = Boolean(project.jira_klic && project.jira_klic.trim())
@@ -106,6 +107,9 @@ function AkceProjektu({ project, returnTo }: { project: ServiceProject; returnTo
           <span className="chip-action-label chip-action-label-bottom text-gray-400">
             Malé projekty
           </span>
+        </Link>
+        <Link href={skoleniUrl} className={`${chipSecondary} chip-action chip-action-bottom`}>
+          <span className="chip-action-label chip-action-label-bottom text-gray-400">Školení</span>
         </Link>
         <Link href={dbUrl} className={`${chipSecondary} chip-action chip-action-bottom`}>
           <span className="chip-action-label chip-action-label-bottom text-gray-400">Stav DB</span>

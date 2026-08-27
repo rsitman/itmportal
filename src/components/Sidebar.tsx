@@ -20,7 +20,8 @@ import {
   Calendar,
   Shield,
   ClipboardList,
-  Layers
+  Layers,
+  GraduationCap
 } from 'lucide-react'
 import PermissionGuard from './ui/PermissionGuard'
 import CollapsibleSection from './ui/CollapsibleSection'
@@ -70,6 +71,12 @@ const navigation: NavigationItem[] = [
         name: 'Evidence malých projektů',
         href: '/evidence-malych-projektu',
         icon: Layers,
+        requiredPermissions: [Permission.PROJECTS_VIEW],
+      },
+      {
+        name: 'Evidence školení',
+        href: '/evidence-skoleni',
+        icon: GraduationCap,
         requiredPermissions: [Permission.PROJECTS_VIEW],
       },
     ]
