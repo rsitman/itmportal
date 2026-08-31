@@ -46,6 +46,7 @@ const EXTRA_FIELD_LABELS: Record<string, string> = {
   poznamka: 'Poznámka',
   ucast: 'Účast',
   dotaznik: 'Dotazník',
+  odeslano: 'Odesláno',
   odkaz_anonymni_dotaznik: 'Anonymní dotazník',
   odkaz_dotaznik: 'Odkaz na dotazník',
   url_dotaznik: 'Odkaz na dotazník',
@@ -247,6 +248,7 @@ function mapSkoleniUcastnikRow(row: RawRecord): SkoleniUcastnik {
     poznamka: toStringValue(row.poznamka),
     ucast: toStringValue(row.ucast),
     dotaznik: toStringValue(row.dotaznik),
+    odeslano: pickFirstString(row, ['odeslano', 'odeslano_dotaznik']),
     odkaz_dotaznik: odkaz,
   }
 }

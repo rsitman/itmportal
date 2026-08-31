@@ -114,6 +114,26 @@ export function isDotaznikVyplneny(value: string | null | undefined): boolean {
   )
 }
 
+export function isDotaznikOdeslan(value: string | null | undefined): boolean {
+  const normalized = (value ?? '').trim().toLowerCase()
+  if (!normalized) return false
+  if (normalized.startsWith('ne')) return false
+  return (
+    normalized === 'odeslán' ||
+    normalized === 'odeslan' ||
+    normalized === 'ano' ||
+    normalized === 'true' ||
+    normalized === '1'
+  )
+}
+
+export function getOdeslanoBadgeClass(value: string): string {
+  if (isDotaznikOdeslan(value)) {
+    return 'bg-green-900/60 text-green-200 border-green-700'
+  }
+  return 'bg-gray-800/80 text-gray-200 border-gray-600'
+}
+
 export function displayText(value: string | null | undefined): string {
   const trimmed = (value ?? '').trim()
   return trimmed || '—'

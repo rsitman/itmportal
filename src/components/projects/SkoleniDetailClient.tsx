@@ -12,6 +12,7 @@ import {
   formatSkoleniDate,
   formatSkoleniStav,
   getStavBadgeClass,
+  getOdeslanoBadgeClass,
   isDotaznikVyplneny,
   isUcastPositive,
 } from '@/lib/skoleni-format'
@@ -45,6 +46,7 @@ type ModalState =
   | { type: 'add' }
   | { type: 'note'; person: SkoleniUcastnik }
   | { type: 'resend'; person: SkoleniUcastnik }
+  | { type: 'confirmStav'; stav: 20 | 30 }
 
 type Notice = { tone: 'ok' | 'error'; text: string }
 
@@ -247,6 +249,7 @@ export default function SkoleniDetailClient({
         person.poznamka,
         person.ucast,
         person.dotaznik,
+        person.odeslano,
       ]
       return haystacks.some((value) => value.toLowerCase().includes(query))
     })
@@ -307,7 +310,7 @@ export default function SkoleniDetailClient({
               <div className="flex flex-wrap gap-2">
                 <button
                   type="button"
-                  onClick={() => void changeStav(20)}
+                  onClick={() => setModal({ type: 'confirmStav', stav: 20 })}
                   disabled={!detail || !canStart || savingStav !== null}
                   title={
                     !detail
@@ -322,7 +325,7 @@ export default function SkoleniDetailClient({
                 </button>
                 <button
                   type="button"
-                  onClick={() => void changeStav(30)}
+                  onClick={() => setModal({ type: 'confirmStav', stav: 30 })}
                   disabled={!detail || !canFinish || savingStav !== null}
                   title={
                     canFinish
@@ -380,7 +383,7 @@ export default function SkoleniDetailClient({
             <div>
               <h2 className="text-lg font-semibold text-white">Účastníci školení</h2>
               <p className="text-sm text-gray-400 mt-1">
-                Účastník, e-mail, účast a stav dotazníku
+                Účastník, e-mail, účast, stav a odeslání dotazníku
               </p>
             </div>
             <div className="flex flex-wrap items-end gap-4">
@@ -491,8 +494,23 @@ export default function SkoleniDetailClient({
             )
             if (!result.ok) return result
             setModal({ type: 'closed' })
-            setNotice({ tone: 'ok', text: 'Dotazník byl odeslán znovu.' })
+            setNotice({ tone: 'ok', text: 'Dotazník byl odeslán.' })
+            setLoadingUcastnici(true)
+            await fetchAll()
             return result
+          }}
+        />
+      ) : null}
+
+      {modal.type === 'confirmStav' ? (
+        <ConfirmStavDialog
+          stav={modal.stav}
+          saving={savingStav !== null}
+          onClose={() => setModal({ type: 'closed' })}
+          onConfirm={() => {
+            const stav = modal.stav
+            setModal({ type: 'closed' })
+            void changeStav(stav)
           }}
         />
       ) : null}
@@ -617,6 +635,50 @@ function Kv({
         {children}
       </div>
     </div>
+  )
+}
+
+function ConfirmStavDialog({
+  stav,
+  saving,
+  onClose,
+  onConfirm,
+}: {
+  stav: 20 | 30
+  saving: boolean
+  onClose: () => void
+  onConfirm: () => void
+}) {
+  const isStart = stav === 20
+
+  return (
+    <FormDialog
+      title={isStart ? 'Zahájit školení?' : 'Ukončit školení?'}
+      description={
+        isStart
+          ? 'Opravdu chcete zahájit toto školení? Tuto akci nelze v portálu vrátit zpět.'
+          : 'Opravdu chcete ukončit toto školení? Tuto akci nelze v portálu vrátit zpět.'
+      }
+      onClose={onClose}
+    >
+      <div className="flex justify-end gap-2">
+        <button type="button" onClick={onClose} disabled={saving} className={secondaryBtn}>
+          Zrušit
+        </button>
+        <button
+          type="button"
+          onClick={onConfirm}
+          disabled={saving}
+          className={
+            isStart
+              ? primaryBtn
+              : 'px-4 py-2 bg-amber-600 text-white rounded-md hover:bg-amber-700 transition-colors disabled:opacity-40 disabled:cursor-not-allowed'
+          }
+        >
+          {isStart ? 'Zahájit školení' : 'Ukončit školení'}
+        </button>
+      </div>
+    </FormDialog>
   )
 }
 
@@ -953,6 +1015,7 @@ function UcastniciTable({
             <th className="px-4 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Poznámka</th>
             <th className="px-4 py-3 text-center text-xs font-medium text-gray-300 uppercase tracking-wider">Účast</th>
             <th className="px-4 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Dotazník</th>
+            <th className="px-4 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Odesláno</th>
             <th className="px-4 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Akce</th>
           </tr>
         </thead>
@@ -988,6 +1051,17 @@ function UcastniciTable({
                 <td className="px-4 py-3 text-sm text-gray-200">
                   <DotaznikCell person={person} />
                 </td>
+                <td className="px-4 py-3 whitespace-nowrap text-sm">
+                  {person.odeslano ? (
+                    <span
+                      className={`inline-flex items-center px-2.5 py-0.5 rounded-full border text-xs font-medium ${getOdeslanoBadgeClass(person.odeslano)}`}
+                    >
+                      {person.odeslano}
+                    </span>
+                  ) : (
+                    <span className="text-gray-500">—</span>
+                  )}
+                </td>
                 <td className="px-4 py-3 text-sm">
                   <div className="flex flex-wrap items-center gap-2">
                     <button
@@ -1000,6 +1074,12 @@ function UcastniciTable({
                     <button
                       type="button"
                       onClick={() => onResendDotaznik(person)}
+                      disabled={isDotaznikVyplneny(person.dotaznik)}
+                      title={
+                        isDotaznikVyplneny(person.dotaznik)
+                          ? 'Dotazník už je vyplněný'
+                          : 'Odeslat dotazník e-mailem'
+                      }
                       className={smallBtn}
                     >
                       Odeslat dotazník
@@ -1016,11 +1096,27 @@ function UcastniciTable({
 
 function DotaznikCell({ person }: { person: SkoleniUcastnik }) {
   if (isDotaznikVyplneny(person.dotaznik)) {
-    return (
-      <span className="inline-flex items-center px-2.5 py-0.5 rounded-full border text-xs font-medium bg-green-900/60 text-green-200 border-green-700">
+    const badge = (
+      <span className="inline-flex items-center px-2.5 py-0.5 rounded-full border text-xs font-medium bg-green-900/60 text-green-200 border-green-700 group-hover:border-green-500 group-hover:text-white transition-colors">
         Vyplněný
       </span>
     )
+
+    if (person.odkaz_dotaznik) {
+      return (
+        <a
+          href={person.odkaz_dotaznik}
+          target="_blank"
+          rel="noopener noreferrer"
+          className={`${linkFocus}`}
+          title="Otevřít vyplněný dotazník"
+        >
+          {badge}
+        </a>
+      )
+    }
+
+    return badge
   }
 
   if (person.odkaz_dotaznik) {

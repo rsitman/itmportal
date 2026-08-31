@@ -84,6 +84,7 @@ export interface SkoleniUcastnik {
   poznamka: string
   ucast: string
   dotaznik: string
+  odeslano: string
   odkaz_dotaznik: string | null
 }
 
