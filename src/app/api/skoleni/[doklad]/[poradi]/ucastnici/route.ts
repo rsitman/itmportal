@@ -3,9 +3,11 @@ import { getServerSession } from 'next-auth'
 import { logger } from '@/lib/logger'
 import { authOptions } from '@/lib/auth'
 import {
-  buildSkoleniApiUrl,
+  fetchSkoleniJson,
   getSkoleniFetchErrorResponseBody,
   mapSkoleniUcastnici,
+  parseSkoleniRouteKey,
+  skoleniParticipantsApiUrl,
 } from '@/lib/skoleni-mapper'
 
 export async function GET(
@@ -20,33 +22,17 @@ export async function GET(
     }
 
     const resolvedParams = await params
-    const doklad = decodeURIComponent(resolvedParams.doklad).trim()
-    const poradiSkol = Number(resolvedParams.poradi)
+    const key = parseSkoleniRouteKey(resolvedParams.doklad, resolvedParams.poradi)
     const token = session.accessToken
 
-    if (!doklad || !Number.isFinite(poradiSkol)) {
+    if (!key) {
       return NextResponse.json({ error: 'Invalid školení key' }, { status: 400 })
     }
 
-    const fetchUrl = buildSkoleniApiUrl('/ucastnici', {
-      doklad,
-      poradi_skol: poradiSkol,
-    })
-    const headers: Record<string, string> = {
-      'User-Agent': 'NextJS-Server',
-      Accept: 'application/json',
-    }
-
-    if (token) {
-      headers.Authorization = `Bearer ${token}`
-    }
-
+    const fetchUrl = skoleniParticipantsApiUrl(key.doklad, key.poradiSkol)
     logger.log('Fetching skoleni ucastnici from:', fetchUrl)
 
-    const response = await fetch(fetchUrl, {
-      cache: 'no-store',
-      headers,
-    })
+    const response = await fetchSkoleniJson(fetchUrl, token)
 
     if (!response.ok) {
       logger.error('Failed to fetch skoleni ucastnici:', response.status)
@@ -56,16 +42,15 @@ export async function GET(
       )
     }
 
-    const rawData = await response.json()
-    const ucastnici = mapSkoleniUcastnici(rawData).filter((item) => {
-      const matchesDoklad = !item.doklad || item.doklad === doklad
-      const matchesPoradi = !item.poradi_skol || item.poradi_skol === poradiSkol
+    const ucastnici = mapSkoleniUcastnici(response.data).filter((item) => {
+      const matchesDoklad = !item.doklad || item.doklad === key.doklad
+      const matchesPoradi = !item.poradi_skol || item.poradi_skol === key.poradiSkol
       return matchesDoklad && matchesPoradi
     })
 
     return NextResponse.json({
-      doklad,
-      poradi_skol: poradiSkol,
+      doklad: key.doklad,
+      poradi_skol: key.poradiSkol,
       ucastnici,
       total: ucastnici.length,
     })

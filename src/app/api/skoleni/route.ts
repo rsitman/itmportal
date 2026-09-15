@@ -3,9 +3,11 @@ import { getServerSession } from 'next-auth'
 import { logger } from '@/lib/logger'
 import { authOptions } from '@/lib/auth'
 import {
-  getSkoleniApiUrl,
+  fetchSkoleniJson,
+  filterPortalSkoleniList,
   getSkoleniFetchErrorResponseBody,
   mapSkoleni,
+  skoleniListApiUrl,
 } from '@/lib/skoleni-mapper'
 
 export async function GET() {
@@ -16,23 +18,10 @@ export async function GET() {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    const token = session.accessToken
-    const fetchUrl = getSkoleniApiUrl()
-    const headers: Record<string, string> = {
-      'User-Agent': 'NextJS-Server',
-      Accept: 'application/json',
-    }
-
-    if (token) {
-      headers.Authorization = `Bearer ${token}`
-    }
-
+    const fetchUrl = skoleniListApiUrl()
     logger.log('Fetching skoleni from:', fetchUrl)
 
-    const response = await fetch(fetchUrl, {
-      cache: 'no-store',
-      headers,
-    })
+    const response = await fetchSkoleniJson(fetchUrl, session.accessToken)
 
     if (!response.ok) {
       logger.error('Failed to fetch from skoleni API:', response.status)
@@ -42,8 +31,7 @@ export async function GET() {
       )
     }
 
-    const rawData = await response.json()
-    const skoleni = mapSkoleni(rawData)
+    const skoleni = filterPortalSkoleniList(mapSkoleni(response.data))
 
     return NextResponse.json({
       skoleni,

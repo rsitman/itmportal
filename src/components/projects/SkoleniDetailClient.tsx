@@ -329,7 +329,7 @@ export default function SkoleniDetailClient({
                   disabled={!detail || !canFinish || savingStav !== null}
                   title={
                     canFinish
-                      ? 'Nastavit stav školení na ukončeno'
+                      ? 'Ukončit školení a odeslat e-maily účastníkům'
                       : 'Ukončit školení lze až po jeho zahájení'
                   }
                   className={
@@ -656,8 +656,8 @@ function ConfirmStavDialog({
       title={isStart ? 'Zahájit školení?' : 'Ukončit školení?'}
       description={
         isStart
-          ? 'Opravdu chcete zahájit toto školení? Tuto akci nelze v portálu vrátit zpět.'
-          : 'Opravdu chcete ukončit toto školení? Tuto akci nelze v portálu vrátit zpět.'
+          ? 'Opravdu chcete zahájit toto školení? Pokud ještě nemá dotazník, vygeneruje se a účastníkům vzniknou osobní odkazy. Tuto akci nelze v portálu vrátit zpět.'
+          : 'Opravdu chcete ukončit toto školení? Účastníkům s účastí Ano, kterým ještě neodešly maily, se rozešlou e-maily s odkazem na dotazník. Tuto akci nelze v portálu vrátit zpět.'
       }
       onClose={onClose}
     >

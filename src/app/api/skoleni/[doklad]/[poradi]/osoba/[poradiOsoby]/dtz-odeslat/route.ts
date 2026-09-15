@@ -3,8 +3,8 @@ import { getServerSession } from 'next-auth'
 import { logger } from '@/lib/logger'
 import { authOptions } from '@/lib/auth'
 import {
-  callSkoleniMutation,
   getSkoleniFetchErrorResponseBody,
+  mutateSkoleniDotaznik,
   parseSkoleniRouteKey,
 } from '@/lib/skoleni-mapper'
 
@@ -34,9 +34,11 @@ export async function POST(
 
     const e_mail = typeof body.e_mail === 'string' ? body.e_mail.trim() : ''
 
-    const result = await callSkoleniMutation(
-      `/osoba/dtz_odeslat/${encodeURIComponent(key.doklad)}/${encodeURIComponent(String(key.poradiSkol))}/${encodeURIComponent(String(poradiOsoby))}`,
-      e_mail ? { e_mail } : {},
+    const result = await mutateSkoleniDotaznik(
+      key.doklad,
+      key.poradiSkol,
+      poradiOsoby,
+      e_mail,
       session.accessToken
     )
 
@@ -44,7 +46,7 @@ export async function POST(
       return NextResponse.json({ error: result.message, message: result.message }, { status: result.status })
     }
 
-    return NextResponse.json({ ok: true, result: result.data })
+    return NextResponse.json({ ok: true, person: result.person })
   } catch (error) {
     logger.error('Error resending skoleni dotaznik:', error)
     const { status, body } = getSkoleniFetchErrorResponseBody(error)

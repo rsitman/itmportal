@@ -3,8 +3,8 @@ import { getServerSession } from 'next-auth'
 import { logger } from '@/lib/logger'
 import { authOptions } from '@/lib/auth'
 import {
-  callSkoleniMutation,
   getSkoleniFetchErrorResponseBody,
+  mutateSkoleniPoznamka,
   parseSkoleniRouteKey,
 } from '@/lib/skoleni-mapper'
 
@@ -33,10 +33,15 @@ export async function POST(
     }
 
     const poznamka = typeof body.poznamka === 'string' ? body.poznamka : ''
+    if (poznamka.length > 255) {
+      return NextResponse.json({ error: 'Poznámka může mít nejvýše 255 znaků.' }, { status: 400 })
+    }
 
-    const result = await callSkoleniMutation(
-      `/osoba/poznamka/${encodeURIComponent(key.doklad)}/${encodeURIComponent(String(key.poradiSkol))}/${encodeURIComponent(String(poradiOsoby))}`,
-      { poznamka },
+    const result = await mutateSkoleniPoznamka(
+      key.doklad,
+      key.poradiSkol,
+      poradiOsoby,
+      poznamka,
       session.accessToken
     )
 
@@ -44,7 +49,7 @@ export async function POST(
       return NextResponse.json({ error: result.message, message: result.message }, { status: result.status })
     }
 
-    return NextResponse.json({ ok: true, poznamka, result: result.data })
+    return NextResponse.json({ ok: true, poznamka, person: result.person })
   } catch (error) {
     logger.error('Error updating skoleni poznamka:', error)
     const { status, body } = getSkoleniFetchErrorResponseBody(error)

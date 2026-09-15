@@ -25,10 +25,13 @@ export function getSkoleniStavPhase(stav: string | null | undefined): SkoleniSta
 
   if (
     numeric === 30 ||
+    numeric === 40 ||
     normalized === 'ukončeno' ||
     normalized === 'ukonceno' ||
     normalized === 'dokončeno' ||
-    normalized === 'dokonceno'
+    normalized === 'dokonceno' ||
+    normalized === 'uzavřeno' ||
+    normalized === 'uzavreno'
   ) {
     return 'finished'
   }
@@ -44,11 +47,13 @@ export function formatSkoleniStav(stav: string | null | undefined): string {
   const raw = (stav ?? '').trim()
   if (!raw) return '—'
 
-  const phase = getSkoleniStavPhase(raw)
   if (/^\d+(\.0+)?$/.test(raw)) {
-    if (phase === 'finished') return 'Ukončeno'
-    if (phase === 'started') return 'Zahájeno'
-    if (Number(raw) === 10) return 'Plánováno'
+    const numeric = Number(raw)
+    if (numeric === 0) return 'Pořízeno'
+    if (numeric === 10) return 'Potvrzeno'
+    if (numeric === 20) return 'Zahájeno'
+    if (numeric === 30) return 'Ukončeno'
+    if (numeric === 40) return 'Uzavřeno'
   }
 
   return raw
@@ -66,6 +71,9 @@ export function getStavBadgeClass(stav: string): string {
   const normalized = normalizeStavKey(stav)
   const phase = getSkoleniStavPhase(stav)
 
+  if (normalized === 'uzavřeno' || normalized === 'uzavreno' || Number(normalized) === 40) {
+    return 'bg-slate-800/80 text-slate-200 border-slate-600'
+  }
   if (phase === 'finished') {
     return 'bg-emerald-900/60 text-emerald-200 border-emerald-700'
   }
@@ -121,13 +129,20 @@ export function isDotaznikOdeslan(value: string | null | undefined): boolean {
   return (
     normalized === 'odeslán' ||
     normalized === 'odeslan' ||
+    normalized === 've frontě' ||
+    normalized === 've fronte' ||
     normalized === 'ano' ||
     normalized === 'true' ||
-    normalized === '1'
+    normalized === '1' ||
+    normalized === '2'
   )
 }
 
 export function getOdeslanoBadgeClass(value: string): string {
+  const normalized = (value ?? '').trim().toLowerCase()
+  if (normalized === 've frontě' || normalized === 've fronte') {
+    return 'bg-amber-900/60 text-amber-200 border-amber-700'
+  }
   if (isDotaznikOdeslan(value)) {
     return 'bg-green-900/60 text-green-200 border-green-700'
   }

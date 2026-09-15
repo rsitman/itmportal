@@ -3,8 +3,8 @@ import { getServerSession } from 'next-auth'
 import { logger } from '@/lib/logger'
 import { authOptions } from '@/lib/auth'
 import {
-  callSkoleniMutation,
   getSkoleniFetchErrorResponseBody,
+  mutateSkoleniUcast,
   parseSkoleniRouteKey,
 } from '@/lib/skoleni-mapper'
 
@@ -37,9 +37,11 @@ export async function POST(
       return NextResponse.json({ error: 'Účast musí být 0 nebo 1.' }, { status: 400 })
     }
 
-    const result = await callSkoleniMutation(
-      `/osoba/ucast/${encodeURIComponent(key.doklad)}/${encodeURIComponent(String(key.poradiSkol))}/${encodeURIComponent(String(poradiOsoby))}`,
-      { ucast },
+    const result = await mutateSkoleniUcast(
+      key.doklad,
+      key.poradiSkol,
+      poradiOsoby,
+      ucast,
       session.accessToken
     )
 
@@ -47,7 +49,7 @@ export async function POST(
       return NextResponse.json({ error: result.message, message: result.message }, { status: result.status })
     }
 
-    return NextResponse.json({ ok: true, ucast, result: result.data })
+    return NextResponse.json({ ok: true, ucast, person: result.person })
   } catch (error) {
     logger.error('Error updating skoleni ucast:', error)
     const { status, body } = getSkoleniFetchErrorResponseBody(error)

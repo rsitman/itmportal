@@ -3,8 +3,8 @@ import { getServerSession } from 'next-auth'
 import { logger } from '@/lib/logger'
 import { authOptions } from '@/lib/auth'
 import {
-  callSkoleniMutation,
   getSkoleniFetchErrorResponseBody,
+  mutateSkoleniAddOsoba,
   parseSkoleniRouteKey,
 } from '@/lib/skoleni-mapper'
 
@@ -44,16 +44,14 @@ export async function POST(
       return NextResponse.json({ error: 'Jméno a příjmení jsou povinné.' }, { status: 400 })
     }
 
-    const result = await callSkoleniMutation(
-      '/osoba/add',
-      {
-        doklad: key.doklad,
-        poradi_skol: key.poradiSkol,
-        jmeno,
-        prijmeni,
-        e_mail,
-        poznamka,
-      },
+    if (poznamka.length > 255) {
+      return NextResponse.json({ error: 'Poznámka může mít nejvýše 255 znaků.' }, { status: 400 })
+    }
+
+    const result = await mutateSkoleniAddOsoba(
+      key.doklad,
+      key.poradiSkol,
+      { jmeno, prijmeni, e_mail, poznamka },
       session.accessToken
     )
 
@@ -61,7 +59,7 @@ export async function POST(
       return NextResponse.json({ error: result.message, message: result.message }, { status: result.status })
     }
 
-    return NextResponse.json({ ok: true, result: result.data })
+    return NextResponse.json({ ok: true, ucastnici: result.ucastnici })
   } catch (error) {
     logger.error('Error adding skoleni osoba:', error)
     const { status, body } = getSkoleniFetchErrorResponseBody(error)

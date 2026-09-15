@@ -3,9 +3,11 @@ import { getServerSession } from 'next-auth'
 import { logger } from '@/lib/logger'
 import { authOptions } from '@/lib/auth'
 import {
-  getSkoleniApiUrl,
+  fetchSkoleniJson,
+  filterPortalSkoleniList,
   getSkoleniFetchErrorResponseBody,
   mapSkoleni,
+  skoleniListApiUrl,
 } from '@/lib/skoleni-mapper'
 
 export async function GET(
@@ -20,24 +22,12 @@ export async function GET(
     }
 
     const resolvedParams = await params
-    const projectCode = resolvedParams.id
-    const token = session.accessToken
-    const fetchUrl = getSkoleniApiUrl()
-    const headers: Record<string, string> = {
-      'User-Agent': 'NextJS-Server',
-      Accept: 'application/json',
-    }
-
-    if (token) {
-      headers.Authorization = `Bearer ${token}`
-    }
+    const projectCode = decodeURIComponent(resolvedParams.id).trim()
+    const fetchUrl = skoleniListApiUrl(projectCode)
 
     logger.log(`Fetching skoleni for project ${projectCode} from:`, fetchUrl)
 
-    const response = await fetch(fetchUrl, {
-      cache: 'no-store',
-      headers,
-    })
+    const response = await fetchSkoleniJson(fetchUrl, session.accessToken)
 
     if (!response.ok) {
       logger.error('Failed to fetch from skoleni API:', response.status)
@@ -47,9 +37,9 @@ export async function GET(
       )
     }
 
-    const rawData = await response.json()
-    const allSkoleni = mapSkoleni(rawData)
-    const skoleni = allSkoleni.filter((item) => item.doklad === projectCode)
+    const skoleni = filterPortalSkoleniList(
+      mapSkoleni(response.data).filter((item) => !item.doklad || item.doklad === projectCode)
+    )
 
     return NextResponse.json({
       projectCode,

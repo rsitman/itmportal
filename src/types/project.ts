@@ -49,7 +49,7 @@ export interface SmallProject {
   sub_tasks: SmallProjectSubTask[]
 }
 
-// Training record from /rest/api/v1/skoleni
+// Training record from GET /web/training
 export interface Skoleni {
   doklad: string
   poradi_skol: number
@@ -68,13 +68,13 @@ export interface SkoleniExtraField {
   href?: string
 }
 
-// Training detail from /rest/api/v1/skoleni/detail
+// Training detail from GET /web/projects/{doklad}/training/{poradi_skol}
 export interface SkoleniDetail extends Skoleni {
   odkaz_anonymni_dotaznik: string | null
   extraFields: SkoleniExtraField[]
 }
 
-// Training participant from /rest/api/v1/skoleni/ucastnici
+// Training participant from GET /web/projects/{doklad}/training/{poradi_skol}/participants
 export interface SkoleniUcastnik {
   doklad: string
   poradi_skol: number

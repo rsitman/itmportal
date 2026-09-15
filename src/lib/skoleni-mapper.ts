@@ -4,13 +4,17 @@ import {
   SkoleniExtraField,
   SkoleniUcastnik,
 } from '@/types/project'
+import { getSkoleniStavPhase, isDotaznikOdeslan, isUcastPositive } from '@/lib/skoleni-format'
 import { logger } from '@/lib/logger'
 
 type RawRecord = Record<string, unknown>
 
+const DEFAULT_SKOLENI_API_BASE = 'http://apptest.itman.cz:5500/rest/api/v1'
+
 const SKOLENI_LIST_KEYS = ['doklad', 'poradi_skol', 'nazev_projektu', 'tema', 'skolitel', 'misto', 'datum', 'stav'] as const
 
 const DETAIL_URL_KEYS = [
+  'url',
   'odkaz_anonymni_dotaznik',
   'odkaz_dotaznik_anonym',
   'anonymni_dotaznik',
@@ -19,15 +23,14 @@ const DETAIL_URL_KEYS = [
   'url_dotaznik',
   'dotaznik_url',
   'odkaz',
-  'url',
 ]
 
 const PARTICIPANT_URL_KEYS = [
+  'url',
   'odkaz_dotaznik',
   'url_dotaznik',
   'dotaznik_url',
   'odkaz',
-  'url',
 ]
 
 const EXTRA_FIELD_LABELS: Record<string, string> = {
@@ -57,11 +60,21 @@ const EXTRA_FIELD_LABELS: Record<string, string> = {
 }
 
 const URL_RE = /^https?:\/\//i
+const WRITE_VERIFY_DELAY_MS = 400
+const MUTATION_NOOP_MESSAGE =
+  'Požadavek se odeslal, ale změna se v API neprojevila. Školení nebo osoba možná neexistuje.'
+
+function enc(value: string | number): string {
+  return encodeURIComponent(String(value))
+}
 
 export function getSkoleniApiUrl() {
-  return (
-    process.env.SKOLENI_API_URL || 'http://apptest.itman.cz:5500/rest/api/v1/skoleni'
-  ).replace(/\/$/, '')
+  let base = (process.env.SKOLENI_API_URL || DEFAULT_SKOLENI_API_BASE).replace(/\/$/, '')
+  // Old env values pointed at /skoleni; new routes live under /web/...
+  if (base.endsWith('/skoleni')) {
+    base = base.slice(0, -'/skoleni'.length)
+  }
+  return base
 }
 
 export function buildSkoleniApiUrl(path: string, query?: Record<string, string | number>): string {
@@ -76,6 +89,53 @@ export function buildSkoleniApiUrl(path: string, query?: Record<string, string |
   }
 
   return url.toString()
+}
+
+export function skoleniListApiUrl(doklad?: string) {
+  const query = { uko_uza: 1 }
+  if (doklad) {
+    return buildSkoleniApiUrl(`/web/projects/${enc(doklad)}/training`, query)
+  }
+  return buildSkoleniApiUrl('/web/training', query)
+}
+
+export function skoleniDetailApiUrl(doklad: string, poradiSkol: number) {
+  return buildSkoleniApiUrl(`/web/projects/${enc(doklad)}/training/${enc(poradiSkol)}`)
+}
+
+export function skoleniParticipantsApiUrl(doklad: string, poradiSkol: number) {
+  return buildSkoleniApiUrl(`/web/projects/${enc(doklad)}/training/${enc(poradiSkol)}/participants`)
+}
+
+export function skoleniStatusApiUrl(doklad: string, poradiSkol: number) {
+  return buildSkoleniApiUrl(`/web/projects/${enc(doklad)}/training/${enc(poradiSkol)}/status`)
+}
+
+export function skoleniAttendanceApiUrl(doklad: string, poradiSkol: number, poradiOsoby: number) {
+  return buildSkoleniApiUrl(
+    `/web/projects/${enc(doklad)}/training/${enc(poradiSkol)}/participants/${enc(poradiOsoby)}/attendance`
+  )
+}
+
+export function skoleniNoteApiUrl(doklad: string, poradiSkol: number, poradiOsoby: number) {
+  return buildSkoleniApiUrl(
+    `/web/projects/${enc(doklad)}/training/${enc(poradiSkol)}/participants/${enc(poradiOsoby)}/note`
+  )
+}
+
+export function skoleniQuestionnaireApiUrl(doklad: string, poradiSkol: number, poradiOsoby: number) {
+  return buildSkoleniApiUrl(
+    `/web/projects/${enc(doklad)}/training/${enc(poradiSkol)}/participants/${enc(poradiOsoby)}/questionnaire`
+  )
+}
+
+export function isClosedSkoleniStav(stav: string | null | undefined): boolean {
+  const normalized = (stav ?? '').trim().toLowerCase()
+  return normalized === 'uzavřeno' || normalized === 'uzavreno' || Number(normalized) === 40
+}
+
+export function filterPortalSkoleniList(items: Skoleni[]): Skoleni[] {
+  return items.filter((item) => !isClosedSkoleniStav(item.stav))
 }
 
 function toStringValue(value: unknown) {
@@ -293,32 +353,61 @@ function isApiErrorPayload(data: unknown): boolean {
   return status === 'error' || result === 'error' || record.ok === false
 }
 
-export async function callSkoleniMutation(
-  path: string,
-  query: Record<string, string | number | undefined>,
-  token?: string
-): Promise<{ ok: true; data: unknown } | { ok: false; status: number; message: string }> {
-  const filteredQuery: Record<string, string | number> = {}
-  for (const [key, value] of Object.entries(query)) {
-    if (value === undefined) continue
-    filteredQuery[key] = value
-  }
-
-  const url = buildSkoleniApiUrl(path, filteredQuery)
+function skoleniRequestHeaders(token?: string, jsonBody = false): Record<string, string> {
   const headers: Record<string, string> = {
     'User-Agent': 'NextJS-Server',
     Accept: 'application/json',
+  }
+
+  if (jsonBody) {
+    // KARAT decodes JSON as Windows-1250 unless charset is explicit; UTF-8 á then becomes Ăˇ.
+    headers['Content-Type'] = 'application/json; charset=utf-8'
   }
 
   if (token) {
     headers.Authorization = `Bearer ${token}`
   }
 
+  return headers
+}
+
+export async function fetchSkoleniJson(
+  url: string,
+  token?: string
+): Promise<{ ok: true; data: unknown } | { ok: false; status: number }> {
+  const response = await fetch(url, {
+    cache: 'no-store',
+    headers: skoleniRequestHeaders(token),
+  })
+
+  if (!response.ok) {
+    return { ok: false, status: response.status }
+  }
+
+  const text = await response.text()
+  if (!text.trim()) {
+    return { ok: true, data: [] }
+  }
+
+  try {
+    return { ok: true, data: JSON.parse(text) }
+  } catch {
+    return { ok: true, data: text }
+  }
+}
+
+export async function callSkoleniMutation(
+  url: string,
+  body: Record<string, unknown>,
+  token?: string
+): Promise<{ ok: true; data: unknown } | { ok: false; status: number; message: string }> {
   logger.log('Calling skoleni mutation:', url)
 
   const response = await fetch(url, {
+    method: 'POST',
     cache: 'no-store',
-    headers,
+    headers: skoleniRequestHeaders(token, true),
+    body: JSON.stringify(body),
   })
 
   const text = await response.text()
@@ -349,6 +438,192 @@ export async function callSkoleniMutation(
   }
 
   return { ok: true, data }
+}
+
+async function sleep(ms: number) {
+  await new Promise((resolve) => setTimeout(resolve, ms))
+}
+
+async function readAfterWrite<T>(read: () => Promise<T>, isApplied: (value: T) => boolean): Promise<T | null> {
+  const first = await read()
+  if (isApplied(first)) return first
+  await sleep(WRITE_VERIFY_DELAY_MS)
+  const second = await read()
+  return isApplied(second) ? second : null
+}
+
+export async function loadSkoleniDetail(
+  doklad: string,
+  poradiSkol: number,
+  token?: string
+): Promise<SkoleniDetail | null> {
+  const detailResponse = await fetchSkoleniJson(skoleniDetailApiUrl(doklad, poradiSkol), token)
+  if (detailResponse.ok) {
+    const detail = mapSkoleniDetail(detailResponse.data)
+    if (detail) return detail
+  }
+
+  const listResponse = await fetchSkoleniJson(skoleniListApiUrl(doklad), token)
+  if (!listResponse.ok) return null
+  const match = findSkoleniByKey(mapSkoleni(listResponse.data), doklad, poradiSkol)
+  return match ? skoleniFromListItem(match) : null
+}
+
+export async function loadSkoleniUcastnici(
+  doklad: string,
+  poradiSkol: number,
+  token?: string
+): Promise<SkoleniUcastnik[]> {
+  const response = await fetchSkoleniJson(skoleniParticipantsApiUrl(doklad, poradiSkol), token)
+  if (!response.ok) return []
+  return mapSkoleniUcastnici(response.data).filter((item) => {
+    const matchesDoklad = !item.doklad || item.doklad === doklad
+    const matchesPoradi = !item.poradi_skol || item.poradi_skol === poradiSkol
+    return matchesDoklad && matchesPoradi
+  })
+}
+
+function expectedUcastnikName(jmeno: string, prijmeni: string): string {
+  return `${prijmeni} ${jmeno}`.trim()
+}
+
+export async function mutateSkoleniStatus(
+  doklad: string,
+  poradiSkol: number,
+  stav: 20 | 30,
+  token?: string
+): Promise<{ ok: true; detail: SkoleniDetail } | { ok: false; status: number; message: string }> {
+  const result = await callSkoleniMutation(skoleniStatusApiUrl(doklad, poradiSkol), { stav }, token)
+  if (!result.ok) return result
+
+  const expectedPhase = stav === 20 ? 'started' : 'finished'
+  const verified = await readAfterWrite(
+    () => loadSkoleniDetail(doklad, poradiSkol, token),
+    (detail) => Boolean(detail && getSkoleniStavPhase(detail.stav) === expectedPhase)
+  )
+
+  if (!verified) {
+    return { ok: false, status: 400, message: MUTATION_NOOP_MESSAGE }
+  }
+
+  return { ok: true, detail: verified }
+}
+
+export async function mutateSkoleniAddOsoba(
+  doklad: string,
+  poradiSkol: number,
+  payload: { jmeno: string; prijmeni: string; e_mail: string; poznamka: string },
+  token?: string
+): Promise<{ ok: true; ucastnici: SkoleniUcastnik[] } | { ok: false; status: number; message: string }> {
+  const result = await callSkoleniMutation(skoleniParticipantsApiUrl(doklad, poradiSkol), payload, token)
+  if (!result.ok) return result
+
+  const expectedName = expectedUcastnikName(payload.jmeno, payload.prijmeni)
+  const verified = await readAfterWrite(
+    () => loadSkoleniUcastnici(doklad, poradiSkol, token),
+    (people) => people.some((person) => person.ucastnik === expectedName)
+  )
+
+  if (!verified) {
+    return { ok: false, status: 400, message: MUTATION_NOOP_MESSAGE }
+  }
+
+  return { ok: true, ucastnici: verified }
+}
+
+export async function mutateSkoleniUcast(
+  doklad: string,
+  poradiSkol: number,
+  poradiOsoby: number,
+  ucast: 0 | 1,
+  token?: string
+): Promise<{ ok: true; person: SkoleniUcastnik } | { ok: false; status: number; message: string }> {
+  const result = await callSkoleniMutation(
+    skoleniAttendanceApiUrl(doklad, poradiSkol, poradiOsoby),
+    { ucast },
+    token
+  )
+  if (!result.ok) return result
+
+  const verified = await readAfterWrite(
+    () => loadSkoleniUcastnici(doklad, poradiSkol, token),
+    (people) => {
+      const person = people.find((item) => item.poradi_osoba === poradiOsoby)
+      return Boolean(person && isUcastPositive(person.ucast) === (ucast === 1))
+    }
+  )
+
+  const person = verified?.find((item) => item.poradi_osoba === poradiOsoby)
+  if (!person) {
+    return { ok: false, status: 400, message: MUTATION_NOOP_MESSAGE }
+  }
+
+  return { ok: true, person }
+}
+
+export async function mutateSkoleniPoznamka(
+  doklad: string,
+  poradiSkol: number,
+  poradiOsoby: number,
+  poznamka: string,
+  token?: string
+): Promise<{ ok: true; person: SkoleniUcastnik } | { ok: false; status: number; message: string }> {
+  const result = await callSkoleniMutation(
+    skoleniNoteApiUrl(doklad, poradiSkol, poradiOsoby),
+    { poznamka },
+    token
+  )
+  if (!result.ok) return result
+
+  const verified = await readAfterWrite(
+    () => loadSkoleniUcastnici(doklad, poradiSkol, token),
+    (people) => {
+      const person = people.find((item) => item.poradi_osoba === poradiOsoby)
+      return Boolean(person && person.poznamka === poznamka.trim())
+    }
+  )
+
+  const person = verified?.find((item) => item.poradi_osoba === poradiOsoby)
+  if (!person) {
+    return { ok: false, status: 400, message: MUTATION_NOOP_MESSAGE }
+  }
+
+  return { ok: true, person }
+}
+
+export async function mutateSkoleniDotaznik(
+  doklad: string,
+  poradiSkol: number,
+  poradiOsoby: number,
+  e_mail: string,
+  token?: string
+): Promise<{ ok: true; person: SkoleniUcastnik } | { ok: false; status: number; message: string }> {
+  const result = await callSkoleniMutation(
+    skoleniQuestionnaireApiUrl(doklad, poradiSkol, poradiOsoby),
+    e_mail ? { e_mail } : {},
+    token
+  )
+  if (!result.ok) return result
+
+  const people = await readAfterWrite(
+    () => loadSkoleniUcastnici(doklad, poradiSkol, token),
+    (items) => {
+      const person = items.find((item) => item.poradi_osoba === poradiOsoby)
+      return Boolean(person && isDotaznikOdeslan(person.odeslano))
+    }
+  )
+
+  const person = people?.find((item) => item.poradi_osoba === poradiOsoby)
+  if (!person || !isDotaznikOdeslan(person.odeslano)) {
+    return {
+      ok: false,
+      status: 400,
+      message:
+        'Dotazník se nepodařilo odeslat. Školení možná ještě nemá vygenerovaný dotazník, nebo účastník nemá e-mail.',
+    }
+  }
+
+  return { ok: true, person }
 }
 
 export function getSkoleniFetchErrorResponseBody(error: unknown) {

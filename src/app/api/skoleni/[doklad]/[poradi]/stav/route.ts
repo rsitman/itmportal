@@ -3,8 +3,8 @@ import { getServerSession } from 'next-auth'
 import { logger } from '@/lib/logger'
 import { authOptions } from '@/lib/auth'
 import {
-  callSkoleniMutation,
   getSkoleniFetchErrorResponseBody,
+  mutateSkoleniStatus,
   parseSkoleniRouteKey,
 } from '@/lib/skoleni-mapper'
 
@@ -36,17 +36,13 @@ export async function POST(
       return NextResponse.json({ error: 'Stav musí být 20 nebo 30.' }, { status: 400 })
     }
 
-    const result = await callSkoleniMutation(
-      `/stav/${encodeURIComponent(key.doklad)}/${encodeURIComponent(String(key.poradiSkol))}`,
-      { stav },
-      session.accessToken
-    )
+    const result = await mutateSkoleniStatus(key.doklad, key.poradiSkol, stav, session.accessToken)
 
     if (!result.ok) {
       return NextResponse.json({ error: result.message, message: result.message }, { status: result.status })
     }
 
-    return NextResponse.json({ ok: true, stav, result: result.data })
+    return NextResponse.json({ ok: true, stav, detail: result.detail })
   } catch (error) {
     logger.error('Error updating skoleni stav:', error)
     const { status, body } = getSkoleniFetchErrorResponseBody(error)
