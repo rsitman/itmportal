@@ -1,3 +1,5 @@
+export const OBNOVA_VALUES = ['ITMAN', 'Zákazník', 'Externí firma'] as const
+
 export interface Database {
   projekt: string
   id_firmy: string
@@ -21,6 +23,8 @@ export interface Database {
   backup_full: string
   backup_inc: string
   denni_narust_mb: number
+  obnova: string
+  obnova_pozn: string
 }
 
 export interface DatabaseTable {

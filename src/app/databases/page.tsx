@@ -2,7 +2,7 @@ import { Metadata } from 'next'
 import { getServerSession } from 'next-auth'
 import { redirect } from 'next/navigation'
 import { authOptions } from '@/lib/auth'
-import { Database } from '@/types/database'
+import { Database, OBNOVA_VALUES } from '@/types/database'
 import AktualniStavDbClient from '@/components/databases/AktualniStavDbClient'
 import { fetchDatabasesFromErp } from '@/lib/databases-server'
 
@@ -10,6 +10,11 @@ type DbStatusFilter = '' | 'kriticke' | 'varovani' | 'ok'
 
 function normalizeStatusFilter(value: string | undefined): DbStatusFilter {
   return value === 'kriticke' || value === 'varovani' || value === 'ok' ? value : ''
+}
+
+function normalizeObnovaFilter(value: string | undefined): string {
+  const v = (value ?? '').trim()
+  return (OBNOVA_VALUES as readonly string[]).includes(v) ? v : ''
 }
 
 export const metadata: Metadata = {
@@ -20,7 +25,7 @@ export const metadata: Metadata = {
 export default async function AktualniStavDbPage({
   searchParams,
 }: {
-  searchParams: Promise<{ projekt?: string; stav?: string }>
+  searchParams: Promise<{ projekt?: string; stav?: string; obnova?: string }>
 }) {
   const session = await getServerSession(authOptions)
   if (!session) redirect('/login')
@@ -28,6 +33,7 @@ export default async function AktualniStavDbPage({
   const params = await searchParams
   const initialProjekt = params.projekt?.trim() ?? ''
   const initialStatus = normalizeStatusFilter(params.stav)
+  const initialObnova = normalizeObnovaFilter(params.obnova)
 
   let databases: Database[] = []
   let lastUpdated: string | null = null
@@ -48,6 +54,7 @@ export default async function AktualniStavDbPage({
           initialDatabases={databases}
           initialProjekt={initialProjekt}
           initialStatus={initialStatus}
+          initialObnova={initialObnova}
           lastUpdated={lastUpdated}
           serverError={errorMessage}
         />

@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import Link from 'next/link'
 import { usePathname, useRouter, useSearchParams } from 'next/navigation'
-import type { Database, DatabaseTable } from '@/types/database'
+import { OBNOVA_VALUES, type Database, type DatabaseTable } from '@/types/database'
 import { DatabaseService } from '@/lib/database-service'
 import DataChart, { type ChartSeries, type ChartType } from '@/components/charts/DataChart'
 import { useServiceProjects } from '@/lib/useServiceProjects'
@@ -14,6 +14,7 @@ type Props = {
   initialDatabases: Database[]
   initialProjekt: string
   initialStatus: DbStatusFilter
+  initialObnova: string
   lastUpdated: string | null
   serverError: string | null
 }
@@ -30,6 +31,24 @@ function normalize(value: string): string {
 
 function normalizeStatusFilter(value: string | null | undefined): DbStatusFilter {
   return value === 'kriticke' || value === 'varovani' || value === 'ok' ? value : ''
+}
+
+function normalizeObnovaFilter(value: string | null | undefined): string {
+  const v = (value ?? '').trim()
+  return (OBNOVA_VALUES as readonly string[]).includes(v) ? v : ''
+}
+
+function obnovaBadgeClass(value: string): string {
+  switch (value) {
+    case 'ITMAN':
+      return 'bg-emerald-500/15 text-emerald-300 border border-emerald-500/30'
+    case 'Zákazník':
+      return 'bg-sky-500/15 text-sky-300 border border-sky-500/30'
+    case 'Externí firma':
+      return 'bg-amber-500/15 text-amber-200 border border-amber-500/30'
+    default:
+      return 'bg-gray-500/20 text-gray-400 border border-gray-500/30'
+  }
 }
 
 function clampInt(n: number, min: number, max: number): number {
@@ -210,6 +229,8 @@ function FiltryAktualnihoStavuDb({
   onClearProject,
   selectedStatus,
   onStatusChange,
+  selectedObnova,
+  onObnovaChange,
   projectLabel,
   projectOptions,
   filteredCount,
@@ -225,6 +246,8 @@ function FiltryAktualnihoStavuDb({
   onClearProject: () => void
   selectedStatus: DbStatusFilter
   onStatusChange: (v: string) => void
+  selectedObnova: string
+  onObnovaChange: (v: string) => void
   projectLabel: string | null
   projectOptions: { value: string; label: string }[]
   filteredCount: number
@@ -253,7 +276,7 @@ function FiltryAktualnihoStavuDb({
 
         <div className="rounded-lg border border-gray-700/50 bg-gray-900/30 px-3 py-2.5 md:px-3.5 md:py-2.5">
           <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between sm:gap-3">
-            <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:gap-3 w-full min-w-0">
+            <div className="flex flex-col gap-2 sm:flex-row sm:flex-wrap sm:items-end sm:gap-3 w-full min-w-0">
               <div className="w-full min-w-0 sm:max-w-md">
                 <label htmlFor="db-search" className="block text-xs font-medium text-gray-400 mb-0.5">
                   Hledat
@@ -263,7 +286,7 @@ function FiltryAktualnihoStavuDb({
                   type="text"
                   value={searchTerm}
                   onChange={(e) => onSearchChange(e.target.value)}
-                  placeholder="Firma, projekt, DB, ID firmy…"
+                  placeholder="Firma, projekt, DB, obnova…"
                   className="w-full pl-3.5 pr-3.5 py-2.5 rounded-lg bg-gray-800/80 border border-gray-600/60 text-sm text-white placeholder-gray-500 focus:outline-none focus-visible:ring-2 focus-visible:ring-green-500/50 focus-visible:ring-offset-2 focus-visible:ring-offset-gray-900 focus-visible:border-green-500/50"
                 />
               </div>
@@ -282,6 +305,25 @@ function FiltryAktualnihoStavuDb({
                   {projectOptions.map((p) => (
                     <option key={p.value} value={p.value}>
                       {p.label}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div className="w-full sm:w-44">
+                <label htmlFor="db-obnova" className="block text-xs font-medium text-gray-400 mb-0.5">
+                  Obnova
+                </label>
+                <select
+                  id="db-obnova"
+                  value={selectedObnova}
+                  onChange={(e) => onObnovaChange(e.target.value)}
+                  className="w-full pl-3 pr-3 py-2.5 rounded-lg bg-gray-800/80 border border-gray-600/60 text-sm text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-green-500/50 focus-visible:ring-offset-2 focus-visible:ring-offset-gray-900 focus-visible:border-green-500/50"
+                >
+                  <option value="">Všechny</option>
+                  {OBNOVA_VALUES.map((o) => (
+                    <option key={o} value={o}>
+                      {o}
                     </option>
                   ))}
                 </select>
@@ -385,6 +427,20 @@ function KartaDatabaze({
           <div className="text-gray-200 tabular-nums">{daysLabel}</div>
         </div>
       </div>
+      <div
+        className="mt-2 flex items-center gap-1.5 min-w-0 text-xs"
+        title={db.obnova_pozn ? `${db.obnova || '—'} · ${db.obnova_pozn}` : db.obnova || undefined}
+      >
+        <span className="text-gray-500 shrink-0">Obnova</span>
+        {db.obnova ? (
+          <span className={`inline-flex px-1.5 py-0.5 text-[11px] font-semibold rounded-full shrink-0 ${obnovaBadgeClass(db.obnova)}`}>
+            {db.obnova}
+          </span>
+        ) : (
+          <span className="text-gray-400">—</span>
+        )}
+        {db.obnova_pozn ? <span className="text-gray-400 truncate">{db.obnova_pozn}</span> : null}
+      </div>
     </button>
   )
 }
@@ -416,13 +472,15 @@ function SeznamDatabazi({
 
       {/* Desktop: table-like — compact but čitelný */}
       <div className="hidden md:block overflow-x-auto">
-        <div className="min-w-[760px]">
+        <div className="min-w-[1040px]">
           <div className="flex border-b border-gray-700 bg-gray-800/50 text-[11px] font-medium uppercase tracking-wide text-gray-500">
             <div className="px-3 py-2.5 flex-1 min-w-[220px]">Databáze / Firma</div>
             <div className="px-2 py-2 w-[72px] flex-shrink-0 text-center">Data %</div>
             <div className="px-2 py-2 w-[72px] flex-shrink-0 text-center">Log %</div>
             <div className="px-2 py-2 w-[76px] flex-shrink-0 text-center">Dny</div>
             <div className="px-2 py-2 w-[70px] flex-shrink-0 text-center">Rec.</div>
+            <div className="px-2 py-2 w-[120px] flex-shrink-0">Obnova</div>
+            <div className="px-2 py-2 w-[148px] flex-shrink-0">Pozn. k obnově</div>
             <div className="px-3 py-2 w-[132px] flex-shrink-0 text-right">Posl. full</div>
           </div>
 
@@ -498,6 +556,21 @@ function SeznamDatabazi({
                   >
                     {db.recovery_model === 'FULL' ? 'FULL' : (db.recovery_model || '—')}
                   </span>
+                </div>
+                <div className="px-2 py-2 w-[120px] flex-shrink-0 flex items-center min-w-0">
+                  {db.obnova ? (
+                    <span className={`inline-flex max-w-full px-1.5 py-0.5 text-[11px] font-semibold rounded-full truncate ${obnovaBadgeClass(db.obnova)}`}>
+                      {db.obnova}
+                    </span>
+                  ) : (
+                    <span className="text-xs text-gray-500">—</span>
+                  )}
+                </div>
+                <div
+                  className="px-2 py-2 w-[148px] flex-shrink-0 flex items-center min-w-0 text-xs text-gray-200"
+                  title={db.obnova_pozn || undefined}
+                >
+                  <span className="truncate">{db.obnova_pozn || '—'}</span>
                 </div>
                 <div className="px-3 py-2 w-[132px] flex-shrink-0 text-right text-xs text-gray-200 tabular-nums">
                   <div className="leading-tight">{date}</div>
@@ -949,6 +1022,22 @@ function DetailDatabaze({
               </span>
             </div>
 
+            <div className="text-gray-500">Obnova</div>
+            <div className="text-gray-200">
+              {selectedDb.obnova ? (
+                <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${obnovaBadgeClass(selectedDb.obnova)}`}>
+                  {selectedDb.obnova}
+                </span>
+              ) : (
+                '—'
+              )}
+            </div>
+
+            <div className="text-gray-500">Poznámka k obnově</div>
+            <div className="text-gray-200 break-words" title={selectedDb.obnova_pozn || undefined}>
+              {selectedDb.obnova_pozn || '—'}
+            </div>
+
             <div className="text-gray-500">Verze</div>
             <div className="text-gray-200 font-mono text-[11px]">{selectedDb.verze || '—'}</div>
 
@@ -995,6 +1084,7 @@ export default function AktualniStavDbClient({
   initialDatabases,
   initialProjekt,
   initialStatus,
+  initialObnova,
   lastUpdated,
   serverError,
 }: Props) {
@@ -1006,6 +1096,7 @@ export default function AktualniStavDbClient({
   const [selectedCompany, setSelectedCompany] = useState('')
   const [selectedProject, setSelectedProject] = useState(initialProjekt)
   const [selectedStatus, setSelectedStatus] = useState(initialStatus)
+  const [selectedObnova, setSelectedObnova] = useState(() => normalizeObnovaFilter(initialObnova))
   const [mobileDetailOpen, setMobileDetailOpen] = useState(false)
   const mobileDetailCloseButtonRef = useRef<HTMLButtonElement>(null)
   const restoreFocusRef = useRef<HTMLElement | null>(null)
@@ -1063,7 +1154,9 @@ export default function AktualniStavDbClient({
         normalize(d.firma_nazev).includes(q) ||
         normalize(d.projekt).includes(q) ||
         normalize(d.databaze).includes(q) ||
-        normalize(d.id_firmy).includes(q)
+        normalize(d.id_firmy).includes(q) ||
+        normalize(d.obnova ?? '').includes(q) ||
+        normalize(d.obnova_pozn ?? '').includes(q)
 
       const matchesCompany = !selectedCompany || d.firma_nazev === selectedCompany
       const matchesProject = !selectedProject || d.projekt === selectedProject
@@ -1072,10 +1165,11 @@ export default function AktualniStavDbClient({
         (selectedStatus === 'kriticke' && isCritical(d)) ||
         (selectedStatus === 'varovani' && isWarning(d)) ||
         (selectedStatus === 'ok' && !isCritical(d) && !isWarning(d))
+      const matchesObnova = !selectedObnova || d.obnova === selectedObnova
 
-      return matchesSearch && matchesCompany && matchesProject && matchesStatus
+      return matchesSearch && matchesCompany && matchesProject && matchesStatus && matchesObnova
     })
-  }, [databases, searchTerm, selectedCompany, selectedProject, selectedStatus])
+  }, [databases, searchTerm, selectedCompany, selectedProject, selectedStatus, selectedObnova])
 
   const overview = useMemo(() => {
     const total = filteredDatabases.length
@@ -1148,6 +1242,16 @@ export default function AktualniStavDbClient({
     router.replace(qs ? `${pathname}?${qs}` : pathname)
   }
 
+  const onObnovaChange = (value: string) => {
+    const normalized = normalizeObnovaFilter(value)
+    setSelectedObnova(normalized)
+    const current = new URLSearchParams(searchParams?.toString() ?? '')
+    if (normalized) current.set('obnova', normalized)
+    else current.delete('obnova')
+    const qs = current.toString()
+    router.replace(qs ? `${pathname}?${qs}` : pathname)
+  }
+
   const onRefresh = () => {
     router.refresh()
   }
@@ -1216,6 +1320,8 @@ export default function AktualniStavDbClient({
         onClearProject={onClearProject}
         selectedStatus={selectedStatus}
         onStatusChange={onStatusChange}
+        selectedObnova={selectedObnova}
+        onObnovaChange={onObnovaChange}
         projectLabel={selectedProjectLabel}
         projectOptions={projectOptions}
         filteredCount={filteredDatabases.length}

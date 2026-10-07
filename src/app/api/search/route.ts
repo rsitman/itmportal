@@ -449,6 +449,8 @@ export async function GET(request: NextRequest) {
             getDbField(d, 'recovery_model'),
             getDbField(d, 'collation_name'),
             getDbField(d, 'compatibility_level'),
+            getDbField(d, 'obnova'),
+            getDbField(d, 'obnova_pozn'),
           ]
           return fields.some((v) => v.toLowerCase().includes(qLower))
         })
@@ -467,6 +469,9 @@ export async function GET(request: NextRequest) {
         snippet: [
           `Verze: ${getDbField(d, 'verze') || '—'}`,
           `Recovery: ${getDbField(d, 'recovery_model') || '—'}`,
+          `Obnova: ${getDbField(d, 'obnova') || '—'}${
+            getDbField(d, 'obnova_pozn') ? ` (${getDbField(d, 'obnova_pozn')})` : ''
+          }`,
           `Compatibility: ${getDbField(d, 'compatibility_level') || '—'}`,
         ].join(' · '),
         url: `/databases?${qs.toString()}`,
@@ -479,6 +484,8 @@ export async function GET(request: NextRequest) {
           recovery_model: getDbField(d, 'recovery_model'),
           collation_name: getDbField(d, 'collation_name'),
           compatibility_level: getDbField(d, 'compatibility_level'),
+          obnova: getDbField(d, 'obnova'),
+          obnova_pozn: getDbField(d, 'obnova_pozn'),
         },
       }
     })
