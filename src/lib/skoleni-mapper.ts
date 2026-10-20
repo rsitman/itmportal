@@ -4,7 +4,7 @@ import {
   SkoleniExtraField,
   SkoleniUcastnik,
 } from '@/types/project'
-import { getSkoleniStavPhase, isDotaznikOdeslan, isUcastPositive } from '@/lib/skoleni-format'
+import { getSkoleniStavPhase, isDotaznikOdeslan, isUcastPositive, validateSkoleniTimesBody } from '@/lib/skoleni-format'
 import { logger } from '@/lib/logger'
 
 type RawRecord = Record<string, unknown>
@@ -63,6 +63,7 @@ const URL_RE = /^https?:\/\//i
 const WRITE_VERIFY_DELAY_MS = 400
 const MUTATION_NOOP_MESSAGE =
   'Požadavek se odeslal, ale změna se v API neprojevila. Školení nebo osoba možná neexistuje.'
+const SKOLENI_ZAPIS_ERROR = 'Požadavek se nepodařilo zpracovat.'
 
 function enc(value: string | number): string {
   return encodeURIComponent(String(value))
@@ -121,6 +122,14 @@ export function skoleniNoteApiUrl(doklad: string, poradiSkol: number, poradiOsob
   return buildSkoleniApiUrl(
     `/web/projects/${enc(doklad)}/training/${enc(poradiSkol)}/participants/${enc(poradiOsoby)}/note`
   )
+}
+
+export function skoleniTrainingNoteApiUrl(doklad: string, poradiSkol: number) {
+  return buildSkoleniApiUrl(`/web/projects/${enc(doklad)}/training/${enc(poradiSkol)}/note`)
+}
+
+export function skoleniTrainingTimesApiUrl(doklad: string, poradiSkol: number) {
+  return buildSkoleniApiUrl(`/web/projects/${enc(doklad)}/training/${enc(poradiSkol)}/times`)
 }
 
 export function skoleniQuestionnaireApiUrl(doklad: string, poradiSkol: number, poradiOsoby: number) {
@@ -279,16 +288,21 @@ export function mapSkoleniDetail(rawData: unknown): SkoleniDetail | null {
 }
 
 function mapSkoleniDetailRow(row: RawRecord): SkoleniDetail {
-  const usedKeys = new Set<string>(SKOLENI_LIST_KEYS)
+  const usedKeys = new Set<string>([...SKOLENI_LIST_KEYS, 'zahajeni', 'ukonceni', 'poznamka'])
   const odkaz = pickFirstUrl(row, DETAIL_URL_KEYS)
   for (const key of DETAIL_URL_KEYS) {
     if (key in row) usedKeys.add(key)
   }
 
+  const poznamka = typeof row.poznamka === 'string' ? row.poznamka.replace(/\r\n/g, '\n') : toStringValue(row.poznamka)
+
   return {
     ...mapSkoleniRow(row),
     odkaz_anonymni_dotaznik: odkaz,
     extraFields: remainingExtraFields(row, usedKeys),
+    zahajeni: toDateValue(row.zahajeni),
+    ukonceni: toDateValue(row.ukonceni),
+    poznamka,
   }
 }
 
@@ -329,6 +343,9 @@ export function skoleniFromListItem(item: Skoleni): SkoleniDetail {
     ...item,
     odkaz_anonymni_dotaznik: null,
     extraFields: [],
+    zahajeni: null,
+    ukonceni: null,
+    poznamka: '',
   }
 }
 
@@ -399,7 +416,8 @@ export async function fetchSkoleniJson(
 export async function callSkoleniMutation(
   url: string,
   body: Record<string, unknown>,
-  token?: string
+  token?: string,
+  options?: { opaqueError?: boolean }
 ): Promise<{ ok: true; data: unknown } | { ok: false; status: number; message: string }> {
   logger.log('Calling skoleni mutation:', url)
 
@@ -425,7 +443,9 @@ export async function callSkoleniMutation(
     return {
       ok: false,
       status: response.status,
-      message: pickApiMessage(data, 'Požadavek se nepodařilo odeslat do API školení.'),
+      message: options?.opaqueError
+        ? SKOLENI_ZAPIS_ERROR
+        : pickApiMessage(data, 'Požadavek se nepodařilo odeslat do API školení.'),
     }
   }
 
@@ -433,7 +453,7 @@ export async function callSkoleniMutation(
     return {
       ok: false,
       status: 400,
-      message: pickApiMessage(data, 'API školení vrátilo chybu.'),
+      message: options?.opaqueError ? SKOLENI_ZAPIS_ERROR : pickApiMessage(data, 'API školení vrátilo chybu.'),
     }
   }
 
@@ -507,6 +527,52 @@ export async function mutateSkoleniStatus(
   }
 
   return { ok: true, detail: verified }
+}
+
+export async function mutateSkoleniZapis(
+  doklad: string,
+  poradiSkol: number,
+  poznamka: string,
+  token?: string
+): Promise<{ ok: true; detail: SkoleniDetail | null } | { ok: false; status: number; message: string }> {
+  const result = await callSkoleniMutation(
+    skoleniTrainingNoteApiUrl(doklad, poradiSkol),
+    { poznamka },
+    token,
+    { opaqueError: true }
+  )
+  if (!result.ok) return result
+
+  const detail = await loadSkoleniDetail(doklad, poradiSkol, token)
+  return { ok: true, detail }
+}
+
+export async function mutateSkoleniCasy(
+  doklad: string,
+  poradiSkol: number,
+  body: { zahajeni?: unknown; ukonceni?: unknown },
+  token?: string
+): Promise<{ ok: true; detail: SkoleniDetail | null } | { ok: false; status: number; message: string }> {
+  const current = await loadSkoleniDetail(doklad, poradiSkol, token)
+  if (!current) {
+    return { ok: false, status: 404, message: 'Školení nebylo nalezeno.' }
+  }
+
+  const validated = validateSkoleniTimesBody(current.zahajeni, current.ukonceni, body)
+  if (!validated.ok) {
+    return { ok: false, status: 400, message: validated.message }
+  }
+
+  const result = await callSkoleniMutation(
+    skoleniTrainingTimesApiUrl(doklad, poradiSkol),
+    validated.body,
+    token,
+    { opaqueError: true }
+  )
+  if (!result.ok) return result
+
+  const detail = await loadSkoleniDetail(doklad, poradiSkol, token)
+  return { ok: true, detail }
 }
 
 export async function mutateSkoleniAddOsoba(

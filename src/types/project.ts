@@ -72,6 +72,9 @@ export interface SkoleniExtraField {
 export interface SkoleniDetail extends Skoleni {
   odkaz_anonymni_dotaznik: string | null
   extraFields: SkoleniExtraField[]
+  zahajeni: string | null
+  ukonceni: string | null
+  poznamka: string
 }
 
 // Training participant from GET /web/projects/{doklad}/training/{poradi_skol}/participants

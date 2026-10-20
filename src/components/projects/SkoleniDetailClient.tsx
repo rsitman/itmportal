@@ -10,11 +10,14 @@ import {
   canStartSkoleni,
   displayText,
   formatSkoleniDate,
+  formatSkoleniDateTime,
   formatSkoleniStav,
   getStavBadgeClass,
   getOdeslanoBadgeClass,
   isDotaznikVyplneny,
   isUcastPositive,
+  skoleniDateTimeInputValue,
+  skoleniTimesFromInputs,
 } from '@/lib/skoleni-format'
 
 type SkoleniDetailClientProps = {
@@ -45,6 +48,8 @@ type ModalState =
   | { type: 'closed' }
   | { type: 'add' }
   | { type: 'note'; person: SkoleniUcastnik }
+  | { type: 'zapis' }
+  | { type: 'casy' }
   | { type: 'resend'; person: SkoleniUcastnik }
   | { type: 'confirmStav'; stav: 20 | 30 }
 
@@ -374,7 +379,12 @@ export default function SkoleniDetailClient({
               {detailError}
             </div>
           ) : detail ? (
-            <DetailFields detail={detail} projectHref={projectHref} />
+            <DetailFields
+              detail={detail}
+              projectHref={projectHref}
+              onEditCasy={() => setModal({ type: 'casy' })}
+              onEditPoznamka={() => setModal({ type: 'zapis' })}
+            />
           ) : null}
         </div>
 
@@ -456,6 +466,39 @@ export default function SkoleniDetailClient({
         />
       ) : null}
 
+      {modal.type === 'zapis' && detail ? (
+        <ZapisModal
+          poznamka={detail.poznamka}
+          onClose={() => setModal({ type: 'closed' })}
+          onSubmit={async (poznamka) => {
+            const result = await postSkoleniAction(skoleniApiPath(doklad, poradiSkol, '/poznamka'), { poznamka })
+            if (!result.ok) return result
+            setModal({ type: 'closed' })
+            setNotice({ tone: 'ok', text: 'Poznámka byla uložena.' })
+            setLoadingDetail(true)
+            await fetchAll()
+            return result
+          }}
+        />
+      ) : null}
+
+      {modal.type === 'casy' && detail ? (
+        <CasyModal
+          zahajeni={detail.zahajeni}
+          ukonceni={detail.ukonceni}
+          onClose={() => setModal({ type: 'closed' })}
+          onSubmit={async (body) => {
+            const result = await postSkoleniAction(skoleniApiPath(doklad, poradiSkol, '/casy'), body)
+            if (!result.ok) return result
+            setModal({ type: 'closed' })
+            setNotice({ tone: 'ok', text: 'Časy školení byly uloženy.' })
+            setLoadingDetail(true)
+            await fetchAll()
+            return result
+          }}
+        />
+      ) : null}
+
       {modal.type === 'note' ? (
         <PoznamkaModal
           person={modal.person}
@@ -518,12 +561,27 @@ export default function SkoleniDetailClient({
   )
 }
 
+const UCASTNICI_COUNT_KEYS = ['pocet_ucastniku', 'pocet_nevyplnenych', 'pocet_vyplnenych'] as const
+
+function countFields(fields: SkoleniExtraField[]): SkoleniExtraField[] {
+  return UCASTNICI_COUNT_KEYS.flatMap((key) => fields.filter((field) => field.key === key))
+}
+
+function otherExtraFields(fields: SkoleniExtraField[]): SkoleniExtraField[] {
+  const countKeys = new Set<string>(UCASTNICI_COUNT_KEYS)
+  return fields.filter((field) => !countKeys.has(field.key))
+}
+
 function DetailFields({
   detail,
   projectHref,
+  onEditCasy,
+  onEditPoznamka,
 }: {
   detail: SkoleniDetail
   projectHref: string
+  onEditCasy: () => void
+  onEditPoznamka: () => void
 }) {
   return (
     <div className="mt-5 grid grid-cols-1 xl:grid-cols-[minmax(0,1fr)_auto] gap-6 items-start min-w-0">
@@ -547,6 +605,15 @@ function DetailFields({
         <Kv label="Školitel">{displayText(detail.skolitel)}</Kv>
         <Kv label="Místo">{displayText(detail.misto)}</Kv>
         <Kv label="Datum">{formatSkoleniDate(detail.datum)}</Kv>
+        <Kv label="Zahájení">{formatSkoleniDateTime(detail.zahajeni)}</Kv>
+        <Kv label="Ukončení">{formatSkoleniDateTime(detail.ukonceni)}</Kv>
+        <div className="grid grid-cols-1 sm:col-span-2 sm:grid-cols-2 lg:col-span-3 lg:grid-cols-3 gap-x-6 gap-y-4">
+          {countFields(detail.extraFields).map((field) => (
+            <Kv key={field.key} label={field.label}>
+              <ExtraFieldValue field={field} />
+            </Kv>
+          ))}
+        </div>
         <Kv label="Stav">
             {detail.stav ? (
               <span
@@ -558,14 +625,30 @@ function DetailFields({
               '—'
             )}
         </Kv>
-        {detail.extraFields.map((field) => (
+        {otherExtraFields(detail.extraFields).map((field) => (
           <Kv key={field.key} label={field.label}>
             <ExtraFieldValue field={field} />
           </Kv>
         ))}
+        <div className="sm:col-span-2 lg:col-span-3 min-w-0">
+          <div className="text-[11px] font-medium uppercase tracking-wide text-gray-500">Poznámka</div>
+          <div className="mt-0.5 text-sm text-gray-200 whitespace-pre-wrap break-words">
+            {detail.poznamka.trim() ? detail.poznamka : '—'}
+          </div>
+        </div>
       </div>
 
-      <AnonymniDotaznikQr url={detail.odkaz_anonymni_dotaznik} />
+      <div className="flex w-full max-w-[220px] flex-col gap-3 xl:w-[220px]">
+        <AnonymniDotaznikQr url={detail.odkaz_anonymni_dotaznik} />
+        <div className="flex flex-col gap-2">
+          <button type="button" onClick={onEditCasy} className={`${smallBtn} w-full`}>
+            Upravit časy
+          </button>
+          <button type="button" onClick={onEditPoznamka} className={`${smallBtn} w-full`}>
+            Upravit poznámku
+          </button>
+        </div>
+      </div>
     </div>
   )
 }
@@ -575,7 +658,7 @@ function AnonymniDotaznikQr({ url }: { url: string | null }) {
 
   if (!url) {
     return (
-      <aside className="rounded-lg border border-gray-700/60 bg-gray-900/40 px-4 py-4 w-fit max-w-full min-w-0 xl:w-[220px]">
+      <aside className="w-full rounded-lg border border-gray-700/60 bg-gray-900/40 px-4 py-4 min-w-0">
         <div className="text-[11px] font-medium uppercase tracking-wide text-gray-500">
           Anonymní dotazník
         </div>
@@ -585,7 +668,7 @@ function AnonymniDotaznikQr({ url }: { url: string | null }) {
   }
 
   return (
-    <aside className="rounded-lg border border-gray-700/60 bg-gray-900/40 px-4 py-4 w-fit max-w-full min-w-0 xl:w-[220px] flex flex-col">
+    <aside className="flex w-full min-w-0 flex-col rounded-lg border border-gray-700/60 bg-gray-900/40 px-4 py-4">
       <div className="text-[11px] font-medium uppercase tracking-wide text-gray-500">
         Anonymní dotazník
       </div>
@@ -694,11 +777,13 @@ function FormDialog({
   description,
   children,
   onClose,
+  wide = false,
 }: {
   title: string
   description?: string
   children: ReactNode
   onClose: () => void
+  wide?: boolean
 }) {
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4" role="dialog" aria-modal="true" aria-labelledby="skoleni-dialog-title">
@@ -708,7 +793,7 @@ function FormDialog({
         onClick={onClose}
         aria-label="Zavřít"
       />
-      <div className="relative w-full max-w-md rounded-lg border border-gray-700/70 bg-gray-900 p-5 shadow-xl">
+      <div className={`relative w-full ${wide ? 'max-w-xl' : 'max-w-md'} rounded-lg border border-gray-700/70 bg-gray-900 p-5 shadow-xl`}>
         <h3 id="skoleni-dialog-title" className="text-lg font-semibold text-white">
           {title}
         </h3>
@@ -820,6 +905,157 @@ function AddOsobaModal({
           </button>
           <button type="submit" disabled={saving} className={primaryBtn}>
             {saving ? 'Ukládám…' : 'Přidat'}
+          </button>
+        </div>
+      </form>
+    </FormDialog>
+  )
+}
+
+function ZapisModal({
+  poznamka: initialPoznamka,
+  onClose,
+  onSubmit,
+}: {
+  poznamka: string
+  onClose: () => void
+  onSubmit: (poznamka: string) => Promise<{ ok: true } | { ok: false; message: string }>
+}) {
+  const [poznamka, setPoznamka] = useState(initialPoznamka)
+  const [saving, setSaving] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+
+  const handleSubmit = async (event: FormEvent) => {
+    event.preventDefault()
+    setSaving(true)
+    setError(null)
+    try {
+      const result = await onSubmit(poznamka.replace(/\r\n/g, '\n'))
+      if (!result.ok) setError(result.message)
+    } catch (submitError) {
+      logger.error('Error updating skoleni zapis:', submitError)
+      setError('Poznámku se nepodařilo uložit.')
+    } finally {
+      setSaving(false)
+    }
+  }
+
+  return (
+    <FormDialog
+      title="Poznámka školení"
+      description="Uloží se celý text a nahradí dosavadní poznámku. Prázdné pole poznámku smaže."
+      onClose={onClose}
+      wide
+    >
+      <form onSubmit={(event) => void handleSubmit(event)} className="space-y-3">
+        <div>
+          <label htmlFor="skoleni-zapis" className={fieldLabelClass}>
+            Poznámka
+          </label>
+          <textarea
+            id="skoleni-zapis"
+            rows={8}
+            value={poznamka}
+            onChange={(event) => setPoznamka(event.target.value)}
+            className={fieldClass}
+          />
+        </div>
+        {error ? <p className="text-sm text-red-300">{error}</p> : null}
+        <div className="flex justify-end gap-2 pt-2">
+          <button type="button" onClick={onClose} className={secondaryBtn}>
+            Zrušit
+          </button>
+          <button type="submit" disabled={saving} className={primaryBtn}>
+            {saving ? 'Ukládám…' : 'Uložit'}
+          </button>
+        </div>
+      </form>
+    </FormDialog>
+  )
+}
+
+function CasyModal({
+  zahajeni,
+  ukonceni,
+  onClose,
+  onSubmit,
+}: {
+  zahajeni: string | null
+  ukonceni: string | null
+  onClose: () => void
+  onSubmit: (body: { zahajeni?: string; ukonceni?: string }) => Promise<{ ok: true } | { ok: false; message: string }>
+}) {
+  const [zahajeniInput, setZahajeniInput] = useState(skoleniDateTimeInputValue(zahajeni))
+  const [ukonceniInput, setUkonceniInput] = useState(skoleniDateTimeInputValue(ukonceni))
+  const [saving, setSaving] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+
+  const handleSubmit = async (event: FormEvent) => {
+    event.preventDefault()
+    const payload = skoleniTimesFromInputs({
+      currentZahajeni: zahajeni,
+      currentUkonceni: ukonceni,
+      zahajeniInput,
+      ukonceniInput,
+    })
+    if (!payload.ok) {
+      setError(payload.message)
+      return
+    }
+
+    setSaving(true)
+    setError(null)
+    try {
+      const result = await onSubmit(payload.body)
+      if (!result.ok) setError(result.message)
+    } catch (submitError) {
+      logger.error('Error updating skoleni casy:', submitError)
+      setError('Časy se nepodařilo uložit.')
+    } finally {
+      setSaving(false)
+    }
+  }
+
+  return (
+    <FormDialog
+      title="Zahájení a ukončení"
+      description="Odešle se jen změněný čas. Už zadaný čas nelze smazat a ukončení nesmí být dřív než zahájení."
+      onClose={onClose}
+    >
+      <form onSubmit={(event) => void handleSubmit(event)} className="space-y-3">
+        <div>
+          <label htmlFor="skoleni-zahajeni" className={fieldLabelClass}>
+            Zahájení
+          </label>
+          <input
+            id="skoleni-zahajeni"
+            type="datetime-local"
+            step={60}
+            value={zahajeniInput}
+            onChange={(event) => setZahajeniInput(event.target.value)}
+            className={`${fieldClass} scheme-dark`}
+          />
+        </div>
+        <div>
+          <label htmlFor="skoleni-ukonceni" className={fieldLabelClass}>
+            Ukončení
+          </label>
+          <input
+            id="skoleni-ukonceni"
+            type="datetime-local"
+            step={60}
+            value={ukonceniInput}
+            onChange={(event) => setUkonceniInput(event.target.value)}
+            className={`${fieldClass} scheme-dark`}
+          />
+        </div>
+        {error ? <p className="text-sm text-red-300">{error}</p> : null}
+        <div className="flex justify-end gap-2 pt-2">
+          <button type="button" onClick={onClose} className={secondaryBtn}>
+            Zrušit
+          </button>
+          <button type="submit" disabled={saving} className={primaryBtn}>
+            {saving ? 'Ukládám…' : 'Uložit'}
           </button>
         </div>
       </form>

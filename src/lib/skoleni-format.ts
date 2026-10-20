@@ -13,6 +13,128 @@ export function formatSkoleniDate(value: string | null | undefined): string {
   })
 }
 
+const SKOLENI_DATETIME_RE = /^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2})(?::(\d{2}))?$/
+
+function pad2(value: number): string {
+  return String(value).padStart(2, '0')
+}
+
+/** Wall-clock `yyyy-MM-ddTHH:mm:ss`. Placeholder `1901-01-01` and other shapes return null. */
+export function parseSkoleniApiDateTime(value: string | null | undefined): string | null {
+  const match = SKOLENI_DATETIME_RE.exec((value ?? '').trim())
+  if (!match) return null
+
+  const year = Number(match[1])
+  const month = Number(match[2])
+  const day = Number(match[3])
+  const hour = Number(match[4])
+  const minute = Number(match[5])
+  const second = Number(match[6] ?? '00')
+  if (year < 1902 || hour > 23 || minute > 59 || second > 59) return null
+
+  const probe = new Date(year, month - 1, day, hour, minute, second)
+  if (probe.getFullYear() !== year || probe.getMonth() !== month - 1 || probe.getDate() !== day) {
+    return null
+  }
+
+  return `${year}-${pad2(month)}-${pad2(day)}T${pad2(hour)}:${pad2(minute)}:${pad2(second)}`
+}
+
+export function formatSkoleniDateTime(value: string | null | undefined): string {
+  const normalized = parseSkoleniApiDateTime(value)
+  if (!normalized) return '—'
+
+  const [date, time] = normalized.split('T')
+  const [year, month, day] = date.split('-')
+  return `${day}. ${month}. ${year} ${time}`
+}
+
+export function skoleniDateTimeInputValue(value: string | null | undefined): string {
+  const normalized = parseSkoleniApiDateTime(value)
+  return normalized ? normalized.slice(0, 16) : ''
+}
+
+export function skoleniTimesFromInputs(input: {
+  currentZahajeni: string | null
+  currentUkonceni: string | null
+  zahajeniInput: string
+  ukonceniInput: string
+}): { ok: true; body: { zahajeni?: string; ukonceni?: string } } | { ok: false; message: string } {
+  const currentZahajeni = parseSkoleniApiDateTime(input.currentZahajeni)
+  const currentUkonceni = parseSkoleniApiDateTime(input.currentUkonceni)
+  const body: { zahajeni?: string; ukonceni?: string } = {}
+
+  if (input.zahajeniInput !== skoleniDateTimeInputValue(input.currentZahajeni)) {
+    if (!input.zahajeniInput.trim()) {
+      if (currentZahajeni) return { ok: false, message: 'Zahájení nelze smazat, lze ho jen změnit.' }
+    } else {
+      const parsed = parseSkoleniApiDateTime(input.zahajeniInput)
+      if (!parsed) return { ok: false, message: 'Zahájení nemá platný datum a čas.' }
+      body.zahajeni = parsed
+    }
+  }
+
+  if (input.ukonceniInput !== skoleniDateTimeInputValue(input.currentUkonceni)) {
+    if (!input.ukonceniInput.trim()) {
+      if (currentUkonceni) return { ok: false, message: 'Ukončení nelze smazat, lze ho jen změnit.' }
+    } else {
+      const parsed = parseSkoleniApiDateTime(input.ukonceniInput)
+      if (!parsed) return { ok: false, message: 'Ukončení nemá platný datum a čas.' }
+      body.ukonceni = parsed
+    }
+  }
+
+  if (!body.zahajeni && !body.ukonceni) {
+    return { ok: false, message: 'Žádný čas se nezměnil.' }
+  }
+
+  const zahajeni = body.zahajeni ?? currentZahajeni
+  const ukonceni = body.ukonceni ?? currentUkonceni
+  if (zahajeni && ukonceni && ukonceni < zahajeni) {
+    return { ok: false, message: 'Ukončení nesmí být dřív než zahájení.' }
+  }
+
+  return { ok: true, body }
+}
+
+export function validateSkoleniTimesBody(
+  currentZahajeni: string | null,
+  currentUkonceni: string | null,
+  body: { zahajeni?: unknown; ukonceni?: unknown }
+): { ok: true; body: { zahajeni?: string; ukonceni?: string } } | { ok: false; message: string } {
+  const next: { zahajeni?: string; ukonceni?: string } = {}
+
+  if ('zahajeni' in body) {
+    if (typeof body.zahajeni !== 'string') {
+      return { ok: false, message: 'Zahájení musí být ve tvaru yyyy-MM-ddTHH:mm:ss.' }
+    }
+    const parsed = parseSkoleniApiDateTime(body.zahajeni)
+    if (!parsed) return { ok: false, message: 'Zahájení nelze smazat a musí být ve tvaru yyyy-MM-ddTHH:mm:ss.' }
+    next.zahajeni = parsed
+  }
+
+  if ('ukonceni' in body) {
+    if (typeof body.ukonceni !== 'string') {
+      return { ok: false, message: 'Ukončení musí být ve tvaru yyyy-MM-ddTHH:mm:ss.' }
+    }
+    const parsed = parseSkoleniApiDateTime(body.ukonceni)
+    if (!parsed) return { ok: false, message: 'Ukončení nelze smazat a musí být ve tvaru yyyy-MM-ddTHH:mm:ss.' }
+    next.ukonceni = parsed
+  }
+
+  if (!next.zahajeni && !next.ukonceni) {
+    return { ok: false, message: 'Je potřeba zadat zahájení nebo ukončení.' }
+  }
+
+  const zahajeni = next.zahajeni ?? parseSkoleniApiDateTime(currentZahajeni)
+  const ukonceni = next.ukonceni ?? parseSkoleniApiDateTime(currentUkonceni)
+  if (zahajeni && ukonceni && ukonceni < zahajeni) {
+    return { ok: false, message: 'Ukončení nesmí být dřív než zahájení.' }
+  }
+
+  return { ok: true, body: next }
+}
+
 export type SkoleniStavPhase = 'planned' | 'started' | 'finished'
 
 function normalizeStavKey(stav: string): string {
